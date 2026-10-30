@@ -1,5 +1,5 @@
 bpt_version: '1.1'
-name: acord_27_2016-03
+name: acord27
 form_version: null
 source_pdf: acord_27_2016-03.pdf
 source_pdf_hash: 2c154c8e85c3033b6cbc8fd6d2647d6e06900fd9
@@ -8,722 +8,674 @@ source_pages:
 description: ''
 instructions: ''
 authoring:
-  method: vision_label
-  model: claude-sonnet-4-6
-  notes: Fields enumerated by vision LLM from rendered page images; no AcroForm widgets
-    on source PDF. widget.rect is an approximation, widget.path is null.
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: step2flat
+  labels: llm
+  when: '2026-10-14 19:06:17'
 fields:
-  date:
+  form_dt:
     x_petey_id: '1_1'
     type: date
     semantic_type: iso_date
-    description: Date the evidence of property insurance is issued (MM/DD/YYYY).
     widget:
       page: 1
       rect:
-      - 483.48
-      - 30.1
-      - 612.0
-      - 45.94
+      - 508.8
+      - 33.6
+      - 592.8
+      - 46.56
       widget_type: text
       path: null
-  agency_name:
+    x_petey_geometry:
+      confidence: 0.8
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: form
+      suffix: dt
+  agency_phone_no:
     x_petey_id: '1_2'
     type: string
-    semantic_type: entity_name
-    description: Name of the insurance agency.
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
-      - 18.36
-      - 77.62
-      - 195.84
-      - 122.76
+      - 170.88
+      - 90.72
+      - 304.8
+      - 101.28
       widget_type: text
       path: null
-  agency_phone:
+    x_petey_geometry:
+      confidence: 0.8
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: agency_phone_no
+  company_name_and_address:
     x_petey_id: '1_3'
     type: string
-    semantic_type: phone
-    description: Phone number of the agency including area code.
+    semantic_type: business_name
     widget:
       page: 1
       rect:
-      - 195.84
-      - 77.62
-      - 385.56
-      - 91.08
+      - 307.2
+      - 98.4
+      - 592.8
+      - 185.28
       widget_type: text
       path: null
-  company:
+    x_petey_geometry:
+      confidence: 0.7
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: company_name_and_address
+  agency_name_and_address:
     x_petey_id: '1_4'
     type: string
-    semantic_type: entity_name
-    description: Name of the insurance company.
     widget:
       page: 1
       rect:
-      - 385.56
-      - 77.62
-      - 612.0
-      - 146.52
+      - 19.2
+      - 102.72
+      - 304.8
+      - 149.28
       widget_type: text
       path: null
-  agency_fax:
+    x_petey_geometry:
+      confidence: 0.7
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: agency_name_and_address
+  agency_fax_no:
     x_petey_id: '1_5'
     type: string
     semantic_type: phone
-    description: Fax number of the agency including area code.
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
-      - 18.36
-      - 130.68
-      - 134.64
-      - 144.14
+      - 35.52
+      - 150.72
+      - 118.08
+      - 161.28
       widget_type: text
       path: null
-  agency_email:
+    x_petey_geometry:
+      confidence: 0.65
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: agency_fax_no
+  agency_email_address:
     x_petey_id: '1_6'
     type: string
-    semantic_type: text
-    description: Email address of the agency.
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
     widget:
       page: 1
       rect:
-      - 134.64
-      - 130.68
-      - 385.56
-      - 144.14
+      - 154.56
+      - 150.72
+      - 304.8
+      - 161.28
       widget_type: text
       path: null
-  code:
+    x_petey_geometry:
+      confidence: 0.8
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: agency_email_address
+  agency_cd:
     x_petey_id: '1_7'
     type: string
-    semantic_type: text
-    description: Agency code.
     widget:
       page: 1
       rect:
-      - 18.36
-      - 148.9
-      - 134.64
-      - 159.98
+      - 42.24
+      - 162.72
+      - 161.28
+      - 173.28
       widget_type: text
       path: null
-  sub_code:
+    x_petey_geometry:
+      confidence: 0.8
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: agency
+      suffix: cd
+  agency_sub_cd:
     x_petey_id: '1_8'
     type: string
-    semantic_type: text
-    description: Agency sub code.
     widget:
       page: 1
       rect:
-      - 134.64
-      - 148.9
-      - 385.56
-      - 159.98
+      - 200.16
+      - 162.72
+      - 304.8
+      - 173.28
       widget_type: text
       path: null
+    x_petey_geometry:
+      confidence: 0.8
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: agency_sub
+      suffix: cd
   agency_customer_id:
     x_petey_id: '1_9'
     type: string
-    semantic_type: text
-    description: Agency customer ID number.
     widget:
       page: 1
       rect:
-      - 18.36
-      - 162.36
-      - 385.56
-      - 172.66
+      - 71.04
+      - 174.72
+      - 304.8
+      - 185.28
       widget_type: text
       path: null
-  insured_name_address:
+    x_petey_geometry:
+      confidence: 0.8
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: agency_customer_id
+  insured_name_and_address:
     x_petey_id: '1_10'
     type: string
-    semantic_type: text
-    description: Name and address of the insured.
     widget:
       page: 1
       rect:
-      - 18.36
-      - 172.66
-      - 287.64
-      - 245.52
+      - 19.2
+      - 194.4
+      - 304.8
+      - 256.8
       widget_type: text
       path: null
-  loan_number:
+    x_petey_geometry:
+      confidence: 0.7
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: insured_name_and_address
+  loan_nbr:
     x_petey_id: '1_11'
     type: string
-    semantic_type: text
-    description: Loan number associated with the policy.
     widget:
       page: 1
       rect:
-      - 287.64
-      - 172.66
-      - 440.64
-      - 188.5
+      - 307.2
+      - 194.4
+      - 463.68
+      - 209.28
       widget_type: text
       path: null
-  policy_number:
+    x_petey_geometry:
+      confidence: 0.8
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: loan
+      suffix: nbr
+  policy_nbr:
     x_petey_id: '1_12'
     type: string
-    semantic_type: text
-    description: Insurance policy number.
     widget:
       page: 1
       rect:
-      - 440.64
-      - 172.66
-      - 612.0
-      - 188.5
+      - 465.12
+      - 194.4
+      - 592.8
+      - 209.28
       widget_type: text
       path: null
-  effective_date:
+    x_petey_geometry:
+      confidence: 0.8
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: policy
+      suffix: nbr
+  policy_effective_dt:
     x_petey_id: '1_13'
     type: date
     semantic_type: iso_date
-    description: Effective date of the insurance policy.
     widget:
       page: 1
       rect:
-      - 287.64
-      - 196.42
-      - 379.44
-      - 212.26
+      - 307.2
+      - 218.4
+      - 391.68
+      - 233.28
       widget_type: text
       path: null
-  expiration_date:
+    x_petey_geometry:
+      confidence: 0.8
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: policy_effective
+      suffix: dt
+  policy_expiration_dt:
     x_petey_id: '1_14'
     type: date
     semantic_type: iso_date
-    description: Expiration date of the insurance policy.
     widget:
       page: 1
       rect:
-      - 379.44
-      - 196.42
-      - 477.36
-      - 212.26
+      - 393.12
+      - 218.4
+      - 478.08
+      - 233.28
       widget_type: text
       path: null
-  continued_until_terminated:
+    x_petey_geometry:
+      confidence: 0.8
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: policy_expiration
+      suffix: dt
+  continued_until_terminated_ind:
     x_petey_id: '1_15'
     type: boolean
     semantic_type: indicator
-    description: Checkbox indicating coverage is continued until terminated.
     widget:
       page: 1
       rect:
-      - 477.36
-      - 199.58
-      - 489.6
-      - 209.88
+      - 482.88
+      - 222.24
+      - 496.32
+      - 233.76
       widget_type: checkbox
       path: null
-  replaces_prior_evidence_dated:
+    x_petey_geometry:
+      confidence: 0.9
+      source: fz:enclosed_small
+    label_source: llm
+    x_petey_identifiers:
+      subject: continued_until_terminated
+      suffix: ind
+  replaces_prior_evidence_dt:
     x_petey_id: '1_16'
     type: date
     semantic_type: iso_date
-    description: Date of prior evidence that this document replaces.
     widget:
       page: 1
       rect:
-      - 287.64
-      - 215.42
-      - 550.8
-      - 228.1
+      - 307.2
+      - 242.4
+      - 592.8
+      - 256.8
       widget_type: text
       path: null
-  location_description:
+    x_petey_geometry:
+      confidence: 0.8
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: replaces_prior_evidence
+      suffix: dt
+  property_location_description:
     x_petey_id: '1_17'
     type: string
-    semantic_type: street_address
-    description: Location and description of the insured property.
+    semantic_type: description
     widget:
       page: 1
       rect:
-      - 18.36
-      - 261.36
-      - 612.0
-      - 328.68
+      - 19.2
+      - 278.4
+      - 592.8
+      - 335.04
       widget_type: text
       path: null
-  perils_insured_basic:
-    x_petey_id: '1_18'
-    type: boolean
-    semantic_type: indicator
-    description: Checkbox indicating Basic perils insured.
-    widget:
-      page: 1
-      rect:
-      - 253.98
-      - 352.44
-      - 266.22
-      - 362.74
-      widget_type: checkbox
-      path: null
-  perils_insured_broad:
+    x_petey_geometry:
+      confidence: 0.7
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: property_location_description
+  perils_insured_other_description:
     x_petey_id: '1_19'
-    type: boolean
-    semantic_type: indicator
-    description: Checkbox indicating Broad perils insured.
-    widget:
-      page: 1
-      rect:
-      - 299.88
-      - 352.44
-      - 312.12
-      - 362.74
-      widget_type: checkbox
-      path: null
-  perils_insured_special:
-    x_petey_id: '1_20'
-    type: boolean
-    semantic_type: indicator
-    description: Checkbox indicating Special perils insured.
-    widget:
-      page: 1
-      rect:
-      - 345.78
-      - 352.44
-      - 358.02
-      - 362.74
-      widget_type: checkbox
-      path: null
-  coverage_perils_forms_row1:
-    x_petey_id: '1_21'
     type: string
-    semantic_type: text
-    description: Coverage, perils, or forms description for row 1.
+    semantic_type: description
     widget:
       page: 1
       rect:
-      - 18.36
-      - 370.66
-      - 434.52
-      - 386.5
+      - 421.75
+      - 378.75
+      - 593.5
+      - 389.5
       widget_type: text
       path: null
-  amount_of_insurance_row1:
+    x_petey_geometry:
+      confidence: 0.7
+      source: lat:lattice:empty
+    label_source: llm
+    x_petey_identifiers:
+      subject: perils_insured_other_description
+  coverage_perils_forms:
+    x_petey_id: '1_20'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 19.2
+      - 402.72
+      - 442.08
+      - 520.8
+      widget_type: text
+      path: null
+    x_petey_geometry:
+      confidence: 0.7
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: coverage_perils_forms
+  insurance_amt:
+    x_petey_id: '1_21'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 443.52
+      - 402.72
+      - 528.48
+      - 520.8
+      widget_type: text
+      path: null
+    x_petey_geometry:
+      confidence: 0.7
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: insurance
+      suffix: amt
+  deductible_amt:
     x_petey_id: '1_22'
     type: number
     semantic_type: money
-    description: Amount of insurance for coverage row 1.
     widget:
       page: 1
       rect:
-      - 434.52
-      - 370.66
-      - 532.44
-      - 386.5
+      - 529.92
+      - 402.72
+      - 592.8
+      - 520.8
       widget_type: text
       path: null
-    x_petey_retype:
-    - money
-  deductible_row1:
+    x_petey_geometry:
+      confidence: 0.7
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: deductible
+      suffix: amt
+  remarks:
     x_petey_id: '1_23'
-    type: number
-    semantic_type: money
-    description: Deductible amount for coverage row 1.
-    widget:
-      page: 1
-      rect:
-      - 532.44
-      - 370.66
-      - 612.0
-      - 386.5
-      widget_type: text
-      path: null
-    x_petey_retype:
-    - money
-  coverage_perils_forms_row2:
-    x_petey_id: '1_24'
     type: string
-    semantic_type: text
-    description: Coverage, perils, or forms description for row 2.
     widget:
       page: 1
       rect:
-      - 18.36
-      - 386.5
-      - 434.52
-      - 402.34
+      - 19.2
+      - 535.2
+      - 592.8
+      - 611.04
       widget_type: text
       path: null
-  amount_of_insurance_row2:
+    x_petey_geometry:
+      confidence: 0.7
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: remarks
+  additional_interest_name_and_address:
     x_petey_id: '1_25'
-    type: number
-    semantic_type: money
-    description: Amount of insurance for coverage row 2.
+    type: string
     widget:
       page: 1
       rect:
-      - 434.52
-      - 386.5
-      - 532.44
-      - 402.34
+      - 19.2
+      - 668.16
+      - 301.44
+      - 743.04
       widget_type: text
       path: null
-    x_petey_retype:
-    - money
-  deductible_row2:
+    x_petey_geometry:
+      confidence: 0.7
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: additional_interest_name_and_address
+  additional_interest_type_other_description:
     x_petey_id: '1_26'
-    type: number
-    semantic_type: money
-    description: Deductible amount for coverage row 2.
+    type: string
+    semantic_type: description
     widget:
       page: 1
       rect:
-      - 532.44
-      - 386.5
-      - 612.0
-      - 402.34
+      - 403.75
+      - 669.25146484375
+      - 593.5
+      - 683.5
       widget_type: text
       path: null
-    x_petey_retype:
-    - money
-  coverage_perils_forms_row3:
+    x_petey_geometry:
+      confidence: 0.65
+      source: lat:lattice:label_top
+    label_source: llm
+    x_petey_identifiers:
+      subject: additional_interest_type_other_description
+  additional_interest_loan_nbr:
     x_petey_id: '1_27'
     type: string
-    semantic_type: text
-    description: Coverage, perils, or forms description for row 3.
     widget:
       page: 1
       rect:
-      - 18.36
-      - 402.34
-      - 434.52
-      - 418.18
+      - 303.36
+      - 692.16
+      - 592.8
+      - 707.04
       widget_type: text
       path: null
-  amount_of_insurance_row3:
-    x_petey_id: '1_28'
-    type: number
-    semantic_type: money
-    description: Amount of insurance for coverage row 3.
-    widget:
-      page: 1
-      rect:
-      - 434.52
-      - 402.34
-      - 532.44
-      - 418.18
-      widget_type: text
-      path: null
-    x_petey_retype:
-    - money
-  deductible_row3:
-    x_petey_id: '1_29'
-    type: number
-    semantic_type: money
-    description: Deductible amount for coverage row 3.
-    widget:
-      page: 1
-      rect:
-      - 532.44
-      - 402.34
-      - 612.0
-      - 418.18
-      widget_type: text
-      path: null
-    x_petey_retype:
-    - money
-  coverage_perils_forms_row4:
-    x_petey_id: '1_30'
-    type: string
-    semantic_type: text
-    description: Coverage, perils, or forms description for row 4.
-    widget:
-      page: 1
-      rect:
-      - 18.36
-      - 418.18
-      - 434.52
-      - 434.02
-      widget_type: text
-      path: null
-  amount_of_insurance_row4:
-    x_petey_id: '1_31'
-    type: number
-    semantic_type: money
-    description: Amount of insurance for coverage row 4.
-    widget:
-      page: 1
-      rect:
-      - 434.52
-      - 418.18
-      - 532.44
-      - 434.02
-      widget_type: text
-      path: null
-    x_petey_retype:
-    - money
-  deductible_row4:
-    x_petey_id: '1_32'
-    type: number
-    semantic_type: money
-    description: Deductible amount for coverage row 4.
-    widget:
-      page: 1
-      rect:
-      - 532.44
-      - 418.18
-      - 612.0
-      - 434.02
-      widget_type: text
-      path: null
-    x_petey_retype:
-    - money
-  coverage_perils_forms_row5:
-    x_petey_id: '1_33'
-    type: string
-    semantic_type: text
-    description: Coverage, perils, or forms description for row 5.
-    widget:
-      page: 1
-      rect:
-      - 18.36
-      - 434.02
-      - 434.52
-      - 449.86
-      widget_type: text
-      path: null
-  amount_of_insurance_row5:
-    x_petey_id: '1_34'
-    type: number
-    semantic_type: money
-    description: Amount of insurance for coverage row 5.
-    widget:
-      page: 1
-      rect:
-      - 434.52
-      - 434.02
-      - 532.44
-      - 449.86
-      widget_type: text
-      path: null
-    x_petey_retype:
-    - money
-  deductible_row5:
-    x_petey_id: '1_35'
-    type: number
-    semantic_type: money
-    description: Deductible amount for coverage row 5.
-    widget:
-      page: 1
-      rect:
-      - 532.44
-      - 434.02
-      - 612.0
-      - 449.86
-      widget_type: text
-      path: null
-    x_petey_retype:
-    - money
-  coverage_perils_forms_row6:
-    x_petey_id: '1_36'
-    type: string
-    semantic_type: text
-    description: Coverage, perils, or forms description for row 6.
-    widget:
-      page: 1
-      rect:
-      - 18.36
-      - 449.86
-      - 434.52
-      - 465.7
-      widget_type: text
-      path: null
-  amount_of_insurance_row6:
-    x_petey_id: '1_37'
-    type: number
-    semantic_type: money
-    description: Amount of insurance for coverage row 6.
-    widget:
-      page: 1
-      rect:
-      - 434.52
-      - 449.86
-      - 532.44
-      - 465.7
-      widget_type: text
-      path: null
-    x_petey_retype:
-    - money
-  deductible_row6:
-    x_petey_id: '1_38'
-    type: number
-    semantic_type: money
-    description: Deductible amount for coverage row 6.
-    widget:
-      page: 1
-      rect:
-      - 532.44
-      - 449.86
-      - 612.0
-      - 465.7
-      widget_type: text
-      path: null
-    x_petey_retype:
-    - money
-  coverage_perils_forms_row7:
-    x_petey_id: '1_39'
-    type: string
-    semantic_type: text
-    description: Coverage, perils, or forms description for row 7.
-    widget:
-      page: 1
-      rect:
-      - 18.36
-      - 465.7
-      - 434.52
-      - 481.54
-      widget_type: text
-      path: null
-  amount_of_insurance_row7:
-    x_petey_id: '1_40'
-    type: number
-    semantic_type: money
-    description: Amount of insurance for coverage row 7.
-    widget:
-      page: 1
-      rect:
-      - 434.52
-      - 465.7
-      - 532.44
-      - 481.54
-      widget_type: text
-      path: null
-    x_petey_retype:
-    - money
-  deductible_row7:
-    x_petey_id: '1_41'
-    type: number
-    semantic_type: money
-    description: Deductible amount for coverage row 7.
-    widget:
-      page: 1
-      rect:
-      - 532.44
-      - 465.7
-      - 612.0
-      - 481.54
-      widget_type: text
-      path: null
-    x_petey_retype:
-    - money
-  remarks_special_conditions:
-    x_petey_id: '1_42'
-    type: string
-    semantic_type: text
-    description: Remarks including any special conditions of the policy.
-    widget:
-      page: 1
-      rect:
-      - 18.36
-      - 513.22
-      - 612.0
-      - 582.12
-      widget_type: text
-      path: null
-  additional_interest_name_address:
-    x_petey_id: '1_43'
-    type: string
-    semantic_type: text
-    description: Name and address of the additional interest party.
-    widget:
-      page: 1
-      rect:
-      - 18.36
-      - 613.8
-      - 287.64
-      - 693.0
-      widget_type: text
-      path: null
-  additional_insured_checkbox:
-    x_petey_id: '1_44'
-    type: boolean
-    semantic_type: indicator
-    description: Checkbox indicating the additional interest is an Additional Insured.
-    widget:
-      page: 1
-      rect:
-      - 312.12
-      - 613.8
-      - 324.36
-      - 624.1
-      widget_type: checkbox
-      path: null
-  lenders_loss_payable_checkbox:
-    x_petey_id: '1_45'
-    type: boolean
-    semantic_type: indicator
-    description: Checkbox indicating the additional interest is a Lender's Loss Payable.
-    widget:
-      page: 1
-      rect:
-      - 440.64
-      - 613.8
-      - 452.88
-      - 624.1
-      widget_type: checkbox
-      path: null
-  loss_payee_checkbox:
-    x_petey_id: '1_46'
-    type: boolean
-    semantic_type: indicator
-    description: Checkbox indicating the additional interest is a Loss Payee.
-    widget:
-      page: 1
-      rect:
-      - 538.56
-      - 613.8
-      - 550.8
-      - 624.1
-      widget_type: checkbox
-      path: null
-  mortgagee_checkbox:
-    x_petey_id: '1_47'
-    type: boolean
-    semantic_type: indicator
-    description: Checkbox indicating the additional interest is a Mortgagee.
-    widget:
-      page: 1
-      rect:
-      - 312.12
-      - 627.26
-      - 324.36
-      - 637.56
-      widget_type: checkbox
-      path: null
-  loan_number_additional_interest:
-    x_petey_id: '1_48'
-    type: string
-    semantic_type: text
-    description: Loan number associated with the additional interest.
-    widget:
-      page: 1
-      rect:
-      - 287.64
-      - 639.94
-      - 612.0
-      - 653.4
-      widget_type: text
-      path: null
+    x_petey_geometry:
+      confidence: 0.8
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: additional_interest_loan
+      suffix: nbr
   authorized_representative_signature:
-    x_petey_id: '1_49'
+    x_petey_id: '1_28'
     type: string
-    semantic_type: text
-    description: Signature of the authorized representative.
     widget:
       page: 1
       rect:
-      - 287.64
-      - 669.24
-      - 612.0
-      - 693.0
-      widget_type: signature
+      - 303.36
+      - 716.16
+      - 592.8
+      - 743.04
+      widget_type: text
       path: null
+    x_petey_geometry:
+      confidence: 0.7
+      source: fz:cell
+    label_source: llm
+    x_petey_identifiers:
+      subject: authorized_representative
+      suffix: signature
+  perils_insured:
+    x_petey_id: '1_18'
+    type: category
+    values:
+    - basic
+    - broad
+    - other
+    - special
+    widgets:
+      basic:
+        page: 1
+        rect:
+        - 245.28
+        - 378.72
+        - 258.72
+        - 389.28
+        widget_type: checkbox
+        path: null
+        caption: BASIC
+        x_petey_caption_source: page_text
+      broad:
+        page: 1
+        rect:
+        - 295.68
+        - 378.72
+        - 309.12
+        - 389.28
+        widget_type: checkbox
+        path: null
+        caption: BROAD
+        x_petey_caption_source: page_text
+      special:
+        page: 1
+        rect:
+        - 349.44
+        - 378.72
+        - 363.36
+        - 389.28
+        widget_type: checkbox
+        path: null
+        caption: SPECIAL
+        x_petey_caption_source: hand
+      other:
+        page: 1
+        rect:
+        - 407.04
+        - 378.72
+        - 420.96
+        - 389.28
+        widget_type: checkbox
+        path: null
+    x_petey_hand_edit:
+      when: '2026-10-14 20:46:43'
+      from:
+        name: perils_insured
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          special: null
+      to:
+        name: perils_insured
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          special:
+            caption: SPECIAL
+      record: runs/hand_review/je__acord27.json
+    x_petey_identifiers:
+      subject: perils_insured
+  additional_interest_type:
+    x_petey_id: '1_24'
+    type: category
+    values:
+    - additional_insured
+    - lenders_loss_payable
+    - loss_payee
+    - mortgagee
+    - other
+    widgets:
+      additional_insured:
+        page: 1
+        rect:
+        - 302.88
+        - 660.48
+        - 316.32
+        - 671.52
+        widget_type: checkbox
+        path: null
+        caption: ADDITIONAL INSURED
+        x_petey_caption_source: page_text
+      lenders_loss_payable:
+        page: 1
+        rect:
+        - 389.28
+        - 660.48
+        - 402.72
+        - 671.52
+        widget_type: checkbox
+        path: null
+        caption: LENDER'S LOSS PAYABLE
+        x_petey_caption_source: page_text
+      loss_payee:
+        page: 1
+        rect:
+        - 504.48
+        - 660.48
+        - 517.92
+        - 671.52
+        widget_type: checkbox
+        path: null
+        caption: LOSS PAYEE
+        x_petey_caption_source: page_text
+      mortgagee:
+        page: 1
+        rect:
+        - 302.88
+        - 672.48
+        - 316.32
+        - 683.52
+        widget_type: checkbox
+        path: null
+        caption: MORTGAGEE
+        x_petey_caption_source: page_text
+      other:
+        page: 1
+        rect:
+        - 389.28
+        - 672.48
+        - 402.72
+        - 683.52
+        widget_type: checkbox
+        path: null
+        caption: EXPIRATION
+        x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: additional_interest_type
+x_petey_page_check:
+  record: runs/judge_eval/form_runs/acord27.json
+  model: gemini-3.8-flash (round 0), claude-opus-5 (loop)
+  prompt: 2ddd7670
+  when: '2026-10-14 19:07:09'
+  fields: 28
+  checked: 28
+  flagged: 1
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: acord27_20261014_190640
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/acord27.bpt
+  when: '2026-10-14 19:07:08'
+x_petey_run:
+  record: runs/judge_eval/form_runs/acord27.json
+  status: clean
+  stop: nothing detected
+  stable: true
+  rounds: 2
+  review_rounds: 0
+  when: '2026-10-14 19:07:09'

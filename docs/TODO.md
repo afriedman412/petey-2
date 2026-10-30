@@ -3,6 +3,101 @@
 Edited in place; the history is `git log --follow -- docs/TODO.md`. Priorities are Andrew's; the ordering is a
 proposal. Numbers and context: `docs/RESULTS.md`, `petey/validate/defect_taxonomy.py`; terms: `docs/GLOSSARY.md`.
 
+## Flat-structure benchmark: open judgement calls
+
+Moved to `docs/BENCHMARK_JUDGEMENT_QS.md` (2026-10-27): what a block is, what a grid is (grids by geometry), one line
+holding several fields, fields with no widget, combs, anchoring, near-duplicates, novelty, the forms that failed the cut.
+
+## Structure errors: collect, then one design (2026-10-27, Andrew: "lets start accumulating these errors and fixes and see if we can't do something more cohesive when we have them all")
+
+The cases found while reviewing the benchmark forms (option groups, grids, blocks) go into `docs/STRUCTURE_ERRORS.md`,
+logged, not fixed one at a time. Two fixes went in before the log started: detect's box-model copy search
+(`block_types.model_copies`) and the finder's column merge (`block_discovery.lockstep`). The sd_522176 caption guard
+for the growing step is measured and logged as open, not in the code.
+
+## Tiny pale-edged circles not detectable as fields (2026-10-27, Andrew: "very tiny circles for 'please mail' and 'please fax' need to be detectible as possible fields")
+
+bm__sd_311861 p1 (Kirkwood record request), "Please Mail" / "Please Fax": two printed radio circles, about 8.6 pt
+across, drawn as four arcs, dark top-left and pale grey (grey 200-235) bottom-right. The original has no widget there,
+so the staged blueprint has no field; nothing else finds them either:
+
+- **Add / remove's click** (`field_add.enclosed_box`): the fill stops only at ink darker than `INK` = 200, so it leaks
+  out through the pale half and proposes nothing. Read-only check: at 230 or 240 both circles close, as
+  [381.25, 499.25, 390.5, 508.75] and [471.25, 499.25, 480.5, 508.75]. Proposed fix: when the fill gets out at 200,
+  try once more counting grey below ~235 as ink and use that box only if it closes (a click that works now gives the
+  same box; shaded cells, which a lighter threshold would read as ink, keep working). Re-run the 450-field corpus check
+  of 071b1e2 (97 / 109 checkboxes, 150 / 341 text fields) before and after. A test with a pale-edged circle.
+- **The finder** (step2flat + `finder_addons`): 12 boxes on the page, none near the circles. Small pale circles as
+  candidates belong with the finder add-ons (the "Underline text field detection" chat's uncommitted work as of
+  2026-10-27); after that lands.
+
+## Check boxes that are just underlines (2026-10-27, Andrew: "there are check boxes that are just underlines that need to be figured out")
+
+bm__sd_5228297 p1 (Cornerstone Wellness release of information). Two kinds, both short underlines doing a checkbox's
+job:
+
+- **"___ Coordination of Care  ___ Treatment Planning  ___ Transfer of Care  ___ Litigation  ___ Other: ____"**
+  (purposes, y ~284-300): a three-underscore run before each option. The original has no widget on any of the first
+  four (only Other's write-in line is a text widget), so the staged blueprint has no field for them.
+- **"Substance Abuse_____  Mental Health _____  HIV-related info _____"** (specific consent, y ~497): an underline after
+  each label; the publisher put small text widgets (22 x 17 pt) there, so the blueprint has them as text.
+
+To figure out: whether the benchmark counts such an underline as a choice (one of a set, ticked or initialled) or a
+text field, and so its kind and its partners (the four purposes one group?); then how they are found from the page
+(an underscore run or a short rule right before or after an option label, of about a word's width), by the finder,
+Add / remove's click (`field_add.enclosed_box` proposes nothing on an open underline) or both. Related: the benchmark
+judgement calls in `docs/BENCHMARK_JUDGEMENT_QS.md` (fields with no widget).
+
+## Open after the name and caption work (2026-10-10)
+
+Built and on `main` (PR #3): honed 'belongs to', the text-match model, the printed-text gate, the caption chooser.
+Numbers: RESULTS "Name checks, the text-match model and the caption chooser". Handoff: `docs/HANDOFF_2026-10-10.md`.
+
+1. **Caption suggestions, then automatic (Andrew).** Andrew uses or skips the chooser's suggestions on the review
+   page; if they come back clean, apply them automatically where the model and Jev pick the same caption
+   (93.9% right when they agree). Same gate for automatic name fixes later.
+
+2. **Corrections list** (found this session, not yet applied to the library): ACORD 125 attachment block slid one
+   box (13 of 14 confirmed by the page), the I-130 swaps (9, flagged by Andrew), lib__acord25's shifted producer /
+   insured / certificate-holder block (9; `runs/relabel/blueprints/acord25_relabel.bpt` is correct), 1014r
+   `city_nm`, 5500-SF `sponsor_zip_cd`, f5500sf day / month.
+
+3. **Which copy wins** when a form exists as `lib__` and `je__` (or a relabel): the promotion rule. Parked by
+   Andrew until after the model work, which is now done.
+
+4. **Money vs `money_whole_dollar` (pinned, Andrew).** `money_retype.keep_reason`'s page rule is wrong both ways:
+   a form-wide header does not reach pages that do not repeat it (Schedule H x3 p3-4, il1040 p2, it201 p3-4) and a
+   one-line instruction makes a whole page whole-dollar (irs_8962 p1, 90 fields; ga500 p3; va760 p2; ca540 p1 / p5).
+   Proposal: a general statement -> whole form; an instruction on a field's line -> that field; '.00' printed after
+   a box -> that box. Cents-box mixes (IRS 94x, ACORD) are right.
+
+5. **Demote the classifier's 'class contradicts type'** to a hint: 2 flagged of 63 looked-at. Its 'caption shares
+   no words with the name' half is a good signal (6 flagged of 19).
+
+6. **Group names from their members** (Andrew): Schedule H `opinion` / `no_opinion` / `line4b_yes_no`, ACORD 125
+   `additional_interest_1` / `_1_2` need descriptive names; derive from the members' common part or the question.
+
+7. **Re-save ca_courts_dv_110 / dv_130 grouping** in Groups (records written against an older blueprint), then
+   apply.
+
+8. **Shared-prefix trimming** between a field and its rivals (Andrew's idea): judge 'belongs to' on the part of
+   the tooltip that differs, so a long shared preamble does not drown 'Hazel' vs 'Green'. Not built.
+
+9. **Model weak spots**: insurance paraphrase, rows differing by a number, abbreviations it was never shown
+   (faa8710 `tol`). Next training data: the review corrections as they come in.
+
+10. **Speed (2026-10-10)**: per-form batching built (`witness.prefetch_scores`) but barely faster: the cost is per
+    pair, and dense forms with long tooltips hit the 96-token cap (I-130 4,610 pairs, ~13 s). int8 quantization is
+    2.3x faster (fixture 24 -> 9 min) but lost 2 of 15 real errors at the 'does not describe' cutoff, so it is
+    opt-in (`PETEY_TEXT_MATCH_INT8=1`) for dev runs. Open ideas: re-score with full precision only the pairs near a
+    cutoff (int8 speed, full-precision decisions); trim shared tooltip preambles (item 8) to shorten inputs.
+
+11. **The runner and fresh clones** have no `models/text_match/` (gitignored): copy it or retrain
+    (`eval/text_match_train.py`) before a runner batch, or runs there use the rules alone.
+
+12. **Housekeeping**: remove the `../petey-2-belongs` worktree and its 5006 review page once nothing needs them;
+    the training venv is `~/Documents/code/.venvs/petey-train`.
+
 ## Handoff: the two items, where they stand (2026-10-01, evening)
 
 Numbers and the full reading: RESULTS "The rename adjudicator, and the box stage measured". Direction from Andrew
@@ -375,6 +470,13 @@ and case sets".
 
 ## Next
 
+- **Review page in React: built, under review (2026-10-26, branch review-react, f35c62b + ad5399f).**
+  petey/validate/review_app (Vite, React, TypeScript), served at /next/ beside the old page at /; the server builds
+  it on start and on reboot when its code changed. Every tab ported; 11 old-page bugs found in the port fixed there
+  only. Left: Andrew uses it on real forms; the old page retired (/ switched to the React page) when he says it
+  matches. Not tried in a browser yet: grid check & validate (Opus), the chat, the labeler / agent buttons, drawing
+  and assigning blocks, dragging boxes between groups.
+
 - **Reviewer on the class and option-group flags.** The reviewer receives `page_class` flags (caption read, page
   class, blueprint type) and, since 2026-09-30 late, `option_group` flags from the inventory check (the page's
   question vs the blueprint's `widgets`, with the widget-layer attribution). Run one review round on I-765 and
@@ -510,6 +612,99 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields (1,508) b
   fix: when one field name repeats the same on-states in separate blocks, one group per block.
 
 ## Later
+
+- **Labeling speed** (parked 2026-10-26, Andrew: "speed is not a huge issue right now, it can wait until later").
+  Per field (docs/HANDOFF_2026-10-26.md): labeling 2.8 s with pages one after another, 0.85-1.1 s with pages at once
+  (`LABEL_PAGES_AT_ONCE`); whole run 4.4 s. A labeler call's time is the model's thinking, not its output (500-1,600
+  output tokens in 17-173 s; `runs/_calls/auto_label/gemini-3.8-flash/*.json`, `elapsed_s` / `usage`). Two ideas,
+  neither run: (1) **thinking level**: the labeler sends no `reasoning_effort`, so Gemini picks its own; try `low` /
+  `medium` on GSE 1084, CASC 100, Form 8300 and compare names and time per field (thinking off on 2026-10-13, 97a1d62:
+  9 of 12 single boxes right against 12 of 12). (2) **bulk "no answer"**: most cells left to the follow-up call are
+  whole structures the model left out of its answer (CASC 100 p2: "B2: 8 no answer"), and the follow-up waits for its
+  page's first call (311 s once: 137 + 173); list the structure ids the answer must cover.
+
+- **Auto-merge consecutive text lines** (Andrew, 2026-10-21; part of the associations idea): boxes stacked one per
+  printed line that hold one answer (a paragraph over numbered lines, `summary_txt_1` .. `_6`; an address written
+  over two or three lines) found and proposed as one value without dragging them together by hand. Two existing
+  pieces to build on: `petey/validate/associate.py`'s `lines` compound value kind (the rule pass already reads them from the
+  names, on copies only), and the Groups tab's combined text field (teal boxes dragged together by hand: one field
+  over the boxes, the filler splitting the text). Open: detection from the page (same width, stacked, no caption
+  between) rather than the names, and whether the result is a combined field or an association that keeps the
+  boxes. **2026-10-28, decided (Andrew):** nothing merges any more: the Groups tab's teal fields make an ENTITY, each
+  field kept as it is and tagged (`group_review.ENTITY_KEY`, with an entity type: date, address line 1 / 2,
+  signature complex, phone, ID number, money, name, other), "lets keep everything separate. (we want them to be as
+  auditable as possible!)". An entity is "sequential fields on a single line that can be combined logically", so
+  lines of one answer are not one ("that can be something else"); this item stays open for them. Branch
+  `compound-values`, `petey/validate/compound_values.py`.
+
+- **Tables as block types** (parked 2026-10-22, Andrew: "lets park these ideas and see how SIA does in production").
+  What the Grids tab is for: "here are the row labels, here are the column labels" and r x c names at once. A block
+  type's matrix already names that way (each position's wording once = the column labels, each block's prefix or
+  number = the row labels, "rename every block" prints the r x c), so a table is a block type whose blocks are its
+  rows. Missing for that to be as quick as the grid: (1) a table made a block type in one step (each row a block,
+  each column a position) rather than row 1 drawn and the rest detected; (2) position wordings seeded from the
+  printed column headers and block prefixes from the printed row labels (the grid resolver reads both), and a list
+  of row labels pasted at once; (3) tables that repeat across (a column per year) as a type whose blocks are the
+  columns. Then the Grids tab could go. Measured on the way (2026-10-22): grid-finder tables hold 15,090 fields on
+  the forms with types, 3,275 of them also in a block type; 104 tables cancelled by hand, 824 of their fields in
+  block types.
+
+- **Printed labels in assign and drawing** (parked 2026-10-22 with the above): assign's `fit` pairing boxes by the
+  caption printed beside each (with the spouse / child tolerance, `block_types._alike`) instead of by field names;
+  drawing recognising a near copy whose labels match as an existing type. Detection already uses printed lines
+  (`label_copies`). Tolerant captions in SIA were tried and dropped: +61 right of ~2,700 fields, 6 new real errors.
+
+- **Option names standardized across a block type's copies** (parked 2026-10-24, Andrew: "lets add it to the TO DO
+  ... we can probably let this slide for now"). A block type standardizes its field names but not the options of an
+  option group inside it, so copies of one question report different values: je__uscourts_b_106d_check's "who owes
+  the debt" (1_18, 1_35, 2_75, 2_74, 2_59) has four different sets across claims 1-5, and "nature of lien" (2_73,
+  2_77, 2_79) carries field names as option keys. Idea: an option group is one position of the type; each copy's
+  options take the reference block's names by place (first box to first box), at assign, in run finders, and as a
+  button on the type. Only within one block type. Check first whether an option's key is still the PDF's on-state
+  anywhere (the harness fills by it): there, standardize the caption, not the key.
+
+- **Suggested block types from the block-group finder** (parked 2026-10-21, Andrew: "park that and we can integrate
+  it later"). Since block groups went, `block_groups.find` only feeds structure-first labeling and keeps grids
+  inside repeated blocks out of the Grids listing. Idea: on the Blocks tab, each group it finds proposed as a block
+  type (its first block the template, the others its copies), dashed on the page, accepted or dismissed by hand. On
+  2026-10-21, 192 of 368 found block groups had every block match the first as a copy (`block_types.copies_in`).
+
+- **Where a block's number goes in a name: DECIDED 2026-10-24** (docs/NAMING.md "The standard", petey/naming.py:
+  the block's number after its subject, the field's after the suffix, before the part; short suffixes; a lone block
+  unnumbered; the 9 tests updated). Below, the question as it stood. (Andrew, 2026-10-22: "we can handle this
+  in bulk later"; "what matters is that the fields can be fully constructed from the provided inputs"). Two orders
+  in play: the validated library puts the block number after the block prefix (`child_2_last_nm`, `child_2_ssn_1`,
+  Andrew: "[block prefix]_[block iteration]_[field subject]_[field iteration]"); the 2026-10-19 identifiers decision
+  prints the iteration last (`child_last_nm_2`), which the generator's block printer, its labeler prompt example
+  (`child_name_1`) and the block types' matrix followed, so the matrix marks every validated block name as a change.
+  Either order works if every name prints from its stored parts; existing blueprints are not relitigated, this is a
+  generation question. HALF DONE, UNCOMMITTED: a change to the first order (identifier keys `block_prefix` /
+  `block_iteration` printed first, in `field_identifiers.ORDERS`, `hand_review.clean_edit`,
+  `block_types.block_ident`, `petey/label/structure.py`'s `print_name`, its block cells and prompt example) is in the
+  working tree with 9 tests still expecting number-last (tests/test_block_types.py, tests/test_structure_labels.py);
+  the pre-push test gate fails until it is finished or reverted. The review page's JS (`blockIdent` / `printIdent` in
+  the Blocks matrix, Review's `PART_KEYS`) was not changed yet.
+
+- **Block groups: gone** (Andrew, 2026-10-22: "get rid of all vestiges of block groups and associated code"). Done
+  2026-10-22: the review page's block-group code (layout editor, marked blocks, BG ids, the block path of
+  `grid_check.arrange`, `layout` / `set_cells`), `block_group` / `block` in field identifiers, and the last 38
+  block entries and BG id counters in the kept records (archived first in
+  `runs/hand_review/grids/_archive_2026-10-22b/`). The Grids finder now holds back a grid mostly inside one block
+  type's block (164 of the 173 grids the block-group finder hid). The library blueprints carried no `block_group`
+  keys; the 229 fields with block-group iterations were on the scratch copies in `runs/identifiers/`. Still open:
+  `block_groups.find` is the labeler's structure finder before labeling (`petey/label/structure.py`), a
+  separate system, kept until Andrew says otherwise; 17 converted types hold one block (an old group mixed block
+  shapes; I-589 p3 child_4 beside child_2 / child_3): "assign to type", or drag the block onto a sibling, puts each
+  with its siblings.
+
+- **IRS 941-X page 2 as a grid** (Andrew, 2026-10-21: "leave it for now, come back to it"). Two causes found: (1)
+  each cell carries two printed numbers, the line (6-17) and the column (1-4), `line_7_col_1_amt_dollars`; the
+  labelled-rows reading wants a numbered run to start at 1, so it falls to the numbered reading, which takes the
+  column number as the iteration and reads the grid sideways ("column 1 has 11 patterns"). Fix: a run on `line_` /
+  `item_` (printed line numbers) may start anywhere, as printed line numbers are already locked elsewhere. (2) The
+  dollars / cents boxes are named two ways: `col_1_amt` + `col_1_cents_txt` on some rows, `col_1_amt_dollars` +
+  `col_1_amt_cents` (the money split) on the rest; rename the first to the second. All three of the page's grids
+  (p2-T1, p2-T2 and the drawn p2-T3) were set aside on 2026-10-21 13:55.
 
 - Registry lifecycle states and the review list (STRATEGY_v1 §5 step 5) — unchanged.
 

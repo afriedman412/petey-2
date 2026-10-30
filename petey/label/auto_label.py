@@ -54,6 +54,7 @@ import pymupdf
 import yaml
 
 from petey.label import call_log
+from petey.models import model_for
 from petey.bpt_version import stamp_version
 from petey.validate import field_ids
 from petey.label.dedup import DedupState
@@ -65,7 +66,7 @@ from petey.semantic_types import ALL_TYPES, enrich_field
 from petey.locate import enumerate_geometry
 from petey.locate.acroform import enumerate_widgets, _widget_type_string, _unescape_pdf_name  # noqa: F401
 
-MODEL = "gemini-3.8-flash"     # 2026-10-06, Andrew: switch the labeler to Gemini (RESULTS 2026-09-30: within noise of Sonnet 4.6 on W-9 / ACORD 25 / I-765 at about a third of the price)
+MODEL = model_for("labeler")   # gemini-3.8-flash since 2026-10-06, Andrew: switch the labeler to Gemini (RESULTS 2026-09-30: within noise of Sonnet 4.6 on W-9 / ACORD 25 / I-765 at about a third of the price)
 # Call-log tag prefix; main() appends the form name so one form's labeler
 # usage can be summed even when several forms label concurrently.
 CALL_TAG = "auto_label"
@@ -394,6 +395,49 @@ Return JSON only:
 {"labels": [{"id": <int>, "label": "<snake_case_slug>"}, ...]}"""
 
 
+# the simple naming scheme (docs/PLAN_SIMPLE_NAMES.md, 2026-10-19): the name is the subject in the form's own words,
+# the kind of value is a separate answer that sets type and semantic type; no suffix in the name
+NAMES = "simple"          # the default since 2026-10-20 (Andrew: "simple defaults from here")
+_KINDS: dict[int, str] = {}          # widget id -> the kind the labeler gave (simple scheme)
+
+
+def _simple_system() -> str:
+    from petey.semantic_types import prompt_vocabulary
+    a = LABEL_SYSTEM.index("- Emit snake_case slugs following IRS MeF-style")
+    b = LABEL_SYSTEM.index("Business names → `_business_name`.\n") + len("Business names → `_business_name`.\n")
+    rules = ("- The label names WHAT THE BOX HOLDS, in the form's own words, snake_case: `first_name`, "
+             "`vehicle_make`, `gross_rents`, `years_at_current_address`, `date_of_birth`. Where the box belongs "
+             "to one of several people or things the form repeats (a spouse, the 7th sibling, vehicle 2), the name "
+             "says whose, with the number last as its own word: `spouse_first_name`, `sibling_marital_status_7`, "
+             "`vehicle_make_2`; a caption printed once per block does not make the box stand alone. (A table or "
+             "block you answer by its parts, under the page's structure rules, takes no number: printing adds it.) "
+             "Do NOT add a "
+             "type or kind suffix (no _txt, _nm, _nbr, _cd, _dt, _amt, _ind, _qty, _ssn): the kind of value is a separate "
+             "answer, below, not part of the name.\n"
+             "- With every label give `\"kind\"`: the kind of value the box holds, one of "
+             + prompt_vocabulary() + " or \"identifier\" or \"checkbox\" (a tick box) or \"signature\". Use "
+             "\"name\" for any name, a person's or an organization's, whole or part (a full name, a first name, "
+             "a company); \"description\" for a longer explanation; \"text\" for free text and anything the list "
+             "does not name; "
+             "\"identifier\" for a number or "
+             "code that names or refers to something rather than measuring it (a policy, location, vehicle, driver, "
+             "license or reference number, a class or rating code; a caption with \"#\" or \"number\" in it, "
+             "LOC #, VEH #, DRIVER NUMBER, is an identifier); \"money\" for a sum of money, \"count\" only for a "
+             "box that asks how many of something (a number of units, years, days), \"indicator\" for a box answered yes or no "
+             "(Y / N), \"percent\" for a percentage, \"iso_date\" for a full date, \"datetime\" for a date and a time of day in one box, \"year\" for a "
+             "year alone, \"phone\", \"email\", \"ssn\", \"ein\", \"zip\", \"state_abbr\" as their names say. "
+             "Outside the US: \"ca_postal_code\" for a Canadian postal code (A1A 1A1), \"uk_postcode\" for a UK "
+             "postcode (SW1A 1AA), another country's postal code is \"text\"; \"phone\" is a US or Canadian "
+             "number, \"uk_phone\" a UK one, \"intl_phone\" another country's.\n")
+    out = (LABEL_SYSTEM[:a] + rules + LABEL_SYSTEM[b:]).replace("`is_amended_return_ind`", "`is_amended_return`")
+    return out.replace('{"labels": [{"id": <int>, "label": "<snake_case_slug>"}, ...]}',
+                       '{"labels": [{"id": <int>, "label": "<snake_case_slug>", "kind": "<kind>"}, ...]}')
+
+
+def _system() -> str:
+    return _simple_system() if NAMES == "simple" else LABEL_SYSTEM
+
+
 def _parse_json_object(text: str) -> Optional[dict]:
     depth = 0
     start = -1
@@ -467,9 +511,11 @@ def _description_from_tooltip(tooltip: Optional[str]) -> Optional[str]:
 # is invalid JSON, `_parse_json_object` returns nothing, and the form is
 # abandoned with no partial result.
 LABEL_BATCH = 150
+LABEL_PAGES_AT_ONCE = 8       # pages labeled at once (2026-10-26); each page's own batches go out together too
 
 
-def label_page_via_llm(widgets_on_page, words, model: str = MODEL):
+def label_page_via_llm(widgets_on_page, words, model: str = MODEL, think: bool = True, structure: dict | None = None,
+                       bulk: bool = False, parts_out: dict | None = None, page: int | None = None):
     """Label one page's widgets, in batches if the page is dense.
 
     The labeler already makes one call per page. That is not enough
@@ -490,15 +536,73 @@ def label_page_via_llm(widgets_on_page, words, model: str = MODEL):
     widget list, so behaviour is unchanged for all but the dense minority
     (14 of 229 unlabeled forms average over 200 widgets per page).
     """
+    if structure:
+        # tables and repeated blocks found first (petey/label/structure.py, 2026-10-19): a structure is never split
+        # across batches, and each batch's prompt says which of its widgets form one. In bulk mode the labeler names
+        # a table's columns (a block's fields) once and the cells are printed from the parts, which the field keeps
+        # as x_petey_identifiers; a structure the labeler calls unlike, or a column it leaves out, is labeled one by one
+        from concurrent.futures import ThreadPoolExecutor
+        from petey.label import structure as S
+        bs = S.batches(widgets_on_page, structure, LABEL_BATCH)
+        n = len(widgets_on_page)
+        for i, batch in enumerate(bs):
+            print(f"    [batch p{page}] {len(batch)} widgets ({i + 1} of {len(bs)}, {n} on the page; structure-{'bulk' if bulk else 'guided'})")
+        if not bulk:
+            with ThreadPoolExecutor(max_workers=len(bs)) as ex:
+                results = list(ex.map(lambda b: _label_batch_via_llm(b, words, model=model, think=think,
+                                                                     guidance=S.guidance(structure, {w["id"] for w in b})), bs))
+            merged = {}
+            for r in results:
+                merged.update(r)
+            return merged
+        inside = S.in_structure(structure)
+        with ThreadPoolExecutor(max_workers=len(bs)) as ex:
+            results = list(ex.map(lambda b: _label_batch_via_llm(b, words, model=model, think=think,
+                                                                 guidance=S.guidance_bulk(structure, {w["id"] for w in b}),
+                                                                 want_parsed=True), bs))
+        merged, left_ids, why = {}, [], {}
+        for b, (labels, parsed) in zip(bs, results):
+            ids = {w["id"] for w in b}
+            merged.update({i: l for i, l in labels.items() if i not in inside})
+            names, parts, left = S.print_cells(structure, parsed, ids, why)
+            merged.update(names)
+            if parts_out is not None:
+                parts_out.update(parts)
+            left_ids += [i for i in left if i not in merged]
+            for i in ids - inside:
+                if i not in merged and i in labels:
+                    merged[i] = labels[i]
+        if left_ids:                          # cells the bulk answer did not cover: labeled one by one, guided
+            by_id = {w["id"]: w for w in widgets_on_page}
+            rest = [by_id[i] for i in left_ids if i in by_id]
+            print(f"    [batch p{page}] {len(rest)} cells left by the bulk answer, labeled one by one ("
+                  + "; ".join(f"{sid}: " + ", ".join(f"{n} {r}" for r, n in c.most_common()) for sid, c in why.items())
+                  + ")")
+            # the left cells' batches go out together, as the bulk batches do (2026-10-23: they went one after another)
+            parts_ = [rest[i:i + LABEL_BATCH] for i in range(0, len(rest), LABEL_BATCH)]
+            with ThreadPoolExecutor(max_workers=len(parts_)) as ex:
+                for r in ex.map(lambda b: _label_batch_via_llm(b, words, model=model, think=think,
+                                                               guidance=S.guidance(structure, {w["id"] for w in b})), parts_):
+                    merged.update(r)
+        printed = sum(1 for i in merged if i in inside and i not in left_ids)
+        print(f"    [structure p{page}] {printed} cells printed from column / field labels, {len(left_ids)} labeled one by one")
+        return merged
     if len(widgets_on_page) <= LABEL_BATCH:
-        return _label_batch_via_llm(widgets_on_page, words, model=model)
+        return _label_batch_via_llm(widgets_on_page, words, model=model, think=think)
 
-    merged: dict[int, str] = {}
+    # the batches go out together (Andrew, 2026-10-19: ACORD 90 NY's page 1 took its three batches one after
+    # another, 80 s each; a call's time is its output tokens, so the page costs one batch's time, not the sum).
+    # Each batch has everything it needs before the call; the merge keeps batch order
+    from concurrent.futures import ThreadPoolExecutor
     n = len(widgets_on_page)
-    for i in range(0, n, LABEL_BATCH):
-        batch = widgets_on_page[i:i + LABEL_BATCH]
-        print(f"    [batch] widgets {i + 1}-{i + len(batch)} of {n}")
-        merged.update(_label_batch_via_llm(batch, words, model=model))
+    batches = [widgets_on_page[i:i + LABEL_BATCH] for i in range(0, n, LABEL_BATCH)]
+    for i, batch in enumerate(batches):
+        print(f"    [batch p{page}] widgets {i * LABEL_BATCH + 1}-{i * LABEL_BATCH + len(batch)} of {n}")
+    with ThreadPoolExecutor(max_workers=len(batches)) as ex:
+        results = list(ex.map(lambda b: _label_batch_via_llm(b, words, model=model, think=think), batches))
+    merged: dict[int, str] = {}
+    for r in results:
+        merged.update(r)
     return merged
 
 
@@ -523,7 +627,8 @@ def dropdown_spec(spec: dict, w: dict) -> dict:
     return spec
 
 
-def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
+def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL, think: bool = True, guidance: str = "",
+                         want_parsed: bool = False):
     widget_lines = []
     for w in widgets_on_page:
         x0, y0, x1, y1 = w["rect"]
@@ -563,7 +668,8 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
     user_text = (
         f"Widgets on this page:\n{widget_json}\n\n"
         f"Printed text on this page (with positions):\n{words_json}\n\n"
-        f"Emit a snake_case label for every widget."
+        + (guidance + "\n\n" if guidance else "")
+        + f"Emit a snake_case label for every widget."
     )
 
     from petey.synth.generate import make_client, provider_for
@@ -571,7 +677,7 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
     client = make_client(model)
     if provider_for(model) is not None:
         # other vendors, chat-completions dialect (same prompt, text only)
-        kwargs = dict(model=model, messages=[{"role": "system", "content": LABEL_SYSTEM},
+        kwargs = dict(model=model, messages=[{"role": "system", "content": _system()},
                                              {"role": "user", "content": user_text}])
         if model.startswith(("gpt-5", "o1", "o3", "o4")):
             kwargs["max_completion_tokens"] = MAX_TOKENS
@@ -579,7 +685,16 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
             # Gemini counts its hidden thinking against max_tokens: at 32,768 a 48-126 widget page spent most of it
             # thinking and the labels were cut at ~3,300 chars (GCP runner, 2026-10-06); 65,536 is its output cap
             kwargs["max_tokens"] = 65536 if model.startswith("gemini-") else MAX_TOKENS
+            if not think and model.startswith("gemini-"):
+                # the review page's Groups button names one group from its captions (2026-10-13: 8 s -> 2 s with
+                # thinking off; on single boxes it got 9 of 12 right against 12, so only Groups asks for this)
+                kwargs["reasoning_effort"] = "none"
             kwargs["temperature"] = 0
+            if model.startswith("local-"):
+                # labels run to ~4k tokens at most; the context is shared with a prompt of up to ~32k. No hidden
+                # thinking: it would cost minutes per page on a laptop (llama-server started with --jinja)
+                kwargs["max_tokens"] = 8192
+                kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
         resp = client.chat.completions.create(**kwargs)
         choice = resp.choices[0]
         text = choice.message.content or ""
@@ -587,12 +702,12 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
         u = getattr(resp, "usage", None)
         in_tok, out_tok = (getattr(u, "prompt_tokens", None), getattr(u, "completion_tokens", None)) if u else (None, None)
     else:
-        with client.messages.stream(
+        from petey.synth.generate import final_message
+        final = final_message(lambda: client.messages.stream(
             model=model, max_tokens=MAX_TOKENS,
-            system=LABEL_SYSTEM,
+            system=_system(),
             messages=[{"role": "user", "content": user_text}],
-        ) as stream:
-            final = stream.get_final_message()
+        ), "labeler")
         text = "".join(
             b.text for b in final.content
             if getattr(b, "type", None) == "text"
@@ -640,11 +755,13 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
             continue
         if isinstance(wid, int):
             out[wid] = lbl
+            if entry.get("kind"):
+                _KINDS[wid] = str(entry["kind"])
     if n_ignored:
         print(f"[auto_label] ignored {n_ignored} label entries whose id is "
               f"not a widget on this page (of "
               f"{len(parsed['labels'])} returned)")
-    return out
+    return (out, parsed) if want_parsed else out
 
 
 def _sha1(path: Path) -> str:
@@ -655,6 +772,22 @@ def _sha1(path: Path) -> str:
     return h.hexdigest()
 
 
+def _number_copies(mutex_widgets: dict[tuple, dict]) -> dict[str, dict]:
+    """{group name: {option: widget}} from {(group, block copy or None): ...}: an option group named alike in two or
+    more copies of a block gets the copy's number, counted in reading order across pages, as a field's own number
+    (B 106D, 2026-10-23: claims 1-2 on p1, 3-5 on p2 -> who_owes_debt_1 .. _5)."""
+    copies: dict[str, list] = {}
+    for g, cp in mutex_widgets:
+        if cp is not None:
+            copies.setdefault(g, []).append(cp)
+    number = {(g, cp): k for g, cps in copies.items() if len(cps) > 1
+              for k, cp in enumerate(sorted(cps, key=lambda x: (x[0], str(x[1]), x[2])), 1)}
+    out: dict[str, dict] = {}
+    for (g, cp), opts in mutex_widgets.items():
+        out[f"{g}_{number[(g, cp)]}" if (g, cp) in number else g] = opts
+    return out
+
+
 def build_blueprint(
     blank_pdf: Path, name: str,
     form_version: Optional[str] = None,
@@ -663,7 +796,14 @@ def build_blueprint(
     retrieval_threshold: float = RETRIEVAL_ACCEPT,
     geometry: str = "auto",
     use_llm: bool = True,
+    structure: Optional[str] = None,       # None, "guide" (tables and blocks in the prompt) or "bulk" (columns named once)
+    names: str = "simple",                 # subject-only names, the kind of value answered apart; "standard": suffixes
 ) -> dict:
+    global NAMES
+    NAMES = names
+    _KINDS.clear()
+    from petey.label import structure as _S0
+    _S0.SIMPLE = names == "simple"
     widgets, dropped_widgets, geometry_method = enumerate_geometry(blank_pdf, geometry)
     print(f"[auto_label] geometry: {geometry_method} ({len(widgets)} fields)")
     if dropped_widgets:
@@ -803,6 +943,13 @@ def build_blueprint(
               f"SKIPPING them rather than inventing labels. "
               f"OCR the source to recover these fields.")
 
+    page_structure: dict[int, dict] = {}
+    parts_by_id: dict[int, dict] = {}       # bulk: the parts a cell's name was printed from
+    if use_llm and structure:
+        from petey.label import structure as _S
+        page_structure = _S.find(blank_pdf, label_entries)
+        print(f"[auto_label] structure: " + ", ".join(
+            f"p{p} {len(st['tables'])} table(s) {len(st['blocks'])} block group(s)" for p, st in sorted(page_structure.items())) or "none")
     labels_by_id: dict[int, str] = {}
     audit_by_id: dict[int, dict] = {}
     retrieval_ct = 0
@@ -811,6 +958,12 @@ def build_blueprint(
 
     doc = pymupdf.open(str(blank_pdf))
     try:
+        # each page read first, one after another (pymupdf is not for several threads at once): its widgets, the
+        # retrieval pre-pass, its printed words. Then every page's labeler call at once (Andrew, 2026-10-26: "is
+        # there any downside to running the pages in parallel?"; a page's call sees only that page, so the calls,
+        # answers and cost are the same, and a form takes its slowest page's time, not the sum), at most
+        # LABEL_PAGES_AT_ONCE in flight; the results kept in page order
+        prepared = []
         for page_no in pages_with_widgets:
             page_widgets = [w for w in label_entries
                             if w["page"] == page_no]
@@ -841,13 +994,24 @@ def build_blueprint(
                     "confidence": round(h["confidence"], 3),
                 }
             retrieval_ct += len(confident)
+            words = _words_from_page(page_obj) if residual else None
+            prepared.append((page_no, confident, residual, retrieval_hits, words))
 
+        def _label(job):
+            page_no, _c, residual, _h, words = job
+            if not residual:
+                return {}, {}
+            parts: dict[int, dict] = {}
+            return label_page_via_llm(residual, words, model=model, structure=page_structure.get(page_no),
+                                      bulk=(structure == "bulk"), parts_out=parts, page=page_no), parts
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=max(1, min(LABEL_PAGES_AT_ONCE, len(prepared)))) as ex:
+            answers = list(ex.map(_label, prepared))
+
+        for (page_no, confident, residual, retrieval_hits, _w), (llm_labels, parts) in zip(prepared, answers):
+            parts_by_id.update(parts)
             page_review_ct = 0
             if residual:
-                words = _words_from_page(page_obj)
-                llm_labels = label_page_via_llm(
-                    residual, words, model=model,
-                )
                 llm_ct += len(residual)
                 for wid, lbl in llm_labels.items():
                     if not lbl:
@@ -878,7 +1042,17 @@ def build_blueprint(
         w["label"] = labels_by_id.get(w["id"], "")
 
     fields: dict[str, dict] = {}
-    mutex_widgets: dict[str, dict[str, dict]] = {}
+    mutex_widgets: dict[tuple, dict[str, dict]] = {}     # (group, block copy or None) -> {option: widget}
+    # the copy of a block each field sits in (the structure finder's): an option group the labeler names alike in
+    # every copy of a block is one group per copy, numbered by the copy (Andrew, 2026-10-23: "group after we label
+    # the boxes so the group just picks up the iteration"; B 106D p2's three claims each had "who owes the debt",
+    # and all but one copy's options were dropped as repeats). Grids are left as they were: a group can run
+    # across a grid's rows
+    copy_of: dict[int, tuple] = {}
+    for _pg, _st in page_structure.items():
+        for _b in _st.get("blocks") or []:
+            for _c in _b["cells"]:
+                copy_of[_c["id"]] = (_pg, _b.get("id"), _c["block"])
     page_captions: list[dict] = []
     dedup = DedupState()
     n_tooltip_descriptions = 0
@@ -974,16 +1148,23 @@ def build_blueprint(
 
         if "." in label:
             group, value = label.split(".", 1)
-            if value in mutex_widgets.get(group, {}):
+            key = (group, copy_of.get(w["id"]))
+            if value in mutex_widgets.get(key, {}):
+                print(f"  [options] {group}.{value} named twice (p{w['page']}); the second option is left out")
                 continue
             if w.get("on_state"):
                 widget_block = dict(widget_block, on_state=w["on_state"])
-            mutex_widgets.setdefault(group, {})[value] = widget_block
+            mutex_widgets.setdefault(key, {})[value] = widget_block
             continue
         assigned = dedup.assign(
             label, page=w["page"], rect=w["rect"],
         )
-        spec = enrich_field(label, w["widget_type"])
+        kind = (parts_by_id.get(w["id"]) or {}).get("kind") or _KINDS.get(w["id"])
+        if NAMES == "simple":
+            from petey.semantic_types import enrich_from_kind
+            spec = enrich_from_kind(kind, w["widget_type"])
+        else:
+            spec = enrich_field(label, w["widget_type"])
         if w.get("choices"):
             dropdown_spec(spec, w)
         spec["widget"] = widget_block
@@ -995,9 +1176,11 @@ def build_blueprint(
             spec["x_petey_description_source"] = "tooltip"
             n_tooltip_descriptions += 1
         _overlay_xfa(spec, w.get("path"))
+        if w["id"] in parts_by_id:
+            spec["x_petey_identifiers"] = {k: v for k, v in parts_by_id[w["id"]].items() if k != "kind"}
         fields[assigned] = _attach_audit(spec, w["id"])
 
-    for group, val_to_widget in mutex_widgets.items():
+    for group, val_to_widget in _number_copies(mutex_widgets).items():
         values = sorted(val_to_widget.keys())
         if len(values) <= 1:
             for v, w_block in val_to_widget.items():
@@ -1153,6 +1336,12 @@ def main() -> int:
                     help="where field rects come from; auto = AcroForm if present, else step2flat (sibling is opt-in)")
     ap.add_argument("--no-llm", action="store_true",
                     help="emit placeholder field names; no API call (geometry-only draft)")
+    ap.add_argument("--structure", nargs="?", const="guide", choices=["guide", "bulk"], default=None,
+                    help="find tables and repeated blocks first: 'guide' puts them in the labeler's prompt, 'bulk' names "
+                         "a column once and prints its cells (2026-10-19)")
+    ap.add_argument("--names", choices=["standard", "simple"], default="simple",
+                    help="simple (the default since 2026-10-20): subject-only names, the kind of value answered apart "
+                         "(docs/PLAN_SIMPLE_NAMES.md); standard: MeF-style suffixes")
     ap.add_argument("--no-retrieval", action="store_true",
                     help="disable local retrieval prepass; LLM-only")
     ap.add_argument("--retrieval-threshold", type=float,
@@ -1199,6 +1388,8 @@ def main() -> int:
         use_retrieval=not args.no_retrieval,
         geometry=args.geometry,
         use_llm=not args.no_llm,
+        structure=args.structure,
+        names=args.names,
         retrieval_threshold=args.retrieval_threshold,
     )
 

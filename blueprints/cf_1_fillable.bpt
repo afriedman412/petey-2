@@ -26,6 +26,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: commercial_facility_bond_no
   bond_dt:
     x_petey_id: '1_2'
     type: date
@@ -42,10 +44,13 @@ fields:
     label_source: llm
     x_petey_retype:
     - pattern_dropped
+    x_petey_identifiers:
+      subject: bond
+      suffix: dt
   principal_organization_nm:
     x_petey_id: '1_5'
     type: string
-    semantic_type: person_name
+    semantic_type: entity_name
     widget:
       page: 1
       rect:
@@ -61,7 +66,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  p5_number:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: principal_organization_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: principal_organization_nm
+        type: string
+        semantic_type: entity_name
+        pattern: null
+      record: runs/claude_pass/proposals/lib__cf_1_fillable.json
+      by: claude
+      kind: type
+      why: Item 1 'Organization name, exactly as shown on Form P-5 Organization Report'
+        is the operator organization, not a person.
+    x_petey_identifiers:
+      subject: principal_organization
+      suffix: nm
+  p5_nbr:
     x_petey_id: '1_4'
     type: string
     widget:
@@ -78,7 +103,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disposal_injection_wells_cnt:
+    x_petey_identifiers:
+      subject: p5
+      suffix: nbr
+  disposal_injection_wells_amt:
     x_petey_id: '1_6'
     type: integer
     semantic_type: count
@@ -98,6 +126,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: disposal_injection_wells_cnt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: disposal_injection_wells_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/claude_pass/proposals/lib__cf_1_fillable.json
+      by: claude
+      kind: suffix
+      why: 'Item 3 ''Total number of disposal/injection wells'' is a count: _amt with
+        type integer/count in this naming scheme, no _cnt suffix.'
+    x_petey_identifiers:
+      subject: disposal_injection_wells
+      suffix: amt
   other_commission_regulated_operations_txt:
     x_petey_id: '1_7'
     type: string
@@ -116,10 +164,13 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: other_commission_regulated_operations
+      suffix: txt
   principal_operator_nm:
     x_petey_id: '1_8'
     type: string
-    semantic_type: person_name
+    semantic_type: entity_name
     widget:
       page: 1
       rect:
@@ -130,10 +181,30 @@ fields:
       widget_type: text
       path: Operator Name
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: principal_operator_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: principal_operator_nm
+        type: string
+        semantic_type: entity_name
+        pattern: null
+      record: runs/claude_pass/proposals/lib__cf_1_fillable.json
+      by: claude
+      kind: type
+      why: Background blank '(operator name as shown on P-5 Organization Report),
+        Principal' is the operator organization, not a person.
+    x_petey_identifiers:
+      subject: principal_operator
+      suffix: nm
   surety_nm:
     x_petey_id: '1_9'
     type: string
-    semantic_type: person_name
+    semantic_type: business_name
     widget:
       page: 1
       rect:
@@ -148,6 +219,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: surety_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: surety_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: runs/claude_pass/proposals/lib__cf_1_fillable.json
+      by: claude
+      kind: type
+      why: '''Principal has retained ____ (surety), a State of Texas ... '' names
+        the surety company issuing the bond.'
+    x_petey_identifiers:
+      subject: surety
+      suffix: nm
   exhibit_a_bond_no:
     x_petey_id: '1_10'
     type: string
@@ -161,7 +252,9 @@ fields:
       widget_type: text
       path: CF-1 Bond Number
     label_source: llm
-  facility_a_txt:
+    x_petey_identifiers:
+      subject: exhibit_a_bond_no
+  facility_txt_a:
     x_petey_id: '1_11'
     type: string
     semantic_type: text
@@ -175,7 +268,11 @@ fields:
       widget_type: text
       path: Facility Information 1
     label_source: llm
-  facility_b_txt:
+    x_petey_identifiers:
+      subject: facility
+      suffix: txt
+      iteration: a
+  facility_txt_b:
     x_petey_id: '1_12'
     type: string
     semantic_type: text
@@ -189,7 +286,11 @@ fields:
       widget_type: text
       path: Facility Information 2
     label_source: llm
-  facility_c_txt:
+    x_petey_identifiers:
+      subject: facility
+      suffix: txt
+      iteration: b
+  facility_txt_c:
     x_petey_id: '1_13'
     type: string
     semantic_type: text
@@ -203,7 +304,11 @@ fields:
       widget_type: text
       path: Facility Information 3
     label_source: llm
-  facility_d_txt:
+    x_petey_identifiers:
+      subject: facility
+      suffix: txt
+      iteration: c
+  facility_txt_d:
     x_petey_id: '1_14'
     type: string
     semantic_type: text
@@ -217,6 +322,10 @@ fields:
       widget_type: text
       path: Facility Information 4
     label_source: llm
+    x_petey_identifiers:
+      subject: facility
+      suffix: txt
+      iteration: d
   bond_face_amt:
     x_petey_id: '1_15'
     type: number
@@ -233,6 +342,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: bond_face
+      suffix: amt
   bond_no:
     x_petey_id: '1_16'
     type: string
@@ -246,6 +358,8 @@ fields:
       widget_type: text
       path: Bond No
     label_source: llm
+    x_petey_identifiers:
+      subject: bond_no
   bond_expiration_dt:
     x_petey_id: '2_1'
     type: date
@@ -266,10 +380,13 @@ fields:
     description: The Principal or Surety will renew in writing this bond and submit
       it to the Railroad Commission 30 days
     x_petey_description_source: tooltip
-  surety_signature_nm:
+    x_petey_identifiers:
+      subject: bond_expiration
+      suffix: dt
+  surety_name_title_txt:
     x_petey_id: '2_2'
     type: string
-    semantic_type: person_name
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -284,10 +401,31 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  surety_name_title_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: surety_signature_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: surety_name_title_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__cf_1_fillable.json
+      by: claude
+      kind: wrong
+      why: This box (y 558-578) is the line above the printed 'NAME AND TITLE (Type
+        or Print)' under the surety's signature, as its tooltip says; it is the surety's
+        typed name and title, not a signature.
+    x_petey_identifiers:
+      subject: surety_name_title
+      suffix: txt
+  surety_mailing_address_line_1_txt:
     x_petey_id: '2_4'
     type: string
-    semantic_type: person_name
+    semantic_type: street_address
     widget:
       page: 2
       rect:
@@ -302,7 +440,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  surety_mailing_address_line_1_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: surety_name_title_txt
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: surety_mailing_address_line_1_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: runs/claude_pass/proposals/lib__cf_1_fillable.json
+      by: claude
+      kind: wrong
+      why: This box (y 602-622) is the line above the printed 'SURETY'S FULL MAILING
+        ADDRESS', and its tooltip is that label; names on page 2 are shifted by one
+        row.
+    x_petey_identifiers:
+      subject: surety_mailing_address_line_1
+      suffix: txt
+  surety_mailing_address_line_2_txt:
     x_petey_id: '2_5'
     type: string
     semantic_type: street_address
@@ -316,10 +475,31 @@ fields:
       widget_type: text
       path: undefined
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: surety_mailing_address_line_1_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: surety_mailing_address_line_2_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: runs/claude_pass/proposals/lib__cf_1_fillable.json
+      by: claude
+      kind: wrong
+      why: This box (y 646-665) is the unlabelled line below 'SURETY'S FULL MAILING
+        ADDRESS', the second line of the address (city, state, ZIP); its neighbour
+        above is line 1.
+    x_petey_identifiers:
+      subject: surety_mailing_address_line_2
+      suffix: txt
   principal_name_title_txt:
     x_petey_id: '2_3'
     type: string
-    semantic_type: person_name
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -334,7 +514,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  bond_no_cd:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: principal_name_title_txt
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: principal_name_title_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__cf_1_fillable.json
+      by: claude
+      kind: type
+      why: '''NAME AND TITLE AS LISTED ON THE P-5 ORGANIZATION REPORT'' holds a name
+        plus a title, so text rather than a person name.'
+    x_petey_identifiers:
+      subject: principal_name_title
+      suffix: txt
+  page_2_bond_no:
     x_petey_id: '2_6'
     type: string
     widget:
@@ -347,9 +547,28 @@ fields:
       widget_type: text
       path: Bond No_2
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: bond_no_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: page_2_bond_no
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__cf_1_fillable.json
+      by: claude
+      kind: clarity
+      why: Footer 'Bond No.' repeated at the bottom of page 2 (path 'Bond No_2');
+        it is the bond number, not a code, and pairs with bond_no on page 1.
+    x_petey_identifiers:
+      subject: page_2_bond_no
   facility_type:
     x_petey_id: '1_3'
-    type: category
+    type: multi_category
     values:
     - commercial_ind
     - disposal_ind
@@ -417,3 +636,24 @@ fields:
         on_state: 'Yes'
         caption: RECYCLING
         x_petey_caption_source: page_text
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: facility_type
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: facility_type
+        type: multi_category
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__cf_1_fillable.json
+      by: claude
+      kind: type
+      why: '''This bond covers the following type of facility(ies) denoted by an X'':
+        a commercial facility can be storage and treatment and disposal at once, and
+        each box is its own checkbox field (captions already match the printed word
+        right of each box; the keys are offset by one but are left alone).'
+    x_petey_identifiers:
+      subject: facility_type

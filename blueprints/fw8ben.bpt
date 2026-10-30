@@ -1,17 +1,22 @@
 bpt_version: '1.1'
 name: fw8ben
-form_version: unknown
+form_version: null
 source_pdf: fw8ben.pdf
 source_pdf_hash: d8aa699678d12de6ac468a864d4fae7999aa904b
 source_pages:
 - 1
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-14 19:12:02'
 fields:
   beneficial_owner_nm:
     x_petey_id: '1_1'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -21,7 +26,11 @@ fields:
       - 252.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f_1[0]
-  country_of_citizenship_cd:
+    label_source: llm
+    x_petey_identifiers:
+      subject: beneficial_owner
+      suffix: nm
+  country_of_citizenship:
     x_petey_id: '1_2'
     type: string
     semantic_type: country
@@ -34,6 +43,9 @@ fields:
       - 252.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f_2[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: country_of_citizenship
   permanent_residence_address_line_1_txt:
     x_petey_id: '1_3'
     type: string
@@ -47,10 +59,13 @@ fields:
       - 276.0009765625
       widget_type: text
       path: topmostSubform[0].Page1[0].f_3[0]
-  permanent_residence_city_nm:
+    label_source: llm
+    x_petey_identifiers:
+      subject: permanent_residence_address_line_1
+      suffix: txt
+  permanent_residence_city_state_province_txt:
     x_petey_id: '1_4'
     type: string
-    semantic_type: city
     widget:
       page: 1
       rect:
@@ -60,9 +75,16 @@ fields:
       - 300.0019836425781
       widget_type: text
       path: topmostSubform[0].Page1[0].f_4[0]
-  permanent_residence_country_cd:
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=403
+    x_petey_identifiers:
+      subject: permanent_residence_city_state_province
+      suffix: txt
+  permanent_residence_country:
     x_petey_id: '1_5'
     type: string
+    semantic_type: country
     widget:
       page: 1
       rect:
@@ -72,8 +94,9 @@ fields:
       - 300.0019836425781
       widget_type: text
       path: topmostSubform[0].Page1[0].f_5[0]
-    x_petey_retype:
-    - wide_widget_short_pattern:width=135
+    label_source: llm
+    x_petey_identifiers:
+      subject: permanent_residence_country
   mailing_address_line_1_txt:
     x_petey_id: '1_6'
     type: string
@@ -87,10 +110,13 @@ fields:
       - 324.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f_6[0]
-  mailing_city_nm:
+    label_source: llm
+    x_petey_identifiers:
+      subject: mailing_address_line_1
+      suffix: txt
+  mailing_city_state_province_txt:
     x_petey_id: '1_7'
     type: string
-    semantic_type: city
     widget:
       page: 1
       rect:
@@ -100,9 +126,16 @@ fields:
       - 348.0010070800781
       widget_type: text
       path: topmostSubform[0].Page1[0].f_7[0]
-  mailing_country_cd:
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=403
+    x_petey_identifiers:
+      subject: mailing_city_state_province
+      suffix: txt
+  mailing_country:
     x_petey_id: '1_8'
     type: string
+    semantic_type: country
     widget:
       page: 1
       rect:
@@ -112,13 +145,14 @@ fields:
       - 348.0010070800781
       widget_type: text
       path: topmostSubform[0].Page1[0].f_8[0]
-    x_petey_retype:
-    - wide_widget_short_pattern:width=135
-  us_taxpayer_identification_ssn:
+    label_source: llm
+    x_petey_identifiers:
+      subject: mailing_country
+  us_tin:
     x_petey_id: '1_9'
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: tin
+    pattern: ^(\d{3}-\d{2}-\d{4}|\d{9})$
     widget:
       page: 1
       rect:
@@ -128,10 +162,29 @@ fields:
       - 371.9989929199219
       widget_type: text
       path: topmostSubform[0].Page1[0].f_9[0]
-  foreign_tax_identifying_number_txt:
+    label_source: llm
+    description: U.S. taxpayer identification number (SSN or ITIN) of the beneficial
+      owner, if required.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      - description
+      reason: Caption says SSN or ITIN, a 9-digit number (maxlen 11 fits XXX-XX-XXXX);
+        the EIN-style pattern ^\d{2,3}-\d{2,7}(-\d{4})?$ admitted non-conforming values
+        like 'CLM45598699'. Name and tin semantic_type still describe the box.
+      before:
+        type: string
+        semantic_type: tin
+        pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
+      judged: 'kept: 1 -> 1'
+    x_petey_identifiers:
+      subject: us
+      suffix: tin
+  foreign_tin:
     x_petey_id: '1_11'
     type: string
-    semantic_type: text
+    semantic_type: tin
     widget:
       page: 1
       rect:
@@ -141,6 +194,43 @@ fields:
       - 396.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f_10[0]
+    label_source: llm
+    description: Foreign tax identifying number issued by the beneficial owner's country
+      of residence; format varies by country.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -pattern
+      reason: A foreign TIN is an arbitrary alphanumeric identifier whose format varies
+        by jurisdiction, so the U.S. EIN-style pattern is wrong; drop it rather than
+        impose a false format. The name matches the printed caption 'Foreign tax identifying
+        number'.
+      before:
+        type: string
+        semantic_type: tin
+        pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
+      judged: 'kept: 1 -> 1'
+    pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
+    x_petey_hand_edit:
+      when: '2026-10-14 19:30:23'
+      from:
+        name: foreign_tin
+        type: string
+        semantic_type: tin
+        pattern: null
+      to:
+        name: foreign_tin
+        type: string
+        semantic_type: tin
+        pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (tin)
+    x_petey_identifiers:
+      subject: foreign
+      suffix: tin
   ftin_not_legally_required_ind:
     x_petey_id: '1_10'
     type: boolean
@@ -154,10 +244,13 @@ fields:
       - 381.99798583984375
       widget_type: checkbox
       path: topmostSubform[0].Page1[0].c1_01[0]
-  reference_number_txt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: ftin_not_legally_required
+      suffix: ind
+  reference_nbr:
     x_petey_id: '1_12'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -167,6 +260,10 @@ fields:
       - 420.0010070800781
       widget_type: text
       path: topmostSubform[0].Page1[0].f_11[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: reference
+      suffix: nbr
   birth_dt:
     x_petey_id: '1_13'
     type: date
@@ -180,9 +277,11 @@ fields:
       - 420.0010070800781
       widget_type: text
       path: topmostSubform[0].Page1[0].f_12[0]
-    x_petey_retype:
-    - pattern_dropped
-  treaty_country_nm:
+    label_source: llm
+    x_petey_identifiers:
+      subject: birth
+      suffix: dt
+  treaty_resident_country:
     x_petey_id: '1_14'
     type: string
     semantic_type: country
@@ -195,10 +294,12 @@ fields:
       - 443.9989929199219
       widget_type: text
       path: topmostSubform[0].Page1[0].f_13[0]
-  treaty_article_and_paragraph_txt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: treaty_resident_country
+  treaty_article_and_paragraph:
     x_petey_id: '1_15'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -208,7 +309,10 @@ fields:
       - 479.9989929199219
       widget_type: text
       path: topmostSubform[0].Page1[0].f_14[0]
-  withholding_rate_pct:
+    label_source: llm
+    x_petey_identifiers:
+      subject: treaty_article_and_paragraph
+  treaty_withholding_rate_pct:
     x_petey_id: '1_16'
     type: number
     semantic_type: percent
@@ -221,10 +325,13 @@ fields:
       - 479.9989929199219
       widget_type: text
       path: topmostSubform[0].Page1[0].f_15[0]
-  income_type_txt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: treaty_withholding_rate
+      suffix: pct
+  treaty_income_type:
     x_petey_id: '1_17'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -234,10 +341,12 @@ fields:
       - 491.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f_16[0]
-  withholding_rate_continuation_txt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: treaty_income_type
+  treaty_additional_conditions:
     x_petey_id: '1_18'
-    type: number
-    semantic_type: percent
+    type: string
     widget:
       page: 1
       rect:
@@ -247,10 +356,12 @@ fields:
       - 504.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f_17[0]
-  additional_conditions_txt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: treaty_additional_conditions
+  treaty_additional_conditions_2:
     x_petey_id: '1_19'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -260,6 +371,9 @@ fields:
       - 515.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f_18[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: treaty_additional_conditions_2
   capacity_to_sign_ind:
     x_petey_id: '1_20'
     type: boolean
@@ -273,10 +387,13 @@ fields:
       - 693.9990234375
       widget_type: checkbox
       path: topmostSubform[0].Page1[0].c1_02[0]
-  beneficial_owner_signature_nm:
+    label_source: llm
+    x_petey_identifiers:
+      subject: capacity_to_sign
+      suffix: ind
+  signature:
     x_petey_id: '1_21'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -286,6 +403,9 @@ fields:
       - 720.0029907226562
       widget_type: text
       path: topmostSubform[0].Page1[0].f_20[0]
+    label_source: llm
+    x_petey_identifiers:
+      suffix: signature
   signature_dt:
     x_petey_id: '1_22'
     type: date
@@ -299,12 +419,13 @@ fields:
       - 720.0020141601562
       widget_type: text
       path: topmostSubform[0].Page1[0].Date[0]
-    x_petey_retype:
-    - pattern_dropped
-  signer_print_nm:
+    label_source: llm
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
+  signer_printed_nm:
     x_petey_id: '1_23'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -314,3 +435,49 @@ fields:
       - 744.0009765625
       widget_type: text
       path: topmostSubform[0].Page1[0].f_21[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: signer_printed
+      suffix: nm
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 1
+  collisions:
+  - original_label: treaty_additional_conditions
+    assigned_label: treaty_additional_conditions_2
+    page: 1
+    rect:
+    - 64.80000305175781
+    - 504.0
+    - 576.0
+    - 515.9990234375
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 2
+x_petey_page_check:
+  record: runs/judge_eval/form_runs/fw8ben.json
+  model: gemini-3.8-flash (round 0), claude-opus-5 (loop)
+  prompt: 2ddd7670
+  when: '2026-10-14 19:13:13'
+  fields: 23
+  checked: 23
+  flagged: 1
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: fw8ben_20261014_191306
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/fw8ben.bpt
+  when: '2026-10-14 19:13:13'
+x_petey_run:
+  record: runs/judge_eval/form_runs/fw8ben.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-14 19:13:13'

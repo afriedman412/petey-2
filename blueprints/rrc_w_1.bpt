@@ -22,6 +22,8 @@ fields:
       widget_type: text
       path: API No
     label_source: llm
+    x_petey_identifiers:
+      subject: api_no
   drilling_permit_no:
     x_petey_id: '1_2'
     type: string
@@ -39,6 +41,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: drilling_permit_no
   rrc_operator_no:
     x_petey_id: '1_3'
     type: string
@@ -56,10 +60,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: rrc_operator_no
   operator_nm:
     x_petey_id: '1_4'
     type: string
-    semantic_type: person_name
+    semantic_type: business_name
     widget:
       page: 1
       rect:
@@ -70,6 +76,26 @@ fields:
       widget_type: text
       path: 2. Operator Name
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: operator_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: operator_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 2 Operator Name as shown on the P-5 Organization Report is the operating
+        company, not a person.
+    x_petey_identifiers:
+      subject: operator
+      suffix: nm
   operator_address_txt:
     x_petey_id: '1_5'
     type: string
@@ -88,10 +114,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: operator_address
+      suffix: txt
   lease_nm:
     x_petey_id: '1_6'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -106,6 +134,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: lease_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: lease_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: lease
+      suffix: nm
   well_no:
     x_petey_id: '1_7'
     type: string
@@ -119,62 +166,86 @@ fields:
       widget_type: text
       path: 5. Well No
     label_source: llm
-  surface_hole_off_lease_yes_ind:
-    x_petey_id: '1_10'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 205.8000030517578
-      - 182.72698974609375
-      - 213.16400146484375
-      - 190.09100341796875
-      widget_type: checkbox
-      path: Check Box13.0.0
-    label_source: llm
-  surface_hole_off_lease_no_ind:
-    x_petey_id: '1_11'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 253.8000030517578
-      - 182.65899658203125
-      - 261.16400146484375
-      - 190.02301025390625
-      widget_type: checkbox
-      path: Check Box13.0.1
-    label_source: llm
-  penetration_point_off_lease_yes_ind:
-    x_petey_id: '1_12'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 297.0
-      - 204.45498657226562
-      - 304.364013671875
-      - 211.8179931640625
-      widget_type: checkbox
-      path: Check Box13.1.0
-    label_source: llm
-  penetration_point_off_lease_no_ind:
-    x_petey_id: '1_13'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 343.1090087890625
-      - 204.23599243164062
-      - 350.4729919433594
-      - 211.60000610351562
-      widget_type: checkbox
-      path: Check Box13.1.1
-    label_source: llm
+    x_petey_identifiers:
+      subject: well_no
+  surface_hole_off_lease:
+    x_petey_id: '1_53'
+    type: category
+    values:
+    - surface_hole_off_lease_yes_ind
+    - surface_hole_off_lease_no_ind
+    widgets:
+      surface_hole_off_lease_yes_ind:
+        page: 1
+        rect:
+        - 205.8000030517578
+        - 182.72698974609375
+        - 213.16400146484375
+        - 190.09100341796875
+        widget_type: checkbox
+        path: Check Box13.0.0
+        on_state: 'Yes'
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+      surface_hole_off_lease_no_ind:
+        page: 1
+        rect:
+        - 253.8000030517578
+        - 182.65899658203125
+        - 261.16400146484375
+        - 190.02301025390625
+        widget_type: checkbox
+        path: Check Box13.0.1
+        on_state: 'Yes'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 20:06:19'
+      from:
+      - surface_hole_off_lease::surface_hole_off_lease_yes_ind
+      - surface_hole_off_lease::surface_hole_off_lease_no_ind
+    x_petey_identifiers:
+      subject: surface_hole_off_lease
+  penetration_point_off_lease:
+    x_petey_id: '1_54'
+    type: category
+    values:
+    - penetration_point_off_lease_yes_ind
+    - penetration_point_off_lease_no_ind
+    widgets:
+      penetration_point_off_lease_yes_ind:
+        page: 1
+        rect:
+        - 297.0
+        - 204.45498657226562
+        - 304.364013671875
+        - 211.8179931640625
+        widget_type: checkbox
+        path: Check Box13.1.0
+        on_state: 'Yes'
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+      penetration_point_off_lease_no_ind:
+        page: 1
+        rect:
+        - 343.1090087890625
+        - 204.23599243164062
+        - 350.4729919433594
+        - 211.60000610351562
+        widget_type: checkbox
+        path: Check Box13.1.1
+        on_state: 'Yes'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 20:06:19'
+      from:
+      - penetration_point_off_lease::penetration_point_off_lease_yes_ind
+      - penetration_point_off_lease::penetration_point_off_lease_no_ind
+    x_petey_identifiers:
+      subject: penetration_point_off_lease
   stacked_lateral_drilling_permit_no:
     x_petey_id: '1_15'
     type: string
@@ -192,10 +263,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: stacked_lateral_drilling_permit_no
   true_vertical_depth_amt:
     x_petey_id: '1_17'
     type: number
-    semantic_type: money
     widget:
       page: 1
       rect:
@@ -211,34 +283,64 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  right_to_develop_minerals_row_yes_ind:
-    x_petey_id: '1_18'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 597.8359985351562
-      - 269.0360107421875
-      - 605.2999877929688
-      - 276.5
-      widget_type: checkbox
-      path: Check Box2
-    label_source: llm
-  right_to_develop_minerals_row_no_ind:
-    x_petey_id: '1_19'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 643.6060180664062
-      - 269.0509948730469
-      - 651.0700073242188
-      - 276.5140075683594
-      widget_type: checkbox
-      path: Check Box3
-    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: true_vertical_depth_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: true_vertical_depth_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 10 True Vertical Depth is a depth in feet, not money.
+    x_petey_identifiers:
+      subject: true_vertical_depth
+      suffix: amt
+  right_to_develop_minerals_row:
+    x_petey_id: '1_55'
+    type: category
+    values:
+    - right_to_develop_minerals_row_yes_ind
+    - right_to_develop_minerals_row_no_ind
+    widgets:
+      right_to_develop_minerals_row_yes_ind:
+        page: 1
+        rect:
+        - 597.8359985351562
+        - 269.0360107421875
+        - 605.2999877929688
+        - 276.5
+        widget_type: checkbox
+        path: Check Box2
+        on_state: 'Yes'
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+      right_to_develop_minerals_row_no_ind:
+        page: 1
+        rect:
+        - 643.6060180664062
+        - 269.0509948730469
+        - 651.0700073242188
+        - 276.5140075683594
+        widget_type: checkbox
+        path: Check Box3
+        on_state: 'Yes'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 20:06:19'
+      from:
+      - right_to_develop_minerals_row_yes_ind
+      - right_to_develop_minerals_row_no_ind
+    x_petey_identifiers:
+      subject: right_to_develop_minerals_row
   rrc_district_no:
     x_petey_id: '1_20'
     type: string
@@ -256,10 +358,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: rrc_district_no
   county_nm:
     x_petey_id: '1_21'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -270,10 +373,28 @@ fields:
       widget_type: text
       path: 13 County
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: county_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: county_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: county
+      suffix: nm
   well_location_miles_amt:
     x_petey_id: '1_23'
     type: number
-    semantic_type: money
     widget:
       page: 1
       rect:
@@ -289,6 +410,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: well_location_miles_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: well_location_miles_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 15 '___ miles in a ___ direction' is a distance in miles, not money.
+    x_petey_identifiers:
+      subject: well_location_miles
+      suffix: amt
   well_location_direction_cd:
     x_petey_id: '1_24'
     type: string
@@ -302,6 +442,9 @@ fields:
       widget_type: text
       path: miles in a
     label_source: llm
+    x_petey_identifiers:
+      subject: well_location_direction
+      suffix: cd
   well_location_nearest_town_nm:
     x_petey_id: '1_25'
     type: string
@@ -320,6 +463,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: well_location_nearest_town
+      suffix: nm
   x_or_northing_coord:
     x_petey_id: '1_26'
     type: string
@@ -337,6 +483,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: x_or_northing_coord
   y_or_easting_coord:
     x_petey_id: '1_29'
     type: string
@@ -350,6 +498,8 @@ fields:
       widget_type: text
       path: ng
     label_source: llm
+    x_petey_identifiers:
+      subject: y_or_easting_coord
   zone_cd:
     x_petey_id: '1_31'
     type: string
@@ -363,6 +513,9 @@ fields:
       widget_type: text
       path: Zone
     label_source: llm
+    x_petey_identifiers:
+      subject: zone
+      suffix: cd
   latitude_coord:
     x_petey_id: '1_27'
     type: string
@@ -376,6 +529,8 @@ fields:
       widget_type: text
       path: Latitude
     label_source: llm
+    x_petey_identifiers:
+      subject: latitude_coord
   longitude_coord:
     x_petey_id: '1_30'
     type: string
@@ -389,6 +544,8 @@ fields:
       widget_type: text
       path: Longitude
     label_source: llm
+    x_petey_identifiers:
+      subject: longitude_coord
   section_no:
     x_petey_id: '1_32'
     type: string
@@ -402,6 +559,8 @@ fields:
       widget_type: text
       path: 16. Section
     label_source: llm
+    x_petey_identifiers:
+      subject: section_no
   block_no:
     x_petey_id: '1_33'
     type: string
@@ -415,10 +574,11 @@ fields:
       widget_type: text
       path: 17. Block
     label_source: llm
+    x_petey_identifiers:
+      subject: block_no
   survey_nm:
     x_petey_id: '1_34'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -429,6 +589,25 @@ fields:
       widget_type: text
       path: 18 Survey
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: survey_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: survey_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: survey
+      suffix: nm
   abstract_no:
     x_petey_id: '1_35'
     type: string
@@ -446,10 +625,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: abstract_no
   distance_to_nearest_lease_line_amt:
     x_petey_id: '1_37'
     type: number
-    semantic_type: money
     widget:
       page: 1
       rect:
@@ -465,10 +645,28 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: distance_to_nearest_lease_line_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: distance_to_nearest_lease_line_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 20 is a distance in feet, not money.
+    x_petey_identifiers:
+      subject: distance_to_nearest_lease_line
+      suffix: amt
   total_acres_amt:
     x_petey_id: '1_36'
     type: number
-    semantic_type: money
     widget:
       page: 1
       rect:
@@ -484,10 +682,28 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: total_acres_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: total_acres_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 21 Number of total acres is an area, not money.
+    x_petey_identifiers:
+      subject: total_acres
+      suffix: amt
   township_nm:
     x_petey_id: '1_38'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -502,10 +718,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: township_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: township_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: township
+      suffix: nm
   league_nm:
     x_petey_id: '1_39'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -516,10 +750,28 @@ fields:
       widget_type: text
       path: League
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: league_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: league_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: league
+      suffix: nm
   labor_nm:
     x_petey_id: '1_40'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -530,10 +782,28 @@ fields:
       widget_type: text
       path: Labor
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: labor_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: labor_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: labor
+      suffix: nm
   porcion_nm:
     x_petey_id: '1_41'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -544,10 +814,28 @@ fields:
       widget_type: text
       path: Porcion
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: porcion_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: porcion_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: porcion
+      suffix: nm
   share_nm:
     x_petey_id: '1_42'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -558,10 +846,28 @@ fields:
       widget_type: text
       path: Share
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: share_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: share_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: share
+      suffix: nm
   tract_nm:
     x_petey_id: '1_43'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -572,10 +878,28 @@ fields:
       widget_type: text
       path: Tract
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: tract_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: tract_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: tract
+      suffix: nm
   lot_nm:
     x_petey_id: '1_44'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -586,10 +910,28 @@ fields:
       widget_type: text
       path: Lot
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: lot_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: lot_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: lot
+      suffix: nm
   lease_perpendicular_1_ft_amt:
     x_petey_id: '1_45'
     type: number
-    semantic_type: money
     widget:
       page: 1
       rect:
@@ -605,10 +947,30 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: lease_perpendicular_1_ft_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: lease_perpendicular_1_ft_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 23 '___ ft. from the ___ line' is a distance in feet, not money.
+    x_petey_identifiers:
+      block_prefix: lease_perpendicular
+      block_iteration: '1'
+      subject: ft
+      suffix: amt
   lease_perpendicular_1_line_nm:
     x_petey_id: '1_46'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -623,10 +985,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: lease_perpendicular_1_line_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: lease_perpendicular_1_line_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: lease_perpendicular
+      block_iteration: '1'
+      subject: line
+      suffix: nm
   lease_perpendicular_2_ft_amt:
     x_petey_id: '1_47'
     type: number
-    semantic_type: money
     widget:
       page: 1
       rect:
@@ -639,10 +1021,31 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: lease_perpendicular_2_ft_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: lease_perpendicular_2_ft_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 23 second call '___ ft. from the ___ line' is a distance in feet,
+        not money.
+    x_petey_identifiers:
+      block_prefix: lease_perpendicular
+      block_iteration: '2'
+      subject: ft
+      suffix: amt
   lease_perpendicular_2_line_nm:
     x_petey_id: '1_48'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -657,10 +1060,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: lease_perpendicular_2_line_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: lease_perpendicular_2_line_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: lease_perpendicular
+      block_iteration: '2'
+      subject: line
+      suffix: nm
   survey_perpendicular_1_ft_amt:
     x_petey_id: '1_52'
     type: number
-    semantic_type: money
     widget:
       page: 1
       rect:
@@ -676,10 +1099,30 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: survey_perpendicular_1_ft_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: survey_perpendicular_1_ft_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 24 '___ ft. from the ___ line' is a distance in feet, not money.
+    x_petey_identifiers:
+      block_prefix: survey_perpendicular
+      block_iteration: '1'
+      subject: ft
+      suffix: amt
   survey_perpendicular_1_line_nm:
     x_petey_id: '1_49'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -694,10 +1137,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: survey_perpendicular_1_line_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: survey_perpendicular_1_line_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: survey_perpendicular
+      block_iteration: '1'
+      subject: line
+      suffix: nm
   survey_perpendicular_2_ft_amt:
     x_petey_id: '1_50'
     type: number
-    semantic_type: money
     widget:
       page: 1
       rect:
@@ -710,10 +1173,30 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: survey_perpendicular_2_ft_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: survey_perpendicular_2_ft_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 24 second call is a distance in feet, not money.
+    x_petey_identifiers:
+      block_prefix: survey_perpendicular
+      block_iteration: '2'
+      subject: ft
+      suffix: amt
   survey_perpendicular_2_line_nm:
     x_petey_id: '1_51'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -728,6 +1211,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: survey_perpendicular_2_line_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: survey_perpendicular_2_line_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: survey_perpendicular
+      block_iteration: '2'
+      subject: line
+      suffix: nm
   unitization_docket_no:
     x_petey_id: '2_1'
     type: string
@@ -745,6 +1249,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: unitization_docket_no
   field_info_row1_rrc_district_no:
     x_petey_id: '2_4'
     type: string
@@ -762,6 +1268,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: field_info_row1_rrc_district_no
+      grid: p2-G1
   field_info_row1_field_no:
     x_petey_id: '2_5'
     type: string
@@ -779,10 +1288,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: field_info_row1_field_no
+      grid: p2-G1
   field_info_row1_field_nm:
     x_petey_id: '2_6'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -797,6 +1308,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row1_field_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: field_info_row1_field_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: field_info_row1_field
+      suffix: nm
+      grid: p2-G1
   field_info_row1_well_type:
     x_petey_id: '2_7'
     type: string
@@ -814,9 +1345,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: field_info_row1_well_type
+      grid: p2-G1
   field_info_row1_completion_depth:
     x_petey_id: '2_8'
-    type: string
+    type: number
     widget:
       page: 2
       rect:
@@ -831,9 +1365,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row1_completion_depth
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: field_info_row1_completion_depth
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 32 Completion Depth is a depth in feet.
+    x_petey_identifiers:
+      subject: field_info_row1_completion_depth
+      grid: p2-G1
   field_info_row1_distance_to_nearest_well:
     x_petey_id: '2_9'
-    type: string
+    type: number
     widget:
       page: 2
       rect:
@@ -848,9 +1401,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row1_distance_to_nearest_well
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: field_info_row1_distance_to_nearest_well
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 33 Distance to Nearest Well is a distance in feet.
+    x_petey_identifiers:
+      subject: field_info_row1_distance_to_nearest_well
+      grid: p2-G1
   field_info_row1_no_of_wells:
     x_petey_id: '2_10'
-    type: string
+    type: integer
     widget:
       page: 2
       rect:
@@ -865,6 +1437,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: count
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row1_no_of_wells
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: field_info_row1_no_of_wells
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 34 No. of Wells on this lease in this reservoir is a count.
+    x_petey_identifiers:
+      subject: field_info_row1_no_of_wells
+      grid: p2-G1
   field_info_row2_rrc_district_no:
     x_petey_id: '2_11'
     type: string
@@ -882,6 +1474,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: field_info_row2_rrc_district_no
+      grid: p2-G1
   field_info_row2_field_no:
     x_petey_id: '2_12'
     type: string
@@ -899,10 +1494,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: field_info_row2_field_no
+      grid: p2-G1
   field_info_row2_field_nm:
     x_petey_id: '2_13'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -917,6 +1514,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row2_field_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: field_info_row2_field_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: field_info_row2_field
+      suffix: nm
+      grid: p2-G1
   field_info_row2_well_type:
     x_petey_id: '2_14'
     type: string
@@ -934,9 +1551,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: field_info_row2_well_type
+      grid: p2-G1
   field_info_row2_completion_depth:
     x_petey_id: '2_15'
-    type: string
+    type: number
     widget:
       page: 2
       rect:
@@ -951,9 +1571,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row2_completion_depth
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: field_info_row2_completion_depth
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 32 Completion Depth is a depth in feet.
+    x_petey_identifiers:
+      subject: field_info_row2_completion_depth
+      grid: p2-G1
   field_info_row2_distance_to_nearest_well:
     x_petey_id: '2_16'
-    type: string
+    type: number
     widget:
       page: 2
       rect:
@@ -968,9 +1607,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row2_distance_to_nearest_well
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: field_info_row2_distance_to_nearest_well
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 33 Distance to Nearest Well is a distance in feet.
+    x_petey_identifiers:
+      subject: field_info_row2_distance_to_nearest_well
+      grid: p2-G1
   field_info_row2_no_of_wells:
     x_petey_id: '2_17'
-    type: string
+    type: integer
     widget:
       page: 2
       rect:
@@ -985,6 +1643,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: count
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row2_no_of_wells
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: field_info_row2_no_of_wells
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 34 No. of Wells on this lease in this reservoir is a count.
+    x_petey_identifiers:
+      subject: field_info_row2_no_of_wells
+      grid: p2-G1
   field_info_row3_rrc_district_no:
     x_petey_id: '2_18'
     type: string
@@ -1002,6 +1680,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: field_info_row3_rrc_district_no
+      grid: p2-G1
   field_info_row3_field_no:
     x_petey_id: '2_19'
     type: string
@@ -1019,10 +1700,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: field_info_row3_field_no
+      grid: p2-G1
   field_info_row3_field_nm:
     x_petey_id: '2_20'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -1037,6 +1720,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row3_field_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: field_info_row3_field_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: field_info_row3_field
+      suffix: nm
+      grid: p2-G1
   field_info_row3_well_type:
     x_petey_id: '2_21'
     type: string
@@ -1054,9 +1757,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: field_info_row3_well_type
+      grid: p2-G1
   field_info_row3_completion_depth:
     x_petey_id: '2_22'
-    type: string
+    type: number
     widget:
       page: 2
       rect:
@@ -1071,9 +1777,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row3_completion_depth
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: field_info_row3_completion_depth
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 32 Completion Depth is a depth in feet.
+    x_petey_identifiers:
+      subject: field_info_row3_completion_depth
+      grid: p2-G1
   field_info_row3_distance_to_nearest_well:
     x_petey_id: '2_23'
-    type: string
+    type: number
     widget:
       page: 2
       rect:
@@ -1088,9 +1813,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row3_distance_to_nearest_well
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: field_info_row3_distance_to_nearest_well
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 33 Distance to Nearest Well is a distance in feet.
+    x_petey_identifiers:
+      subject: field_info_row3_distance_to_nearest_well
+      grid: p2-G1
   field_info_row3_no_of_wells:
     x_petey_id: '2_24'
-    type: string
+    type: integer
     widget:
       page: 2
       rect:
@@ -1105,6 +1849,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: count
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row3_no_of_wells
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: field_info_row3_no_of_wells
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 34 No. of Wells on this lease in this reservoir is a count.
+    x_petey_identifiers:
+      subject: field_info_row3_no_of_wells
+      grid: p2-G1
   field_info_row4_rrc_district_no:
     x_petey_id: '2_25'
     type: string
@@ -1122,6 +1886,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: field_info_row4_rrc_district_no
+      grid: p2-G1
   field_info_row4_field_no:
     x_petey_id: '2_26'
     type: string
@@ -1139,10 +1906,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: field_info_row4_field_no
+      grid: p2-G1
   field_info_row4_field_nm:
     x_petey_id: '2_27'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -1157,6 +1926,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row4_field_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: field_info_row4_field_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: field_info_row4_field
+      suffix: nm
+      grid: p2-G1
   field_info_row4_well_type:
     x_petey_id: '2_28'
     type: string
@@ -1174,9 +1963,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: field_info_row4_well_type
+      grid: p2-G1
   field_info_row4_completion_depth:
     x_petey_id: '2_29'
-    type: string
+    type: number
     widget:
       page: 2
       rect:
@@ -1191,9 +1983,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row4_completion_depth
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: field_info_row4_completion_depth
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 32 Completion Depth is a depth in feet.
+    x_petey_identifiers:
+      subject: field_info_row4_completion_depth
+      grid: p2-G1
   field_info_row4_distance_to_nearest_well:
     x_petey_id: '2_30'
-    type: string
+    type: number
     widget:
       page: 2
       rect:
@@ -1208,9 +2019,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row4_distance_to_nearest_well
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: field_info_row4_distance_to_nearest_well
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 33 Distance to Nearest Well is a distance in feet.
+    x_petey_identifiers:
+      subject: field_info_row4_distance_to_nearest_well
+      grid: p2-G1
   field_info_row4_no_of_wells:
     x_petey_id: '2_31'
-    type: string
+    type: integer
     widget:
       page: 2
       rect:
@@ -1225,6 +2055,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: count
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row4_no_of_wells
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: field_info_row4_no_of_wells
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 34 No. of Wells on this lease in this reservoir is a count.
+    x_petey_identifiers:
+      subject: field_info_row4_no_of_wells
+      grid: p2-G1
   field_info_row5_rrc_district_no:
     x_petey_id: '2_37'
     type: string
@@ -1242,6 +2092,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: field_info_row5_rrc_district_no
+      grid: p2-G1
   field_info_row5_field_no:
     x_petey_id: '2_38'
     type: string
@@ -1259,10 +2112,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: field_info_row5_field_no
+      grid: p2-G1
   field_info_row5_field_nm:
     x_petey_id: '2_32'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -1277,6 +2132,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row5_field_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: field_info_row5_field_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: field_info_row5_field
+      suffix: nm
+      grid: p2-G1
   field_info_row5_well_type:
     x_petey_id: '2_33'
     type: string
@@ -1294,9 +2169,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: field_info_row5_well_type
+      grid: p2-G1
   field_info_row5_completion_depth:
     x_petey_id: '2_34'
-    type: string
+    type: number
     widget:
       page: 2
       rect:
@@ -1311,9 +2189,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row5_completion_depth
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: field_info_row5_completion_depth
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 32 Completion Depth is a depth in feet.
+    x_petey_identifiers:
+      subject: field_info_row5_completion_depth
+      grid: p2-G1
   field_info_row5_distance_to_nearest_well:
     x_petey_id: '2_35'
-    type: string
+    type: number
     widget:
       page: 2
       rect:
@@ -1328,9 +2225,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row5_distance_to_nearest_well
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: field_info_row5_distance_to_nearest_well
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 33 Distance to Nearest Well is a distance in feet.
+    x_petey_identifiers:
+      subject: field_info_row5_distance_to_nearest_well
+      grid: p2-G1
   field_info_row5_no_of_wells:
     x_petey_id: '2_36'
-    type: string
+    type: integer
     widget:
       page: 2
       rect:
@@ -1345,6 +2261,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: count
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: field_info_row5_no_of_wells
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: field_info_row5_no_of_wells
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: Item 34 No. of Wells on this lease in this reservoir is a count.
+    x_petey_identifiers:
+      subject: field_info_row5_no_of_wells
+      grid: p2-G1
   swr_exception_request_txt:
     x_petey_id: '2_39'
     type: string
@@ -1363,6 +2299,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: swr_exception_request
+      suffix: txt
   swr_exception_case_docket_no:
     x_petey_id: '2_40'
     type: string
@@ -1380,84 +2319,91 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  swr37_lease_line_own_offset_ind:
-    x_petey_id: '2_41'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 253.99899291992188
-      - 275.9620056152344
-      - 261.3190002441406
-      - 283.27398681640625
-      widget_type: checkbox
-      path: Own Offset_2
+    x_petey_identifiers:
+      subject: swr_exception_case_docket_no
+  swr37_lease_line_resolution:
+    x_petey_id: '2_74'
+    type: multi_category
+    values:
+    - swr37_lease_line_own_offset_ind
+    - swr37_lease_line_waiver_ind
+    - swr37_lease_line_service_list_ind
+    - swr37_lease_line_publication_ind
+    - swr37_lease_line_hearing_ind
+    widgets:
+      swr37_lease_line_own_offset_ind:
+        page: 2
+        rect:
+        - 253.99899291992188
+        - 275.9620056152344
+        - 261.3190002441406
+        - 283.27398681640625
+        widget_type: checkbox
+        path: Own Offset_2
+        on_state: 'On'
+        caption: Own Offset
+        x_petey_caption_source: page_choice
+      swr37_lease_line_waiver_ind:
+        page: 2
+        rect:
+        - 332.6400146484375
+        - 276.00299072265625
+        - 339.9599914550781
+        - 283.31500244140625
+        widget_type: checkbox
+        path: Waiver_2
+        on_state: 'On'
+        caption: Waiver
+        x_petey_caption_source: page_choice
+      swr37_lease_line_service_list_ind:
+        page: 2
+        rect:
+        - 388.5329895019531
+        - 274.7950134277344
+        - 395.8529968261719
+        - 282.10699462890625
+        widget_type: checkbox
+        path: Service List
+        on_state: 'On'
+        caption: Service List
+        x_petey_caption_source: tooltip
+      swr37_lease_line_publication_ind:
+        page: 2
+        rect:
+        - 459.572998046875
+        - 274.8160095214844
+        - 466.89300537109375
+        - 282.1289978027344
+        widget_type: checkbox
+        path: Publication If direct notice was not possible_2
+        on_state: 'On'
+        caption: Publication (If direct notice was not possible)
+        x_petey_caption_source: page_choice
+      swr37_lease_line_hearing_ind:
+        page: 2
+        rect:
+        - 653.510986328125
+        - 274.8169860839844
+        - 660.8309936523438
+        - 282.1289978027344
+        widget_type: checkbox
+        path: Hearing_2
+        on_state: 'On'
+        caption: Hearing
+        x_petey_caption_source: page_text
     label_source: llm
-  swr37_lease_line_waiver_ind:
-    x_petey_id: '2_42'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 332.6400146484375
-      - 276.00299072265625
-      - 339.9599914550781
-      - 283.31500244140625
-      widget_type: checkbox
-      path: Waiver_2
-    label_source: llm
-  swr37_lease_line_service_list_ind:
-    x_petey_id: '2_43'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 388.5329895019531
-      - 274.7950134277344
-      - 395.8529968261719
-      - 282.10699462890625
-      widget_type: checkbox
-      path: Service List
-    label_source: llm
-    description: Service List
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  swr37_lease_line_publication_ind:
-    x_petey_id: '2_44'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 459.572998046875
-      - 274.8160095214844
-      - 466.89300537109375
-      - 282.1289978027344
-      widget_type: checkbox
-      path: Publication If direct notice was not possible_2
-    label_source: llm
-    description: Publication (If direct notice was not possible
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  swr37_lease_line_hearing_ind:
-    x_petey_id: '2_45'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 653.510986328125
-      - 274.8169860839844
-      - 660.8309936523438
-      - 282.1289978027344
-      widget_type: checkbox
-      path: Hearing_2
-    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 15:03:03'
+      from:
+      - swr37_lease_line_own_offset_ind
+      - swr37_lease_line_waiver_ind
+      - swr37_lease_line_service_list_ind
+      - swr37_lease_line_publication_ind
+      - swr37_lease_line_hearing_ind
+      name_from: labeler
+    x_petey_identifiers:
+      subject: swr37_lease_line_resolution
   entity_for_density_docket_no:
     x_petey_id: '2_46'
     type: string
@@ -1471,222 +2417,244 @@ fields:
       widget_type: text
       path: If you seek an exception choose all appropriate resolutions
     label_source: llm
-  swr37_well_spacing_own_offset_ind:
-    x_petey_id: '2_47'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 253.17300415039062
-      - 318.9540100097656
-      - 260.4930114746094
-      - 326.2669982910156
-      widget_type: checkbox
-      path: Own Offset_3
+    x_petey_identifiers:
+      subject: entity_for_density_docket_no
+  swr37_between_well_spacing_resolution:
+    x_petey_id: '2_75'
+    type: multi_category
+    values:
+    - swr37_well_spacing_own_offset_ind
+    - swr37_well_spacing_waiver_ind
+    - swr37_well_spacing_service_list_ind
+    - swr37_well_spacing_publication_ind
+    - swr37_well_spacing_hearing_ind
+    - swr37_well_spacing_unaffected_ind
+    widgets:
+      swr37_well_spacing_own_offset_ind:
+        page: 2
+        rect:
+        - 253.17300415039062
+        - 318.9540100097656
+        - 260.4930114746094
+        - 326.2669982910156
+        widget_type: checkbox
+        path: Own Offset_3
+        on_state: 'On'
+        caption: Own Offset
+        x_petey_caption_source: page_choice
+      swr37_well_spacing_waiver_ind:
+        page: 2
+        rect:
+        - 331.77301025390625
+        - 318.6050109863281
+        - 339.0929870605469
+        - 325.9179992675781
+        widget_type: checkbox
+        path: Waiver_3
+        on_state: 'On'
+        caption: Waiver
+        x_petey_caption_source: page_choice
+      swr37_well_spacing_service_list_ind:
+        page: 2
+        rect:
+        - 386.3590087890625
+        - 318.9360046386719
+        - 393.6789855957031
+        - 326.24798583984375
+        widget_type: checkbox
+        path: Service List_2
+        on_state: 'On'
+        caption: Service List
+        x_petey_caption_source: tooltip
+      swr37_well_spacing_publication_ind:
+        page: 2
+        rect:
+        - 457.39898681640625
+        - 318.9490051269531
+        - 464.718994140625
+        - 326.2619934082031
+        widget_type: checkbox
+        path: Publication If direct notice was not possible_3
+        on_state: 'On'
+        caption: Publication (If direct notice was not possible)
+        x_petey_caption_source: page_choice
+      swr37_well_spacing_hearing_ind:
+        page: 2
+        rect:
+        - 653.4929809570312
+        - 318.9630126953125
+        - 660.81298828125
+        - 326.2749938964844
+        widget_type: checkbox
+        path: Hearing_3
+        on_state: 'On'
+        caption: Hearing
+        x_petey_caption_source: page_choice
+      swr37_well_spacing_unaffected_ind:
+        page: 2
+        rect:
+        - 704.52001953125
+        - 318.97698974609375
+        - 711.8400268554688
+        - 326.28900146484375
+        widget_type: checkbox
+        path: Unaffected
+        on_state: 'On'
+        caption: Unaffected
+        x_petey_caption_source: page_text
     label_source: llm
-  swr37_well_spacing_waiver_ind:
-    x_petey_id: '2_48'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 331.77301025390625
-      - 318.6050109863281
-      - 339.0929870605469
-      - 325.9179992675781
-      widget_type: checkbox
-      path: Waiver_3
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 15:03:03'
+      from:
+      - swr37_well_spacing_own_offset_ind
+      - swr37_well_spacing_waiver_ind
+      - swr37_well_spacing_service_list_ind
+      - swr37_well_spacing_publication_ind
+      - swr37_well_spacing_hearing_ind
+      - swr37_well_spacing_unaffected_ind
+      name_from: labeler
+    x_petey_identifiers:
+      subject: swr37_between_well_spacing_resolution
+  swr38_well_density_resolution:
+    x_petey_id: '2_76'
+    type: multi_category
+    values:
+    - swr38_well_density_own_offset_ind
+    - swr38_well_density_waiver_ind
+    - swr38_well_density_service_list_ind
+    - swr38_well_density_publication_ind
+    - swr38_well_density_hearing_ind
+    - swr38_well_density_unaffected_ind
+    widgets:
+      swr38_well_density_own_offset_ind:
+        page: 2
+        rect:
+        - 255.3979949951172
+        - 364.697021484375
+        - 262.7179870605469
+        - 372.0090026855469
+        widget_type: checkbox
+        path: Own Offset_4
+        on_state: 'On'
+        caption: Own Offset
+        x_petey_caption_source: page_choice
+      swr38_well_density_waiver_ind:
+        page: 2
+        rect:
+        - 333.9599914550781
+        - 364.697021484375
+        - 341.2799987792969
+        - 372.0090026855469
+        widget_type: checkbox
+        path: Waiver_4
+        on_state: 'On'
+        caption: Waiver
+        x_petey_caption_source: page_choice
+      swr38_well_density_service_list_ind:
+        page: 2
+        rect:
+        - 388.5329895019531
+        - 364.66900634765625
+        - 395.8529968261719
+        - 371.98101806640625
+        widget_type: checkbox
+        path: Service List_3
+        on_state: 'On'
+        caption: Service List
+        x_petey_caption_source: tooltip
+      swr38_well_density_publication_ind:
+        page: 2
+        rect:
+        - 459.62799072265625
+        - 364.7239990234375
+        - 466.947998046875
+        - 372.0369873046875
+        widget_type: checkbox
+        path: Publication If direct notice was not possible_4
+        on_state: 'On'
+        caption: '*Publication (If direct notice was not possible)'
+        x_petey_caption_source: page_choice
+      swr38_well_density_hearing_ind:
+        page: 2
+        rect:
+        - 655.7080078125
+        - 364.6239929199219
+        - 663.0280151367188
+        - 371.9360046386719
+        widget_type: checkbox
+        path: Hearing_4
+        on_state: 'On'
+        caption: Hearing
+        x_petey_caption_source: page_choice
+      swr38_well_density_unaffected_ind:
+        page: 2
+        rect:
+        - 699.9329833984375
+        - 364.67498779296875
+        - 707.2529907226562
+        - 371.98699951171875
+        widget_type: checkbox
+        path: Unaffected_2
+        on_state: 'On'
+        caption: Unaffected
+        x_petey_caption_source: page_text
     label_source: llm
-  swr37_well_spacing_service_list_ind:
-    x_petey_id: '2_49'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 386.3590087890625
-      - 318.9360046386719
-      - 393.6789855957031
-      - 326.24798583984375
-      widget_type: checkbox
-      path: Service List_2
-    label_source: llm
-    description: Service List
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  swr37_well_spacing_publication_ind:
-    x_petey_id: '2_50'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 457.39898681640625
-      - 318.9490051269531
-      - 464.718994140625
-      - 326.2619934082031
-      widget_type: checkbox
-      path: Publication If direct notice was not possible_3
-    label_source: llm
-    description: Publication (If direct notice was not possible
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  swr37_well_spacing_hearing_ind:
-    x_petey_id: '2_51'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 653.4929809570312
-      - 318.9630126953125
-      - 660.81298828125
-      - 326.2749938964844
-      widget_type: checkbox
-      path: Hearing_3
-    label_source: llm
-  swr37_well_spacing_unaffected_ind:
-    x_petey_id: '2_52'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 704.52001953125
-      - 318.97698974609375
-      - 711.8400268554688
-      - 326.28900146484375
-      widget_type: checkbox
-      path: Unaffected
-    label_source: llm
-  swr38_well_density_own_offset_ind:
-    x_petey_id: '2_53'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 255.3979949951172
-      - 364.697021484375
-      - 262.7179870605469
-      - 372.0090026855469
-      widget_type: checkbox
-      path: Own Offset_4
-    label_source: llm
-  swr38_well_density_waiver_ind:
-    x_petey_id: '2_54'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 333.9599914550781
-      - 364.697021484375
-      - 341.2799987792969
-      - 372.0090026855469
-      widget_type: checkbox
-      path: Waiver_4
-    label_source: llm
-  swr38_well_density_service_list_ind:
-    x_petey_id: '2_55'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 388.5329895019531
-      - 364.66900634765625
-      - 395.8529968261719
-      - 371.98101806640625
-      widget_type: checkbox
-      path: Service List_3
-    label_source: llm
-    description: Service List
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  swr38_well_density_publication_ind:
-    x_petey_id: '2_56'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 459.62799072265625
-      - 364.7239990234375
-      - 466.947998046875
-      - 372.0369873046875
-      widget_type: checkbox
-      path: Publication If direct notice was not possible_4
-    label_source: llm
-    description: Publication (If direct notice was not possible
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  swr38_well_density_hearing_ind:
-    x_petey_id: '2_57'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 655.7080078125
-      - 364.6239929199219
-      - 663.0280151367188
-      - 371.9360046386719
-      widget_type: checkbox
-      path: Hearing_4
-    label_source: llm
-  swr38_well_density_unaffected_ind:
-    x_petey_id: '2_58'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 699.9329833984375
-      - 364.67498779296875
-      - 707.2529907226562
-      - 371.98699951171875
-      widget_type: checkbox
-      path: Unaffected_2
-    label_source: llm
-  double_assign_acreage_swr40_yes_ind:
-    x_petey_id: '2_59'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 334.6910095214844
-      - 404.0
-      - 341.16400146484375
-      - 410.54498291015625
-      widget_type: checkbox
-      path: Check Box16.0.0
-    label_source: llm
-  double_assign_acreage_swr40_no_ind:
-    x_petey_id: '2_60'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 374.5450134277344
-      - 403.1820068359375
-      - 381.70599365234375
-      - 410.4230041503906
-      widget_type: checkbox
-      path: Check Box16.0.1
-    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 15:03:03'
+      from:
+      - swr38_well_density_own_offset_ind
+      - swr38_well_density_waiver_ind
+      - swr38_well_density_service_list_ind
+      - swr38_well_density_publication_ind
+      - swr38_well_density_hearing_ind
+      - swr38_well_density_unaffected_ind
+      name_from: labeler
+    x_petey_identifiers:
+      subject: swr38_well_density_resolution
+  double_assign_acreage_swr40:
+    x_petey_id: '2_73'
+    type: category
+    values:
+    - double_assign_acreage_swr40_yes_ind
+    - double_assign_acreage_swr40_no_ind
+    widgets:
+      double_assign_acreage_swr40_yes_ind:
+        page: 2
+        rect:
+        - 334.6910095214844
+        - 404.0
+        - 341.16400146484375
+        - 410.54498291015625
+        widget_type: checkbox
+        path: Check Box16.0.0
+        on_state: 'Yes'
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+      double_assign_acreage_swr40_no_ind:
+        page: 2
+        rect:
+        - 374.5450134277344
+        - 403.1820068359375
+        - 381.70599365234375
+        - 410.4230041503906
+        widget_type: checkbox
+        path: Check Box16.0.1
+        on_state: 'Yes'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 15:01:10'
+      from:
+      - double_assign_acreage_swr40::double_assign_acreage_swr40_yes_ind
+      - double_assign_acreage_swr40::double_assign_acreage_swr40_no_ind
+    x_petey_identifiers:
+      subject: double_assign_acreage_swr40
   upper_tvd_amt:
     x_petey_id: '2_61'
     type: number
-    semantic_type: money
     widget:
       page: 2
       rect:
@@ -1704,10 +2672,29 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: upper_tvd_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: upper_tvd_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: UPPER TVD (true vertical depth where the severance occurs, SWR 40) is a
+        depth in feet, not money.
+    x_petey_identifiers:
+      subject: upper_tvd
+      suffix: amt
   lower_tvd_amt:
     x_petey_id: '2_62'
     type: number
-    semantic_type: money
     widget:
       page: 2
       rect:
@@ -1720,34 +2707,64 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  applicant_owner_all_wells_yes_ind:
-    x_petey_id: '2_63'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 254.47300720214844
-      - 438.61798095703125
-      - 260.94500732421875
-      - 445.16400146484375
-      widget_type: checkbox
-      path: Check Box16.1.0
-    label_source: llm
-  applicant_owner_all_wells_no_ind:
-    x_petey_id: '2_64'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 294.2909851074219
-      - 437.9639892578125
-      - 301.3059997558594
-      - 445.0579833984375
-      widget_type: checkbox
-      path: Check Box16.1.1
-    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: lower_tvd_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: lower_tvd_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: LOWER TVD is a depth in feet, not money.
+    x_petey_identifiers:
+      subject: lower_tvd
+      suffix: amt
+  applicant_owner_all_wells:
+    x_petey_id: '2_72'
+    type: category
+    values:
+    - applicant_owner_all_wells_yes_ind
+    - applicant_owner_all_wells_no_ind
+    widgets:
+      applicant_owner_all_wells_yes_ind:
+        page: 2
+        rect:
+        - 254.47300720214844
+        - 438.61798095703125
+        - 260.94500732421875
+        - 445.16400146484375
+        widget_type: checkbox
+        path: Check Box16.1.0
+        on_state: 'Yes'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      applicant_owner_all_wells_no_ind:
+        page: 2
+        rect:
+        - 294.2909851074219
+        - 437.9639892578125
+        - 301.3059997558594
+        - 445.0579833984375
+        widget_type: checkbox
+        path: Check Box16.1.1
+        on_state: 'Yes'
+        caption: No*
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 20:06:19'
+      from:
+      - applicant_owner_all_wells_yes_ind
+      - applicant_owner_all_wells_no_ind
+    x_petey_identifiers:
+      subject: applicant_owner_all_wells
   double_assignment_approved_docket_no:
     x_petey_id: '2_65'
     type: string
@@ -1769,6 +2786,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: double_assignment_approved_docket_no
   remarks_txt:
     x_petey_id: '2_66'
     type: string
@@ -1783,10 +2802,12 @@ fields:
       widget_type: text
       path: Remarks
     label_source: llm
+    x_petey_identifiers:
+      subject: remarks
+      suffix: txt
   representative_nm:
     x_petey_id: '2_67'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -1801,6 +2822,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: representative_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: representative_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: representative
+      suffix: nm
   signature_dt:
     x_petey_id: '2_68'
     type: date
@@ -1820,6 +2860,9 @@ fields:
     - description_from_tooltip
     description: Date (mm/dd/yy
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
   telephone_no:
     x_petey_id: '2_69'
     type: string
@@ -1835,6 +2878,8 @@ fields:
       widget_type: text
       path: Telephone
     label_source: llm
+    x_petey_identifiers:
+      subject: telephone_no
   email_address_txt:
     x_petey_id: '2_70'
     type: string
@@ -1854,6 +2899,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: email_address
+      suffix: txt
   rrc_use_only_txt:
     x_petey_id: '2_71'
     type: string
@@ -1872,9 +2920,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: rrc_use_only
+      suffix: txt
   purpose_of_filing:
     x_petey_id: '1_8'
-    type: category
+    type: multi_category
     values:
     - amended_as_drilled_bhl_ind
     - amended_ind
@@ -1894,8 +2945,8 @@ fields:
         widget_type: checkbox
         path: New Drill
         on_state: 'On'
-        caption: Operator
-        x_petey_caption_source: page_text
+        caption: New Drill
+        x_petey_caption_source: claude
       recompletion_ind:
         page: 1
         rect:
@@ -1906,8 +2957,8 @@ fields:
         widget_type: checkbox
         path: Recompletion
         on_state: 'On'
-        caption: □ New Drill
-        x_petey_caption_source: page_text
+        caption: Recompletion
+        x_petey_caption_source: claude
       reclass_ind:
         page: 1
         rect:
@@ -1918,8 +2969,8 @@ fields:
         widget_type: checkbox
         path: Reclass
         on_state: 'On'
-        caption: □ Recompletion
-        x_petey_caption_source: page_text
+        caption: Reclass
+        x_petey_caption_source: claude
       field_transfer_ind:
         page: 1
         rect:
@@ -1930,8 +2981,8 @@ fields:
         widget_type: checkbox
         path: Field Transfer
         on_state: 'On'
-        caption: □ Reclass
-        x_petey_caption_source: page_text
+        caption: Field Transfer
+        x_petey_caption_source: claude
       re_enter_ind:
         page: 1
         rect:
@@ -1942,8 +2993,8 @@ fields:
         widget_type: checkbox
         path: Reenter
         on_state: 'On'
-        caption: □ Field Transfer
-        x_petey_caption_source: page_text
+        caption: Re-enter
+        x_petey_caption_source: claude
       amended_ind:
         page: 1
         rect:
@@ -1954,8 +3005,8 @@ fields:
         widget_type: checkbox
         path: Amended
         on_state: 'On'
-        caption: □ Re-enter
-        x_petey_caption_source: page_text
+        caption: Amended
+        x_petey_caption_source: claude
       amended_as_drilled_bhl_ind:
         page: 1
         rect:
@@ -1966,11 +3017,54 @@ fields:
         widget_type: checkbox
         path: Amended as Drilled BHL Include Form W1D
         on_state: 'On'
-        caption: □ Amended
-        x_petey_caption_source: page_text
+        caption: Amended as Drilled (BHL) (Include Form W-1D)
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: purpose_of_filing
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          new_drill_ind: Operator
+          recompletion_ind: □ New Drill
+          reclass_ind: □ Recompletion
+          field_transfer_ind: □ Reclass
+          re_enter_ind: □ Field Transfer
+          amended_ind: □ Re-enter
+          amended_as_drilled_bhl_ind: □ Amended
+      to:
+        name: purpose_of_filing
+        type: multi_category
+        semantic_type: null
+        pattern: null
+        options:
+          new_drill_ind:
+            caption: New Drill
+          recompletion_ind:
+            caption: Recompletion
+          reclass_ind:
+            caption: Reclass
+          field_transfer_ind:
+            caption: Field Transfer
+          re_enter_ind:
+            caption: Re-enter
+          amended_ind:
+            caption: Amended
+          amended_as_drilled_bhl_ind:
+            caption: Amended as Drilled (BHL) (Include Form W-1D)
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: caption
+      why: Each caption is the label of the box before it (the box sits left of its
+        own label; widget paths and tooltips confirm); item 6 says Mark ALL appropriate
+        boxes, so multi_category.
+    x_petey_identifiers:
+      subject: purpose_of_filing
   wellbore_profile:
     x_petey_id: '1_9'
-    type: category
+    type: multi_category
     values:
     - directional_ind
     - horizontal_ind
@@ -1987,8 +3081,8 @@ fields:
         widget_type: checkbox
         path: Vertical
         on_state: 'On'
-        caption: Drill
-        x_petey_caption_source: page_text
+        caption: Vertical
+        x_petey_caption_source: claude
       horizontal_ind:
         page: 1
         rect:
@@ -2011,8 +3105,8 @@ fields:
         widget_type: checkbox
         path: Directional Also File Form W1D
         on_state: 'On'
-        caption: Amended
-        x_petey_caption_source: page_text
+        caption: Directional (Also File Form W-1D)
+        x_petey_caption_source: claude
       sidetrack_ind:
         page: 1
         rect:
@@ -2023,8 +3117,39 @@ fields:
         widget_type: checkbox
         path: Sidetrack
         on_state: 'On'
-        caption: Form
-        x_petey_caption_source: page_text
+        caption: Sidetrack
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: wellbore_profile
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          vertical_ind: Drill
+          directional_ind: Amended
+          sidetrack_ind: Form
+      to:
+        name: wellbore_profile
+        type: multi_category
+        semantic_type: null
+        pattern: null
+        options:
+          vertical_ind:
+            caption: Vertical
+          directional_ind:
+            caption: Directional (Also File Form W-1D)
+          sidetrack_ind:
+            caption: Sidetrack
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: caption
+      why: Captions 'Drill', 'Amended', 'Form' are text from the line above; tooltips
+        and printed labels are Vertical / Directional (Also File Form W-1D) / Sidetrack;
+        item 7 says Mark ALL appropriate boxes.
+    x_petey_identifiers:
+      subject: wellbore_profile
   off_lease_resolution:
     x_petey_id: '1_14'
     type: category
@@ -2045,8 +3170,8 @@ fields:
         widget_type: checkbox
         path: Own Offset
         on_state: 'On'
-        caption: off-lease?
-        x_petey_caption_source: page_text
+        caption: Own Offset
+        x_petey_caption_source: claude
       waiver_ind:
         page: 1
         rect:
@@ -2057,8 +3182,8 @@ fields:
         widget_type: checkbox
         path: Waiver
         on_state: 'On'
-        caption: □ Own Offset
-        x_petey_caption_source: page_text
+        caption: Waiver
+        x_petey_caption_source: claude
       notice_ind:
         page: 1
         rect:
@@ -2069,8 +3194,8 @@ fields:
         widget_type: checkbox
         path: Notice
         on_state: 'On'
-        caption: (Also
-        x_petey_caption_source: page_text
+        caption: Notice
+        x_petey_caption_source: claude
       publication_ind:
         page: 1
         rect:
@@ -2081,8 +3206,8 @@ fields:
         widget_type: checkbox
         path: Publication If direct notice was not possible
         on_state: 'On'
-        caption: '*Publication'
-        x_petey_caption_source: page_text
+        caption: '*Publication (If direct notice was not possible)'
+        x_petey_caption_source: claude
       hearing_ind:
         page: 1
         rect:
@@ -2095,6 +3220,40 @@ fields:
         on_state: 'On'
         caption: Hearing
         x_petey_caption_source: page_text
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: off_lease_resolution
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          own_offset_ind: off-lease?
+          waiver_ind: □ Own Offset
+          notice_ind: (Also
+          publication_ind: '*Publication'
+      to:
+        name: off_lease_resolution
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          own_offset_ind:
+            caption: Own Offset
+          waiver_ind:
+            caption: Waiver
+          notice_ind:
+            caption: Notice
+          publication_ind:
+            caption: '*Publication (If direct notice was not possible)'
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: caption
+      why: 'Item 8c boxes: captions are shifted by one or picked from the line above;
+        tooltips and printed text right of each box give Own Offset, Waiver, Notice,
+        *Publication.'
+    x_petey_identifiers:
+      subject: off_lease_resolution
   horizontal_completion_type:
     x_petey_id: '1_16'
     type: category
@@ -2113,8 +3272,8 @@ fields:
         widget_type: checkbox
         path: Check Box1
         on_state: 'Yes'
-        caption: by a
-        x_petey_caption_source: page_text
+        caption: PSA
+        x_petey_caption_source: claude
       allocation_ind:
         page: 1
         rect:
@@ -2127,8 +3286,8 @@ fields:
           explaining why you need to publish the notice instead of relying on direct
           notification
         on_state: 'On'
-        caption: diligence
-        x_petey_caption_source: page_text
+        caption: Allocation
+        x_petey_caption_source: claude
       stacked_lateral_ind:
         page: 1
         rect:
@@ -2139,8 +3298,38 @@ fields:
         widget_type: checkbox
         path: Stacked Lateral
         on_state: 'On'
-        caption: □ Allocation
-        x_petey_caption_source: page_text
+        caption: Stacked Lateral
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: horizontal_completion_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          psa_ind: by a
+          allocation_ind: diligence
+          stacked_lateral_ind: □ Allocation
+      to:
+        name: horizontal_completion_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          psa_ind:
+            caption: PSA
+          allocation_ind:
+            caption: Allocation
+          stacked_lateral_ind:
+            caption: Stacked Lateral
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: caption
+      why: Item 9 Horizontal Wellbore Completion Type boxes are printed PSA / Allocation
+        / Stacked Lateral; current captions are fragments of the publication footnote.
+    x_petey_identifiers:
+      subject: horizontal_completion_type
   surface_location:
     x_petey_id: '1_22'
     type: category
@@ -2160,8 +3349,8 @@ fields:
         widget_type: checkbox
         path: Land
         on_state: 'On'
-        caption: under
-        x_petey_caption_source: page_text
+        caption: Land
+        x_petey_caption_source: claude
       bay_estuary_ind:
         page: 1
         rect:
@@ -2172,8 +3361,8 @@ fields:
         widget_type: checkbox
         path: BayEstuary
         on_state: 'On'
-        caption: □Land
-        x_petey_caption_source: page_text
+        caption: Bay/Estuary
+        x_petey_caption_source: claude
       inland_waterway_ind:
         page: 1
         rect:
@@ -2184,8 +3373,8 @@ fields:
         widget_type: checkbox
         path: Inland waterway
         on_state: 'On'
-        caption: □ Bay/Estuary
-        x_petey_caption_source: page_text
+        caption: Inland waterway
+        x_petey_caption_source: claude
       offshore_ind:
         page: 1
         rect:
@@ -2198,6 +3387,36 @@ fields:
         on_state: 'On'
         caption: Offshore
         x_petey_caption_source: page_text
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: surface_location
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          land_ind: under
+          bay_estuary_ind: □Land
+          inland_waterway_ind: □ Bay/Estuary
+      to:
+        name: surface_location
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          land_ind:
+            caption: Land
+          bay_estuary_ind:
+            caption: Bay/Estuary
+          inland_waterway_ind:
+            caption: Inland waterway
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: caption
+      why: Item 14 captions are shifted by one (each took the label of the box before
+        it); tooltips and printed text give Land, Bay/Estuary, Inland waterway.
+    x_petey_identifiers:
+      subject: surface_location
   datum:
     x_petey_id: '1_28'
     type: category
@@ -2216,8 +3435,8 @@ fields:
         widget_type: checkbox
         path: WGS 84
         on_state: 'On'
-        caption: DATUMS
-        x_petey_caption_source: page_text
+        caption: WGS 84
+        x_petey_caption_source: claude
       nad27_ind:
         page: 1
         rect:
@@ -2228,8 +3447,8 @@ fields:
         widget_type: checkbox
         path: NAD 27
         on_state: 'On'
-        caption: □WGS
-        x_petey_caption_source: page_text
+        caption: NAD 27
+        x_petey_caption_source: claude
       nad83_ind:
         page: 1
         rect:
@@ -2240,8 +3459,38 @@ fields:
         widget_type: checkbox
         path: NAD 83
         on_state: 'On'
-        caption: □NAD
-        x_petey_caption_source: page_text
+        caption: NAD 83
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: datum
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          wgs84_ind: DATUMS
+          nad27_ind: □WGS
+          nad83_ind: □NAD
+      to:
+        name: datum
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          wgs84_ind:
+            caption: WGS 84
+          nad27_ind:
+            caption: NAD 27
+          nad83_ind:
+            caption: NAD 83
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: caption
+      why: DATUMS boxes are printed WGS 84 / NAD 27 / NAD 83 (tooltips agree); current
+        captions are truncated or the heading.
+    x_petey_identifiers:
+      subject: datum
   is_pooled_unit:
     x_petey_id: '2_2'
     type: category
@@ -2273,6 +3522,8 @@ fields:
         on_state: 'Yes'
         caption: 'No'
         x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: is_pooled_unit
   applying_for_substandard_acreage:
     x_petey_id: '2_3'
     type: category
@@ -2290,6 +3541,8 @@ fields:
         widget_type: checkbox
         path: Yes attach Form W1A
         on_state: 'On'
+        caption: Yes (attach Form W-1A)
+        x_petey_caption_source: claude
       no_ind:
         page: 2
         rect:
@@ -2302,3 +3555,27 @@ fields:
         on_state: 'On'
         caption: 'No'
         x_petey_caption_source: page_text
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: applying_for_substandard_acreage
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          yes_ind: null
+      to:
+        name: applying_for_substandard_acreage
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          yes_ind:
+            caption: Yes (attach Form W-1A)
+      record: runs/claude_pass/proposals/lib__rrc_w_1.json
+      by: claude
+      kind: caption
+      why: Item 27 Yes box has an empty caption; printed text and tooltip read 'Yes
+        (attach Form W-1A)'.
+    x_petey_identifiers:
+      subject: applying_for_substandard_acreage

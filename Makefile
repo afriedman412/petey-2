@@ -18,7 +18,7 @@ endif
 .PHONY: test
 
 test:
-	@export FLASK_ENV=test && python -m pytest tests/
+	@PYTHONPATH=. $(PYTHON) -m pytest
 
 .PHONY: install
 
@@ -64,6 +64,11 @@ format:
 
 guni:
 	gunicorn -w 4 -b 0.0.0.0:5000 app:app
+
+.PHONY: review
+
+review:
+	PYTHONPATH=. $(PYTHON) -m petey.validate.blueprint_review
 
 .PHONY: hooks
 

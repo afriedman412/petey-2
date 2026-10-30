@@ -1,0 +1,1566 @@
+bpt_version: '1.1'
+name: va_10_7959a
+form_version: null
+source_pdf: VA-Form-10-7959a-fill.pdf
+source_pdf_hash: 76becabf743cc807065c177ce44f0cd3c915be92
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 22:06:39'
+fields:
+  patient_last_nm:
+    x_petey_id: '1_1'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 1
+      rect:
+      - 35.999000549316406
+      - 288.0010070800781
+      - 203.99899291992188
+      - 300.00201416015625
+      widget_type: text
+      path: form1[0].#subform[0].LastNme-ptnt[0]
+    description: SECTION 1 - PATIENT INFORMATION. Last name (required field).
+    x_petey_description_source: tooltip
+    required: true
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      message: Please provide your last name in Section I - Patient Information.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: patient_last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: patient_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: patient_last
+      suffix: nm
+  patient_first_nm:
+    x_petey_id: '1_2'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 1
+      rect:
+      - 215.99899291992188
+      - 288.0010070800781
+      - 353.99700927734375
+      - 300.00201416015625
+      widget_type: text
+      path: form1[0].#subform[0].FirstNme-ptnt[0]
+    description: First name (required field).
+    x_petey_description_source: tooltip
+    required: true
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      message: Please provide your first name in Section I - Patient Information.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: patient_first_name
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: patient_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: patient_first
+      suffix: nm
+  patient_middle_initial:
+    x_petey_id: '1_3'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 366.0
+      - 288.0010070800781
+      - 383.9989929199219
+      - 300.00201416015625
+      widget_type: text
+      path: form1[0].#subform[0].MiddleInit-ptnt[0]
+    description: Middle Initial.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: patient_middle
+      suffix: initial
+  champva_member_nbr:
+    x_petey_id: '1_4'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 395.9960021972656
+      - 288.0010070800781
+      - 575.9979858398438
+      - 300.00201416015625
+      widget_type: text
+      path: form1[0].#subform[0].SSN-ptnt[0]
+    description: CHAMP V. A. Member Number (required field).
+    x_petey_description_source: tooltip
+    pattern: ^\d{3}\-\d{2}\-\d{4}$
+    required: true
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: 999-99-9999
+      pictures:
+        format:
+        - 999-99-9999
+        ui:
+        - 999-99-9999
+      message: Please provide your CHAMPVA member number in Section I - Patient Information.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: champva_member_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\-\d{2}\-\d{4}$
+      to:
+        name: champva_member_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\-\d{2}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: champva_member
+      suffix: nbr
+  new_address_ind:
+    x_petey_id: '1_5'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 35.665000915527344
+      - 307.0010070800781
+      - 45.665000915527344
+      - 317.0010070800781
+      widget_type: checkbox
+      path: form1[0].#subform[0].CheckIfNew[0]
+    description: Check if new address.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: new_address
+      suffix: ind
+  patient_address_line_1_txt:
+    x_petey_id: '1_6'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 156.00100708007812
+      - 312.00201416015625
+      - 576.0009765625
+      - 324.00299072265625
+      widget_type: text
+      path: form1[0].#subform[0].StreetAddrss-ptnt[0]
+    description: Street Address.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: patient_address_line_1
+      suffix: txt
+  patient_city_nm:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 35.999000549316406
+      - 336.0
+      - 426.0
+      - 348.0010070800781
+      widget_type: text
+      path: form1[0].#subform[0].City-ptnt[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: patient_city
+      suffix: nm
+  patient_state_cd:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 438.0
+      - 336.00299072265625
+      - 462.0
+      - 348.0039978027344
+      widget_type: text
+      path: form1[0].#subform[0].State-ptnt[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: patient_state
+      suffix: cd
+  patient_zip_cd:
+    x_petey_id: '1_9'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(\-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 472.0
+      - 336.00299072265625
+      - 578.0009765625
+      - 348.0039978027344
+      widget_type: text
+      path: form1[0].#subform[0].Zip[0]
+    description: Zip Code. Enter 5 digit zip code, with optional hyphen and last 4
+      digits.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999-9999}
+      pictures:
+        format:
+        - text{99999-9999}
+        validate:
+        - text{99999}|text{99999-9999}
+        ui:
+        - text{99999}|text{99999-9999}
+      message: Please use 5 digit zip code with optional last 4 digits formatted as
+        99999-9999.
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      reason: Tooltip and XFA validate picture allow 5-digit zip with optional +4;
+        the pattern wrongly required the last 4.
+      before:
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}\-\d{4}$
+        description: Zip Code. Enter 5 digit zip code, with optional hyphen and last
+          4 digits.
+      judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: patient_zip
+      suffix: cd
+  patient_birth_dt:
+    x_petey_id: '1_10'
+    type: date
+    semantic_type: birth_date
+    widget:
+      page: 1
+      rect:
+      - 35.999000549316406
+      - 360.0010070800781
+      - 144.00100708007812
+      - 372.00201416015625
+      widget_type: text
+      path: form1[0].#subform[0].DOB-ptnt[0]
+    description: Date of Birth. Enter 2 digit month, 2 digit day and 4 digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+    x_petey_identifiers:
+      subject: patient_birth
+      suffix: dt
+  patient_phone_nbr:
+    x_petey_id: '1_11'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 156.00100708007812
+      - 360.0010070800781
+      - 348.00201416015625
+      - 372.00201416015625
+      widget_type: text
+      path: form1[0].#subform[0].Phone-ptnt[0]
+    description: Phone Number (include area code). Please use digits formatted as
+      (999) 999-9999.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+        validate:
+        - text{'('999')' 999-9999}
+        ui:
+        - text{9999999999}|text{(999) 999-9999}|text{(999)999-9999}|text{(999)9999999}
+      message: Invalid phone number. Please use digits formatted as (999) 999-9999.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: patient_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: patient_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: patient_phone
+      suffix: nbr
+  patient_email_address_txt:
+    x_petey_id: '1_12'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 1
+      rect:
+      - 359.9989929199219
+      - 360.0010070800781
+      - 576.0009765625
+      - 372.00201416015625
+      widget_type: text
+      path: form1[0].#subform[0].Email-ptnt[0]
+    description: Email Address.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: patient_email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: patient_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: patient_email_address
+      suffix: txt
+  is_covered_by_ohi_ind:
+    x_petey_id: '1_13'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 36.0
+        - 409.00299072265625
+        - 46.0
+        - 419.00299072265625
+        widget_type: radiobutton
+        path: form1[0].#subform[0].RadioButtonList[0]
+        on_state: '0'
+        caption: Yes (check type and provide coverage information below)
+      '1':
+        page: 1
+        rect:
+        - 275.99798583984375
+        - 409.00299072265625
+        - 285.99798583984375
+        - 419.00299072265625
+        widget_type: radiobutton
+        path: form1[0].#subform[0].RadioButtonList[0]
+        on_state: '1'
+        caption: No (proceed to Section III)
+    description: 'One of: 0 = Yes (check type and provide coverage information below);
+      1 = No (proceed to Section III)'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': Yes (check type and provide coverage information below)
+        '1': No (proceed to Section III)
+    x_petey_identifiers:
+      subject: is_covered_by_ohi_ind
+  ohi_coverage_type:
+    x_petey_id: '1_14'
+    type: category
+    values:
+    - '0'
+    - '1'
+    - '2'
+    - '3'
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 48.000999450683594
+        - 427.0
+        - 58.000999450683594
+        - 437.0
+        widget_type: radiobutton
+        path: form1[0].#subform[0].RadioButtonList[1]
+        on_state: '0'
+        caption: Employer sponsored (group)
+      '1':
+        page: 1
+        rect:
+        - 173.99899291992188
+        - 427.0
+        - 183.99899291992188
+        - 437.0
+        widget_type: radiobutton
+        path: form1[0].#subform[0].RadioButtonList[1]
+        on_state: '1'
+        caption: Private (non group)
+      '2':
+        page: 1
+        rect:
+        - 276.0010070800781
+        - 427.0
+        - 286.0010070800781
+        - 437.0
+        widget_type: radiobutton
+        path: form1[0].#subform[0].RadioButtonList[1]
+        on_state: '2'
+        caption: Medicare (Part A or B)
+      '3':
+        page: 1
+        rect:
+        - 384.0010070800781
+        - 427.0
+        - 394.0010070800781
+        - 437.0
+        widget_type: radiobutton
+        path: form1[0].#subform[0].RadioButtonList[1]
+        on_state: '3'
+        caption: 'Other (Specify):'
+    description: 'One of: 0 = Employer sponsored (group); 1 = Private (non group);
+      2 = Medicare (Part A or B); 3 = Other (Specify):'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': Employer sponsored (group)
+        '1': Private (non group)
+        '2': Medicare (Part A or B)
+        '3': 'Other (Specify):'
+    x_petey_identifiers:
+      subject: ohi_coverage_type
+  ohi_coverage_type_other_specify_txt:
+    x_petey_id: '1_15'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 456.0010070800781
+      - 425.9989929199219
+      - 576.0
+      - 437.99798583984375
+      widget_type: text
+      path: form1[0].#subform[0].Other[0]
+    description: Specify Other.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: ohi_coverage_type_other_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: ohi_coverage_type_other_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: ohi_coverage_type_other_specify
+      suffix: txt
+  ohi_1_insurance_nm:
+    x_petey_id: '1_16'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 1
+      rect:
+      - 35.999000549316406
+      - 455.9989929199219
+      - 300.0
+      - 468.0
+      widget_type: text
+      path: form1[0].#subform[0].NameOHI-1[0]
+    description: Name of Other Health Insurance (O H I). 1 of 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption 'Name of Other Health Insurance (OHI)' is a carrier/company
+        name, not a person name.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Name of Other Health Insurance (O H I). 1 of 2.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: ohi1_insurance_name
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      to:
+        name: ohi_1_insurance_nm
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '1'
+      subject: insurance
+      suffix: nm
+  ohi_1_policy_nbr:
+    x_petey_id: '1_18'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 35.999000549316406
+      - 479.99700927734375
+      - 300.0
+      - 491.99798583984375
+      widget_type: text
+      path: form1[0].#subform[0].OHIPolicyNmbr-1[0]
+    description: Policy Number. 1 of 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: ohi1_policy_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: ohi_1_policy_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '1'
+      subject: policy
+      suffix: nbr
+  ohi_1_effective_dt:
+    x_petey_id: '1_20'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 35.999000549316406
+      - 504.0010070800781
+      - 162.00100708007812
+      - 516.0020141601562
+      widget_type: text
+      path: form1[0].#subform[0].EffectiveDate-1[0]
+    description: O H I Effective Date. Enter 2 digit month, 2 digit day and 4 digit
+      year. 1 of 2.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: ohi1_effective_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: ohi_1_effective_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '1'
+      subject: effective
+      suffix: dt
+  ohi_1_termination_dt:
+    x_petey_id: '1_21'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 174.00100708007812
+      - 504.0010070800781
+      - 300.00299072265625
+      - 516.0020141601562
+      widget_type: text
+      path: form1[0].#subform[0].TerminationDate-1[0]
+    description: O H I Termination Date. Enter 2 digit month, 2 digit day and 4 digit
+      year. 1 of 2.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: ohi1_termination_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: ohi_1_termination_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '1'
+      subject: termination
+      suffix: dt
+  ohi_1_phone_nbr:
+    x_petey_id: '1_24'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 35.999000549316406
+      - 527.9990234375
+      - 300.0
+      - 540.0
+      widget_type: text
+      path: form1[0].#subform[0].Phone-1[0]
+    description: Phone Number (include area code). Please use digits formatted as
+      (999) 999-9999. 1 of 2.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+        validate:
+        - text{'('999')' 999-9999}
+        ui:
+        - text{9999999999}|text{(999) 999-9999}|text{(999)999-9999}|text{(999)9999999}
+      message: Invalid phone number. Please use digits formatted as (999) 999-9999.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: ohi1_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: ohi_1_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '1'
+      subject: phone
+      suffix: nbr
+  ohi_2_insurance_nm:
+    x_petey_id: '1_17'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 1
+      rect:
+      - 312.0
+      - 455.9989929199219
+      - 576.0009765625
+      - 468.0
+      widget_type: text
+      path: form1[0].#subform[0].NameOHI-2[0]
+    description: Name of Other Health Insurance (O H I). 2 of 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption 'Name of Other Health Insurance (OHI)' is an insurance carrier
+        name, not a person name.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Name of Other Health Insurance (O H I). 2 of 2.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: ohi2_insurance_name
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      to:
+        name: ohi_2_insurance_nm
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '2'
+      subject: insurance
+      suffix: nm
+  ohi_2_policy_nbr:
+    x_petey_id: '1_19'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 312.0
+      - 479.99700927734375
+      - 576.0009765625
+      - 491.99798583984375
+      widget_type: text
+      path: form1[0].#subform[0].OHIPolicyNmbr-2[0]
+    description: Policy Number. 2 of 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: ohi2_policy_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: ohi_2_policy_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '2'
+      subject: policy
+      suffix: nbr
+  ohi_2_effective_dt:
+    x_petey_id: '1_22'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 312.0
+      - 504.0010070800781
+      - 438.00201416015625
+      - 516.0020141601562
+      widget_type: text
+      path: form1[0].#subform[0].EffectiveDate-2[0]
+    description: O H I Effective Date. Enter 2 digit month, 2 digit day and 4 digit
+      year. 2 of 2.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: ohi2_effective_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: ohi_2_effective_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '2'
+      subject: effective
+      suffix: dt
+  ohi_2_termination_dt:
+    x_petey_id: '1_23'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 449.9989929199219
+      - 504.0010070800781
+      - 576.0009765625
+      - 516.0020141601562
+      widget_type: text
+      path: form1[0].#subform[0].TerminationDate-2[0]
+    description: O H I Termination Date. Enter 2 digit month, 2 digit day and 4 digit
+      year. 2 of 2.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: ohi2_termination_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: ohi_2_termination_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '2'
+      subject: termination
+      suffix: dt
+  ohi_2_phone_nbr:
+    x_petey_id: '1_25'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 312.0
+      - 527.9990234375
+      - 576.0009765625
+      - 540.0
+      widget_type: text
+      path: form1[0].#subform[0].Phone-2[0]
+    description: Phone Number (include area code). Please use digits formatted as
+      (999) 999-9999. 2 of 2.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+        validate:
+        - text{'('999')' 999-9999}
+        ui:
+        - text{9999999999}|text{(999) 999-9999}|text{(999)999-9999}|text{(999)9999999}
+      message: Invalid phone number. Please use digits formatted as (999) 999-9999.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: ohi2_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: ohi_2_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '2'
+      subject: phone
+      suffix: nbr
+  is_treatment_work_related_ind:
+    x_petey_id: '1_26'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 222.0
+        - 543.9970092773438
+        - 232.0
+        - 553.9970092773438
+        widget_type: radiobutton
+        path: form1[0].#subform[0].RadioButtonList[2]
+        on_state: '0'
+        caption: 'Yes'
+      '1':
+        page: 1
+        rect:
+        - 257.9989929199219
+        - 543.9970092773438
+        - 267.9989929199219
+        - 553.9970092773438
+        widget_type: radiobutton
+        path: form1[0].#subform[0].RadioButtonList[2]
+        on_state: '1'
+        caption: 'No'
+    description: 'One of: 0 = Yes; 1 = No'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'Yes'
+        '1': 'No'
+    x_petey_identifiers:
+      subject: is_treatment_work_related_ind
+  is_treatment_outside_work_injury_ind:
+    x_petey_id: '1_27'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 515.9979858398438
+        - 543.9970092773438
+        - 525.9979858398438
+        - 553.9970092773438
+        widget_type: radiobutton
+        path: form1[0].#subform[0].RadioButtonList[3]
+        on_state: '0'
+        caption: 'Yes'
+      '1':
+        page: 1
+        rect:
+        - 551.9949951171875
+        - 543.9970092773438
+        - 561.9949951171875
+        - 553.9970092773438
+        widget_type: radiobutton
+        path: form1[0].#subform[0].RadioButtonList[3]
+        on_state: '1'
+        caption: 'No'
+    description: 'One of: 0 = Yes; 1 = No'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'Yes'
+        '1': 'No'
+    x_petey_identifiers:
+      subject: is_treatment_outside_work_injury_ind
+  sponsor_last_nm:
+    x_petey_id: '1_28'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 1
+      rect:
+      - 35.999000549316406
+      - 582.0020141601562
+      - 300.0
+      - 594.0
+      widget_type: text
+      path: form1[0].#subform[0].LastNme-spnsr[0]
+    description: SECTION 3 – SPONSOR INFORMATION. Last Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: sponsor_last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: sponsor_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: sponsor_last
+      suffix: nm
+  sponsor_first_nm:
+    x_petey_id: '1_29'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 1
+      rect:
+      - 312.0
+      - 582.0020141601562
+      - 545.9990234375
+      - 594.0
+      widget_type: text
+      path: form1[0].#subform[0].FirstNme-spnsr[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: sponsor_first_name
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: sponsor_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: sponsor_first
+      suffix: nm
+  sponsor_middle_initial:
+    x_petey_id: '1_30'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 557.9959716796875
+      - 582.0020141601562
+      - 575.9979858398438
+      - 594.0
+      widget_type: text
+      path: form1[0].#subform[0].MiddleInit-spnsr[0]
+    description: Middle Initial.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: sponsor_middle
+      suffix: initial
+  claimant_signature:
+    x_petey_id: '1_31'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 251.78799438476562
+      - 642.0020141601562
+      - 480.0
+      - 665.0009765625
+      widget_type: text
+      path: form1[0].#subform[0].SignatureField11[0]
+    description: SECTION 4 – CLAIMANT CERTIFICATION. Read Certification above. If
+      certification is signed by a person other than the patient, complete the following.
+      Signature. This is a digital signature field.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: claimant
+      suffix: signature
+  signature_dt:
+    x_petey_id: '1_32'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 492.0
+      - 654.0020141601562
+      - 576.0009765625
+      - 672.0009765625
+      widget_type: text
+      path: form1[0].#subform[0].Date[0]
+    description: Date Signed. Enter 2 digit month, 2 digit day and 4 digit year. This
+      is a required field.
+    x_petey_description_source: tooltip
+    required: true
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
+  signer_last_nm:
+    x_petey_id: '1_33'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 1
+      rect:
+      - 35.999000549316406
+      - 683.9979858398438
+      - 216.00100708007812
+      - 695.9990234375
+      widget_type: text
+      path: form1[0].#subform[0].SignatureLastName[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: signer_last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: signer_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: signer_last
+      suffix: nm
+  signer_first_nm:
+    x_petey_id: '1_34'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 1
+      rect:
+      - 228.00100708007812
+      - 683.9979858398438
+      - 396.0010070800781
+      - 695.9990234375
+      widget_type: text
+      path: form1[0].#subform[0].SignatureFirstName[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: signer_first_name
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: signer_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: signer_first
+      suffix: nm
+  signer_middle_initial:
+    x_petey_id: '1_35'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 408.0010070800781
+      - 683.9979858398438
+      - 426.0
+      - 695.9990234375
+      widget_type: text
+      path: form1[0].#subform[0].SignatureMiddleInitial[0]
+    description: Middle Initial.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: signer_middle
+      suffix: initial
+  signer_relationship_to_patient_txt:
+    x_petey_id: '1_36'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 438.0
+      - 683.9979858398438
+      - 576.0009765625
+      - 695.9990234375
+      widget_type: text
+      path: form1[0].#subform[0].relationshipToApplicant[0]
+    description: Relationship to Patient.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: signer_relationship_to_patient
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: signer_relationship_to_patient_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: signer_relationship_to_patient
+      suffix: txt
+  signer_address_line_1_txt:
+    x_petey_id: '1_37'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 35.999000549316406
+      - 708.0020141601562
+      - 293.9989929199219
+      - 719.9970092773438
+      widget_type: text
+      path: form1[0].#subform[0].SignatureStreetAddress[0]
+    description: Street Address.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: signer_address_line_1
+      suffix: txt
+  signer_city_nm:
+    x_petey_id: '1_38'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 306.0010070800781
+      - 707.9990234375
+      - 432.0
+      - 719.9970092773438
+      widget_type: text
+      path: form1[0].#subform[0].SignatureCity[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: signer_city
+      suffix: nm
+  signer_state_cd:
+    x_petey_id: '1_39'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 444.0010070800781
+      - 707.9990234375
+      - 468.0010070800781
+      - 719.9970092773438
+      widget_type: text
+      path: form1[0].#subform[0].SignatureState[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: signer_state
+      suffix: cd
+  signer_zip_cd:
+    x_petey_id: '1_40'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(\-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 478.0010070800781
+      - 707.9990234375
+      - 578.0009765625
+      - 719.9970092773438
+      widget_type: text
+      path: form1[0].#subform[0].SignatureZip[0]
+    description: Zip Code. Enter 5 digit zip code, with optional hyphen and last 4
+      digits.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999-9999}
+      pictures:
+        format:
+        - text{99999-9999}
+        validate:
+        - text{99999}|text{99999-9999}
+        ui:
+        - text{99999}|text{99999-9999}
+      message: Please use 5 digit zip code with optional last 4 digits formatted as
+        99999-9999.
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      reason: Tooltip and XFA validate allow optional +4; the pattern wrongly required
+        it.
+      before:
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}\-\d{4}$
+        description: Zip Code. Enter 5 digit zip code, with optional hyphen and last
+          4 digits.
+      judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: signer_zip
+      suffix: cd
+  signer_phone_nbr:
+    x_petey_id: '1_41'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 35.999000549316406
+      - 731.9970092773438
+      - 228.0
+      - 743.9949951171875
+      widget_type: text
+      path: form1[0].#subform[0].PhoneSignature[0]
+    description: Phone Number (include area code). Please use digits formatted as
+      (999) 999-9999.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+        validate:
+        - text{'('999')' 999-9999}
+        ui:
+        - text{9999999999}|text{(999) 999-9999}|text{(999)999-9999}|text{(999)9999999}
+      message: Invalid phone number. Please use digits formatted as (999) 999-9999.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: signer_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: signer_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: signer_phone
+      suffix: nbr
+  signer_email_address_txt:
+    x_petey_id: '1_42'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 1
+      rect:
+      - 240.0
+      - 731.9970092773438
+      - 576.0009765625
+      - 743.9979858398438
+      widget_type: text
+      path: form1[0].#subform[0].SignatureEmail[0]
+    description: Email Address.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: signer_email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: signer_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: signer_email_address
+      suffix: txt
+x_petey_xfa_log:
+  joined: 42
+  required: 4
+  pattern: 7
+  description: 4
+x_petey_page_check:
+  when: '2026-10-16 13:32:33'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  fields: 42
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/va_10_7959a__008f69__5347b8e1.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: va_10_7959a_20261006_220812
+  blueprint: /home/user/petey-2/runs/judge_eval/work/va_10_7959a.bpt
+  when: '2026-10-06 22:08:25'
+x_petey_run:
+  record: runs/judge_eval/form_runs/va_10_7959a.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 22:08:26'

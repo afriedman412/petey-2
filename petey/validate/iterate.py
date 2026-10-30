@@ -392,7 +392,7 @@ def reviewed_pairs(snapshot: str, bp_path: Path, res: dict) -> set[tuple[str, st
 def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n_flat: int,
             gen_cache_only: bool, label_model: Optional[str], gen_key: Optional[str],
             max_iter: int, describe: bool, apply_correct: bool,
-            review: str = "none", review_model: str = "claude-opus-5",
+            review: str = "none", review_model: Optional[str] = None,
             review_effort: str = "medium", review_rounds: int = 4,
             allow_dirty: bool = False, case_set: Optional[int] = None,
             n_cases: Optional[int] = None, bpt: Optional[Path] = None,
@@ -406,6 +406,8 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
     round's record, once the blueprint on disk is the state the next round starts from (`form_run.py` keeps that
     state round by round and spot-checks the fields the round changed). It may return field names to reopen: new
     evidence (a spot-check flag) on a definition the reviewer already judged, so the next round reviews it again."""
+    if review_model is None:
+        from petey.validate.review import DEFAULT_MODEL as review_model     # PETEY_MODEL_REVIEWER
     history = []
     status = "max_iter"
     bp_path = bpt or BLUEPRINTS / f"{form}.bpt"   # a side copy (validate --bpt) runs the loop outside the library
@@ -413,6 +415,7 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
     rounds_done = 0
     seen: set[tuple[str, str]] = set()   # (field name, definition hash) the reviewer has judged
     stop = None
+    prev_run: Optional[Path] = None   # last round's run: the same cases, so the same expected values (harness_check)
     start = starting_state(bp_path)
     if start.get("reviewed_fields") and start.get("uncommitted") and review != "none" and not allow_dirty:
         raise SystemExit(
@@ -427,6 +430,16 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
         run_dir = run_validate(form, blank, gen_model=gen_model, methods=methods, n_flat=n_flat,
                                gen_cache_only=gen_cache_only, label_model=label_model, gen_key=gen_key,
                                case_set=case_set, n_cases=n_cases, bpt=bpt, rebuild_set=rebuild_set and i == 1)
+        from petey.validate.harness_check import expected_drift, repeated_values
+        drift = expected_drift(prev_run, run_dir) if prev_run is not None else []
+        if prev_run is None and (rep := repeated_values(run_dir)):
+            print(f"[{form}] HARNESS: {len(rep)} expected values repeat themselves (a fill joined a joined string), "
+                  f"e.g. {rep[0]['path']}: {str(rep[0]['value'])[:50]!r}")
+        if drift:
+            print(f"[{form}] HARNESS: {len(drift)} expected values changed since the last round on the same cases "
+                  f"(the test drifted, not the blueprint), e.g. {drift[0]['path']}: "
+                  f"{str(drift[0]['before'])[:40]!r} -> {str(drift[0]['after'])[:40]!r}")
+        prev_run = run_dir
         build = provenance.build_of_run(run_dir)
         if build:
             # the blueprint carries the build of its latest validation (finder, classifier, set, run): "rebuild it
@@ -497,6 +510,8 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
                "verdicts": det["verdicts"], "shape": det["shape"], "delta": det["delta"],
                "rule_violations": det["rule_violations"], "detected": det["total"],
                "witness": det.get("witness"), "fixed": dict(changes)}
+        if drift:
+            rec["harness_drift"] = len(drift)
         if review_rec:
             rec["review_run"] = review_rec
         if judged:
@@ -550,7 +565,7 @@ def main() -> int:
     ap.add_argument("--review", choices=["none", "flagged", "all"], default="none",
                     help="LLM reviewer on flagged (or all) fields after the rule fixes; "
                          "kept only if the next validation detects less")
-    ap.add_argument("--review-model", default="claude-opus-5")
+    ap.add_argument("--review-model", default=None, help="default: review.DEFAULT_MODEL (PETEY_MODEL_REVIEWER)")
     ap.add_argument("--review-effort", default="medium")
     ap.add_argument("--review-rounds", type=int, default=4,
                     help="cap on review rounds; a round runs only while some flagged field is unreviewed as it stands")

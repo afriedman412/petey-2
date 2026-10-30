@@ -7,11 +7,16 @@ source_pages:
 - 1
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-15 11:34:12'
 fields:
   taxpayer_nm:
     x_petey_id: '1_1'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -21,6 +26,26 @@ fields:
       - 108.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_01[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: taxpayer_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: taxpayer_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: taxpayer
+      suffix: nm
   taxpayer_ssn:
     x_petey_id: '1_2'
     type: string
@@ -35,7 +60,11 @@ fields:
       - 108.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_02[0]
-  part1_payer_nm_1:
+    label_source: llm
+    x_petey_identifiers:
+      subject: taxpayer
+      suffix: ssn
+  interest_payer_nm_1:
     x_petey_id: '1_3'
     type: string
     semantic_type: business_name
@@ -48,10 +77,32 @@ fields:
       - 155.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].Line1_ReadOrder[0].f1_03[0]
-  part1_interest_amt_1:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_payer_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: interest_payer_1_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: interest_payer
+      suffix: nm
+      iteration: '1'
+      grid: p1-G1
+  interest_amt_1:
     x_petey_id: '1_4'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -61,10 +112,29 @@ fields:
       - 155.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_04[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part1_payer_nm_2:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: interest_1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: interest
+      suffix: amt
+      iteration: '1'
+      grid: p1-G1
+  interest_payer_nm_2:
     x_petey_id: '1_5'
     type: string
     semantic_type: business_name
@@ -77,10 +147,32 @@ fields:
       - 167.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_05[0]
-  part1_interest_amt_2:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_payer_name_2
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: interest_payer_2_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest_payer
+      suffix: nm
+      iteration: '2'
+      grid: p1-G1
+  interest_amt_2:
     x_petey_id: '1_6'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -90,10 +182,29 @@ fields:
       - 167.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_06[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part1_payer_nm_3:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: interest_2_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest
+      suffix: amt
+      iteration: '2'
+      grid: p1-G1
+  interest_payer_nm_3:
     x_petey_id: '1_7'
     type: string
     semantic_type: business_name
@@ -106,10 +217,32 @@ fields:
       - 180.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_07[0]
-  part1_interest_amt_3:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_payer_name_3
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: interest_payer_3_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest_payer
+      suffix: nm
+      iteration: '3'
+      grid: p1-G1
+  interest_amt_3:
     x_petey_id: '1_8'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -119,10 +252,29 @@ fields:
       - 180.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_08[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part1_payer_nm_4:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_amt_3
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: interest_3_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest
+      suffix: amt
+      iteration: '3'
+      grid: p1-G1
+  interest_payer_nm_4:
     x_petey_id: '1_9'
     type: string
     semantic_type: business_name
@@ -135,10 +287,32 @@ fields:
       - 191.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_09[0]
-  part1_interest_amt_4:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_payer_name_4
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: interest_payer_4_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest_payer
+      suffix: nm
+      iteration: '4'
+      grid: p1-G1
+  interest_amt_4:
     x_petey_id: '1_10'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -148,10 +322,29 @@ fields:
       - 191.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_10[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part1_payer_nm_5:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_amt_4
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: interest_4_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest
+      suffix: amt
+      iteration: '4'
+      grid: p1-G1
+  interest_payer_nm_5:
     x_petey_id: '1_11'
     type: string
     semantic_type: business_name
@@ -164,10 +357,32 @@ fields:
       - 203.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_11[0]
-  part1_interest_amt_5:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_payer_name_5
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: interest_payer_5_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest_payer
+      suffix: nm
+      iteration: '5'
+      grid: p1-G1
+  interest_amt_5:
     x_petey_id: '1_12'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -177,10 +392,29 @@ fields:
       - 203.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_12[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part1_payer_nm_6:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_amt_5
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: interest_5_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest
+      suffix: amt
+      iteration: '5'
+      grid: p1-G1
+  interest_payer_nm_6:
     x_petey_id: '1_13'
     type: string
     semantic_type: business_name
@@ -193,10 +427,32 @@ fields:
       - 216.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_13[0]
-  part1_interest_amt_6:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_payer_name_6
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: interest_payer_6_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest_payer
+      suffix: nm
+      iteration: '6'
+      grid: p1-G1
+  interest_amt_6:
     x_petey_id: '1_14'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -206,10 +462,29 @@ fields:
       - 216.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_14[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part1_payer_nm_7:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_amt_6
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: interest_6_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest
+      suffix: amt
+      iteration: '6'
+      grid: p1-G1
+  interest_payer_nm_7:
     x_petey_id: '1_15'
     type: string
     semantic_type: business_name
@@ -222,10 +497,32 @@ fields:
       - 227.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_15[0]
-  part1_interest_amt_7:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_payer_name_7
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: interest_payer_7_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest_payer
+      suffix: nm
+      iteration: '7'
+      grid: p1-G1
+  interest_amt_7:
     x_petey_id: '1_16'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -235,10 +532,29 @@ fields:
       - 227.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_16[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part1_payer_nm_8:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_amt_7
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: interest_7_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest
+      suffix: amt
+      iteration: '7'
+      grid: p1-G1
+  interest_payer_nm_8:
     x_petey_id: '1_17'
     type: string
     semantic_type: business_name
@@ -251,10 +567,32 @@ fields:
       - 239.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_17[0]
-  part1_interest_amt_8:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_payer_name_8
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: interest_payer_8_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest_payer
+      suffix: nm
+      iteration: '8'
+      grid: p1-G1
+  interest_amt_8:
     x_petey_id: '1_18'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -264,10 +602,29 @@ fields:
       - 239.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_18[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part1_payer_nm_9:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_amt_8
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: interest_8_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest
+      suffix: amt
+      iteration: '8'
+      grid: p1-G1
+  interest_payer_nm_9:
     x_petey_id: '1_19'
     type: string
     semantic_type: business_name
@@ -280,10 +637,32 @@ fields:
       - 252.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_19[0]
-  part1_interest_amt_9:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_payer_name_9
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: interest_payer_9_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest_payer
+      suffix: nm
+      iteration: '9'
+      grid: p1-G1
+  interest_amt_9:
     x_petey_id: '1_20'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -293,10 +672,29 @@ fields:
       - 252.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_20[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part1_payer_nm_10:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_amt_9
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: interest_9_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest
+      suffix: amt
+      iteration: '9'
+      grid: p1-G1
+  interest_payer_nm_10:
     x_petey_id: '1_21'
     type: string
     semantic_type: business_name
@@ -309,10 +707,32 @@ fields:
       - 263.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_21[0]
-  part1_interest_amt_10:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_payer_name_10
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: interest_payer_10_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest_payer
+      suffix: nm
+      iteration: '10'
+      grid: p1-G1
+  interest_amt_10:
     x_petey_id: '1_22'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -322,10 +742,29 @@ fields:
       - 263.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_22[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part1_payer_nm_11:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_amt_10
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: interest_10_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest
+      suffix: amt
+      iteration: '10'
+      grid: p1-G1
+  interest_payer_nm_11:
     x_petey_id: '1_23'
     type: string
     semantic_type: business_name
@@ -338,10 +777,32 @@ fields:
       - 275.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_23[0]
-  part1_interest_amt_11:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_payer_name_11
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: interest_payer_11_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest_payer
+      suffix: nm
+      iteration: '11'
+      grid: p1-G1
+  interest_amt_11:
     x_petey_id: '1_24'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -351,10 +812,29 @@ fields:
       - 275.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_24[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part1_payer_nm_12:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_amt_11
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: interest_11_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest
+      suffix: amt
+      iteration: '11'
+      grid: p1-G1
+  interest_payer_nm_12:
     x_petey_id: '1_25'
     type: string
     semantic_type: business_name
@@ -367,10 +847,32 @@ fields:
       - 288.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_25[0]
-  part1_interest_amt_12:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_payer_name_12
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: interest_payer_12_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest_payer
+      suffix: nm
+      iteration: '12'
+      grid: p1-G1
+  interest_amt_12:
     x_petey_id: '1_26'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -380,10 +882,29 @@ fields:
       - 288.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_26[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part1_payer_nm_13:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_amt_12
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: interest_12_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest
+      suffix: amt
+      iteration: '12'
+      grid: p1-G1
+  interest_payer_nm_13:
     x_petey_id: '1_27'
     type: string
     semantic_type: business_name
@@ -396,10 +917,32 @@ fields:
       - 299.9989929199219
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_27[0]
-  part1_interest_amt_13:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_payer_name_13
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: interest_payer_13_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest_payer
+      suffix: nm
+      iteration: '13'
+      grid: p1-G1
+  interest_amt_13:
     x_petey_id: '1_28'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -409,10 +952,29 @@ fields:
       - 299.9989929199219
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_28[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part1_payer_nm_14:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_amt_13
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: interest_13_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest
+      suffix: amt
+      iteration: '13'
+      grid: p1-G1
+  interest_payer_nm_14:
     x_petey_id: '1_29'
     type: string
     semantic_type: business_name
@@ -425,10 +987,32 @@ fields:
       - 311.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_29[0]
-  part1_interest_amt_14:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_payer_name_14
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: interest_payer_14_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest_payer
+      suffix: nm
+      iteration: '14'
+      grid: p1-G1
+  interest_amt_14:
     x_petey_id: '1_30'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -438,9 +1022,28 @@ fields:
       - 311.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_30[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: interest_amt_14
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: interest_14_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: interest
+      suffix: amt
+      iteration: '14'
+      grid: p1-G1
   total_interest_amt:
     x_petey_id: '1_31'
     type: number
@@ -454,9 +1057,11 @@ fields:
       - 324.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_31[0]
-    x_petey_retype:
-    - money
-  excludable_interest_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: total_interest
+      suffix: amt
+  excludable_savings_bond_interest_amt:
     x_petey_id: '1_32'
     type: number
     semantic_type: money
@@ -469,8 +1074,10 @@ fields:
       - 347.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_32[0]
-    x_petey_retype:
-    - money
+    label_source: llm
+    x_petey_identifiers:
+      subject: excludable_savings_bond_interest
+      suffix: amt
   taxable_interest_amt:
     x_petey_id: '1_33'
     type: number
@@ -484,9 +1091,11 @@ fields:
       - 360.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_33[0]
-    x_petey_retype:
-    - money
-  part2_payer_nm_1:
+    label_source: llm
+    x_petey_identifiers:
+      subject: taxable_interest
+      suffix: amt
+  ordinary_dividend_payer_nm_1:
     x_petey_id: '1_34'
     type: string
     semantic_type: business_name
@@ -499,10 +1108,31 @@ fields:
       - 383.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].ReadOrderControl[0].f1_34[0]
-  part2_ordinary_dividends_amt_1:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_payer_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: ordinary_dividend_payer_1_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: ordinary_dividend_payer
+      suffix: nm
+      iteration: '1'
+  ordinary_dividend_amt_1:
     x_petey_id: '1_35'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -512,10 +1142,28 @@ fields:
       - 383.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_35[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part2_payer_nm_2:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ordinary_dividend_1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: ordinary_dividend
+      suffix: amt
+      iteration: '1'
+  ordinary_dividend_payer_nm_2:
     x_petey_id: '1_36'
     type: string
     semantic_type: business_name
@@ -528,10 +1176,32 @@ fields:
       - 396.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_36[0]
-  part2_ordinary_dividends_amt_2:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_payer_name_2
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: ordinary_dividend_payer_2_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend_payer
+      suffix: nm
+      iteration: '2'
+      grid: p1-G2
+  ordinary_dividend_amt_2:
     x_petey_id: '1_37'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -541,10 +1211,29 @@ fields:
       - 396.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_37[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part2_payer_nm_3:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ordinary_dividend_2_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend
+      suffix: amt
+      iteration: '2'
+      grid: p1-G2
+  ordinary_dividend_payer_nm_3:
     x_petey_id: '1_38'
     type: string
     semantic_type: business_name
@@ -557,10 +1246,32 @@ fields:
       - 407.9989929199219
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_38[0]
-  part2_ordinary_dividends_amt_3:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_payer_name_3
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: ordinary_dividend_payer_3_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend_payer
+      suffix: nm
+      iteration: '3'
+      grid: p1-G2
+  ordinary_dividend_amt_3:
     x_petey_id: '1_39'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -570,10 +1281,29 @@ fields:
       - 407.9989929199219
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_39[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part2_payer_nm_4:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_amt_3
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ordinary_dividend_3_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend
+      suffix: amt
+      iteration: '3'
+      grid: p1-G2
+  ordinary_dividend_payer_nm_4:
     x_petey_id: '1_40'
     type: string
     semantic_type: business_name
@@ -586,10 +1316,32 @@ fields:
       - 419.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_40[0]
-  part2_ordinary_dividends_amt_4:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_payer_name_4
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: ordinary_dividend_payer_4_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend_payer
+      suffix: nm
+      iteration: '4'
+      grid: p1-G2
+  ordinary_dividend_amt_4:
     x_petey_id: '1_41'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -599,10 +1351,29 @@ fields:
       - 419.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_41[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part2_payer_nm_5:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_amt_4
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ordinary_dividend_4_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend
+      suffix: amt
+      iteration: '4'
+      grid: p1-G2
+  ordinary_dividend_payer_nm_5:
     x_petey_id: '1_42'
     type: string
     semantic_type: business_name
@@ -615,10 +1386,32 @@ fields:
       - 432.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_42[0]
-  part2_ordinary_dividends_amt_5:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_payer_name_5
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: ordinary_dividend_payer_5_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend_payer
+      suffix: nm
+      iteration: '5'
+      grid: p1-G2
+  ordinary_dividend_amt_5:
     x_petey_id: '1_43'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -628,10 +1421,29 @@ fields:
       - 432.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_43[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part2_payer_nm_6:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_amt_5
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ordinary_dividend_5_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend
+      suffix: amt
+      iteration: '5'
+      grid: p1-G2
+  ordinary_dividend_payer_nm_6:
     x_petey_id: '1_44'
     type: string
     semantic_type: business_name
@@ -644,10 +1456,32 @@ fields:
       - 443.9989929199219
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_44[0]
-  part2_ordinary_dividends_amt_6:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_payer_name_6
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: ordinary_dividend_payer_6_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend_payer
+      suffix: nm
+      iteration: '6'
+      grid: p1-G2
+  ordinary_dividend_amt_6:
     x_petey_id: '1_45'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -657,10 +1491,29 @@ fields:
       - 443.9989929199219
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_45[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part2_payer_nm_7:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_amt_6
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ordinary_dividend_6_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend
+      suffix: amt
+      iteration: '6'
+      grid: p1-G2
+  ordinary_dividend_payer_nm_7:
     x_petey_id: '1_46'
     type: string
     semantic_type: business_name
@@ -673,10 +1526,32 @@ fields:
       - 455.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_46[0]
-  part2_ordinary_dividends_amt_7:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_payer_name_7
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: ordinary_dividend_payer_7_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend_payer
+      suffix: nm
+      iteration: '7'
+      grid: p1-G2
+  ordinary_dividend_amt_7:
     x_petey_id: '1_47'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -686,10 +1561,29 @@ fields:
       - 455.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_47[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part2_payer_nm_8:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_amt_7
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ordinary_dividend_7_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend
+      suffix: amt
+      iteration: '7'
+      grid: p1-G2
+  ordinary_dividend_payer_nm_8:
     x_petey_id: '1_48'
     type: string
     semantic_type: business_name
@@ -702,10 +1596,32 @@ fields:
       - 468.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_48[0]
-  part2_ordinary_dividends_amt_8:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_payer_name_8
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: ordinary_dividend_payer_8_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend_payer
+      suffix: nm
+      iteration: '8'
+      grid: p1-G2
+  ordinary_dividend_amt_8:
     x_petey_id: '1_49'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -715,10 +1631,29 @@ fields:
       - 468.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_49[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part2_payer_nm_9:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_amt_8
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ordinary_dividend_8_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend
+      suffix: amt
+      iteration: '8'
+      grid: p1-G2
+  ordinary_dividend_payer_nm_9:
     x_petey_id: '1_50'
     type: string
     semantic_type: business_name
@@ -731,10 +1666,32 @@ fields:
       - 479.9989929199219
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_50[0]
-  part2_ordinary_dividends_amt_9:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_payer_name_9
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: ordinary_dividend_payer_9_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend_payer
+      suffix: nm
+      iteration: '9'
+      grid: p1-G2
+  ordinary_dividend_amt_9:
     x_petey_id: '1_51'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -744,10 +1701,29 @@ fields:
       - 479.9989929199219
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_51[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part2_payer_nm_10:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_amt_9
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ordinary_dividend_9_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend
+      suffix: amt
+      iteration: '9'
+      grid: p1-G2
+  ordinary_dividend_payer_nm_10:
     x_petey_id: '1_52'
     type: string
     semantic_type: business_name
@@ -760,10 +1736,32 @@ fields:
       - 491.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_52[0]
-  part2_ordinary_dividends_amt_10:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_payer_name_10
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: ordinary_dividend_payer_10_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend_payer
+      suffix: nm
+      iteration: '10'
+      grid: p1-G2
+  ordinary_dividend_amt_10:
     x_petey_id: '1_53'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -773,10 +1771,29 @@ fields:
       - 491.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_53[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part2_payer_nm_11:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_amt_10
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ordinary_dividend_10_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend
+      suffix: amt
+      iteration: '10'
+      grid: p1-G2
+  ordinary_dividend_payer_nm_11:
     x_petey_id: '1_54'
     type: string
     semantic_type: business_name
@@ -789,10 +1806,32 @@ fields:
       - 504.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_54[0]
-  part2_ordinary_dividends_amt_11:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_payer_name_11
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: ordinary_dividend_payer_11_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend_payer
+      suffix: nm
+      iteration: '11'
+      grid: p1-G2
+  ordinary_dividend_amt_11:
     x_petey_id: '1_55'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -802,10 +1841,29 @@ fields:
       - 504.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_55[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part2_payer_nm_12:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_amt_11
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ordinary_dividend_11_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend
+      suffix: amt
+      iteration: '11'
+      grid: p1-G2
+  ordinary_dividend_payer_nm_12:
     x_petey_id: '1_56'
     type: string
     semantic_type: business_name
@@ -818,10 +1876,32 @@ fields:
       - 515.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_56[0]
-  part2_ordinary_dividends_amt_12:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_payer_name_12
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: ordinary_dividend_payer_12_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend_payer
+      suffix: nm
+      iteration: '12'
+      grid: p1-G2
+  ordinary_dividend_amt_12:
     x_petey_id: '1_57'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -831,10 +1911,29 @@ fields:
       - 515.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_57[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part2_payer_nm_13:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_amt_12
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ordinary_dividend_12_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend
+      suffix: amt
+      iteration: '12'
+      grid: p1-G2
+  ordinary_dividend_payer_nm_13:
     x_petey_id: '1_58'
     type: string
     semantic_type: business_name
@@ -847,10 +1946,32 @@ fields:
       - 527.9979858398438
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_58[0]
-  part2_ordinary_dividends_amt_13:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_payer_name_13
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: ordinary_dividend_payer_13_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend_payer
+      suffix: nm
+      iteration: '13'
+      grid: p1-G2
+  ordinary_dividend_amt_13:
     x_petey_id: '1_59'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -860,10 +1981,29 @@ fields:
       - 527.9979858398438
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_59[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part2_payer_nm_14:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_amt_13
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ordinary_dividend_13_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend
+      suffix: amt
+      iteration: '13'
+      grid: p1-G2
+  ordinary_dividend_payer_nm_14:
     x_petey_id: '1_60'
     type: string
     semantic_type: business_name
@@ -876,10 +2016,32 @@ fields:
       - 540.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_60[0]
-  part2_ordinary_dividends_amt_14:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_payer_name_14
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: ordinary_dividend_payer_14_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend_payer
+      suffix: nm
+      iteration: '14'
+      grid: p1-G2
+  ordinary_dividend_amt_14:
     x_petey_id: '1_61'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -889,10 +2051,29 @@ fields:
       - 540.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_61[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-  part2_payer_nm_15:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_amt_14
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ordinary_dividend_14_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend
+      suffix: amt
+      iteration: '14'
+      grid: p1-G2
+  ordinary_dividend_payer_nm_15:
     x_petey_id: '1_62'
     type: string
     semantic_type: business_name
@@ -905,10 +2086,32 @@ fields:
       - 551.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_62[0]
-  part2_ordinary_dividends_amt_15:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_payer_name_15
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: ordinary_dividend_payer_15_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend_payer
+      suffix: nm
+      iteration: '15'
+      grid: p1-G2
+  ordinary_dividend_amt_15:
     x_petey_id: '1_63'
-    type: string
-    semantic_type: id_part
+    type: number
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -918,9 +2121,28 @@ fields:
       - 551.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_63[0]
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: ordinary_dividend_amt_15
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ordinary_dividend_15_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: ordinary_dividend
+      suffix: amt
+      iteration: '15'
+      grid: p1-G2
   total_ordinary_dividends_amt:
     x_petey_id: '1_64'
     type: number
@@ -934,62 +2156,12 @@ fields:
       - 563.9979858398438
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_64[0]
-    x_petey_retype:
-    - money
-  foreign_account_yes_ind:
-    x_petey_id: '1_65'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 539.4000244140625
-      - 648.9990234375
-      - 549.4000244140625
-      - 658.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].TagcorrectingSubform[0].c1_1[0]
-  foreign_account_no_ind:
-    x_petey_id: '1_66'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 561.0
-      - 648.9990234375
-      - 571.0
-      - 658.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].TagcorrectingSubform[0].c1_1[1]
-  fincen_114_required_yes_ind:
+    label_source: llm
+    x_petey_identifiers:
+      subject: total_ordinary_dividends
+      suffix: amt
+  foreign_account_country_nm_1:
     x_petey_id: '1_67'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 539.4000244140625
-      - 684.9990234375
-      - 549.4000244140625
-      - 694.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_2[0]
-  fincen_114_required_no_ind:
-    x_petey_id: '1_68'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 561.0
-      - 684.9990234375
-      - 571.0
-      - 694.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_2[1]
-  foreign_country_nm:
-    x_petey_id: '1_69'
     type: string
     semantic_type: country
     widget:
@@ -1001,8 +2173,29 @@ fields:
       - 720.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_65[0]
-  foreign_country_nm_continuation:
-    x_petey_id: '1_70'
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: foreign_account_country_nm
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: foreign_account_country_1_nm
+        type: string
+        semantic_type: country
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: foreign_account_country
+      suffix: nm
+      iteration: '1'
+  foreign_account_country_nm_2:
+    x_petey_id: '1_68'
     type: string
     semantic_type: country
     widget:
@@ -1014,29 +2207,597 @@ fields:
       - 731.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_66[0]
-  foreign_trust_yes_ind:
-    x_petey_id: '1_71'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 539.4000244140625
-      - 745.0
-      - 549.4000244140625
-      - 755.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_3[0]
-  foreign_trust_no_ind:
-    x_petey_id: '1_72'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 561.0
-      - 745.0
-      - 571.0
-      - 755.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_3[1]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:51'
+      from:
+        name: foreign_account_country_nm_2
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: foreign_account_country_2_nm
+        type: string
+        semantic_type: country
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: foreign_account_country
+      suffix: nm
+      iteration: '2'
+  foreign_financial_account:
+    x_petey_id: '1_65'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'yes':
+        page: 1
+        rect:
+        - 539.4000244140625
+        - 648.9990234375
+        - 549.4000244140625
+        - 658.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].TagcorrectingSubform[0].c1_1[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      'no':
+        page: 1
+        rect:
+        - 561.0
+        - 648.9990234375
+        - 571.0
+        - 658.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].TagcorrectingSubform[0].c1_1[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: foreign_financial_account
+  fincen_form_114_required:
+    x_petey_id: '1_66'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'yes':
+        page: 1
+        rect:
+        - 539.4000244140625
+        - 684.9990234375
+        - 549.4000244140625
+        - 694.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_2[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      'no':
+        page: 1
+        rect:
+        - 561.0
+        - 684.9990234375
+        - 571.0
+        - 694.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_2[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: fincen_form_114_required
+  foreign_trust:
+    x_petey_id: '1_69'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'yes':
+        page: 1
+        rect:
+        - 539.4000244140625
+        - 745.0
+        - 549.4000244140625
+        - 755.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_3[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      'no':
+        page: 1
+        rect:
+        - 561.0
+        - 745.0
+        - 571.0
+        - 755.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_3[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: foreign_trust
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 55
+  collisions:
+  - original_label: interest_payer_name
+    assigned_label: interest_payer_name_2
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 155.9990234375
+    - 460.79998779296875
+    - 167.99798583984375
+  - original_label: interest_amt
+    assigned_label: interest_amt_2
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 155.9990234375
+    - 576.0
+    - 167.99798583984375
+  - original_label: interest_payer_name
+    assigned_label: interest_payer_name_3
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 168.0009765625
+    - 460.79998779296875
+    - 180.0
+  - original_label: interest_amt
+    assigned_label: interest_amt_3
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 168.0009765625
+    - 576.0
+    - 180.0
+  - original_label: interest_payer_name
+    assigned_label: interest_payer_name_4
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 180.0
+    - 460.79998779296875
+    - 191.9990234375
+  - original_label: interest_amt
+    assigned_label: interest_amt_4
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 180.0
+    - 576.0
+    - 191.9990234375
+  - original_label: interest_payer_name
+    assigned_label: interest_payer_name_5
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 191.9990234375
+    - 460.79998779296875
+    - 203.99798583984375
+  - original_label: interest_amt
+    assigned_label: interest_amt_5
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 191.9990234375
+    - 576.0
+    - 203.99798583984375
+  - original_label: interest_payer_name
+    assigned_label: interest_payer_name_6
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 204.0009765625
+    - 460.79998779296875
+    - 216.0
+  - original_label: interest_amt
+    assigned_label: interest_amt_6
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 204.0009765625
+    - 576.0
+    - 216.0
+  - original_label: interest_payer_name
+    assigned_label: interest_payer_name_7
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 216.0
+    - 460.79998779296875
+    - 227.9990234375
+  - original_label: interest_amt
+    assigned_label: interest_amt_7
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 216.0
+    - 576.0
+    - 227.9990234375
+  - original_label: interest_payer_name
+    assigned_label: interest_payer_name_8
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 227.9990234375
+    - 460.79998779296875
+    - 239.99798583984375
+  - original_label: interest_amt
+    assigned_label: interest_amt_8
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 227.9990234375
+    - 576.0
+    - 239.99798583984375
+  - original_label: interest_payer_name
+    assigned_label: interest_payer_name_9
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 240.0009765625
+    - 460.79998779296875
+    - 252.0
+  - original_label: interest_amt
+    assigned_label: interest_amt_9
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 240.0009765625
+    - 576.0
+    - 252.0
+  - original_label: interest_payer_name
+    assigned_label: interest_payer_name_10
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 252.0
+    - 460.79998779296875
+    - 263.9990234375
+  - original_label: interest_amt
+    assigned_label: interest_amt_10
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 252.0
+    - 576.0
+    - 263.9990234375
+  - original_label: interest_payer_name
+    assigned_label: interest_payer_name_11
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 263.9990234375
+    - 460.79998779296875
+    - 275.99798583984375
+  - original_label: interest_amt
+    assigned_label: interest_amt_11
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 263.9990234375
+    - 576.0
+    - 275.99798583984375
+  - original_label: interest_payer_name
+    assigned_label: interest_payer_name_12
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 276.0009765625
+    - 460.79998779296875
+    - 288.0
+  - original_label: interest_amt
+    assigned_label: interest_amt_12
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 276.0009765625
+    - 576.0
+    - 288.0
+  - original_label: interest_payer_name
+    assigned_label: interest_payer_name_13
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 288.0
+    - 460.79998779296875
+    - 299.9989929199219
+  - original_label: interest_amt
+    assigned_label: interest_amt_13
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 288.0
+    - 576.0
+    - 299.9989929199219
+  - original_label: interest_payer_name
+    assigned_label: interest_payer_name_14
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 299.9989929199219
+    - 460.79998779296875
+    - 311.99798583984375
+  - original_label: interest_amt
+    assigned_label: interest_amt_14
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 299.9989929199219
+    - 576.0
+    - 311.99798583984375
+  - original_label: ordinary_dividend_payer_name
+    assigned_label: ordinary_dividend_payer_name_2
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 384.0010070800781
+    - 460.79998779296875
+    - 396.0
+  - original_label: ordinary_dividend_amt
+    assigned_label: ordinary_dividend_amt_2
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 384.0010070800781
+    - 576.0
+    - 396.0
+  - original_label: ordinary_dividend_payer_name
+    assigned_label: ordinary_dividend_payer_name_3
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 396.0
+    - 460.79998779296875
+    - 407.9989929199219
+  - original_label: ordinary_dividend_amt
+    assigned_label: ordinary_dividend_amt_3
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 396.0
+    - 576.0
+    - 407.9989929199219
+  - original_label: ordinary_dividend_payer_name
+    assigned_label: ordinary_dividend_payer_name_4
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 407.9989929199219
+    - 460.79998779296875
+    - 419.99798583984375
+  - original_label: ordinary_dividend_amt
+    assigned_label: ordinary_dividend_amt_4
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 407.9989929199219
+    - 576.0
+    - 419.99798583984375
+  - original_label: ordinary_dividend_payer_name
+    assigned_label: ordinary_dividend_payer_name_5
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 420.0010070800781
+    - 460.79998779296875
+    - 432.0
+  - original_label: ordinary_dividend_amt
+    assigned_label: ordinary_dividend_amt_5
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 420.0010070800781
+    - 576.0
+    - 432.0
+  - original_label: ordinary_dividend_payer_name
+    assigned_label: ordinary_dividend_payer_name_6
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 432.0
+    - 460.79998779296875
+    - 443.9989929199219
+  - original_label: ordinary_dividend_amt
+    assigned_label: ordinary_dividend_amt_6
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 432.0
+    - 576.0
+    - 443.9989929199219
+  - original_label: ordinary_dividend_payer_name
+    assigned_label: ordinary_dividend_payer_name_7
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 443.9989929199219
+    - 460.79998779296875
+    - 455.99798583984375
+  - original_label: ordinary_dividend_amt
+    assigned_label: ordinary_dividend_amt_7
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 443.9989929199219
+    - 576.0
+    - 455.99798583984375
+  - original_label: ordinary_dividend_payer_name
+    assigned_label: ordinary_dividend_payer_name_8
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 456.0010070800781
+    - 460.79998779296875
+    - 468.0
+  - original_label: ordinary_dividend_amt
+    assigned_label: ordinary_dividend_amt_8
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 456.0010070800781
+    - 576.0
+    - 468.0
+  - original_label: ordinary_dividend_payer_name
+    assigned_label: ordinary_dividend_payer_name_9
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 468.0
+    - 460.79998779296875
+    - 479.9989929199219
+  - original_label: ordinary_dividend_amt
+    assigned_label: ordinary_dividend_amt_9
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 468.0
+    - 576.0
+    - 479.9989929199219
+  - original_label: ordinary_dividend_payer_name
+    assigned_label: ordinary_dividend_payer_name_10
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 479.9989929199219
+    - 460.79998779296875
+    - 491.99798583984375
+  - original_label: ordinary_dividend_amt
+    assigned_label: ordinary_dividend_amt_10
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 479.9989929199219
+    - 576.0
+    - 491.99798583984375
+  - original_label: ordinary_dividend_payer_name
+    assigned_label: ordinary_dividend_payer_name_11
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 492.0010070800781
+    - 460.79998779296875
+    - 504.0
+  - original_label: ordinary_dividend_amt
+    assigned_label: ordinary_dividend_amt_11
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 492.0010070800781
+    - 576.0
+    - 504.0
+  - original_label: ordinary_dividend_payer_name
+    assigned_label: ordinary_dividend_payer_name_12
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 504.0
+    - 460.79998779296875
+    - 515.9990234375
+  - original_label: ordinary_dividend_amt
+    assigned_label: ordinary_dividend_amt_12
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 504.0
+    - 576.0
+    - 515.9990234375
+  - original_label: ordinary_dividend_payer_name
+    assigned_label: ordinary_dividend_payer_name_13
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 515.9990234375
+    - 460.79998779296875
+    - 527.9979858398438
+  - original_label: ordinary_dividend_amt
+    assigned_label: ordinary_dividend_amt_13
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 515.9990234375
+    - 576.0
+    - 527.9979858398438
+  - original_label: ordinary_dividend_payer_name
+    assigned_label: ordinary_dividend_payer_name_14
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 528.0009765625
+    - 460.79998779296875
+    - 540.0
+  - original_label: ordinary_dividend_amt
+    assigned_label: ordinary_dividend_amt_14
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 528.0009765625
+    - 576.0
+    - 540.0
+  - original_label: ordinary_dividend_payer_name
+    assigned_label: ordinary_dividend_payer_name_15
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 540.0
+    - 460.79998779296875
+    - 551.9990234375
+  - original_label: ordinary_dividend_amt
+    assigned_label: ordinary_dividend_amt_15
+    page: 1
+    rect:
+    - 489.6000061035156
+    - 540.0
+    - 576.0
+    - 551.9990234375
+  - original_label: foreign_account_country_nm
+    assigned_label: foreign_account_country_nm_2
+    page: 1
+    rect:
+    - 129.60000610351562
+    - 720.0
+    - 525.5999755859375
+    - 731.9990234375
+x_petey_page_check:
+  when: '2026-10-15 12:16:37'
+  model: claude-opus-5
+  prompt: 2ddd7670
+  pages:
+  - 1
+  fields: 69
+  flagged: 1
+  unanswered: 0
+  record: runs/page_check/f1040sb__9205db__5994d270.json
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: f1040sb_20261015_113434
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/f1040sb.bpt
+  when: '2026-10-15 11:35:24'
+x_petey_run:
+  record: runs/judge_eval/form_runs/f1040sb.json
+  status: converged_with_residue
+  stop: no rule fix and no review edit
+  stable: true
+  rounds: 2
+  review_rounds: 1
+  when: '2026-10-15 11:35:35'

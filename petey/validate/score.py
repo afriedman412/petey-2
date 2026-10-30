@@ -61,7 +61,7 @@ import yaml
 
 from petey.synth.boxes import widget_key
 
-REACHED_PATHS = {"acroform", "text_clip", "ocr", "acroform_empty", "ink"}
+REACHED_PATHS = {"acroform", "text_clip", "ocr", "acroform_empty", "ink", "empty"}   # empty: the rect was reached, nothing in it (2026-10-19)
 
 
 _FALSY_ANSWER = {"n", "no", "false", "0", "off", "/off"}     # as extract.FALSY_ANSWER
@@ -182,6 +182,9 @@ def _canonicalize(v: Any, semantic_type: Optional[str]) -> str:
         return re.sub(r"\W", "", s).upper()[:2]
     if st in _LOWERCASE:
         return re.sub(r"\s+", "", s).lower()
+    if st == "datetime":                      # day and time compared, in extraction's ISO form
+        from petey.extract import _iso_datetime
+        return _iso_datetime(s) or re.sub(r"\s+", "", s).lower()
     if st in _DATE:
         try:
             from dateutil import parser as _dp
@@ -478,7 +481,7 @@ def shape_mismatch(field: dict, value: Any) -> Optional[str]:
             except re.error:
                 return None
         st = field.get("semantic_type")
-        if st in ("street_address", "city", "person_name", "first_name",
+        if st in ("street_address", "name_and_address", "city", "person_name", "first_name",
                   "last_name", "entity_name", "business_name") and "@" in s:
             return "name_vs_value"
     return None

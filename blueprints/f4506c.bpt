@@ -9,7 +9,10 @@ description: ''
 instructions: ''
 authoring:
   method: auto_label
-  model: claude-opus-5
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-14 19:06:02'
 fields:
   taxpayer_first_nm:
     x_petey_id: '1_1'
@@ -27,10 +30,12 @@ fields:
     description: Page 1. 1a. Current name. 1a.i. First name.
     x_petey_description_source: tooltip
     label_source: llm
-  taxpayer_middle_initial_nm:
+    x_petey_identifiers:
+      subject: taxpayer_first
+      suffix: nm
+  taxpayer_middle_initial:
     x_petey_id: '1_2'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -43,10 +48,12 @@ fields:
     description: 1a.i i. Middle initial.
     x_petey_description_source: tooltip
     label_source: llm
-  taxpayer_last_nm_or_business_name:
+    x_petey_identifiers:
+      subject: taxpayer_middle
+      suffix: initial
+  taxpayer_last_nm_or_business_nm:
     x_petey_id: '1_3'
     type: string
-    semantic_type: business_name
     widget:
       page: 1
       rect:
@@ -59,9 +66,28 @@ fields:
     description: 1a.i i i. Last name/B M F company name.
     x_petey_description_source: tooltip
     label_source: llm
-  first_taxpayer_identification_number:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: 'The caption ''iii. Last name/BMF company name'' and the publisher field
+        name ''last_name'' show this box normally holds an individual taxpayer''s
+        last name, with a BMF company name only as an alternative; the business_name
+        semantic_type mistypes it. The current name already covers both readings,
+        so only '
+      before:
+        type: string
+        semantic_type: business_name
+        description: 1a.i i i. Last name/B M F company name.
+      judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: taxpayer_last_nm_or_business
+      suffix: nm
+  taxpayer_tin:
     x_petey_id: '1_7'
     type: string
+    semantic_type: tin
+    pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
     widget:
       page: 1
       rect:
@@ -74,7 +100,10 @@ fields:
     description: 1b. First taxpayer identification number (see instructions).
     x_petey_description_source: tooltip
     label_source: llm
-  taxpayer_previous_first_nm:
+    x_petey_identifiers:
+      subject: taxpayer
+      suffix: tin
+  previous_first_nm:
     x_petey_id: '1_9'
     type: string
     semantic_type: first_name
@@ -91,10 +120,12 @@ fields:
       line 1a. i. First name
     x_petey_description_source: tooltip
     label_source: llm
-  taxpayer_previous_middle_initial_nm:
+    x_petey_identifiers:
+      subject: previous_first
+      suffix: nm
+  previous_middle_initial:
     x_petey_id: '1_10'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -107,7 +138,10 @@ fields:
     description: 1c.i i. Middle initial.
     x_petey_description_source: tooltip
     label_source: llm
-  taxpayer_previous_last_nm:
+    x_petey_identifiers:
+      subject: previous_middle
+      suffix: initial
+  previous_last_nm:
     x_petey_id: '1_11'
     type: string
     semantic_type: last_name
@@ -123,6 +157,9 @@ fields:
     description: 1c.i i i. Last name.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: previous_last
+      suffix: nm
   spouse_first_nm:
     x_petey_id: '1_4'
     type: string
@@ -140,10 +177,12 @@ fields:
       for both taxpayers). 2a.i. Spouse’s first name.
     x_petey_description_source: tooltip
     label_source: llm
-  spouse_middle_initial_nm:
+    x_petey_identifiers:
+      subject: spouse_first
+      suffix: nm
+  spouse_middle_initial:
     x_petey_id: '1_5'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -156,6 +195,9 @@ fields:
     description: 2a.i i. Middle initial.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse_middle
+      suffix: initial
   spouse_last_nm:
     x_petey_id: '1_6'
     type: string
@@ -172,9 +214,14 @@ fields:
     description: 2a.i i i. Spouse’s last name.
     x_petey_description_source: tooltip
     label_source: llm
-  spouse_taxpayer_identification_number:
+    x_petey_identifiers:
+      subject: spouse_last
+      suffix: nm
+  spouse_tin:
     x_petey_id: '1_8'
     type: string
+    semantic_type: tin
+    pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
     widget:
       page: 1
       rect:
@@ -188,6 +235,9 @@ fields:
       transcripts are requested for both taxpayers).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse
+      suffix: tin
   spouse_previous_first_nm:
     x_petey_id: '1_12'
     type: string
@@ -205,10 +255,12 @@ fields:
       from line 2a. i. First name
     x_petey_description_source: tooltip
     label_source: llm
-  spouse_previous_middle_initial_nm:
+    x_petey_identifiers:
+      subject: spouse_previous_first
+      suffix: nm
+  spouse_previous_middle_initial:
     x_petey_id: '1_13'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -221,6 +273,9 @@ fields:
     description: 2c.i i. Middle initial.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse_previous_middle
+      suffix: initial
   spouse_previous_last_nm:
     x_petey_id: '1_14'
     type: string
@@ -237,6 +292,9 @@ fields:
     description: 2c.i i i. Last name.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse_previous_last
+      suffix: nm
   current_address_line_1_txt:
     x_petey_id: '1_15'
     type: string
@@ -255,6 +313,9 @@ fields:
       suite no.).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: current_address_line_1
+      suffix: txt
   current_city_nm:
     x_petey_id: '1_16'
     type: string
@@ -269,7 +330,10 @@ fields:
       widget_type: text
       path: form1[0].page_1[0].current_name_address[0].city[0]
     label_source: llm
-  current_state_abbreviation_cd:
+    x_petey_identifiers:
+      subject: current_city
+      suffix: nm
+  current_state_cd:
     x_petey_id: '1_17'
     type: string
     semantic_type: state_abbr
@@ -284,6 +348,9 @@ fields:
       widget_type: text
       path: form1[0].page_1[0].current_name_address[0].state[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: current_state
+      suffix: cd
   current_zip_cd:
     x_petey_id: '1_18'
     type: string
@@ -301,6 +368,9 @@ fields:
     description: d. Z I P code.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: current_zip
+      suffix: cd
   previous_address_line_1_txt:
     x_petey_id: '1_19'
     type: string
@@ -319,6 +389,9 @@ fields:
       no.).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: previous_address_line_1
+      suffix: txt
   previous_city_nm:
     x_petey_id: '1_20'
     type: string
@@ -333,7 +406,10 @@ fields:
       widget_type: text
       path: form1[0].page_1[0].previous_address_shown[0].city[0]
     label_source: llm
-  previous_state_abbreviation_cd:
+    x_petey_identifiers:
+      subject: previous_city
+      suffix: nm
+  previous_state_cd:
     x_petey_id: '1_21'
     type: string
     semantic_type: state_abbr
@@ -348,6 +424,9 @@ fields:
       widget_type: text
       path: form1[0].page_1[0].previous_address_shown[0].state[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: previous_state
+      suffix: cd
   previous_zip_cd:
     x_petey_id: '1_22'
     type: string
@@ -365,10 +444,12 @@ fields:
     description: d. Z I P code.
     x_petey_description_source: tooltip
     label_source: llm
-  ives_participant_business_name:
+    x_petey_identifiers:
+      subject: previous_zip
+      suffix: cd
+  ives_participant_nm:
     x_petey_id: '1_23'
     type: string
-    semantic_type: business_name
     widget:
       page: 1
       rect:
@@ -382,7 +463,10 @@ fields:
       address. i. I V E S participant name.
     x_petey_description_source: tooltip
     label_source: llm
-  ives_participant_id_number:
+    x_petey_identifiers:
+      subject: ives_participant
+      suffix: nm
+  ives_participant_id_nbr:
     x_petey_id: '1_24'
     type: string
     widget:
@@ -397,6 +481,9 @@ fields:
     description: 5a.i i. I V E S participant I D number.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: ives_participant_id
+      suffix: nbr
   sor_mailbox_id:
     x_petey_id: '1_25'
     type: string
@@ -412,7 +499,9 @@ fields:
     description: 5a.i i i. S O R mailbox I D.
     x_petey_description_source: tooltip
     label_source: llm
-  ives_participant_address_line_1_txt:
+    x_petey_identifiers:
+      subject: sor_mailbox_id
+  ives_address_line_1_txt:
     x_petey_id: '1_26'
     type: string
     semantic_type: street_address
@@ -428,7 +517,10 @@ fields:
     description: 5a.i v. Street address (including apt., room, or suite no.).
     x_petey_description_source: tooltip
     label_source: llm
-  ives_participant_city_nm:
+    x_petey_identifiers:
+      subject: ives_address_line_1
+      suffix: txt
+  ives_city_nm:
     x_petey_id: '1_27'
     type: string
     semantic_type: city
@@ -442,7 +534,10 @@ fields:
       widget_type: text
       path: form1[0].page_1[0].ives_participant_name[0].city[0]
     label_source: llm
-  ives_participant_state_abbreviation_cd:
+    x_petey_identifiers:
+      subject: ives_city
+      suffix: nm
+  ives_state_cd:
     x_petey_id: '1_28'
     type: string
     semantic_type: state_abbr
@@ -459,7 +554,10 @@ fields:
     description: 5a.v i. State.
     x_petey_description_source: tooltip
     label_source: llm
-  ives_participant_zip_cd:
+    x_petey_identifiers:
+      subject: ives_state
+      suffix: cd
+  ives_zip_cd:
     x_petey_id: '1_29'
     type: string
     semantic_type: zip
@@ -476,7 +574,10 @@ fields:
     description: 5a.v i i. Z I P code.
     x_petey_description_source: tooltip
     label_source: llm
-  customer_file_number:
+    x_petey_identifiers:
+      subject: ives_zip
+      suffix: cd
+  customer_file_nbr:
     x_petey_id: '1_30'
     type: string
     widget:
@@ -491,6 +592,9 @@ fields:
     description: 5b. Customer file number (if applicable) (see instructions).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: customer_file
+      suffix: nbr
   unique_identifier:
     x_petey_id: '1_31'
     type: string
@@ -506,10 +610,11 @@ fields:
     description: 5c. Unique identifier (if applicable) (see instructions).
     x_petey_description_source: tooltip
     label_source: llm
-  client_business_name:
+    x_petey_identifiers:
+      subject: unique_identifier
+  client_nm:
     x_petey_id: '1_32'
     type: string
-    semantic_type: business_name
     widget:
       page: 1
       rect:
@@ -523,11 +628,14 @@ fields:
       be blank or not applicable (N A)). i. Client name.
     x_petey_description_source: tooltip
     label_source: llm
-  client_telephone_number:
+    x_petey_identifiers:
+      subject: client
+      suffix: nm
+  client_phone_nbr:
     x_petey_id: '1_33'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
     widget:
       page: 1
       rect:
@@ -539,7 +647,17 @@ fields:
       path: form1[0].page_1[0].client_info[0].telephone_number[0]
     description: 5d.i i. Telephone number.
     x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
     label_source: llm
+    x_petey_identifiers:
+      subject: client_phone
+      suffix: nbr
   client_address_line_1_txt:
     x_petey_id: '1_34'
     type: string
@@ -556,6 +674,9 @@ fields:
     description: 5d.i i i. Street address (including apt., room, or suite no.).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: client_address_line_1
+      suffix: txt
   client_city_nm:
     x_petey_id: '1_35'
     type: string
@@ -572,7 +693,10 @@ fields:
     description: 5d.i v. City.
     x_petey_description_source: tooltip
     label_source: llm
-  client_state_abbreviation_cd:
+    x_petey_identifiers:
+      subject: client_city
+      suffix: nm
+  client_state_cd:
     x_petey_id: '1_36'
     type: string
     semantic_type: state_abbr
@@ -589,6 +713,9 @@ fields:
     description: 5d.v. State.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: client_state
+      suffix: cd
   client_zip_cd:
     x_petey_id: '1_37'
     type: string
@@ -606,7 +733,10 @@ fields:
     description: 5d.v i. Z I P code.
     x_petey_description_source: tooltip
     label_source: llm
-  transcript_requested_tax_form_number:
+    x_petey_identifiers:
+      subject: client_zip
+      suffix: cd
+  tax_form_number_requested:
     x_petey_id: '1_38'
     type: string
     widget:
@@ -623,8 +753,78 @@ fields:
       per request for line 6 transcripts.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-14 20:54:07'
+      from:
+        name: tax_form_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: tax_form_number_requested
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/je__f4506c.json
+    x_petey_identifiers:
+      subject: tax_form_number_requested
+  transcript_requested_type:
+    x_petey_id: '1_73'
+    type: category
+    values:
+    - return_transcript_ind
+    - account_transcript_ind
+    - record_of_account_ind
+    widgets:
+      return_transcript_ind:
+        page: 1
+        rect:
+        - 97.19999694824219
+        - 434.20001220703125
+        - 107.19999694824219
+        - 444.20001220703125
+        widget_type: checkbox
+        path: form1[0].page_1[0].transcript_type[0].return_transcript[0]
+        on_state: '1'
+        caption: Return Transcript
+        x_petey_caption_source: page_choice
+      account_transcript_ind:
+        page: 1
+        rect:
+        - 259.20001220703125
+        - 434.20001220703125
+        - 269.20001220703125
+        - 444.20001220703125
+        widget_type: checkbox
+        path: form1[0].page_1[0].transcript_type[0].account_transcript[0]
+        on_state: '1'
+        caption: Account Transcript
+        x_petey_caption_source: page_choice
+      record_of_account_ind:
+        page: 1
+        rect:
+        - 417.6000061035156
+        - 434.20001220703125
+        - 427.6000061035156
+        - 444.20001220703125
+        widget_type: checkbox
+        path: form1[0].page_1[0].transcript_type[0].record_of_account[0]
+        on_state: '1'
+        caption: Record of Account
+        x_petey_caption_source: page_choice
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 20:54:53'
+      from:
+      - return_transcript_ind
+      - account_transcript_ind
+      - record_of_account_ind
+      name_from: labeler
+    x_petey_identifiers:
+      subject: transcript_requested_type
   wage_and_income_transcript_ind:
-    x_petey_id: '1_40'
+    x_petey_id: '1_42'
     type: boolean
     semantic_type: indicator
     widget:
@@ -639,8 +839,11 @@ fields:
     description: 7. Wage and Income transcript (W-2, 1098-E, 1099-G, etc.).
     x_petey_description_source: tooltip
     label_source: llm
-  wage_and_income_form_number_1:
-    x_petey_id: '1_41'
+    x_petey_identifiers:
+      subject: wage_and_income_transcript
+      suffix: ind
+  wage_and_income_form_nbr_1:
+    x_petey_id: '1_43'
     type: string
     widget:
       page: 1
@@ -655,8 +858,12 @@ fields:
       all forms will be sent.. Line 1 of 3.
     x_petey_description_source: tooltip
     label_source: llm
-  wage_and_income_form_number_2:
-    x_petey_id: '1_42'
+    x_petey_identifiers:
+      subject: wage_and_income_form
+      iteration: '1'
+      suffix: nbr
+  wage_and_income_form_nbr_2:
+    x_petey_id: '1_44'
     type: string
     widget:
       page: 1
@@ -670,8 +877,12 @@ fields:
     description: 7a. Line 2 of 3.
     x_petey_description_source: tooltip
     label_source: llm
-  wage_and_income_form_number_3:
-    x_petey_id: '1_43'
+    x_petey_identifiers:
+      subject: wage_and_income_form
+      iteration: '2'
+      suffix: nbr
+  wage_and_income_form_nbr_3:
+    x_petey_id: '1_45'
     type: string
     widget:
       page: 1
@@ -685,8 +896,53 @@ fields:
     description: 7a. Line 3 of 3.
     x_petey_description_source: tooltip
     label_source: llm
-  period_requested_1_month:
-    x_petey_id: '1_45'
+    x_petey_identifiers:
+      subject: wage_and_income_form
+      iteration: '3'
+      suffix: nbr
+  wage_and_income_transcripts_taxpayer_requesting:
+    x_petey_id: '1_74'
+    type: category
+    values:
+    - wage_and_income_taxpayer_1a_ind
+    - wage_and_income_spouse_2a_ind
+    widgets:
+      wage_and_income_taxpayer_1a_ind:
+        page: 1
+        rect:
+        - 97.19999694824219
+        - 488.20001220703125
+        - 107.19999694824219
+        - 498.20001220703125
+        widget_type: checkbox
+        path: form1[0].page_1[0].taxpayer_requesting[0].line_1a[0]
+        on_state: '1'
+        caption: Line 1a
+        x_petey_caption_source: page_choice
+      wage_and_income_spouse_2a_ind:
+        page: 1
+        rect:
+        - 259.20001220703125
+        - 488.20001220703125
+        - 269.20001220703125
+        - 498.20001220703125
+        widget_type: checkbox
+        path: form1[0].page_1[0].taxpayer_requesting[0].line_2a[0]
+        on_state: '1'
+        caption: Line 2a
+        x_petey_caption_source: page_choice
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 20:54:53'
+      from:
+      - wage_and_income_taxpayer_1a_ind
+      - wage_and_income_spouse_2a_ind
+      name_from: labeler
+    x_petey_identifiers:
+      subject: wage_and_income_transcripts_taxpayer_requesting
+  tax_period_month_1:
+    x_petey_id: '1_48'
     type: string
     widget:
       page: 1
@@ -702,8 +958,12 @@ fields:
       1 of 4.
     x_petey_description_source: tooltip
     label_source: llm
-  period_requested_1_day:
-    x_petey_id: '1_46'
+    x_petey_identifiers:
+      subject: tax_period
+      suffix: month
+      iteration: '1'
+  tax_period_day_1:
+    x_petey_id: '1_49'
     type: string
     widget:
       page: 1
@@ -717,8 +977,12 @@ fields:
     description: 8. 2 digit day. 1 of 4.
     x_petey_description_source: tooltip
     label_source: llm
-  period_requested_1_yr:
-    x_petey_id: '1_47'
+    x_petey_identifiers:
+      subject: tax_period
+      suffix: day
+      iteration: '1'
+  tax_period_1_year:
+    x_petey_id: '1_50'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -734,8 +998,12 @@ fields:
     description: 8. 4 digit Year. 1 of 4.
     x_petey_description_source: tooltip
     label_source: llm
-  period_requested_2_month:
-    x_petey_id: '1_48'
+    x_petey_identifiers:
+      block_prefix: tax_period
+      block_iteration: '1'
+      subject: year
+  tax_period_month_2:
+    x_petey_id: '1_51'
     type: string
     widget:
       page: 1
@@ -749,8 +1017,12 @@ fields:
     description: 8. 2 digit month. 2 of 4.
     x_petey_description_source: tooltip
     label_source: llm
-  period_requested_2_day:
-    x_petey_id: '1_49'
+    x_petey_identifiers:
+      subject: tax_period
+      suffix: month
+      iteration: '2'
+  tax_period_day_2:
+    x_petey_id: '1_52'
     type: string
     widget:
       page: 1
@@ -764,8 +1036,12 @@ fields:
     description: 8. 2 digit day. 2 of 4.
     x_petey_description_source: tooltip
     label_source: llm
-  period_requested_2_yr:
-    x_petey_id: '1_50'
+    x_petey_identifiers:
+      subject: tax_period
+      suffix: day
+      iteration: '2'
+  tax_period_2_year:
+    x_petey_id: '1_53'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -781,8 +1057,12 @@ fields:
     description: 8. 4 digit Year. 2 of 4.
     x_petey_description_source: tooltip
     label_source: llm
-  period_requested_3_month:
-    x_petey_id: '1_51'
+    x_petey_identifiers:
+      block_prefix: tax_period
+      block_iteration: '2'
+      subject: year
+  tax_period_month_3:
+    x_petey_id: '1_54'
     type: string
     widget:
       page: 1
@@ -796,8 +1076,12 @@ fields:
     description: 8. 2 digit month. 3 of 4.
     x_petey_description_source: tooltip
     label_source: llm
-  period_requested_3_day:
-    x_petey_id: '1_52'
+    x_petey_identifiers:
+      subject: tax_period
+      suffix: month
+      iteration: '3'
+  tax_period_day_3:
+    x_petey_id: '1_55'
     type: string
     widget:
       page: 1
@@ -811,8 +1095,12 @@ fields:
     description: 8. 2 digit day. 3 of 4.
     x_petey_description_source: tooltip
     label_source: llm
-  period_requested_3_yr:
-    x_petey_id: '1_53'
+    x_petey_identifiers:
+      subject: tax_period
+      suffix: day
+      iteration: '3'
+  tax_period_3_year:
+    x_petey_id: '1_56'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -828,8 +1116,12 @@ fields:
     description: 8. 4 digit Year. 3 of 4.
     x_petey_description_source: tooltip
     label_source: llm
-  period_requested_4_month:
-    x_petey_id: '1_54'
+    x_petey_identifiers:
+      block_prefix: tax_period
+      block_iteration: '3'
+      subject: year
+  tax_period_month_4:
+    x_petey_id: '1_57'
     type: string
     widget:
       page: 1
@@ -843,8 +1135,12 @@ fields:
     description: 8. 2 digit month. 4 of 4.
     x_petey_description_source: tooltip
     label_source: llm
-  period_requested_4_day:
-    x_petey_id: '1_55'
+    x_petey_identifiers:
+      subject: tax_period
+      suffix: month
+      iteration: '4'
+  tax_period_day_4:
+    x_petey_id: '1_58'
     type: string
     widget:
       page: 1
@@ -858,8 +1154,12 @@ fields:
     description: 8. 2 digit day. 4 of 4.
     x_petey_description_source: tooltip
     label_source: llm
-  period_requested_4_yr:
-    x_petey_id: '1_56'
+    x_petey_identifiers:
+      subject: tax_period
+      suffix: day
+      iteration: '4'
+  tax_period_4_year:
+    x_petey_id: '1_59'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -875,8 +1175,12 @@ fields:
     description: 8. 4 digit Year. 4 of 4.
     x_petey_description_source: tooltip
     label_source: llm
-  signatory_attests_attestation_clause_ind:
-    x_petey_id: '1_57'
+    x_petey_identifiers:
+      block_prefix: tax_period
+      block_iteration: '4'
+      subject: year
+  signatory_attestation_ind:
+    x_petey_id: '1_60'
     type: boolean
     semantic_type: indicator
     widget:
@@ -891,10 +1195,12 @@ fields:
     description: above attestation clause
     x_petey_description_source: tooltip
     label_source: llm
-  taxpayer_signature_nm:
-    x_petey_id: '1_58'
+    x_petey_identifiers:
+      subject: signatory_attestation
+      suffix: ind
+  taxpayer_signature:
+    x_petey_id: '1_61'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -907,8 +1213,11 @@ fields:
     description: Sign Here. Signature for Line 1a (see instructions).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: taxpayer
+      suffix: signature
   taxpayer_signature_dt:
-    x_petey_id: '1_59'
+    x_petey_id: '1_62'
     type: date
     semantic_type: iso_date
     widget:
@@ -920,14 +1229,20 @@ fields:
       - 626.4000244140625
       widget_type: text
       path: form1[0].page_1[0].date[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/DD/YYYY}
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  taxpayer_phone_number:
-    x_petey_id: '1_60'
+    x_petey_identifiers:
+      subject: taxpayer_signature
+      suffix: dt
+  taxpayer_phone_nbr:
+    x_petey_id: '1_63'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
@@ -940,8 +1255,11 @@ fields:
     description: Phone number of taxpayer on line 1a or 2a.
     x_petey_description_source: tooltip
     label_source: llm
-  taxpayer_signed_by_authorized_representative_ind:
-    x_petey_id: '1_61'
+    x_petey_identifiers:
+      subject: taxpayer_phone
+      suffix: nbr
+  taxpayer_authorized_representative_ind:
+    x_petey_id: '1_64'
     type: boolean
     semantic_type: indicator
     widget:
@@ -956,8 +1274,11 @@ fields:
     description: Form 4506-C was signed by an Authorized Representative.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: taxpayer_authorized_representative
+      suffix: ind
   taxpayer_electronically_signed_ind:
-    x_petey_id: '1_62'
+    x_petey_id: '1_65'
     type: boolean
     semantic_type: indicator
     widget:
@@ -972,10 +1293,12 @@ fields:
     description: Signatory confirms document was electronically signed.
     x_petey_description_source: tooltip
     label_source: llm
-  taxpayer_printed_nm:
-    x_petey_id: '1_63'
+    x_petey_identifiers:
+      subject: taxpayer_electronically_signed
+      suffix: ind
+  taxpayer_print_nm:
+    x_petey_id: '1_66'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -988,10 +1311,12 @@ fields:
     description: Print/Type name.
     x_petey_description_source: tooltip
     label_source: llm
-  taxpayer_title_txt:
-    x_petey_id: '1_64'
+    x_petey_identifiers:
+      subject: taxpayer_print
+      suffix: nm
+  taxpayer_title:
+    x_petey_id: '1_67'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1005,10 +1330,11 @@ fields:
       trust).
     x_petey_description_source: tooltip
     label_source: llm
-  spouse_signature_nm:
-    x_petey_id: '1_65'
+    x_petey_identifiers:
+      subject: taxpayer_title
+  spouse_signature:
+    x_petey_id: '1_68'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -1021,8 +1347,11 @@ fields:
     description: Spouse's signature (required if listed on Line 2a).
     x_petey_description_source: tooltip
     label_source: llm
-  spouse_signed_by_authorized_representative_ind:
-    x_petey_id: '1_67'
+    x_petey_identifiers:
+      subject: spouse
+      suffix: signature
+  spouse_authorized_representative_ind:
+    x_petey_id: '1_70'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1037,8 +1366,11 @@ fields:
     description: Form 4506-C was signed by an Authorized Representative.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse_authorized_representative
+      suffix: ind
   spouse_electronically_signed_ind:
-    x_petey_id: '1_68'
+    x_petey_id: '1_71'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1053,8 +1385,11 @@ fields:
     description: Signatory confirms document was electronically signed.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse_electronically_signed
+      suffix: ind
   spouse_signature_dt:
-    x_petey_id: '1_66'
+    x_petey_id: '1_69'
     type: date
     semantic_type: iso_date
     widget:
@@ -1066,13 +1401,18 @@ fields:
       - 716.4000244140625
       widget_type: text
       path: form1[0].page_1[0].date[1]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/DD/YYYY}
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  spouse_printed_nm:
-    x_petey_id: '1_69'
+    x_petey_identifiers:
+      subject: spouse_signature
+      suffix: dt
+  spouse_print_nm:
+    x_petey_id: '1_72'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -1085,78 +1425,38 @@ fields:
     description: Print/Type name.
     x_petey_description_source: tooltip
     label_source: llm
-  transcript_type:
-    x_petey_id: '1_39'
-    type: category
-    values:
-    - account_transcript_ind
-    - record_of_account_ind
-    - return_transcript_ind
-    widgets:
-      return_transcript_ind:
-        page: 1
-        rect:
-        - 97.19999694824219
-        - 434.20001220703125
-        - 107.19999694824219
-        - 444.20001220703125
-        widget_type: checkbox
-        path: form1[0].page_1[0].transcript_type[0].return_transcript[0]
-        on_state: '1'
-        caption: a. Return Transcript
-        x_petey_caption_source: page_text
-      account_transcript_ind:
-        page: 1
-        rect:
-        - 259.20001220703125
-        - 434.20001220703125
-        - 269.20001220703125
-        - 444.20001220703125
-        widget_type: checkbox
-        path: form1[0].page_1[0].transcript_type[0].account_transcript[0]
-        on_state: '1'
-        caption: b. Account Transcript
-        x_petey_caption_source: page_text
-      record_of_account_ind:
-        page: 1
-        rect:
-        - 417.6000061035156
-        - 434.20001220703125
-        - 427.6000061035156
-        - 444.20001220703125
-        widget_type: checkbox
-        path: form1[0].page_1[0].transcript_type[0].record_of_account[0]
-        on_state: '1'
-        caption: c. Record of Account
-        x_petey_caption_source: page_text
-  wage_and_income_requesting_taxpayer:
-    x_petey_id: '1_44'
-    type: category
-    values:
-    - line_1a_ind
-    - line_2a_ind
-    widgets:
-      line_1a_ind:
-        page: 1
-        rect:
-        - 97.19999694824219
-        - 488.20001220703125
-        - 107.19999694824219
-        - 498.20001220703125
-        widget_type: checkbox
-        path: form1[0].page_1[0].taxpayer_requesting[0].line_1a[0]
-        on_state: '1'
-        caption: for taxpayer(s)
-        x_petey_caption_source: page_text
-      line_2a_ind:
-        page: 1
-        rect:
-        - 259.20001220703125
-        - 488.20001220703125
-        - 269.20001220703125
-        - 498.20001220703125
-        widget_type: checkbox
-        path: form1[0].page_1[0].taxpayer_requesting[0].line_2a[0]
-        on_state: '1'
-        caption: transcripts
-        x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: spouse_print
+      suffix: nm
+x_petey_xfa_log:
+  joined: 72
+  pattern: 1
+x_petey_page_check:
+  record: runs/judge_eval/form_runs/f4506c.json
+  model: gemini-3.8-flash (round 0), claude-opus-5 (loop)
+  prompt: 2ddd7670
+  when: '2026-10-14 19:07:22'
+  fields: 72
+  checked: 72
+  flagged: 0
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: f4506c_20261014_190705
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/f4506c.bpt
+  when: '2026-10-14 19:07:22'
+x_petey_run:
+  record: runs/judge_eval/form_runs/f4506c.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-14 19:07:22'

@@ -1,0 +1,733 @@
+bpt_version: '1.1'
+name: cra_td1on
+form_version: null
+source_pdf: td1on-fill-26e.pdf
+source_pdf_hash: 923f0547698aff5e84b3ecaba907e8eeecf7c5d7
+source_pages:
+- 1
+- 2
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 21:40:53'
+fields:
+  last_nm:
+    x_petey_id: '1_1'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 1
+      rect:
+      - 21.7189998626709
+      - 105.718017578125
+      - 221.281005859375
+      - 116.280029296875
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].Identification[0].Last_name[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:20'
+      from:
+        name: last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: last
+      suffix: nm
+  first_name_and_initials_txt:
+    x_petey_id: '1_2'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 1
+      rect:
+      - 222.7209930419922
+      - 105.718017578125
+      - 317.2820129394531
+      - 116.280029296875
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].Identification[0].First_name[0]
+    description: First name and initials.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:20'
+      from:
+        name: first_name_and_initials
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: first_name_and_initials_txt
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: first_name_and_initials
+      suffix: txt
+  birth_dt:
+    x_petey_id: '1_3'
+    type: string
+    semantic_type: birth_date
+    widget:
+      page: 1
+      rect:
+      - 318.72198486328125
+      - 105.718017578125
+      - 431.2829895019531
+      - 116.280029296875
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].Identification[0].DOB[0]
+    description: Date of birth. Year 4 digits. Month 2 digits. Day 2 digits.
+    x_petey_description_source: tooltip
+    pattern: ^\d{4}\-\d{2}\-\d{2}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{9999-99-99}
+      pictures:
+        format:
+        - text{9999-99-99}
+    label_source: llm
+    x_petey_identifiers:
+      subject: birth
+      suffix: dt
+  employee_nbr:
+    x_petey_id: '1_4'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 432.7200012207031
+      - 105.718017578125
+      - 593.280029296875
+      - 116.280029296875
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].Identification[0].Employee_number[0]
+    description: Employee number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:20'
+      from:
+        name: employee_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: employee_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: employee
+      suffix: nbr
+  address_txt:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 21.7189998626709
+      - 130.1929931640625
+      - 251.27999877929688
+      - 146.27899169921875
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].Identification[0].Address[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:20'
+      from:
+        name: address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: address
+      suffix: txt
+  postal_cd:
+    x_petey_id: '1_6'
+    type: string
+    pattern: ^[A-Za-z]\d[A-Za-z]\d[A-Za-z]\d$
+    widget:
+      page: 1
+      rect:
+      - 252.72000122070312
+      - 129.718994140625
+      - 323.2799987792969
+      - 146.27899169921875
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].Identification[0].PostalCode_Comb_BordersAll[0].PostalCode[0]
+    description: Postal code. 6 characters.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{A9A9A9}
+      pictures:
+        format:
+        - text{A9A9A9}
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Box is a 6-character Canadian postal code (XFA picture A9A9A9, comb
+        maxlen 6); the regex is correct. The US-style `zip` semantic_type is what
+        made the generator produce 43215, so it is dropped; name, type and pattern
+        stand.
+      before:
+        type: string
+        semantic_type: zip
+        pattern: ^[A-Za-z]\d[A-Za-z]\d[A-Za-z]\d$
+        description: Postal code. 6 characters.
+      judged: 'kept: 4 -> 4'
+    x_petey_identifiers:
+      subject: postal
+      suffix: cd
+  country_of_permanent_residence_cd:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: country
+    widget:
+      page: 1
+      rect:
+      - 324.7200012207031
+      - 135.719970703125
+      - 485.2799987792969
+      - 146.27899169921875
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].Identification[0].NR_country_name[0]
+    description: For non-residents only. Country of permanent residence.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:20'
+      from:
+        name: country_of_permanent_residence
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: country_of_permanent_residence_cd
+        type: string
+        semantic_type: country
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      subject: country_of_permanent_residence
+      suffix: cd
+  social_insurance_nbr:
+    x_petey_id: '1_7'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 486.7200012207031
+      - 129.718994140625
+      - 593.280029296875
+      - 146.27899169921875
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].Identification[0].SIN_Comb_BordersAll[0].SIN_Comb[0]
+    description: Social insurance number. 9 digits.
+    x_petey_description_source: tooltip
+    pattern: ^\d{9}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999999999}
+      pictures:
+        format:
+        - text{999999999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:20'
+      from:
+        name: social_insurance_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{9}$
+      to:
+        name: social_insurance_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{9}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: social_insurance
+      suffix: nbr
+  age_amt:
+    x_petey_id: '1_9'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 516.5490112304688
+      - 189.8790283203125
+      - 587.1090087890625
+      - 206.43902587890625
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].number2_subform[0].Amount_fld[0]
+    description: 2. Age amount. If you will be 65 or older on December 31, 2026, and
+      your net income from all sources will be $47,210 or less, enter $6,342. You
+      may enter a partial amount if your net income for the year will be between $47,210
+      and $89,490. To calculate a partial amount, fill out the line 2 section of Form
+      TD1ON-WS, Worksheet for the 2026 Ontario Personal Tax Credits Return.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zz9}
+        ui:
+        - num{zzzzzzzzzzzz9}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: age
+      suffix: amt
+  pension_income_amt:
+    x_petey_id: '1_10'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 516.5490112304688
+      - 222.8800048828125
+      - 587.1090087890625
+      - 239.44000244140625
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].number3_subform[0].Amount_fld[0]
+    description: '3. Pension income amount. If you will receive regular pension payments
+      from a pension plan or fund. Not including Canada Pension Plan, Quebec Pension
+      Plan, old age security, or guaranteed income supplement payments. Enter whichever
+      is less: $1,796 or your estimated annual pension.'
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zz9}
+        ui:
+        - num{zzzzzzzzzzzz9}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: pension_income
+      suffix: amt
+  disability_amt:
+    x_petey_id: '1_11'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 516.5490112304688
+      - 246.8809814453125
+      - 587.1090087890625
+      - 263.44097900390625
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].number4_subform[0].Amount_fld[0]
+    description: 4. Disability amount. If you will claim the disability amount on
+      your income tax and benefit return by using Form T2201, Disability Tax Credit
+      Certificate, enter $10,494.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zz9}
+        ui:
+        - num{zzzzzzzzzzzz9}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: disability
+      suffix: amt
+  spouse_or_common_law_partner_amt:
+    x_petey_id: '1_12'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 516.718994140625
+      - 318.718994140625
+      - 587.2789916992188
+      - 335.27899169921875
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].number5_subform[0].Amount_fld[0]
+    description: '5. Spouse or common-law partner amount. Enter $11,029 if you are
+      supporting your spouse or common-law partner and both of the following conditions
+      apply: Your spouse or common-law partner lives with you. Your spouse or common-law
+      partner''s net income for the year will be $1,103 or less. You may enter a partial
+      amount if your spouse''s or common-law partner''s net income for the year will
+      be between $1,103 and $12,132. To calculate a partial amount, fill out the line
+      5 section of Form TD1ON-WS.'
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zz9}
+        ui:
+        - num{zzzzzzzzzzzz9}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: spouse_or_common_law_partner
+      suffix: amt
+  eligible_dependant_amt:
+    x_petey_id: '1_13'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 516.5490112304688
+      - 411.7239990234375
+      - 587.1090087890625
+      - 428.28399658203125
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].Number6[0].Amount_fld[0]
+    description: '6. Amount for an eligible dependant. Enter $11,029 if you are supporting
+      an eligible dependant and all of the following conditions apply: You do not
+      have a spouse or common-law partner, or you have a spouse or common-law partner
+      who does not live with you and who you are not supporting or being supported
+      by. The dependant is related to you and lives with you. The dependant''s net
+      income for the year will be $1,103 or less. You may enter a partial amount if
+      the eligible dependant''s net income for the year will be between $1,103 and
+      $12,132. To calculate a partial amount, fill out the line 6 section of Form
+      TD1ON-WS.'
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zz9}
+        ui:
+        - num{zzzzzzzzzzzz9}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: eligible_dependant
+      suffix: amt
+  ontario_caregiver_amt:
+    x_petey_id: '1_14'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 516.5490112304688
+      - 474.72100830078125
+      - 587.1090087890625
+      - 488.2820129394531
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].number7_subform[0].Amount_fld[0]
+    description: '7. Ontario caregiver amount. You may claim this amount if you are
+      supporting an eligible infirm dependant aged 18 or older: your child or your
+      grandchild or your spouse or common-law partner; your parent, grandparent, brother,
+      sister, aunt, uncle, niece or nephew who is resident in Canada or your spouse
+      or common-law partner.To calculate this amount, fill out the line 7 section
+      of Form TD1ON-WS.'
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zz9}
+        ui:
+        - num{zzzzzzzzzzzz9}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: ontario_caregiver
+      suffix: amt
+  amounts_transferred_from_spouse_or_common_law_partner_amt:
+    x_petey_id: '1_15'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 516.5490112304688
+      - 495.7229919433594
+      - 587.1090087890625
+      - 512.282958984375
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].number8_subform[0].Amount_fld[0]
+    description: 8. Amounts transferred from your spouse or common-law partner. If
+      your spouse or common-law partner will not use all of their age amount, pension
+      income amount, or disability amount on their income tax and benefit return,
+      enter the unused amount.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zz9}
+        ui:
+        - num{zzzzzzzzzzzz9}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: amounts_transferred_from_spouse_or_common_law_partner
+      suffix: amt
+  amounts_transferred_from_dependant_amt:
+    x_petey_id: '1_16'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 516.5490112304688
+      - 519.7210083007812
+      - 587.1090087890625
+      - 536.281005859375
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].number9_subform[0].Amount_fld[0]
+    description: 9. Amounts transferred from a dependant. If your dependant will not
+      use all of their disability amount on their income tax and benefit return, enter
+      the unused amount.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zz9}
+        ui:
+        - num{zzzzzzzzzzzz9}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: amounts_transferred_from_dependant
+      suffix: amt
+  total_claim_amt:
+    x_petey_id: '1_17'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 516.5490112304688
+      - 543.7219848632812
+      - 587.1090087890625
+      - 560.281982421875
+      widget_type: text
+      path: form1[0].Page1[0].Main_SF[0].number10_subform[0].Amount_fld[0]
+    description: 10. TOTAL CLAIM AMOUNT. Add lines 1 to 9. Your employer or payer
+      will use this amount to determine the amount of your provincial tax deductions.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zz9}
+        ui:
+        - num{zzzzzzzzzzzz9}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: total_claim
+      suffix: amt
+  more_than_one_employer_or_payer_ind:
+    x_petey_id: '2_1'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 26.999000549316406
+      - 153.3590087890625
+      - 38.999000549316406
+      - 165.3590087890625
+      widget_type: checkbox
+      path: form1[0].Page2[0].Subform2[0].More_than[0]
+    description: More than one employer or payer at the same time. If you have more
+      than one employer or payer at the same time and you have already claimed personal
+      tax credit amounts on another Form TD1ON for 2026, you cannot claim them again.
+      If your total income from all sources will be more than the personal tax credits
+      you claimed on another Form TD1ON, check this box, enter "0" on line 10 and
+      do not fill in lines 2 to 9.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: more_than_one_employer_or_payer
+      suffix: ind
+  total_income_less_than_claim_amt_ind:
+    x_petey_id: '2_2'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 26.999000549316406
+      - 201.36102294921875
+      - 38.999000549316406
+      - 213.36102294921875
+      widget_type: checkbox
+      path: form1[0].Page2[0].Subform2[0].totalIncome[0]
+    description: Total income is less than the total claim amount. Tick this box if
+      your total income for the year from all employers and payers will be less than
+      your total claim amount on line 10. Your employer or payer will not deduct tax
+      from your earnings.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: total_income_less_than_claim_amt
+      suffix: ind
+  signature:
+    x_petey_id: '2_3'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 72.0
+      - 477.00299072265625
+      - 429.0010070800781
+      - 495.00299072265625
+      widget_type: text
+      path: form1[0].Page2[0].Certification_subform[0].SignatureField[0]
+    x_petey_xfa:
+      kind: signature
+      pictures:
+        format:
+        - text{9999-99-99}
+    label_source: llm
+    x_petey_identifiers:
+      suffix: signature
+  certification_dt:
+    x_petey_id: '2_4'
+    type: string
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 476.99700927734375
+      - 483.0039978027344
+      - 584.9970092773438
+      - 495.00299072265625
+      widget_type: text
+      path: form1[0].Page2[0].Certification_subform[0].DateYYYYMMDD_BordersAll[0]
+    description: Certification date. Year 4 digits. Month 2 digits. Day 2 digits.
+    x_petey_description_source: tooltip
+    pattern: ^\d{4}\-\d{2}\-\d{2}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{9999-99-99}
+      pictures:
+        format:
+        - text{9999-99-99}
+    label_source: llm
+    x_petey_identifiers:
+      subject: certification
+      suffix: dt
+x_petey_dropped_widgets:
+  count: 3
+  widgets:
+  - path: form1[0].#pageSet[0].Page1[0].ClearData_EN[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear Data
+  - path: form1[0].Page1[0].Main_SF[0].number1_subform[0].Amount_fld[0]
+    page: 1
+    reason: caption
+    field_type: Text
+    tooltip: 1. Basic personal amount. Every person employed in Ontario and every
+      pensioner residing in Ontario can claim this amount. If you will have more than
+      one employer or payer at the same time in 2026, see "More than one employer
+      or payer at the same time" on page 2.
+    caption: 12,989
+  - path: form1[0].#pageSet[0].Page1[1].ClearData_EN[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear Data
+x_petey_xfa_log:
+  joined: 21
+  type: 2
+  pattern: 4
+x_petey_page_check:
+  when: '2026-10-16 13:36:02'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  - 2
+  fields: 21
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/cra_td1on__630b0c__9fbe2565.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: cra_td1on_20261006_214154
+  blueprint: /home/user/petey-2/runs/judge_eval/work/cra_td1on.bpt
+  when: '2026-10-06 21:42:01'
+x_petey_run:
+  record: runs/judge_eval/form_runs/cra_td1on.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 21:42:02'

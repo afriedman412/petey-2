@@ -25,6 +25,9 @@ fields:
       of pages.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: total_pages
+      suffix: cnt
   contract_purch_order_agreement_no:
     x_petey_id: '1_2'
     type: string
@@ -40,6 +43,8 @@ fields:
     description: 1. CONTRACT/PURCH ORDER/AGREEMENT NUMBER
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: contract_purch_order_agreement_no
   delivery_order_call_no:
     x_petey_id: '1_3'
     type: string
@@ -55,6 +60,8 @@ fields:
     description: 2. DELIVERY ORDER/CALL NUMBER
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: delivery_order_call_no
   date_of_order_call_dt:
     x_petey_id: '1_6'
     type: date
@@ -73,6 +80,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - pattern_dropped
+    x_petey_identifiers:
+      subject: date_of_order_call
+      suffix: dt
   requisition_purch_request_no:
     x_petey_id: '1_4'
     type: string
@@ -88,6 +98,8 @@ fields:
     description: 4. REQUISITION/PURCH REQUEST NUMBER
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: requisition_purch_request_no
   priority_cd:
     x_petey_id: '1_5'
     type: string
@@ -101,6 +113,9 @@ fields:
       widget_type: text
       path: form1[0].page1[0].five[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: priority
+      suffix: cd
   issued_by_cd:
     x_petey_id: '1_7'
     type: string
@@ -116,6 +131,9 @@ fields:
     description: 6. ISSUED BY - Enter code.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: issued_by
+      suffix: cd
   issued_by:
     x_petey_id: '1_9'
     type: string
@@ -131,6 +149,8 @@ fields:
     description: 6. ISSUED BY
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: issued_by
   administered_by_cd:
     x_petey_id: '1_8'
     type: string
@@ -146,6 +166,9 @@ fields:
     description: 7. ADMINISTERED BY (If other than 6) - Enter code.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: administered_by
+      suffix: cd
   administered_by:
     x_petey_id: '1_10'
     type: string
@@ -161,6 +184,8 @@ fields:
     description: 7. ADMINISTERED BY (If other than 6)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: administered_by
   delivery_fob:
     x_petey_id: '1_11'
     type: category
@@ -198,6 +223,8 @@ fields:
       from:
       - delivery_fob_destination_ind
       - delivery_fob_other_ind
+    x_petey_identifiers:
+      subject: delivery_fob
   contractor_cd:
     x_petey_id: '1_12'
     type: string
@@ -213,6 +240,9 @@ fields:
     description: 9. CONTRACTOR - Enter code.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: contractor
+      suffix: cd
   contractor_facility:
     x_petey_id: '1_13'
     type: string
@@ -228,10 +258,11 @@ fields:
     description: 9. CONTRACTOR - Enter facility.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: contractor_facility
   contractor_name_address:
     x_petey_id: '1_15'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -244,6 +275,24 @@ fields:
     description: 9. CONTRACTOR - Enter name and address.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:55'
+      from:
+        name: contractor_name_address
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: contractor_name_address
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__dd1155.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: contractor_name_address
   deliver_to_fob_point_by_dt:
     x_petey_id: '1_16'
     type: date
@@ -262,6 +311,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - pattern_dropped
+    x_petey_identifiers:
+      subject: deliver_to_fob_point_by
+      suffix: dt
   discount_terms:
     x_petey_id: '1_17'
     type: string
@@ -277,6 +329,8 @@ fields:
     description: 12. DISCOUNT TERMS
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: discount_terms
   business_is_small:
     x_petey_id: '1_14'
     type: category
@@ -328,6 +382,8 @@ fields:
       - business_is_small_ind
       - business_is_small_disadvantaged_ind
       - business_is_women_owned_ind
+    x_petey_identifiers:
+      subject: business_is_small
   mail_invoices_to_block:
     x_petey_id: '1_18'
     type: string
@@ -343,6 +399,8 @@ fields:
     description: 13. MAIL INVOICES TO THE ADDRESS IN BLOCK
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: mail_invoices_to_block
   ship_to_cd:
     x_petey_id: '1_19'
     type: string
@@ -358,6 +416,9 @@ fields:
     description: 14. SHIP TO - Enter code.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: ship_to
+      suffix: cd
   ship_to:
     x_petey_id: '1_21'
     type: string
@@ -371,6 +432,8 @@ fields:
       widget_type: text
       path: form1[0].page1[0].fourteen[0].fourteen_info[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: ship_to
   payment_will_be_made_by_cd:
     x_petey_id: '1_20'
     type: string
@@ -386,6 +449,9 @@ fields:
     description: 15. PAYMENT WILL BE MADE BY - Enter code.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: payment_will_be_made_by
+      suffix: cd
   payment_will_be_made_by:
     x_petey_id: '1_22'
     type: string
@@ -401,6 +467,8 @@ fields:
     description: 15. PAYMENT WILL BE MADE BY
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: payment_will_be_made_by
   type_of_order_delivery_call_ind:
     x_petey_id: '1_23'
     type: boolean
@@ -419,6 +487,9 @@ fields:
       terms and conditions of above numbered contract.)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: type_of_order_delivery_call
+      suffix: ind
   type_of_order_purchase_ind:
     x_petey_id: '1_25'
     type: boolean
@@ -435,6 +506,9 @@ fields:
     description: 16. TYPE OF ORDER - Select for "PURCHASE."
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: type_of_order_purchase
+      suffix: ind
   purchase_reference_contract_no:
     x_petey_id: '1_24'
     type: string
@@ -451,10 +525,11 @@ fields:
       number.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: purchase_reference_contract_no
   contractor_nm:
     x_petey_id: '1_26'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -467,6 +542,25 @@ fields:
     description: 16. TYPE OF ORDER - NAME OF CONTRACTOR
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:55'
+      from:
+        name: contractor_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: contractor_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__dd1155.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: contractor
+      suffix: nm
   contractor_signature:
     x_petey_id: '1_27'
     type: string
@@ -482,10 +576,12 @@ fields:
     description: 16. TYPE OF ORDER - SIGNATURE
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: contractor
+      suffix: signature
   contractor_typed_name_and_title:
     x_petey_id: '1_28'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -498,6 +594,24 @@ fields:
     description: 16. TYPE OF ORDER - TYPED NAME AND TITLE
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:55'
+      from:
+        name: contractor_typed_name_and_title
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: contractor_typed_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__dd1155.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: contractor_typed_name_and_title
   contractor_date_signed_dt:
     x_petey_id: '1_29'
     type: date
@@ -516,6 +630,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - pattern_dropped
+    x_petey_identifiers:
+      subject: contractor_date_signed
+      suffix: dt
   supplier_must_sign_acceptance_ind:
     x_petey_id: '1_30'
     type: boolean
@@ -533,6 +650,9 @@ fields:
       sign Acceptance and return the following number of copies:"
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: supplier_must_sign_acceptance
+      suffix: ind
   acceptance_copies_cnt:
     x_petey_id: '1_31'
     type: integer
@@ -547,6 +667,9 @@ fields:
       widget_type: text
       path: form1[0].page1[0].sixteen[0].sixteen_copies[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: acceptance_copies
+      suffix: cnt
   accounting_and_appropriation_data_local_use:
     x_petey_id: '1_32'
     type: string
@@ -562,6 +685,8 @@ fields:
     description: 17. ACCOUNTING AND APPROPRIATION DATA/LOCAL USE
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: accounting_and_appropriation_data_local_use
   unit_price_currency_cd:
     x_petey_id: '1_33'
     type: string
@@ -578,6 +703,9 @@ fields:
       euros, yen, etc.).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: unit_price_currency
+      suffix: cd
   item_no_1:
     x_petey_id: '1_34'
     type: string
@@ -593,6 +721,10 @@ fields:
     description: 18. ITEM NUMBER, line 1.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: item_no
+      iteration: '1'
+      grid: p1-G1
   schedule_of_supplies_services_1:
     x_petey_id: '1_35'
     type: string
@@ -608,6 +740,10 @@ fields:
     description: 19. SCHEDULE OF SUPPLIES/SERVICES, line 1.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: schedule_of_supplies_services
+      iteration: '1'
+      grid: p1-G1
   quantity_ordered_accepted_1:
     x_petey_id: '1_36'
     type: integer
@@ -626,6 +762,10 @@ fields:
       accepted below quantity ordered and encircle.), line 1.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: quantity_ordered_accepted
+      iteration: '1'
+      grid: p1-G1
   unit_1:
     x_petey_id: '1_37'
     type: string
@@ -641,7 +781,11 @@ fields:
     description: 21. UNIT, line 1.
     x_petey_description_source: tooltip
     label_source: llm
-  unit_price_1_amt:
+    x_petey_identifiers:
+      subject: unit
+      iteration: '1'
+      grid: p1-G1
+  unit_price_amt_1:
     x_petey_id: '1_38'
     type: number
     semantic_type: money
@@ -659,7 +803,12 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  amount_1_amt:
+    x_petey_identifiers:
+      subject: unit_price
+      suffix: amt
+      iteration: '1'
+      grid: p1-G1
+  amount_amt_1:
     x_petey_id: '1_39'
     type: number
     semantic_type: money
@@ -677,6 +826,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: amount
+      suffix: amt
+      iteration: '1'
+      grid: p1-G1
   item_no_2:
     x_petey_id: '1_40'
     type: string
@@ -692,6 +846,10 @@ fields:
     description: 18. ITEM NUMBER, line 2.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: item_no
+      iteration: '2'
+      grid: p1-G1
   schedule_of_supplies_services_2:
     x_petey_id: '1_41'
     type: string
@@ -707,6 +865,10 @@ fields:
     description: 19. SCHEDULE OF SUPPLIES/SERVICES, line 2.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: schedule_of_supplies_services
+      iteration: '2'
+      grid: p1-G1
   quantity_ordered_accepted_2:
     x_petey_id: '1_42'
     type: integer
@@ -725,6 +887,10 @@ fields:
       accepted below quantity ordered and encircle.), line 2.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: quantity_ordered_accepted
+      iteration: '2'
+      grid: p1-G1
   unit_2:
     x_petey_id: '1_43'
     type: string
@@ -740,7 +906,11 @@ fields:
     description: 21. UNIT, line 2.
     x_petey_description_source: tooltip
     label_source: llm
-  unit_price_2_amt:
+    x_petey_identifiers:
+      subject: unit
+      iteration: '2'
+      grid: p1-G1
+  unit_price_amt_2:
     x_petey_id: '1_44'
     type: number
     semantic_type: money
@@ -758,7 +928,12 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  amount_2_amt:
+    x_petey_identifiers:
+      subject: unit_price
+      suffix: amt
+      iteration: '2'
+      grid: p1-G1
+  amount_amt_2:
     x_petey_id: '1_45'
     type: number
     semantic_type: money
@@ -776,6 +951,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: amount
+      suffix: amt
+      iteration: '2'
+      grid: p1-G1
   item_no_3:
     x_petey_id: '1_46'
     type: string
@@ -791,6 +971,10 @@ fields:
     description: 18. ITEM NUMBER, line 3.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: item_no
+      iteration: '3'
+      grid: p1-G1
   schedule_of_supplies_services_3:
     x_petey_id: '1_47'
     type: string
@@ -806,6 +990,10 @@ fields:
     description: 19. SCHEDULE OF SUPPLIES/SERVICES, line 3.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: schedule_of_supplies_services
+      iteration: '3'
+      grid: p1-G1
   quantity_ordered_accepted_3:
     x_petey_id: '1_48'
     type: integer
@@ -824,6 +1012,10 @@ fields:
       accepted below quantity ordered and encircle.), line 3.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: quantity_ordered_accepted
+      iteration: '3'
+      grid: p1-G1
   unit_3:
     x_petey_id: '1_49'
     type: string
@@ -839,7 +1031,11 @@ fields:
     description: 21. UNIT, line 3.
     x_petey_description_source: tooltip
     label_source: llm
-  unit_price_3_amt:
+    x_petey_identifiers:
+      subject: unit
+      iteration: '3'
+      grid: p1-G1
+  unit_price_amt_3:
     x_petey_id: '1_50'
     type: number
     semantic_type: money
@@ -857,7 +1053,12 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  amount_3_amt:
+    x_petey_identifiers:
+      subject: unit_price
+      suffix: amt
+      iteration: '3'
+      grid: p1-G1
+  amount_amt_3:
     x_petey_id: '1_51'
     type: number
     semantic_type: money
@@ -875,6 +1076,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: amount
+      suffix: amt
+      iteration: '3'
+      grid: p1-G1
   contracting_ordering_officer_signature:
     x_petey_id: '1_53'
     type: string
@@ -888,6 +1094,9 @@ fields:
       widget_type: text
       path: form1[0].page1[0].eighteen_twenty6[0].twenty4[0].twenty4_by[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: contracting_ordering_officer
+      suffix: signature
   total_amt:
     x_petey_id: '1_52'
     type: number
@@ -906,7 +1115,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  differences_1_amt:
+    x_petey_identifiers:
+      subject: total
+      suffix: amt
+  differences_amt_1:
     x_petey_id: '1_54'
     type: number
     semantic_type: money
@@ -924,7 +1136,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  differences_2_amt:
+    x_petey_identifiers:
+      subject: differences
+      suffix: amt
+      iteration: '1'
+  differences_amt_2:
     x_petey_id: '1_55'
     type: number
     semantic_type: money
@@ -942,6 +1158,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: differences
+      suffix: amt
+      iteration: '2'
   quantity:
     x_petey_id: '1_57'
     type: category
@@ -994,6 +1214,8 @@ fields:
       - quantity_inspected_ind
       - quantity_received_ind
       - quantity_accepted_conforms_ind
+    x_petey_identifiers:
+      subject: quantity
   quantity_discrepancy_note:
     x_petey_id: '1_56'
     type: integer
@@ -1011,6 +1233,8 @@ fields:
       THE CONTRACT EXCEPT AS NOTED: Note any discrepancies in quantity here.'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: quantity_discrepancy_note
   authorized_govt_representative_signature:
     x_petey_id: '1_58'
     type: string
@@ -1026,6 +1250,9 @@ fields:
     description: 27b. SIGNATURE OF AUTHORIZED GOVERNMENT REPRESENTATIVE
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: authorized_govt_representative
+      suffix: signature
   authorized_govt_representative_date_dt:
     x_petey_id: '1_59'
     type: date
@@ -1044,10 +1271,12 @@ fields:
     label_source: llm
     x_petey_retype:
     - pattern_dropped
+    x_petey_identifiers:
+      subject: authorized_govt_representative_date
+      suffix: dt
   authorized_govt_representative_printed_name_and_title:
     x_petey_id: '1_60'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -1060,6 +1289,24 @@ fields:
     description: 27d. PRINTED NAME AND TITLE OF AUTHORIZED GOVERNMENT REPRESENTATIVE
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:55'
+      from:
+        name: authorized_govt_representative_printed_name_and_title
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: authorized_govt_representative_printed_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__dd1155.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: authorized_govt_representative_printed_name_and_title
   authorized_govt_representative_mailing_address:
     x_petey_id: '1_62'
     type: string
@@ -1075,6 +1322,8 @@ fields:
     description: 27e. MAILING ADDRESS OF AUTHORIZED GOVERNMENT REPRESENTATIVE
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: authorized_govt_representative_mailing_address
   authorized_govt_representative_telephone_no:
     x_petey_id: '1_69'
     type: string
@@ -1092,6 +1341,8 @@ fields:
     description: 27f. TELEPHONE NUMBER
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: authorized_govt_representative_telephone_no
   authorized_govt_representative_email_address:
     x_petey_id: '1_70'
     type: string
@@ -1109,6 +1360,8 @@ fields:
     description: 27g. E-MAIL ADDRESS
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: authorized_govt_representative_email_address
   certifying_officer_date_dt:
     x_petey_id: '1_73'
     type: date
@@ -1128,6 +1381,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - pattern_dropped
+    x_petey_identifiers:
+      subject: certifying_officer_date
+      suffix: dt
   certifying_officer_signature_and_title:
     x_petey_id: '1_74'
     type: string
@@ -1144,6 +1400,8 @@ fields:
       SIGNATURE AND TITLE OF CERTIFYING OFFICER
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: certifying_officer_signature_and_title
   received_at:
     x_petey_id: '1_79'
     type: string
@@ -1159,10 +1417,11 @@ fields:
     description: 37. RECEIVED AT
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: received_at
   received_by_nm:
     x_petey_id: '1_76'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -1175,6 +1434,25 @@ fields:
     description: 38. RECEIVED BY (Print)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:55'
+      from:
+        name: received_by_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: received_by_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__dd1155.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: received_by
+      suffix: nm
   date_received_dt:
     x_petey_id: '1_80'
     type: date
@@ -1193,6 +1471,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - pattern_dropped
+    x_petey_identifiers:
+      subject: date_received
+      suffix: dt
   shipment_no:
     x_petey_id: '1_63'
     type: string
@@ -1208,6 +1489,8 @@ fields:
     description: 28. SHIPMENT NUMBER
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: shipment_no
   shipment:
     x_petey_id: '1_66'
     type: category
@@ -1245,6 +1528,8 @@ fields:
       from:
       - shipment_partial_ind
       - shipment_final_ind
+    x_petey_identifiers:
+      subject: shipment
   payment:
     x_petey_id: '1_71'
     type: category
@@ -1296,6 +1581,8 @@ fields:
       - payment_complete_ind
       - payment_partial_ind
       - payment_final_ind
+    x_petey_identifiers:
+      subject: payment
   do_voucher_no:
     x_petey_id: '1_64'
     type: string
@@ -1311,6 +1598,8 @@ fields:
     description: 29. D.O. VOUCHER NUMBER
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: do_voucher_no
   initials_1:
     x_petey_id: '1_61'
     type: string
@@ -1326,6 +1615,9 @@ fields:
     description: 30. INITIALS, line 1.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: initials
+      iteration: '1'
   initials_2:
     x_petey_id: '1_65'
     type: string
@@ -1341,6 +1633,9 @@ fields:
     description: 30. INITIALS, line 2.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: initials
+      iteration: '2'
   paid_by:
     x_petey_id: '1_67'
     type: string
@@ -1354,6 +1649,8 @@ fields:
       widget_type: text
       path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty9_thirty012345[0].thirty2[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: paid_by
   amount_verified_correct_for_amt:
     x_petey_id: '1_68'
     type: number
@@ -1372,6 +1669,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: amount_verified_correct_for
+      suffix: amt
   check_no:
     x_petey_id: '1_72'
     type: string
@@ -1387,6 +1687,8 @@ fields:
     description: 34. CHECK NUMBER
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: check_no
   bill_of_lading_no:
     x_petey_id: '1_75'
     type: string
@@ -1402,6 +1704,8 @@ fields:
     description: 35. BILL OF LADING NUMBER
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: bill_of_lading_no
   total_containers_cnt:
     x_petey_id: '1_81'
     type: integer
@@ -1418,6 +1722,9 @@ fields:
     description: 40. TOTAL CONTAINERS
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: total_containers
+      suffix: cnt
   sr_account_no:
     x_petey_id: '1_77'
     type: string
@@ -1435,6 +1742,8 @@ fields:
     description: 41. S/R ACCOUNT NUMBER
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: sr_account_no
   sr_voucher_no:
     x_petey_id: '1_78'
     type: string
@@ -1450,6 +1759,8 @@ fields:
     description: 42. S/R VOUCHER NUMBER
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: sr_voucher_no
 x_petey_dropped_widgets:
   count: 1
   widgets:

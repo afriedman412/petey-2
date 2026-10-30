@@ -5,15 +5,15 @@ units in reading order and confirms each one ("this group is right", "this box s
 belongs elsewhere is dragged onto the group it belongs to, or onto another orphan to start a new group, or onto the
 orphan tray to take it out of its group.
 
-Text fields can be combined the same way (Andrew, 2026-10-05: text to text only, the result a plain text field):
-drag one text box onto another to start a combined field, onto a combined field to add to it, onto the tray to take
-it back out. Any unit can be named by the labeler from the page ("ask the labeler": the same one call as
-`field_add.labeler_name`; the field then carries `label_source: llm` and `name_from: labeler`). Text and option
-boxes never mix, and a combination stays on one page. A combined field is one `string`
-(no semantic type or pattern) over the union of its members' boxes with `path: null`, since the box covers several
-AcroForm widgets and a field names one: the reader clips the text layer to the box, which reads every part, and the
-filler already splits one value over the text widgets inside a box (ACORD 25's PRODUCER block). It takes the first
-member's place in reading order; what each member was (name, path, box, type) is kept in `x_petey_combined`.
+Text fields are grouped into ENTITIES the same way (Andrew, 2026-10-28: "sequential fields on a single line that can
+be combined logically", a date in three fields, a name, a signature with its date): drag one text field onto another
+to start an entity, onto an entity to add to it, onto the tray to take it back out. Text and option boxes never mix,
+and an entity stays on one page. An entity is a tag on each of its fields (`ENTITY_KEY`: the entity's name, its
+`ENTITY_TYPES` type when one was picked, the field's place in it in reading order); the fields themselves stay as
+they are, names, boxes and paths ("lets keep everything separate. (we want them to be as auditable as possible!)").
+Until 2026-10-28 combining merged the fields into one text field over their boxes (`x_petey_combined`); nothing
+does that now. Any unit can be named by the labeler from the page ("ask the labeler": the same one call as
+`field_add.labeler_name`; the field then carries `label_source: llm` and `name_from: labeler`).
 
     PYTHONPATH=. venv/bin/python -m petey.validate.group_review [--port 5006]   # then open http://127.0.0.1:5006/
     PYTHONPATH=. venv/bin/python -m petey.validate.group_review --summary       # reviews so far
@@ -23,7 +23,8 @@ member's place in reading order; what each member was (name, path, box, type) is
 The page only records: `runs/group_review/<id>.json` holds the grouping as the person left it (units, their names,
 one-of or any-of, confirmed or not) with the blueprint's sha. `--apply` rewrites the blueprint from that record and
 then re-derives the record from the new file, keeping the confirmations. Blueprints offered are the hand review's
-(library, judge-eval and relabel side copies, flat forms).
+(library, judge-eval and relabel side copies, flat forms). Since 2026-10-13 the review page applies the record to its
+working copy of the blueprint when you leave Groups (`draft.py`), and `--apply` writes that copy while it is open.
 
 What --apply writes, in the shape `expand_options` gave the library (2026-09-29): a group is one `category` (or
 `multi_category`) field whose `widgets` are keyed by option; an orphan that joins a group is keyed by its former
@@ -47,13 +48,25 @@ import yaml
 from petey.paths import RUNS
 from petey.label.captions import text_rects
 from petey.validate import field_ids
-from petey.validate.hand_review import _load, _sha, blueprint_paths
+from petey.validate.hand_review import _load, _sha, blueprint_paths, page_sizes, working_path
 from petey.validate.retype import resolve_blank
 
 OUT = RUNS / "group_review"
 DPI = 144                    # option boxes are 8-10 pt; the hand review's 110 dpi makes them 12 px targets
 OPTION_TYPES = ("checkbox", "radiobutton")
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_]*$")     # spec 5.2 allows digits anywhere (f5500sh 4a_...)
+
+
+# what a combined text field holds (Andrew, 2026-10-28: "sequential fields on a single line that can be combined
+# logically"; an "entity type" dropdown, "that way I don't need to worry about naming the individual fields rn");
+# written into its fields' `ENTITY_KEY` tags. One ID number for SSN, EIN, ITIN (2026-10-28: "just say 'ID value' and not
+# worry about what type it is"): only the grouping of the digits differs, and the page shows that
+ENTITY_KEY = "x_petey_entity"
+ENTITY_TYPES = ("date", "time", "address_line_1", "address_line_2", "full_address", "signature_complex", "phone",
+                "id_number", "money", "name", "other")
+# full_address: the whole address on one line ("full address is when the whole address is on one line"); address lines
+# 1 and 2 when it is over two. No "contact info" (several values about one party: a block's job, and its phone would
+# be no phone entity, a field being in one entity only)
 
 
 def record_path(bid: str) -> Path:
@@ -65,9 +78,17 @@ def load_record(bid: str) -> dict:
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
 
 
+def _is_xbox(spec: dict) -> bool:
+    """A yes / no box the publisher made a text field, to type an X in (2026-10-15, boat application: DAY / EVENING
+    beside the phone numbers): an option like a checkbox, read by its text (`extract`: an X is a selection)."""
+    w = spec.get("widget") or {}
+    return spec.get("type") == "boolean" and w.get("widget_type") == "text"
+
+
 def _is_orphan(spec: dict) -> bool:
     w = spec.get("widget") or {}
-    return (not spec.get("widgets") and spec.get("type") == "boolean" and w.get("widget_type") in OPTION_TYPES
+    return (not spec.get("widgets") and spec.get("type") == "boolean"
+            and (w.get("widget_type") in OPTION_TYPES or _is_xbox(spec))
             and bool(w.get("rect")) and w.get("page") is not None)
 
 
@@ -98,7 +119,10 @@ def option_items(bp: dict) -> tuple[dict, list[dict]]:
                               "widget_type": w.get("widget_type")}
                 ids.append(iid)
             if ids:
-                units.append({"name": name, "type": spec.get("type") or "category", "items": ids, "origin": name,
+                t = spec.get("type")
+                if len(ids) > 1 and t not in ("category", "multi_category"):
+                    t = "category"               # a group is one of / any of (2026-10-15: SSA-827 had a boolean one)
+                units.append({"name": name, "type": t or "category", "items": ids, "origin": name,
                               "description": spec.get("description")})
         elif _is_orphan(spec) or _is_union(spec):
             w = spec["widget"]
@@ -114,18 +138,89 @@ def option_items(bp: dict) -> tuple[dict, list[dict]]:
 
 
 def text_items(bp: dict) -> dict[str, dict]:
-    """Every field with one text widget, as an item that can be combined (`kind: text`, id = field name)."""
+    """Every field with one text widget, as an item that can be combined (`kind: text`, id = field name), or made a
+    checkbox (`ind_name`: its name as one)."""
     out = {}
     for name, spec in (bp.get("fields") or {}).items():
-        if not isinstance(spec, dict) or spec.get("widgets"):
+        if not isinstance(spec, dict) or spec.get("widgets") or _is_xbox(spec):
             continue
         w = spec.get("widget") or {}
         if w.get("widget_type") == "text" and w.get("rect") and w.get("page"):
             out[name] = {"id": name, "field": name, "key": None, "kind": "text", "page": int(w["page"]),
                          "rect": [float(c) for c in w["rect"]], "path": w.get("path"), "widget_type": "text",
                          "type": spec.get("type"), "semantic_type": spec.get("semantic_type"),
-                         "caption": None, "description": spec.get("description")}
+                         "caption": None, "description": spec.get("description"), "ind_name": ind_name(name, spec)}
     return out
+
+
+def ind_name(name: str, spec: Optional[dict] = None) -> str:
+    """A text field's name as a checkbox (Andrew, 2026-10-27: "change the suffix and add it if it isn't there"): its
+    parts with the suffix `ind` (docs/NAMING.md: a single checkbox), so day_txt -> day_ind, phone_nbr_2 ->
+    phone_ind_2, p1_f12 -> p1_f12_ind; a name ending in _ind stays."""
+    from petey import naming
+    st = (spec or {}).get(naming.KEY)
+    parts = st if isinstance(st, dict) and naming.print_name(st) == name else naming.parts_for(name, spec)
+    parts = {k: v for k, v in parts.items() if k in naming.ORDER}
+    if not parts.get("subject") and not parts.get("block_prefix"):
+        return name if name.endswith("_ind") else f"{name}_ind"
+    return naming.print_name({**parts, "suffix": "ind"})
+
+
+def converted(bp: dict, units: list[dict], now: str) -> tuple[dict, list[str], dict[str, str]]:
+    """(`bp` with each text field that a unit holds as an option made a checkbox, what changed, {field: its name as a
+    checkbox}: the key it takes as an option of a group). The field becomes a
+    boolean `indicator` on its own text widget (`_is_xbox`: extraction reads an X typed in it as a mark), its
+    pattern and values dropped, what it was kept in `x_petey_converted` (Andrew, 2026-10-27: "convert fields from
+    text to bool/ind in groups"). Then it is an orphan like any checkbox, and the units group or rename it."""
+    texts = text_items(bp)
+    ids = sorted({i for u in units if u.get("kind") != "text" for i in u.get("items") or [] if i in texts})
+    if not ids:
+        return bp, [], {}
+    fields = dict(bp.get("fields") or {})
+    for f in ids:
+        spec = copy.deepcopy(fields[f])
+        was = {k: spec.get(k) for k in ("type", "semantic_type", "pattern") if spec.get(k) is not None}
+        for k in ("pattern", "values", "format"):
+            spec.pop(k, None)
+        spec["type"], spec["semantic_type"] = "boolean", "indicator"
+        spec["x_petey_converted"] = {"source": "group_review", "when": now, "from": was}
+        fields[f] = spec
+    return ({**bp, "fields": fields}, [f"{f}: text field made a checkbox (boolean indicator)" for f in ids],
+            {f: texts[f]["ind_name"] for f in ids})
+
+
+def _is_converted(spec: dict) -> bool:
+    """A text field made a checkbox here and applied (`converted`), still a loose box on its own text widget."""
+    return isinstance(spec, dict) and bool(spec.get("x_petey_converted")) and _is_orphan(spec) and _is_xbox(spec)
+
+
+def as_converted_items(bp: dict, items: dict[str, dict]) -> dict[str, dict]:
+    """`items` with each applied conversion shown as a text field that a unit holds as an option, the way one not yet
+    applied is (`kind: text`, `converted`): the card's "back to text" then takes it out of its unit, as before applying
+    (Andrew, 2026-10-29, fin__pb_358ecead701f's sort-code fields: "having a nightmare trying to recode ... to text")."""
+    fields = bp.get("fields") or {}
+    return {i: (dict(it, kind="text", converted=True, ind_name=i) if it.get("key") is None and _is_converted(fields.get(i))
+                else it) for i, it in items.items()}
+
+
+def unconverted(bp: dict, units: list[dict], now: str) -> tuple[dict, list[str]]:
+    """(`bp` with each applied conversion that no option unit holds a text field again, what changed): its type,
+    semantic type and pattern as `x_petey_converted` kept them; the conversion stays on it as `x_petey_back_to_text`.
+    Its name stays (a rename is Review's)."""
+    held = {i for u in units if u.get("kind") != "text" for i in u.get("items") or []}
+    fields = dict(bp.get("fields") or {})
+    back = [f for f, s in fields.items() if f not in held and _is_converted(s)]
+    for f in back:
+        spec = copy.deepcopy(fields[f])
+        conv = spec.pop("x_petey_converted")
+        for k in ("type", "semantic_type", "pattern"):
+            spec.pop(k, None)
+        spec = {**{k: v for k, v in (conv.get("from") or {}).items() if k in ("type", "semantic_type", "pattern")},
+                **spec}
+        spec.setdefault("type", "string")
+        spec["x_petey_back_to_text"] = {"source": "group_review", "when": now, "converted": conv}
+        fields[f] = spec
+    return ({**bp, "fields": fields} if back else bp), [f"{f}: checkbox made a text field again" for f in back]
 
 
 def _order_key(items: dict, u: dict) -> tuple:
@@ -134,36 +229,235 @@ def _order_key(items: dict, u: dict) -> tuple:
 
 
 def _signature(u: dict) -> tuple:
-    return u["name"], u["type"], tuple(sorted(u["items"]))
+    return u["name"], u["type"], tuple(sorted(u["items"])), tuple(sorted((u.get("captions") or {}).items()))
+
+
+_PAGE_WORDS: dict[tuple, list] = {}
+
+
+def page_confirms(blank: Path, ws: dict[str, dict]) -> bool:
+    """Every option's current caption is printed right beside its box: the words on its line just right of it (up to
+    the next option on the line), just left of it, or the short header above it (`captions`). Then the captions stand
+    as they are, no model call (Andrew, 2026-10-16: "a lot of them would just be checks for adjacent text"; 57% of
+    the tier-1/2 groups). Only a confirmation: the code never changes a caption, because the text beside a box can be
+    the next option's label (ACORD 75 prints labels before the box) or a fragment of a sentence (MCS-90)."""
+    import re
+    import pymupdf
+    from petey.label import captions as C
+    norm = lambda t: re.sub(r"[^a-z0-9]+", " ", (t or "").lower()).strip()       # noqa: E731
+    rects = {k: w["rect"] for k, w in ws.items() if w.get("rect")}
+    if len(rects) < 2:
+        return False
+    doc = None
+    try:
+        for k, w in ws.items():
+            cur = norm(w.get("caption"))
+            if not w.get("rect") or not cur:
+                return False
+            pg = w.get("page")
+            if (str(blank), pg) not in _PAGE_WORDS:
+                doc = doc or pymupdf.open(str(blank))
+                _PAGE_WORDS[(str(blank), pg)] = C._words_on(doc[pg - 1])
+            words = _PAGE_WORDS[(str(blank), pg)]
+            others = [r for kk, r in rects.items() if kk != k and ws[kk].get("page") == pg]
+            cy = (w["rect"][1] + w["rect"][3]) / 2
+            right = [r[0] for r in others if abs((r[1] + r[3]) / 2 - cy) < 4 and r[0] > w["rect"][2]]
+            seen = set()
+            for find in (lambda: C._right_of(words, w["rect"], min(right) if right else None),
+                         lambda: C._left_of(words, w["rect"], others), lambda: C._header_above(words, w["rect"], others)):
+                try:
+                    c = find()
+                except Exception:
+                    c = None
+                if c:
+                    seen.add(norm(C._END_PUNCT.sub("", C._LEADERS.sub("", c.strip())).strip()))
+            if cur not in seen:
+                return False
+        return True
+    finally:
+        if doc is not None:
+            doc.close()
+
+
+def suggest_captions(bp: dict, blank: Optional[Path], name: str, item_ids: list[str], model: bool = True) -> dict[str, dict]:
+    """The caption printed at each option of a group (Andrew, 2026-10-13: a group made in Groups keeps its members'
+    old captions; re-read them for the group's name and keys), keyed by item id: {"caption", "current", "locked",
+    "source"}. By default one call to the review page's agent (`flag_agent.propose`: the page image with the boxes
+    numbered; reads sentence-long captions, which the chooser cuts short: CMS-855A's reasons for applying came back
+    'Check' and 'You'); without it, or when the call fails, the caption chooser (`caption_choice.choose`, the
+    text-match model over the words around each box, no API call). A caption from the XFA template or set by hand
+    is locked and kept."""
+    from petey.label.caption_choice import choose, page_context
+    from petey.validate.witness import publisher_words
+    items = {**option_items(bp)[0], **text_items(bp)}
+    fields = bp.get("fields") or {}
+    if blank is None or not item_ids:
+        return {}
+    ws, key_of, added = {}, {}, False
+    for iid in item_ids:
+        it = items.get(iid)
+        if it is None:
+            continue
+        src = fields[it["field"]]
+        added = added or bool(src.get("x_petey_added"))
+        block = dict(src["widgets"][it["key"]]) if it["key"] is not None else dict(src.get("widget") or {})
+        if it["key"] is None and not block.get("caption") and _is_orphan(src):
+            block["caption"] = src.get("description")
+        k, n = str(it["key"] if it["key"] is not None else it["field"]), 2
+        while k in ws:
+            k, n = f"{k}_{n}", n + 1
+        ws[k], key_of[k] = block, iid
+    best, source, answered = {}, "chooser", False
+    # every caption printed beside its box: stands, no call; not for a box from Add / remove, whose caption is the
+    # words beside it, so the check always passed (Andrew, 2026-10-27: "re-reading captions doesn't seem to work on
+    # fields added with add/remove"; I-864 p7 kept the header's "For", "Household", "Size" for printed 1-9)
+    if not added and page_confirms(blank, ws):
+        return {iid: {"caption": ws[k].get("caption"), "current": ws[k].get("caption"),
+                      "locked": ws[k].get("x_petey_caption_source") in ("xfa", "hand"), "source": "page text"}
+                for k, iid in key_of.items()}
+    if model:
+        try:
+            from petey.synth.generate import make_client
+            from petey.validate import flag_agent
+            got = flag_agent.propose(make_client(flag_agent.MODEL), blank, name, {"type": "category", "widgets": ws},
+                                     "Give every numbered option box its caption exactly as printed beside it "
+                                     "(the whole label, not an abbreviation). Change nothing else.", "", {})
+            best = {k: o.get("caption") for k, o in (got.get("options") or {}).items() if o.get("caption")}
+            source, answered = flag_agent.MODEL, True    # no options back = the agent keeps the captions as they are
+        except Exception:                               # no key, no network: the local chooser
+            best = {}
+    if not best and not answered:     # 2026-10-15: falling back after an answer let the chooser undo good captions
+        words, lines = page_context(blank)
+        best = {k: r.get("best") for k, r in choose(name, {"widgets": ws}, words, lines, publisher_words(blank)).items()}
+        source = "chooser"
+    out = {}
+    for k, iid in key_of.items():
+        w = ws[k]
+        locked = w.get("x_petey_caption_source") in ("xfa", "hand")
+        out[iid] = {"caption": w.get("caption") if locked else (best.get(k) or w.get("caption")),
+                    "current": w.get("caption"), "locked": locked, "source": source}
+    return out
+
+
+def field_captions(p: Path, name: str) -> dict:
+    """'re-read captions' for one group from the Review page (Andrew, 2026-10-15: available there as well as in
+    Groups): `suggest_captions` on the field's boxes; {"options": {key: {"caption"}}} for the captions that would
+    change (locked ones kept), filled into the option boxes for the person to save."""
+    from petey.validate.retype import resolve_blank
+    bp = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    spec = (bp.get("fields") or {}).get(name)
+    if not isinstance(spec, dict) or not spec.get("widgets"):
+        raise KeyError(name)
+    caps = suggest_captions(bp, resolve_blank(bp), name, [f"{name}::{k}" for k in spec["widgets"]])
+    opts = {iid.partition("::")[2]: {"caption": c["caption"]} for iid, c in caps.items()
+            if c.get("caption") and not c.get("locked") and c["caption"] != c.get("current")}
+    return {"options": opts, "locked": sum(1 for c in caps.values() if c.get("locked")),
+            "source": next((c.get("source") for c in caps.values()), None)}
+
+
+def _box(it: dict) -> str:
+    """An item's box: page and rect, which a rename never moves."""
+    return f"{it['page']}:" + ",".join(str(round(float(c))) for c in it["rect"])
+
+
+def item_boxes(items: dict[str, dict], units: list[dict]) -> dict[str, str]:
+    """{item id: box} for every item the units hold, kept with the record so a later rename cannot move an item to
+    another box (Andrew, 2026-10-13: a group saved, then a Review apply that renamed its boxes, then a rebase by name
+    that put the wrong box in the group)."""
+    return {i: _box(items[i]) for u in units for i in u.get("items") or [] if i in items}
+
+
+def _rebase(rec: dict, bp: dict, items: dict[str, dict]) -> dict[str, str]:
+    """{id in the record: id now} for a record written against another version of the blueprint. By box when the
+    record kept its boxes; else (older records) through the renames the blueprint notes on its fields
+    (`x_petey_hand_edit` from -> to: the last rename of each field).
+    A box the record knew under another name that is now a text field is not followed (Andrew, 2026-10-29: a
+    checkbox removed in Add and a text field drawn over its box was made a checkbox again on leaving Groups, "it
+    doesn't save as text when you switch tabs"; fin__pb_d830b423f63f number_account, already_have): the record's box
+    is gone, and the field stays text. A conversion still waiting is held by its own name, which is not a move; an
+    applied one (`converted`) is a checkbox and follows its box."""
+    if rec.get("boxes"):
+        now = {_box(it): i for i, it in items.items()}
+        return {i: now[b] for i, b in rec["boxes"].items() if b in now and now[b] != i
+                and (items[now[b]].get("kind") != "text" or items[now[b]].get("converted"))}
+    # only renames made after the record was written: an earlier one is already in the record's names, and following
+    # it again moves each item one field along a renamed run (2026-10-13, FAA 8710 page 6: Andrew's 11:00 renames
+    # re-applied to his 11:56 record shifted change_of_name / sic_type_rating / reissue by one)
+    since = rec.get("updated") or ""
+    renamed = {}
+    for name, spec in (bp.get("fields") or {}).items():
+        he = ((spec or {}).get("x_petey_hand_edit") or {}) if isinstance(spec, dict) else {}
+        was = (he.get("from") or {}).get("name")
+        if was and was != name and (he.get("when") or "") > since:
+            renamed[was] = name
+    out = {}
+    for u in rec.get("units") or []:
+        for i in u.get("items") or []:
+            field, sep, key = i.partition("::")
+            if field in renamed:
+                out[i] = renamed[field] + sep + key
+    return out
 
 
 def current_units(bid: str, bp: dict, sha: str) -> tuple[dict, list[dict], dict]:
     """The units as the page should show them: the record's grouping laid over the blueprint's. A record written
-    against another version of the file is rebased: its units keep the items that still exist, items it never saw
-    stay where the blueprint has them, and it is reported stale."""
+    against another version of the file is rebased: each item follows its box to whatever the blueprint calls it now
+    (`_rebase`), units keep the items that still exist, items it never saw stay where the blueprint has them, and
+    it is reported stale."""
     items, base = option_items(bp)
-    items = {**items, **text_items(bp)}
+    items = {**as_converted_items(bp, items), **text_items(bp)}
     rec = load_record(bid)
     info = {"stale": bool(rec) and rec.get("blueprint_sha") != sha, "updated": rec.get("updated"),
             "applied": rec.get("applied")}
+    # the entities the blueprint's tags make: the record's own stand while it is current (an entity taken apart on
+    # the page and not yet applied stays apart), else they are what the blueprint has
+    if not rec.get("units") or info["stale"]:
+        base = base + entity_units(bp)
     if not rec.get("units"):
         units = [dict(u, confirmed=False) for u in base]
     else:
         units, seen = [], set()
+        moved = _rebase(rec, bp, items) if info["stale"] else {}
+        info["rebased"] = len(moved)
+        fmoved = {a.partition("::")[0]: b.partition("::")[0] for a, b in moved.items()
+                  if a.partition("::")[0] != b.partition("::")[0]}
         for u in rec["units"]:
-            ids = [i for i in u.get("items") or [] if i in items and i not in seen]
+            ids = [moved.get(i, i) for i in u.get("items") or []]
+            ids = [i for i in ids if i in items and i not in seen]
             if not ids or (u.get("kind") == "text" and len(ids) < 2):
                 continue
             seen.update(ids)
-            units.append({k: v for k, v in u.items() if k != "items"} | {"items": ids})
+            unit = {k: v for k, v in u.items() if k != "items"} | {"items": ids}
+            # a unit that is a field as it was, which has since been renamed (in Review), takes the new name: kept,
+            # its old name would rename the field back on apply (2026-10-13: FAA 8710 asi -> asi_result)
+            was = {i.partition("::")[0] for i in u.get("items") or []}
+            now = {i.partition("::")[0] for i in ids}
+            if moved and was == {u.get("name")} and len(now) == 1 and now != was:
+                unit["name"] = next(iter(now))
+            if u.get("origin") in fmoved:                # the field it came from, by its name now
+                unit["origin"] = fmoved[u["origin"]]
+            # a later edit of that field (Review, Claude's pass) wins over what the record says about its name and
+            # type: the record predates it (2026-10-13: category -> multi_category set after the record, reverted)
+            spec = (bp.get("fields") or {}).get(unit.get("origin"))
+            he = (spec or {}).get("x_petey_hand_edit") if isinstance(spec, dict) else None
+            if info["stale"] and he and (he.get("when") or "") > (rec.get("updated") or "") and \
+                    {i.partition("::")[0] for i in ids} == {unit["origin"]}:
+                unit["name"] = unit["origin"]
+                if (he.get("to") or {}).get("type") != (he.get("from") or {}).get("type"):
+                    unit["type"] = spec.get("type")
+            units.append(unit)
+        # applied conversions taken back on the page ("back to text"): in no unit, so the plan makes them text again
+        seen.update(moved.get(i, i) for i in rec.get("to_text") or [])
         for u in base:                                   # items the record never saw
             ids = [i for i in u["items"] if i not in seen]
-            if ids:
+            if ids and (u.get("kind") != "text" or len(ids) > 1):
                 units.append(dict(u, items=ids, confirmed=False))
     locked = {u["origin"]: u.get("locked") for u in base if u.get("locked")}
     for u in units:
         if u.get("origin") in locked:
             u["locked"] = locked[u["origin"]]
+        if u.get("kind") != "text" and len(u["items"]) > 1 and u.get("type") not in ("category", "multi_category"):
+            u["type"] = "category"               # several options make a group: one of, unless set to any of
     units.sort(key=lambda u: _order_key(items, u))
     return items, units, info
 
@@ -225,11 +519,15 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
     numbers or the next question's first word)."""
     text_units = [u for u in units if u.get("kind") == "text"]
     units = [u for u in units if u.get("kind") != "text"]
+    now = time.strftime("%Y-%m-%d %H:%M:%S")
+    bp, back = unconverted(bp, units, now)           # conversions taken back ("back to text"): text fields again
+    bp, changes, as_ind = converted(bp, units, now)  # text fields made checkboxes first: then options like any other
+    changes = back + changes
     items, base = option_items(bp)
     fields = bp.get("fields") or {}
     base_by_origin = {u["origin"]: u for u in base}
     option_fields = {it["field"] for it in items.values()}
-    errors, changes = [], []
+    errors: list[str] = []
 
     def unchanged(u: dict) -> bool:
         b = base_by_origin.get(u.get("origin"))
@@ -246,7 +544,7 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
         elif u["name"] in fields and u["name"] not in option_fields:
             errors.append(f"{u['name']!r} is already the name of another field")
         if len(u["items"]) > 1 and u["type"] not in ("category", "multi_category"):
-            errors.append(f"{u['name']!r} groups {len(u['items'])} options but its type is {u['type']!r}")
+            u["type"] = "category"               # Andrew, 2026-10-15: groups are category or multi_category, always
         b = base_by_origin.get(u.get("origin"))
         if u.get("locked") and (b is None or _signature(u) != _signature(b)):
             errors.append(f"{u['name']!r} is a union box (old shape); run expand_options before regrouping it")
@@ -255,7 +553,6 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
     if missing:
         errors.append(f"{len(missing)} option(s) belong to no unit: {', '.join(sorted(missing)[:5])}")
 
-    now = time.strftime("%Y-%m-%d %H:%M:%S")
     on_states = _blank_on_states(blank, [items[i] for u in units if not unchanged(u) and len(u["items"]) > 1
                                          for i in u["items"]])
     emitted: dict[str, list[tuple[str, dict]]] = {}
@@ -289,7 +586,7 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
                     key, block = it["key"], copy.deepcopy(fields[it["field"]]["widgets"][it["key"]])
                 else:
                     src = fields[it["field"]]
-                    key, block = it["field"], copy.deepcopy(src["widget"])
+                    key, block = as_ind.get(it["field"], it["field"]), copy.deepcopy(src["widget"])
                     if iid in on_states:
                         block["on_state"] = on_states[iid]
                     # a short tooltip is the option's caption; a sentence ('Check the box (if applicable): Indicates
@@ -305,6 +602,13 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
                 blocks[k] = block
             for k, cap in (_page_captions(blank, blocks, items, text_rects(fields)) if page_captions else {}).items():
                 blocks[k]["caption"], blocks[k]["x_petey_caption_source"] = cap, "page_text"
+            # captions re-read in Groups ("re-read captions": suggest_captions), where the person kept them
+            for iid, cap in (u.get("captions") or {}).items():
+                k = dict(zip(u["items"], blocks)).get(iid)
+                if k and cap and blocks[k].get("caption") != cap:
+                    blocks[k]["caption"], blocks[k]["x_petey_caption_source"] = cap, "page_choice"
+                    if b is not None:
+                        changes.append(f"group {u['name']}: {k} caption {cap!r}")
             spec["values"] = list(blocks)
             spec["widgets"] = blocks
             def shown(ks):          # the key and the caption the reader will show for it
@@ -346,82 +650,91 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
                 out[n] = s
         else:
             out[name] = spec
-    out = _combine_text(bp, out, text_units, now, changes)
+    out = _group_text(bp, out, text_units, now, changes)
     return {"changes": changes, "errors": [], "fields": out}
 
 
 def _check_text(fields: dict, text_units: list[dict], option_names: set[str]) -> list[str]:
     texts = text_items({"fields": fields})
     errors, used = [], {}
-    members = {m for u in text_units for m in u["items"]}
     names = [u["name"] for u in text_units]
     for u in text_units:
         n = u.get("name") or ""
         if len(u["items"]) < 2:
-            errors.append(f"{n!r} combines fewer than two text fields")
+            errors.append(f"entity {n!r} has fewer than two text fields")
         missing = [m for m in u["items"] if m not in texts]
         if missing:
-            errors.append(f"{n!r}: {', '.join(missing)} not a text field of this blueprint (any more)")
+            errors.append(f"entity {n!r}: {', '.join(missing)} not a text field of this blueprint (any more)")
         elif len({texts[m]["page"] for m in u["items"]}) > 1:
-            errors.append(f"{n!r}: combines text fields on more than one page")
+            errors.append(f"entity {n!r}: text fields on more than one page")
         for m in u["items"]:
             if m in used:
-                errors.append(f"{m} is in two combinations ({used[m]!r} and {n!r})")
+                errors.append(f"{m} is in two entities ({used[m]!r} and {n!r})")
             used[m] = n
         if not NAME_RE.match(n):
-            errors.append(f"{n!r} is not a field name (lower case, digits, underscores)")
-        elif names.count(n) > 1 or n in option_names:
-            errors.append(f"two units are both named {n!r}")
-        elif n in fields and n not in members:
-            errors.append(f"{n!r} is already the name of another field")
+            errors.append(f"{n!r} is not a name (lower case, digits, underscores)")
+        elif names.count(n) > 1:
+            errors.append(f"two entities are both named {n!r}")
     return errors
 
 
-def _combine_text(bp: dict, out: dict, text_units: list[dict], now: str, changes: list[str]) -> dict:
-    """Write each text combination in place of its first member (reading order); drop the other members."""
-    if not text_units:
-        return out
+def entity_units(bp: dict) -> list[dict]:
+    """The entities the blueprint's text fields are tagged with (`ENTITY_KEY`), as units: {kind: text, name, type,
+    items in their places, entity_type}."""
     texts = text_items(bp)
-    at, gone = {}, set()
+    by: dict[str, list] = {}
+    for name, spec in (bp.get("fields") or {}).items():
+        tag = spec.get(ENTITY_KEY) if isinstance(spec, dict) else None
+        if name in texts and isinstance(tag, dict) and tag.get("name"):
+            by.setdefault(tag["name"], []).append((tag.get("n") or 0, name, tag.get("entity_type")))
+    out = []
+    for n, ms in by.items():
+        if len(ms) < 2:
+            continue
+        ms.sort(key=lambda m: (m[0], _order_key(texts, {"items": [m[1]]})))
+        t = next((m[2] for m in ms if m[2] in ENTITY_TYPES), None)
+        out.append({"kind": "text", "name": n, "type": "string", "items": [m[1] for m in ms], "origin": None,
+                    **({"entity_type": t} if t else {})})
+    return out
+
+
+def _group_text(bp: dict, out: dict, text_units: list[dict], now: str, changes: list[str]) -> dict:
+    """Tag each entity's fields (`ENTITY_KEY`: its name, type, the field's place in reading order) and take the tag off
+    fields in none; every field otherwise as it was, and where it was."""
+    texts = text_items(bp)
+    want: dict[str, dict] = {}
     for u in text_units:
         members = sorted(u["items"], key=lambda m: _order_key(texts, {"items": [m]}))
-        rects = [texts[m]["rect"] for m in members]
-        spec = {"type": "string"}
-        desc = (u.get("description") or "").strip() or " / ".join(dict.fromkeys(
-            (texts[m]["description"] or "").strip() for m in members if (texts[m]["description"] or "").strip()))
-        if desc:
-            spec["description"] = desc
-        spec["widget"] = {"page": texts[members[0]]["page"],
-                          "rect": [round(min(r[0] for r in rects), 3), round(min(r[1] for r in rects), 3),
-                                   round(max(r[2] for r in rects), 3), round(max(r[3] for r in rects), 3)],
-                          "widget_type": "text", "path": None}
-        spec["label_source"] = "llm" if u.get("name_from") == "labeler" else "hand"
-        spec["x_petey_combined"] = {"source": "group_review", "when": u.get("when") or now,
-                                    **({"name_from": u["name_from"]} if u.get("name_from") else {}),
-                                    "from": [{k: texts[m][k] for k in ("field", "path", "rect", "type", "semantic_type")
-                                              if texts[m][k] is not None} for m in members]}
-        at[members[0]] = (u["name"], spec)
-        gone.update(members)
-        changes.append(f"text fields {', '.join(members)} -> {u['name']} (p{texts[members[0]]['page']}, "
-                       f"one text box over {len(members)})")
+        t = u.get("entity_type") if u.get("entity_type") in ENTITY_TYPES else None
+        for k, m in enumerate(members, 1):
+            want[m] = {"name": u["name"], **({"entity_type": t} if t else {}), "n": k}
+        had = [(bp.get("fields") or {}).get(m, {}).get(ENTITY_KEY) or {} for m in members]
+        if any({k: v for k, v in h.items() if k in ("name", "entity_type", "n")} != want[m]
+               for h, m in zip(had, members)):
+            changes.append(f"entity {u['name']}{f' ({t})' if t else ''}: {', '.join(members)} "
+                           f"(p{texts[members[0]]['page']}, the fields kept as they are)")
     new: dict = {}
     for name, spec in out.items():
-        if name in at:
-            n, s = at[name]
-            new[n] = s
-        elif name not in gone:
-            new[name] = spec
+        tag = spec.get(ENTITY_KEY) if isinstance(spec, dict) else None
+        w = want.get(name) if name in texts else None
+        if w is None and tag:
+            spec = {k: v for k, v in spec.items() if k != ENTITY_KEY}
+            changes.append(f"{name}: out of entity {tag.get('name')!r}")
+        elif w is not None and {k: v for k, v in (tag or {}).items() if k in ("name", "entity_type", "n")} != w:
+            spec = {**spec, ENTITY_KEY: {**w, "source": "group_review", "when": now}}
+        new[name] = spec
     return new
 
 
 def apply(bid: str, page_captions: bool = True) -> dict:
     """Write the record into the blueprint, then re-derive the record from the new file (confirmations kept by unit
-    name and membership)."""
-    p = blueprint_paths()[bid]
+    name and membership). Writes the working copy while one is open (`draft.py`)."""
+    real = blueprint_paths()[bid]
+    p = working_path(bid)
     bp = _load(p)
     sha = _sha(p)
     items, units, info = current_units(bid, bp, sha)
-    if info["stale"]:
+    if info["stale"] and not load_record(bid).get("boxes"):     # a record with its boxes rebases safely
         raise SystemExit(f"{bid}: the record was written against another version of the blueprint; open it in the "
                          f"page, check the grouping and save again before applying")
     pl = plan(bp, units, resolve_blank(bp), page_captions)
@@ -430,17 +743,22 @@ def apply(bid: str, page_captions: bool = True) -> dict:
     if not pl["changes"]:
         print(f"{bid}: nothing to change")
         return pl
+    from petey import naming          # a name new to the blueprint gets its parts (naming.sync_parts)
+    naming.sync_parts(pl["fields"], [n for n in pl["fields"] if n not in (bp.get("fields") or {})])
     bp["fields"] = pl["fields"]
     field_ids.assign(bp)                    # a new field gets the next free id on its page
     p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True), encoding="utf-8")
     new_sha = _sha(p)
     confirmed = {(u["name"], len(u["items"])) for u in units if u.get("confirmed")}
     _, fresh = option_items(bp)
-    rec = {"blueprint": str(p), "form": p.stem, "blueprint_sha": new_sha,
+    fresh += entity_units(bp)
+    rec = {"blueprint": str(real), "form": real.stem, "blueprint_sha": new_sha,
            "updated": time.strftime("%Y-%m-%d %H:%M:%S"),
            "applied": {"when": time.strftime("%Y-%m-%d %H:%M:%S"), "sha_before": sha, "sha_after": new_sha,
                        "changes": pl["changes"]},
            "units": [dict(u, confirmed=(u["name"], len(u["items"])) in confirmed) for u in fresh]}
+    fresh_items, _ = option_items(bp)
+    rec["boxes"] = item_boxes({**fresh_items, **text_items(bp)}, rec["units"])
     record_path(bid).write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"{bid}: wrote {p}")
     for c in pl["changes"]:
@@ -456,8 +774,11 @@ class State:
         self.png: dict[tuple[str, int], bytes] = {}
         self._index: dict[str, dict] = {}
 
+    def path(self, bid: str) -> Optional[Path]:
+        return working_path(bid, self.paths)
+
     def _entry(self, bid: str) -> Optional[dict]:
-        p = self.paths[bid]
+        p = self.path(bid)
         bp = _load(p)
         items, units, info = current_units(bid, bp, _sha(p))
         combos = sum(1 for u in units if u.get("kind") == "text")
@@ -482,33 +803,53 @@ class State:
             self.index()
         return list(self._index.values())
 
-    def detail(self, bid: str) -> Optional[dict]:
-        p = self.paths.get(bid)
+    def detail(self, bid: str, auto: bool = True) -> Optional[dict]:
+        p = self.path(bid)
         if p is None:
             return None
         bp = _load(p)
         blank = resolve_blank(bp)
-        pages = []
-        if blank and blank.exists():
-            import pymupdf
-            doc = pymupdf.open(str(blank))
-            try:
-                pages = [{"page": i, "w_pt": pg.rect.width, "h_pt": pg.rect.height} for i, pg in enumerate(doc, 1)]
-            finally:
-                doc.close()
+        pages = page_sizes(bp, blank)
         sha = _sha(p)
         items, units, info = current_units(bid, bp, sha)
         opt_items, base = option_items(bp)
         option_fields = {it["field"] for it in opt_items.values()}
-        return {"id": bid, "path": str(p), "blank": str(blank) if blank else None, "sha": sha, "pages": pages,
+        # groups among the loose checkboxes (group_finder, 2026-10-25), made as the tab loads (Andrew: "let's have the
+        # finder groups group automatically, easy to ungroup them"): written into the record as "group them" made
+        # them, applied with the rest when Groups is left; an ungrouped one is recorded as not a group and stays apart
+        # not for Review's g / u / drags (`auto` False, 2026-10-28): those put only their own change into the working
+        # copy, and the finder's groups wait for the Groups tab
+        from petey.validate import group_finder
+        loose = {} if not auto else {u["items"][0]: items[u["items"][0]] for u in units if len(u.get("items") or []) == 1
+                 and u.get("kind") != "text" and not u.get("locked") and u.get("type") == "boolean"
+                 and items.get(u["items"][0], {}).get("widget_type") in ("checkbox", "radiobutton")}
+        try:
+            suggested = group_finder.find(bp, blank, loose, bid)
+        except Exception as e:                       # noqa: BLE001  the tab works without them
+            suggested = []
+            info = {**info, "suggest_error": str(e)}
+        made = []
+        if suggested:
+            try:
+                made = self._group(bid, bp, items, units, suggested)
+                items, units, info = current_units(bid, bp, sha)
+                suggested = []
+            except Exception as e:                   # noqa: BLE001  left as suggestions
+                made, info = [], {**info, "suggest_error": str(e)}
+        return {"id": bid, "path": str(self.paths[bid]), "blank": str(blank) if blank else None, "sha": sha, "pages": pages,
                 "items": items, "units": units, "base": [{k: u[k] for k in ("name", "type", "items")} for u in base],
+                "entities": entity_units(bp),        # as the blueprint's tags have them, for the cards' badges
                 "other_names": sorted(n for n in (bp.get("fields") or {}) if n not in option_fields),
+                # each field's code, for the full field id the card shows as Review's does (2026-10-24)
+                "codes": {n: str(s["x_petey_id"]) for n, s in (bp.get("fields") or {}).items()
+                          if isinstance(s, dict) and s.get("x_petey_id") is not None},
+                "suggested": suggested, "auto_grouped": made,
                 "info": info}
 
     def page_png(self, bid: str, page: int) -> Optional[bytes]:
         key = (bid, page)
         if key not in self.png:
-            p = self.paths.get(bid)
+            p = self.path(bid)
             blank = resolve_blank(_load(p)) if p else None
             if not blank or not blank.exists():
                 return None
@@ -523,20 +864,25 @@ class State:
         return self.png[key]
 
     def put_units(self, bid: str, incoming: dict) -> dict:
-        p = self.paths.get(bid)
+        p = self.path(bid)
         if p is None:
             raise KeyError(bid)
         bp = _load(p)
         items, _ = option_items(bp)
         items = {**items, **text_items(bp)}
-        keep = ("name", "type", "items", "origin", "confirmed", "description", "locked", "kind", "when", "name_from")
+        keep = ("name", "type", "items", "origin", "confirmed", "description", "locked", "kind", "when", "name_from",
+                "captions", "entity_type")
         units = [{k: u.get(k) for k in keep if u.get(k) is not None} for u in incoming.get("units") or []]
         for u in units:
             u["items"] = [i for i in u.get("items") or [] if i in items]
         units = [u for u in units if u["items"]]
-        rec = {"blueprint": str(p), "form": p.stem, "blueprint_sha": _sha(p),
-               "updated": time.strftime("%Y-%m-%d %H:%M:%S"), "applied": load_record(bid).get("applied"),
-               "units": units}
+        held = {i for u in units for i in u["items"]}
+        old = load_record(bid)
+        back = [i for i in incoming.get("to_text", old.get("to_text")) or []
+                if i not in held and _is_converted((bp.get("fields") or {}).get(i))]
+        rec = {"blueprint": str(self.paths[bid]), "form": p.stem, "blueprint_sha": _sha(p),
+               "updated": time.strftime("%Y-%m-%d %H:%M:%S"), "applied": old.get("applied"),
+               "units": units, "boxes": item_boxes(items, units), **({"to_text": back} if back else {})}
         OUT.mkdir(parents=True, exist_ok=True)
         record_path(bid).write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
         e = self._entry(bid)
@@ -544,8 +890,38 @@ class State:
             self._index[bid] = e
         return {"saved": rec["updated"], "entry": e}
 
+    def make_suggested(self, bid: str) -> list[dict]:
+        """"run finders" makes the suggested groups (Andrew, 2026-10-25: "can we make sure the finder groups related
+        ind fields instead of putting them in a single block?": CMS-855B's Change / Add / Remove went into the blocks
+        as three loose boxes): loading the Groups data makes them (`detail`); the caller applies the record."""
+        return (self.detail(bid) or {}).get("auto_grouped") or []
+
+    def _group(self, bid: str, bp: dict, items: dict, units: list[dict], sug: list[dict]) -> list[dict]:
+        """The suggestions made groups in the record, as Groups' "group them" makes them (category, not confirmed:
+        new on the Groups tab). [{name, page, items, why}]."""
+        members = {i for x in sug for i in x["items"]}
+        units = [u for u in units if not (len(u["items"]) == 1 and u["items"][0] in members)]
+        taken = (set(bp.get("fields") or {}) - {items[i]["field"] for i in members}) | {u["name"] for u in units}
+        now, made = time.strftime("%Y-%m-%d %H:%M:%S"), []
+        for x in sug:
+            base = x.get("name") or f"group_p{x['page']}"
+            n, k = base, 2
+            while n in taken:
+                n, k = f"{base}_{k}", k + 1
+            taken.add(n)
+            units.append({"name": n, "type": "category", "items": list(x["items"]), "confirmed": False, "when": now})
+            made.append({"name": n, "page": x["page"], "items": len(x["items"]), "why": x["why"]})
+        self.put_units(bid, {"units": units})
+        return made
+
+    def captions_for(self, bid: str, body: dict) -> dict:
+        p = self.path(bid)
+        bp = _load(p)
+        return {"captions": suggest_captions(bp, resolve_blank(bp), body.get("name") or "", body.get("items") or [],
+                                             model=body.get("model", True))}
+
     def plan_for(self, bid: str, incoming: Optional[dict] = None) -> dict:
-        p = self.paths[bid]
+        p = self.path(bid)
         bp = _load(p)
         units = (incoming or {}).get("units") or current_units(bid, bp, _sha(p))[1]
         pl = plan(bp, units, resolve_blank(bp))
@@ -558,7 +934,7 @@ def summary() -> None:
     n = 0
     for rp in sorted(OUT.glob("*.json")):
         rec = json.loads(rp.read_text(encoding="utf-8"))
-        p = paths.get(rp.stem)
+        p = working_path(rp.stem, paths)
         if p is None:
             continue
         bp = _load(p)
@@ -591,7 +967,7 @@ def main() -> int:
         if args.apply:
             apply(bid, page_captions=not args.no_page_captions)
             return 0
-        p = blueprint_paths()[bid]
+        p = working_path(bid)
         bp = _load(p)
         _, units, info = current_units(bid, bp, _sha(p))
         pl = plan(bp, units, resolve_blank(bp))

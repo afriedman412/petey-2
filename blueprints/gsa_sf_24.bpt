@@ -1,0 +1,2944 @@
+bpt_version: '1.1'
+name: gsa_sf_24
+form_version: null
+source_pdf: SF24-23a.pdf
+source_pdf_hash: 4f1615f445a709dbe3b1a4c71a01cbbf648af51c
+source_pages:
+- 1
+- 2
+- 3
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 22:30:43'
+fields:
+  bond_executed_dt:
+    x_petey_id: '1_1'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 304.6390075683594
+      - 36.67999267578125
+      - 387.20098876953125
+      - 53.11199951171875
+      widget_type: text
+      path: form1[0].#subform[0].DATEBONDEX[0]
+    description: Enter the Date the Bond was executed (enter 2 digit month, 2 digit
+      day and 4 digit year).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{M/DD/YYYY}
+        validate:
+        - date{MM/DD/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+    x_petey_identifiers:
+      subject: bond_executed
+      suffix: dt
+  principal_name_and_address_txt:
+    x_petey_id: '1_2'
+    type: string
+    semantic_type: name_and_address
+    widget:
+      page: 1
+      rect:
+      - 19.85099983215332
+      - 71.1810302734375
+      - 312.3609924316406
+      - 142.42401123046875
+      widget_type: text
+      path: form1[0].#subform[0].princple[0]
+    description: Enter the Principal (Legal Name and Business Address).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Box holds the principal's legal (often organization) name plus full
+        business address, not a person name; semantic_type corrected to address_block.
+        Name already fits the caption.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter the Principal (Legal Name and Business Address).
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: principal_name_and_address_txt
+        type: string
+        semantic_type: address_block
+        pattern: null
+      to:
+        name: principal_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    x_petey_identifiers:
+      subject: principal_name_and_address
+      suffix: txt
+  state_of_incorporation_cd:
+    x_petey_id: '1_5'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 316.385986328125
+      - 126.0570068359375
+      - 591.8400268554688
+      - 142.155029296875
+      widget_type: text
+      path: form1[0].#subform[0].STATE[0]
+    description: Enter the State of Incorporation.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=275
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: state_of_incorporation
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: state_of_incorporation_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      subject: state_of_incorporation
+      suffix: cd
+  sureties_name_and_address_txt:
+    x_petey_id: '1_6'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 19.426000595092773
+      - 157.1500244140625
+      - 592.2849731445312
+      - 213.98199462890625
+      widget_type: text
+      path: form1[0].#subform[0].surety[0]
+    description: Enter the Surety (ies) (Name and Business Address).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Caption and tooltip say 'Surety(ies) (Name and Business Address)' -
+        the box holds a name plus a business address block, not a bare person name,
+        so the person_name semantic type is wrong.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter the Surety (ies) (Name and Business Address).
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: sureties_name_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: sureties_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    semantic_type: name_and_address
+    x_petey_identifiers:
+      subject: sureties_name_and_address
+      suffix: txt
+  penal_sum_percent_of_bid_price_pct:
+    x_petey_id: '1_9'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 19.827999114990234
+      - 268.42401123046875
+      - 59.90999984741211
+      - 293.66400146484375
+      widget_type: text
+      path: form1[0].#subform[0].PERCENTBID[0]
+    description: Enter the Percent of Bid Price for the Penal Sum of Bond.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{}|num.decimal{zz9.99}
+      message: Value cannot exceed 9,999
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: penal_sum_percent_of_bid_price
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: penal_sum_percent_of_bid_price_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_pct (type)'
+    x_petey_identifiers:
+      subject: penal_sum_percent_of_bid_price
+      suffix: pct
+  penal_sum_thousands_amt:
+    x_petey_id: '1_11'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 116.80999755859375
+      - 268.42401123046875
+      - 182.593994140625
+      - 293.66400146484375
+      widget_type: text
+      path: form1[0].#subform[0].THOUSANDS[0]
+    description: Enter the Thousand(s) Not to Exceed Amount.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      message: Value cannot exceed 9,999,999.99
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: penal_sum_thousands
+      suffix: amt
+  penal_sum_hundreds_amt:
+    x_petey_id: '1_12'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 187.22000122070312
+      - 268.56597900390625
+      - 243.84500122070312
+      - 293.8059997558594
+      widget_type: text
+      path: form1[0].#subform[0].HUNDERDS[0]
+    description: Enter the Hundred(s) Not to Exceed Amount.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      message: Value cannot exceed 9,999.99
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: penal_sum_hundreds
+      suffix: amt
+  bid_dt:
+    x_petey_id: '1_7'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 282.8039855957031
+      - 241.447021484375
+      - 354.3590087890625
+      - 255.75299072265625
+      widget_type: text
+      path: form1[0].#subform[0].BIDDATE[0]
+    description: Enter the Date for the Bid Identification (enter 2 digit month, 2
+      digit day and 4 digit year).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{M/DD/YYYY}
+        validate:
+        - date{MM/DD/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+    x_petey_identifiers:
+      subject: bid
+      suffix: dt
+  invitation_nbr:
+    x_petey_id: '1_8'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 369.93499755859375
+      - 241.41302490234375
+      - 592.2849731445312
+      - 255.7509765625
+      widget_type: text
+      path: form1[0].#subform[0].INVITATIONNO[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: invitation_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: invitation_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: invitation
+      suffix: nbr
+  bid_identification_for:
+    x_petey_id: '1_14'
+    type: category
+    widget:
+      page: 1
+      rect:
+      - 281.822998046875
+      - 272.927978515625
+      - 591.635986328125
+      - 293.5220031738281
+      widget_type: combobox
+      path: form1[0].#subform[0].FORCONSTRUCTION[0]
+    description: 'Choose one of the following for the Bid Identification: For (Construction,
+      Supplies or Services).'
+    x_petey_description_source: tooltip
+    values:
+    - Construction
+    - Supplies
+    - Services
+    x_petey_validation_source: xfa
+    label_source: llm
+    x_petey_retype:
+    - dropdown
+    - dropdown_options
+    options:
+      Construction:
+        caption: Construction
+      Supplies:
+        caption: Supplies
+      Services:
+        caption: Services
+    x_petey_identifiers:
+      subject: bid_identification_for
+  penal_sum_millions_amt:
+    x_petey_id: '1_10'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 63.81399917602539
+      - 268.42401123046875
+      - 113.61299896240234
+      - 293.6669921875
+      widget_type: text
+      path: form1[0].#subform[0].MILLIONS[0]
+    description: Enter the Million(s) Not to Exceed Amount.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: penal_sum_millions
+      suffix: amt
+  penal_sum_cents_amt:
+    x_petey_id: '1_13'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 247.01699829101562
+      - 268.5689697265625
+      - 279.47900390625
+      - 293.8089904785156
+      widget_type: text
+      path: form1[0].#subform[0].CENTS[0]
+    description: Enter the cents portion of the penal sum (Not to Exceed amount).
+    x_petey_description_source: tooltip
+    label_source: llm
+    pattern: ^\d{1,2}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: This box holds only the cents segment of the split penal-sum amount,
+        so it is a one-or-two digit string, not a whole-dollar money value (the generator
+        produced 397072).
+      before:
+        type: number
+        semantic_type: money_whole_dollar
+        description: Enter the Cents Not to Exceed Amount.
+      judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: penal_sum_cents
+      suffix: amt
+  other_organization_type_txt:
+    x_petey_id: '1_4'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 499.4020080566406
+      - 91.6099853515625
+      - 593.5599975585938
+      - 106.21099853515625
+      widget_type: text
+      path: form1[0].#subform[0].Specify[0]
+    description: If Other was selected, specify here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: other_organization_type
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_organization_type_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_organization_type
+      suffix: txt
+  individual_surety_nm_2:
+    x_petey_id: '2_15'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 343.37799072265625
+      - 233.98602294921875
+      - 593.2009887695312
+      - 264.3480224609375
+      widget_type: text
+      path: form1[0].#subform[1].INDNAME2[0]
+    description: Enter the Name(s) of the Second Individual Surety(ies), if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: individual_surety_2_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: individual_surety_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: individual_surety
+      suffix: nm
+      iteration: '2'
+  individual_surety_2_additional_signature:
+    x_petey_id: '2_13'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 462.26300048828125
+      - 213.58502197265625
+      - 557.2340087890625
+      - 227.406005859375
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[0]
+    description: Sign here if an additional signature is needed for the Second Individual
+      Surety, if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: individual_surety
+      block_iteration: '2'
+      subject: additional
+      suffix: signature
+  individual_surety_signature_2:
+    x_petey_id: '2_12'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 345.5039978027344
+      - 213.58502197265625
+      - 456.7149963378906
+      - 227.406005859375
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[1]
+    description: Sign here if you are the Second Individual Surety, if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: individual_surety
+      suffix: signature
+      iteration: '2'
+  individual_surety_1_additional_signature:
+    x_petey_id: '2_11'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 203.1820068359375
+      - 213.58502197265625
+      - 293.031005859375
+      - 227.93597412109375
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[2]
+    description: Sign here if an additional signature is needed for the First Individual
+      Surety.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: individual_surety
+      block_iteration: '1'
+      subject: additional
+      suffix: signature
+  individual_surety_signature_1:
+    x_petey_id: '2_10'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 102.53800201416016
+      - 213.58502197265625
+      - 197.51199340820312
+      - 227.93597412109375
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[3]
+    description: Sign here if you are the First Individual Surety.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: individual_surety
+      suffix: signature
+      iteration: '1'
+  individual_surety_nm_1:
+    x_petey_id: '2_14'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 99.15299987792969
+      - 233.98297119140625
+      - 327.39599609375
+      - 264.344970703125
+      widget_type: text
+      path: form1[0].#subform[1].INDNAME1[0]
+    description: Enter the Name(s) of the First Individual Surety(ies).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: individual_surety_1_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: individual_surety_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: individual_surety
+      suffix: nm
+      iteration: '1'
+  principal_1_name_and_title_txt:
+    x_petey_id: '2_7'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 101.15399932861328
+      - 142.5150146484375
+      - 240.46800231933594
+      - 187.072998046875
+      widget_type: text
+      path: form1[0].#subform[1].name_title1[0]
+    description: Enter the Name(s) and Title(s) for the First Principal.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: principal_1_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: principal_1_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: principal
+      block_iteration: '1'
+      subject: name_and_title
+      suffix: txt
+      grid: p2-G3
+  principal_2_name_and_title_txt:
+    x_petey_id: '2_8'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 255.73599243164062
+      - 142.5150146484375
+      - 393.53900146484375
+      - 187.072998046875
+      widget_type: text
+      path: form1[0].#subform[1].name_title2[0]
+    description: Enter the Name(s) and Title(s) for the Second Principal, if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: principal_2_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: principal_2_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: principal
+      block_iteration: '2'
+      subject: name_and_title
+      suffix: txt
+      grid: p2-G3
+  principal_3_name_and_title_txt:
+    x_petey_id: '2_9'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 409.0679931640625
+      - 142.5150146484375
+      - 536.9359741210938
+      - 187.072998046875
+      widget_type: text
+      path: form1[0].#subform[1].name_title3[0]
+    description: Enter the Name(s) and Title(s) for the Third Principal, if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: principal_3_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: principal_3_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: principal
+      block_iteration: '3'
+      subject: name_and_title
+      suffix: txt
+      grid: p2-G3
+  principal_3_additional_signature:
+    x_petey_id: '2_6'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 411.8039855957031
+      - 124.23699951171875
+      - 502.6510009765625
+      - 136.4219970703125
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[4]
+    description: Sign here if an additional signature is needed for the Third Principal,
+      if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: principal
+      block_iteration: '3'
+      subject: additional
+      suffix: signature
+      grid: p2-G3
+  principal_signature_3:
+    x_petey_id: '2_3'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 411.8039855957031
+      - 106.1519775390625
+      - 502.6510009765625
+      - 118.33697509765625
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[5]
+    description: Sign here if you are the Third Principal, if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: principal
+      suffix: signature
+      iteration: '3'
+      grid: p2-G3
+  principal_signature_2:
+    x_petey_id: '2_2'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 258.27899169921875
+      - 105.41497802734375
+      - 357.9809875488281
+      - 117.5999755859375
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[6]
+    description: Sign here if you are the Second Principal, if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: principal
+      suffix: signature
+      iteration: '2'
+      grid: p2-G3
+  principal_2_additional_signature:
+    x_petey_id: '2_5'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 258.27899169921875
+      - 123.5
+      - 357.9809875488281
+      - 135.68499755859375
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[7]
+    description: Sign here if an additional signature is needed for the Second Principal,
+      if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: principal
+      block_iteration: '2'
+      subject: additional
+      suffix: signature
+      grid: p2-G3
+  principal_1_additional_signature:
+    x_petey_id: '2_4'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 104.3239974975586
+      - 124.77001953125
+      - 204.01499938964844
+      - 136.9530029296875
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[8]
+    description: Sign here if an additional signature is needed for the First Principal.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: principal
+      block_iteration: '1'
+      subject: additional
+      suffix: signature
+      grid: p2-G3
+  principal_signature_1:
+    x_petey_id: '2_1'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 104.3239974975586
+      - 106.68499755859375
+      - 204.01499938964844
+      - 118.86798095703125
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[9]
+    description: Sign here if you are the First Principal.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: principal
+      suffix: signature
+      iteration: '1'
+      grid: p2-G3
+  surety_a_2_name_and_title_txt:
+    x_petey_id: '2_24'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 338.7799987792969
+      - 342.5899963378906
+      - 536.9359741210938
+      - 387.57598876953125
+      widget_type: text
+      path: form1[0].#subform[1].NAMETITLE2\.3[0]
+    description: Enter the Name(s) and Title(s) for the Second Corporate Surety (Surety
+      A), if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_a_2_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_a_2_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: surety_a
+      suffix: txt
+      subject: 2_name_and_title
+  surety_b_state_of_incorporation_cd:
+    x_petey_id: '2_26'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 2
+      rect:
+      - 328.45001220703125
+      - 408.260009765625
+      - 444.6759948730469
+      - 426.23699951171875
+      widget_type: text
+      path: form1[0].#subform[1].STATEINC[0]
+    description: Enter the State of Incorporation for the Corporate Surety (Surety
+      B).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_b_state_of_incorporation
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: surety_b_state_of_incorporation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: b
+      subject: state_of_incorporation
+      suffix: cd
+  surety_b_liability_limit_amt:
+    x_petey_id: '2_27'
+    type: number
+    semantic_type: money
+    widget:
+      page: 2
+      rect:
+      - 448.42401123046875
+      - 408.26300048828125
+      - 536.8250122070312
+      - 426.239990234375
+      widget_type: text
+      path: form1[0].#subform[1].LIABILITY1[0]
+    description: Enter the Liability Limit (in dollars) for the Corporate Surety (Surety
+      B).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: b
+      subject: liability_limit
+      suffix: amt
+  surety_b_2_additional_signature:
+    x_petey_id: '2_31'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 451.0039978027344
+      - 431.8330078125
+      - 534.1010131835938
+      - 445.10101318359375
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[10]
+    description: Sign here if an additional signature is needed that represents the
+      Second Corporate Surety (Surety B), if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_b
+      suffix: signature
+      subject: 2_additional
+  surety_b_2_signature:
+    x_petey_id: '2_30'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 341.614990234375
+      - 431.8330078125
+      - 445.5780029296875
+      - 445.10101318359375
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[11]
+    description: Sign here if you are the second to represent the Corporate Surety
+      (Surety B), if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_b
+      suffix: signature
+      subject: '2'
+  surety_b_2_name_and_title_txt:
+    x_petey_id: '2_33'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 338.7799987792969
+      - 449.59698486328125
+      - 536.9359741210938
+      - 494.5830078125
+      widget_type: text
+      path: form1[0].#subform[1].NAMETITLE2\.3[1]
+    description: Enter the Name(s) and Title(s) for the Second Corporate Surety (Surety
+      B), if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_b_2_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_b_2_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: surety_b
+      suffix: txt
+      subject: 2_name_and_title
+  surety_a_1_name_and_title_txt:
+    x_petey_id: '2_23'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 111.9739990234375
+      - 342.7569885253906
+      - 325.0799865722656
+      - 387.7460021972656
+      widget_type: text
+      path: form1[0].#subform[1].NAMETITLE1\.3[0]
+    description: Enter the Name(s) and Title(s) for the First Corporate Surety (Surety
+      A).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_a_1_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_a_1_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: surety_a
+      suffix: txt
+      subject: 1_name_and_title
+  surety_a_1_signature:
+    x_petey_id: '2_19'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 114.27300262451172
+      - 324.9949951171875
+      - 216.25399780273438
+      - 338.4620056152344
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[12]
+    description: Sign here if you are the first to represent the Corporate Surety
+      (Surety A).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_a
+      suffix: signature
+      subject: '1'
+  surety_a_1_additional_signature:
+    x_petey_id: '2_20'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 222.31300354003906
+      - 324.9949951171875
+      - 321.72900390625
+      - 338.4620056152344
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[13]
+    description: Sign here if an additional signature is needed that represents the
+      First Corporate Surety (Surety A).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_a
+      suffix: signature
+      subject: 1_additional
+  surety_a_2_signature:
+    x_petey_id: '2_21'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 341.614990234375
+      - 324.8680114746094
+      - 445.5780029296875
+      - 338.135986328125
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[14]
+    description: Sign here if you are the second to represent the Corporate Surety
+      (Surety A), if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_a
+      suffix: signature
+      subject: '2'
+  surety_a_2_additional_signature:
+    x_petey_id: '2_22'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 451.0039978027344
+      - 324.8680114746094
+      - 534.1010131835938
+      - 338.135986328125
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[15]
+    description: Sign here if an additional signature is needed that represents the
+      Second Corporate Surety (Surety A), if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_a
+      suffix: signature
+      subject: 2_additional
+  surety_c_1_name_and_title_txt:
+    x_petey_id: '2_41'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 111.9739990234375
+      - 556.4320068359375
+      - 325.0799865722656
+      - 601.4210205078125
+      widget_type: text
+      path: form1[0].#subform[1].NAMETITLE1\.3[1]
+    description: Enter the Name(s) and Title(s) for the First Corporate Surety (Surety
+      C).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_c_1_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_c_1_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: surety_c
+      suffix: txt
+      subject: 1_name_and_title
+  surety_c_1_signature:
+    x_petey_id: '2_37'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 114.27300262451172
+      - 538.6710205078125
+      - 216.25399780273438
+      - 552.1380004882812
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[16]
+    description: Sign here if you are the first to represent the Corporate Surety
+      (Surety C).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_c
+      suffix: signature
+      subject: '1'
+  surety_c_name_and_address_txt:
+    x_petey_id: '2_34'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 101.78099822998047
+      - 499.9490051269531
+      - 324.60101318359375
+      - 532.2440185546875
+      widget_type: text
+      path: form1[0].#subform[1].NAMETITLE3[0]
+    description: Enter the Name and Address for the Corporate Surety (Surety C).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Caption and tooltip say 'Name and Address' for the corporate surety
+        - an address block, not a person name.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter the Name and Address for the Corporate Surety (Surety C).
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: surety_c_name_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_c_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    semantic_type: name_and_address
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: c
+      subject: name_and_address
+      suffix: txt
+  surety_c_1_additional_signature:
+    x_petey_id: '2_38'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 222.31300354003906
+      - 538.6710205078125
+      - 321.72900390625
+      - 552.1380004882812
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[17]
+    description: Sign here if an additional signature is needed that represents the
+      First Corporate Surety (Surety C).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_c
+      suffix: signature
+      subject: 1_additional
+  surety_c_2_name_and_title_txt:
+    x_petey_id: '2_42'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 338.7799987792969
+      - 556.4349975585938
+      - 536.9359741210938
+      - 601.4210205078125
+      widget_type: text
+      path: form1[0].#subform[1].NAMETITLE2\.3[2]
+    description: Enter the Name(s) and Title(s) for the Second Corporate Surety (Surety
+      C), if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_c_2_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_c_2_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: surety_c
+      suffix: txt
+      subject: 2_name_and_title
+  surety_c_2_signature:
+    x_petey_id: '2_39'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 341.614990234375
+      - 538.6710205078125
+      - 445.5780029296875
+      - 551.93896484375
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[18]
+    description: Sign here if you are the second to represent the Corporate Surety
+      (Surety C), if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_c
+      suffix: signature
+      subject: '2'
+  surety_c_state_of_incorporation_cd:
+    x_petey_id: '2_35'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 2
+      rect:
+      - 328.45001220703125
+      - 515.0980224609375
+      - 444.6759948730469
+      - 533.0750122070312
+      widget_type: text
+      path: form1[0].#subform[1].STATEINC[1]
+    description: Enter the State of Incorporation for the Corporate Surety (Surety
+      C).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_c_state_of_incorporation
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: surety_c_state_of_incorporation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: c
+      subject: state_of_incorporation
+      suffix: cd
+  surety_c_liability_limit_amt:
+    x_petey_id: '2_36'
+    type: number
+    semantic_type: money
+    widget:
+      page: 2
+      rect:
+      - 448.42401123046875
+      - 515.094970703125
+      - 536.8250122070312
+      - 533.072021484375
+      widget_type: text
+      path: form1[0].#subform[1].LIABILITY1[1]
+    description: Enter the Liability Limit (in dollars) for the Corporate Surety (Surety
+      C).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: c
+      subject: liability_limit
+      suffix: amt
+  surety_c_2_additional_signature:
+    x_petey_id: '2_40'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 451.0039978027344
+      - 538.6710205078125
+      - 534.1010131835938
+      - 551.93896484375
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[19]
+    description: Sign here if an additional signature is needed that represents the
+      Second Corporate Surety (Surety C), if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_c
+      suffix: signature
+      subject: 2_additional
+  surety_d_name_and_address_txt:
+    x_petey_id: '2_43'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 101.78099822998047
+      - 607.5239868164062
+      - 324.60101318359375
+      - 639.8189697265625
+      widget_type: text
+      path: form1[0].#subform[1].NAMETITLE3[1]
+    description: Enter the Name and Address for the Corporate Surety (Surety D).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Box holds the corporate surety's name and address block; person_name
+        semantic type is wrong.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter the Name and Address for the Corporate Surety (Surety D).
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: surety_d_name_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_d_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    semantic_type: name_and_address
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: d
+      subject: name_and_address
+      suffix: txt
+  surety_d_1_signature:
+    x_petey_id: '2_46'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 114.27300262451172
+      - 646.2459716796875
+      - 216.25399780273438
+      - 659.7130126953125
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[20]
+    description: Sign here if you are the first to represent the Corporate Surety
+      (Surety D).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_d
+      suffix: signature
+      subject: '1'
+  surety_d_1_additional_signature:
+    x_petey_id: '2_47'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 222.31300354003906
+      - 646.2459716796875
+      - 321.72900390625
+      - 659.7130126953125
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[21]
+    description: Sign here if an additional signature is needed that represents the
+      First Corporate Surety (Surety D).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_d
+      suffix: signature
+      subject: 1_additional
+  surety_d_1_name_and_title_txt:
+    x_petey_id: '2_50'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 111.9739990234375
+      - 664.0070190429688
+      - 325.0799865722656
+      - 708.9959716796875
+      widget_type: text
+      path: form1[0].#subform[1].NAMETITLE1\.3[2]
+    description: Enter the Name(s) and Title(s) for the First Corporate Surety (Surety
+      D).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_d_1_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_d_1_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: surety_d
+      suffix: txt
+      subject: 1_name_and_title
+  surety_d_2_name_and_title_txt:
+    x_petey_id: '2_51'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 338.7799987792969
+      - 664.010009765625
+      - 536.9359741210938
+      - 708.9959716796875
+      widget_type: text
+      path: form1[0].#subform[1].NAMETITLE2\.3[3]
+    description: Enter the Name(s) and Title(s) for the Second Corporate Surety (Surety
+      D), if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_d_2_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_d_2_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: surety_d
+      suffix: txt
+      subject: 2_name_and_title
+  surety_d_2_signature:
+    x_petey_id: '2_48'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 341.614990234375
+      - 646.2459716796875
+      - 445.5780029296875
+      - 659.5140380859375
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[22]
+    description: Sign here if you are the second to represent the Corporate Surety
+      (Surety D), if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_d
+      suffix: signature
+      subject: '2'
+  surety_d_state_of_incorporation_cd:
+    x_petey_id: '2_44'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 2
+      rect:
+      - 328.45001220703125
+      - 622.6719970703125
+      - 444.6759948730469
+      - 640.6489868164062
+      widget_type: text
+      path: form1[0].#subform[1].STATEINC[2]
+    description: Enter the State of Incorporation for the Corporate Surety (Surety
+      D).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_d_state_of_incorporation
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: surety_d_state_of_incorporation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: d
+      subject: state_of_incorporation
+      suffix: cd
+  surety_d_liability_limit_amt:
+    x_petey_id: '2_45'
+    type: number
+    semantic_type: money
+    widget:
+      page: 2
+      rect:
+      - 448.42401123046875
+      - 622.6699829101562
+      - 536.8250122070312
+      - 640.64697265625
+      widget_type: text
+      path: form1[0].#subform[1].LIABILITY1[2]
+    description: Enter the Liability Limit (in dollars) for the Corporate Surety (Surety
+      D).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: d
+      subject: liability_limit
+      suffix: amt
+  surety_d_2_additional_signature:
+    x_petey_id: '2_49'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 451.0039978027344
+      - 646.2459716796875
+      - 534.1010131835938
+      - 659.5140380859375
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[23]
+    description: Sign here if an additional signature is needed that represents the
+      Second Corporate Surety (Surety D), if applicable.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_d
+      suffix: signature
+      subject: 2_additional
+  surety_a_liability_limit_amt:
+    x_petey_id: '2_18'
+    type: number
+    semantic_type: money
+    widget:
+      page: 2
+      rect:
+      - 448.42401123046875
+      - 300.68798828125
+      - 536.8250122070312
+      - 318.6650085449219
+      widget_type: text
+      path: form1[0].#subform[1].LIABILITY1[3]
+    description: Enter the Liability Limit (in dollars) for the Corporate Surety (Surety
+      A).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: a
+      subject: liability_limit
+      suffix: amt
+  surety_a_state_of_incorporation_cd:
+    x_petey_id: '2_17'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 2
+      rect:
+      - 328.45001220703125
+      - 300.68499755859375
+      - 444.6759948730469
+      - 318.6619873046875
+      widget_type: text
+      path: form1[0].#subform[1].STATEINC[3]
+    description: Enter the State of Incorporation for the Corporate Surety (Surety
+      A).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_a_state_of_incorporation
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: surety_a_state_of_incorporation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: a
+      subject: state_of_incorporation
+      suffix: cd
+  surety_a_name_and_address_txt:
+    x_petey_id: '2_16'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 101.78099822998047
+      - 286.27398681640625
+      - 324.60101318359375
+      - 318.5690002441406
+      widget_type: text
+      path: form1[0].#subform[1].NAMETITLE3[2]
+    description: Enter the Name and Address for the Corporate Surety (Surety A).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Caption 'Name And Address' for Corporate Surety A - an address block,
+        not a person name.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter the Name and Address for the Corporate Surety (Surety A).
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: surety_a_name_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_a_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    semantic_type: name_and_address
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: a
+      subject: name_and_address
+      suffix: txt
+  surety_b_1_name_and_title_txt:
+    x_petey_id: '2_32'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 111.9739990234375
+      - 449.5950012207031
+      - 325.0799865722656
+      - 494.5840148925781
+      widget_type: text
+      path: form1[0].#subform[1].NAMETITLE1\.3[3]
+    description: Enter the Name(s) and Title(s) for the First Corporate Surety (Surety
+      B).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_b_1_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_b_1_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: surety_b
+      suffix: txt
+      subject: 1_name_and_title
+  surety_b_1_additional_signature:
+    x_petey_id: '2_29'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 222.31300354003906
+      - 431.8330078125
+      - 321.72900390625
+      - 445.29998779296875
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[24]
+    description: Sign here if an additional signature is needed that represents the
+      First Corporate Surety (Surety B).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_b
+      suffix: signature
+      subject: 1_additional
+  surety_b_1_signature:
+    x_petey_id: '2_28'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 114.27300262451172
+      - 431.8330078125
+      - 216.25399780273438
+      - 445.29998779296875
+      widget_type: text
+      path: form1[0].#subform[1].SignatureField1[25]
+    description: Sign here if you are the first to represent the Corporate Surety
+      (Surety B).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_b
+      suffix: signature
+      subject: '1'
+  surety_b_name_and_address_txt:
+    x_petey_id: '2_25'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 101.78099822998047
+      - 393.1109924316406
+      - 324.60101318359375
+      - 425.406005859375
+      widget_type: text
+      path: form1[0].#subform[1].NAMETITLE3[3]
+    description: Enter the Name and Address for the Corporate Surety (Surety B).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Box holds the corporate surety's name and address, so person_name is
+        the wrong semantic type.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter the Name and Address for the Corporate Surety (Surety B).
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: surety_b_name_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_b_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    semantic_type: name_and_address
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: b
+      subject: name_and_address
+      suffix: txt
+  surety_f_rep_1_name_and_title_txt:
+    x_petey_id: '3_17'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 112.5979995727539
+      - 204.17401123046875
+      - 325.7040100097656
+      - 249.16302490234375
+      widget_type: text
+      path: form1[0].#subform[2].NAMETITLE1\.3[4]
+    description: Enter the Name(s) and Title(s) for the First Corporate Surety (Surety
+      F).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Caption 'Name(s) And Title(s) (Typed)' - the box holds a name plus a
+        title, which is not a plain person name.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter the Name(s) and Title(s) for the First Corporate Surety
+          (Surety F).
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_f_rep_1_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_f_rep_1_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: surety_f_rep
+      suffix: txt
+      subject: 1_name_and_title
+  surety_f_rep_1_signature:
+    x_petey_id: '3_13'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 114.89700317382812
+      - 185.67498779296875
+      - 216.8780059814453
+      - 199.14202880859375
+      widget_type: text
+      path: form1[0].#subform[2].SignatureField1[26]
+    description: Sign here if you are the first to represent the Corporate Surety
+      (Surety F).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: signature
+      join: shape
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_f_rep
+      suffix: signature
+      subject: '1'
+  surety_f_rep_1_additional_signature:
+    x_petey_id: '3_14'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 222.93699645996094
+      - 185.67498779296875
+      - 322.3529968261719
+      - 199.14202880859375
+      widget_type: text
+      path: form1[0].#subform[2].SignatureField1[27]
+    description: Sign here if an additional signature is needed that represents the
+      First Corporate Surety (Surety F).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: signature
+      join: shape
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_f_rep
+      suffix: signature
+      subject: 1_additional
+  surety_f_name_and_address_txt:
+    x_petey_id: '3_10'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 102.40399932861328
+      - 146.9539794921875
+      - 325.2239990234375
+      - 179.2490234375
+      widget_type: text
+      path: form1[0].#subform[2].NAMETITLE3[4]
+    description: Enter the Name and Address for the Corporate Surety (Surety F).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Caption 'Name And Address' for Corporate Surety F - an address block,
+        not a person name.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter the Name and Address for the Corporate Surety (Surety F).
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: surety_f_name_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_f_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    semantic_type: name_and_address
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: f
+      subject: name_and_address
+      suffix: txt
+  surety_f_state_of_incorporation_cd:
+    x_petey_id: '3_11'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 3
+      rect:
+      - 329.0740051269531
+      - 161.364990234375
+      - 445.29998779296875
+      - 179.34197998046875
+      widget_type: text
+      path: form1[0].#subform[2].STATEINC[4]
+    description: Enter the State of Incorporation for the Corporate Surety (Surety
+      F).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_f_state_of_incorporation
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: surety_f_state_of_incorporation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: f
+      subject: state_of_incorporation
+      suffix: cd
+  surety_f_rep_2_signature:
+    x_petey_id: '3_15'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 342.2380065917969
+      - 185.67498779296875
+      - 446.20098876953125
+      - 198.9429931640625
+      widget_type: text
+      path: form1[0].#subform[2].SignatureField1[28]
+    description: Sign here if you are the second to represent the Corporate Surety
+      (Surety E), if applicable.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: signature
+      join: shape
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_f_rep
+      suffix: signature
+      subject: '2'
+  surety_f_rep_2_name_and_title_txt:
+    x_petey_id: '3_18'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 339.40301513671875
+      - 204.177001953125
+      - 537.5590209960938
+      - 249.16302490234375
+      widget_type: text
+      path: form1[0].#subform[2].NAMETITLE2\.3[4]
+    description: Enter the Name(s) and Title(s) for the Second Corporate Surety (Surety
+      F), if applicable.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_f_rep_2_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_f_rep_2_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: surety_f_rep
+      suffix: txt
+      subject: 2_name_and_title
+  surety_f_rep_2_additional_signature:
+    x_petey_id: '3_16'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 451.62701416015625
+      - 185.67498779296875
+      - 534.7239990234375
+      - 198.9429931640625
+      widget_type: text
+      path: form1[0].#subform[2].SignatureField1[29]
+    description: Sign here if an additional signature is needed that represents the
+      Second Corporate Surety (Surety F), if applicable.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: signature
+      join: shape
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_f_rep
+      suffix: signature
+      subject: 2_additional
+  surety_f_liability_limit_amt:
+    x_petey_id: '3_12'
+    type: number
+    semantic_type: money
+    widget:
+      page: 3
+      rect:
+      - 449.0480041503906
+      - 161.364990234375
+      - 537.448974609375
+      - 179.34197998046875
+      widget_type: text
+      path: form1[0].#subform[2].LIABILITY1[4]
+    description: Enter the Liability Limit (in dollars) for the Corporate Surety (Surety
+      F).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: f
+      subject: liability_limit
+      suffix: amt
+  surety_g_name_and_address_txt:
+    x_petey_id: '3_19'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 102.40399932861328
+      - 256.00299072265625
+      - 325.2239990234375
+      - 288.2980041503906
+      widget_type: text
+      path: form1[0].#subform[2].NAMETITLE3[5]
+    description: Enter the Name and Address for the Corporate Surety (Surety G).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Caption 'Name And Address' for Corporate Surety G - an address block,
+        not a person name.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter the Name and Address for the Corporate Surety (Surety G).
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: surety_g_name_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_g_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    semantic_type: name_and_address
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: g
+      subject: name_and_address
+      suffix: txt
+  surety_g_rep_1_signature:
+    x_petey_id: '3_22'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 114.89700317382812
+      - 294.7239990234375
+      - 216.8780059814453
+      - 308.1910095214844
+      widget_type: text
+      path: form1[0].#subform[2].SignatureField1[30]
+    description: Sign here if you are the first to represent the Corporate Surety
+      (Surety G).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: signature
+      join: shape
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_g_rep
+      suffix: signature
+      subject: '1'
+  surety_g_rep_1_additional_signature:
+    x_petey_id: '3_23'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 222.93699645996094
+      - 294.7239990234375
+      - 322.3529968261719
+      - 308.1910095214844
+      widget_type: text
+      path: form1[0].#subform[2].SignatureField1[31]
+    description: Sign here if an additional signature is needed that represents the
+      First Corporate Surety (Surety G).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: signature
+      join: shape
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_g_rep
+      suffix: signature
+      subject: 1_additional
+  surety_g_rep_1_name_and_title_txt:
+    x_petey_id: '3_26'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 112.5979995727539
+      - 313.2229919433594
+      - 325.7040100097656
+      - 358.2120056152344
+      widget_type: text
+      path: form1[0].#subform[2].NAMETITLE1\.3[5]
+    description: Enter the Name(s) and Title(s) for the First Corporate Surety (Surety
+      G).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Box holds 'Name(s) and Title(s) (Typed)' — a free-text name-plus-title
+        line, not a bare person name; name and description already match the caption,
+        only the person_name semantic_type is wrong.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter the Name(s) and Title(s) for the First Corporate Surety
+          (Surety G).
+      judged: 'kept: 2 -> 1'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_g_rep_1_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_g_rep_1_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: surety_g_rep
+      suffix: txt
+      subject: 1_name_and_title
+  surety_g_rep_2_name_and_title_txt:
+    x_petey_id: '3_27'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 339.40301513671875
+      - 313.22601318359375
+      - 537.5590209960938
+      - 358.2120056152344
+      widget_type: text
+      path: form1[0].#subform[2].NAMETITLE2\.3[5]
+    description: Enter the Name(s) and Title(s) for the Second Corporate Surety (Surety
+      G), if applicable.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_g_rep_2_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_g_rep_2_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: surety_g_rep
+      suffix: txt
+      subject: 2_name_and_title
+  surety_g_rep_2_additional_signature:
+    x_petey_id: '3_25'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 451.62701416015625
+      - 294.7239990234375
+      - 534.7239990234375
+      - 307.99200439453125
+      widget_type: text
+      path: form1[0].#subform[2].SignatureField1[32]
+    description: Sign here if an additional signature is needed that represents the
+      Second Corporate Surety (Surety G), if applicable.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: signature
+      join: shape
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_g_rep
+      suffix: signature
+      subject: 2_additional
+  surety_g_rep_2_signature:
+    x_petey_id: '3_24'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 342.2380065917969
+      - 294.7239990234375
+      - 446.20098876953125
+      - 307.99200439453125
+      widget_type: text
+      path: form1[0].#subform[2].SignatureField1[33]
+    description: Sign here if you are the second to represent the Corporate Surety
+      (Surety E), if applicable.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: signature
+      join: shape
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_g_rep
+      suffix: signature
+      subject: '2'
+  surety_g_state_of_incorporation_cd:
+    x_petey_id: '3_20'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 3
+      rect:
+      - 329.0740051269531
+      - 271.1510009765625
+      - 445.29998779296875
+      - 289.12799072265625
+      widget_type: text
+      path: form1[0].#subform[2].STATEINC[5]
+    description: Enter the State of Incorporation for the Corporate Surety (Surety
+      G).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_g_state_of_incorporation
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: surety_g_state_of_incorporation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: g
+      subject: state_of_incorporation
+      suffix: cd
+  surety_g_liability_limit_amt:
+    x_petey_id: '3_21'
+    type: number
+    semantic_type: money
+    widget:
+      page: 3
+      rect:
+      - 449.0480041503906
+      - 271.15399169921875
+      - 537.448974609375
+      - 289.1310119628906
+      widget_type: text
+      path: form1[0].#subform[2].LIABILITY1[5]
+    description: Enter the Liability Limit (in dollars) for the Corporate Surety (Surety
+      G).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: g
+      subject: liability_limit
+      suffix: amt
+  surety_e_state_of_incorporation_cd:
+    x_petey_id: '3_2'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 3
+      rect:
+      - 329.0740051269531
+      - 53.052978515625
+      - 445.29998779296875
+      - 71.030029296875
+      widget_type: text
+      path: form1[0].#subform[2].STATEINC[6]
+    description: Enter the State of Incorporation for the Corporate Surety (Surety
+      E).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_e_state_of_incorporation
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: surety_e_state_of_incorporation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: e
+      subject: state_of_incorporation
+      suffix: cd
+  surety_e_liability_limit_amt:
+    x_petey_id: '3_3'
+    type: number
+    semantic_type: money
+    widget:
+      page: 3
+      rect:
+      - 449.0480041503906
+      - 53.04998779296875
+      - 537.448974609375
+      - 71.0269775390625
+      widget_type: text
+      path: form1[0].#subform[2].LIABILITY1[6]
+    description: Enter the Liability Limit (in dollars) for the Corporate Surety (Surety
+      E).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: e
+      subject: liability_limit
+      suffix: amt
+  surety_e_rep_2_additional_signature:
+    x_petey_id: '3_7'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 451.62701416015625
+      - 76.6259765625
+      - 534.7239990234375
+      - 89.89398193359375
+      widget_type: text
+      path: form1[0].#subform[2].SignatureField1[34]
+    description: Sign here if an additional signature is needed that represents the
+      Second Corporate Surety (Surety E), if applicable.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: signature
+      join: shape
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_e_rep
+      suffix: signature
+      subject: 2_additional
+  surety_e_rep_2_signature:
+    x_petey_id: '3_6'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 342.2380065917969
+      - 76.6259765625
+      - 446.20098876953125
+      - 89.89398193359375
+      widget_type: text
+      path: form1[0].#subform[2].SignatureField1[35]
+    description: Sign here if you are the second to represent the Corporate Surety
+      (Surety E), if applicable.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: signature
+      join: shape
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_e_rep
+      suffix: signature
+      subject: '2'
+  surety_e_rep_2_name_and_title_txt:
+    x_petey_id: '3_9'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 339.40301513671875
+      - 95.12799072265625
+      - 537.5590209960938
+      - 140.114013671875
+      widget_type: text
+      path: form1[0].#subform[2].NAMETITLE2\.3[6]
+    description: Enter the Name(s) and Title(s) for the Second Corporate Surety (Surety
+      E), if applicable.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_e_rep_2_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_e_rep_2_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: surety_e_rep
+      suffix: txt
+      subject: 2_name_and_title
+  surety_e_rep_1_name_and_title_txt:
+    x_petey_id: '3_8'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 112.5979995727539
+      - 95.125
+      - 325.7040100097656
+      - 140.114013671875
+      widget_type: text
+      path: form1[0].#subform[2].NAMETITLE1\.3[6]
+    description: Enter the Name(s) and Title(s) for the First Corporate Surety (Surety
+      E).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Caption 'Name(s) And Title(s) (Typed)' is free text combining name and
+        title; the person_name semantic_type is incorrect, name and description stand.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter the Name(s) and Title(s) for the First Corporate Surety
+          (Surety E).
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:50'
+      from:
+        name: surety_e_rep_1_name_and_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surety_e_rep_1_name_and_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: surety_e_rep
+      suffix: txt
+      subject: 1_name_and_title
+  surety_e_rep_1_additional_signature:
+    x_petey_id: '3_5'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 222.93699645996094
+      - 76.6259765625
+      - 322.3529968261719
+      - 90.093017578125
+      widget_type: text
+      path: form1[0].#subform[2].SignatureField1[36]
+    description: Sign here if an additional signature is needed that represents the
+      First Corporate Surety (Surety E).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: signature
+      join: shape
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_e_rep
+      suffix: signature
+      subject: 1_additional
+  surety_e_rep_1_signature:
+    x_petey_id: '3_4'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 114.89700317382812
+      - 76.6259765625
+      - 216.8780059814453
+      - 90.093017578125
+      widget_type: text
+      path: form1[0].#subform[2].SignatureField1[37]
+    description: Sign here if you are the first to represent the Corporate Surety
+      (Surety E).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: signature
+      join: shape
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: surety_e_rep
+      suffix: signature
+      subject: '1'
+  surety_e_name_and_address_txt:
+    x_petey_id: '3_1'
+    type: string
+    semantic_type: name_and_address
+    widget:
+      page: 3
+      rect:
+      - 102.40399932861328
+      - 37.905029296875
+      - 325.2239990234375
+      - 70.20001220703125
+      widget_type: text
+      path: form1[0].#subform[2].NAMETITLE3[6]
+    description: Enter the Name and Address for the Corporate Surety (Surety E).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption and tooltip both say 'Name and Address' of the corporate surety,
+        so the value is an address block, not a person name.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter the Name and Address for the Corporate Surety (Surety E).
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: surety_e_name_and_address_txt
+        type: string
+        semantic_type: address_block
+        pattern: null
+      to:
+        name: surety_e_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: e
+      subject: name_and_address
+      suffix: txt
+  maximum_dollar_limitation_amt:
+    x_petey_id: '3_28'
+    type: number
+    semantic_type: money
+    widget:
+      page: 3
+      rect:
+      - 40.571998596191406
+      - 590.0490112304688
+      - 116.1719970703125
+      - 603.0490112304688
+      widget_type: text
+      path: form1[0].#subform[2].exceedollas[0]
+    description: Enter a maximum dollar limitation if the bond expresses a penal sum
+      as a percentage of the bid price.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: maximum_dollar_limitation
+      suffix: amt
+  organization_type:
+    x_petey_id: '1_3'
+    type: category
+    values:
+    - corporation
+    - individual
+    - joint_venture
+    - other
+    - partnership
+    widgets:
+      other:
+        page: 1
+        rect:
+        - 401.47100830078125
+        - 91.98199462890625
+        - 413.47100830078125
+        - 103.98199462890625
+        widget_type: checkbox
+        path: form1[0].#subform[0].Other[0]
+        on_state: '1'
+        caption: Other (Specify)
+        x_petey_caption_source: page_text
+      individual:
+        page: 1
+        rect:
+        - 319.96099853515625
+        - 73.030029296875
+        - 331.96099853515625
+        - 85.030029296875
+        widget_type: checkbox
+        path: form1[0].#subform[0].Individual[0]
+        on_state: '1'
+        caption: Individual
+        x_petey_caption_source: page_text
+      partnership:
+        page: 1
+        rect:
+        - 391.7850036621094
+        - 72.7130126953125
+        - 403.7850036621094
+        - 84.7130126953125
+        widget_type: checkbox
+        path: form1[0].#subform[0].Partnership[0]
+        on_state: '1'
+        caption: Partnership
+        x_petey_caption_source: page_text
+      joint_venture:
+        page: 1
+        rect:
+        - 475.23699951171875
+        - 73.2540283203125
+        - 487.23699951171875
+        - 85.2540283203125
+        widget_type: checkbox
+        path: form1[0].#subform[0].JointVenture[0]
+        on_state: '1'
+        caption: Joint Venture
+        x_petey_caption_source: page_text
+      corporation:
+        page: 1
+        rect:
+        - 319.9580078125
+        - 91.6710205078125
+        - 331.9580078125
+        - 103.6710205078125
+        widget_type: checkbox
+        path: form1[0].#subform[0].Corporation[0]
+        on_state: '1'
+        caption: Corporation
+        x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: organization_type
+x_petey_xfa_log:
+  joined: 92
+  type: 1
+  values: 1
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 1
+x_petey_page_check:
+  when: '2026-10-16 12:23:16'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  - 2
+  - 3
+  fields: 93
+  flagged: 1
+  unanswered: 0
+  record: runs/page_check/gsa_sf_24__24ad2c__34b949c5.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: gsa_sf_24_20261006_223448
+  blueprint: /home/user/petey-2/runs/judge_eval/work/gsa_sf_24.bpt
+  when: '2026-10-06 22:35:12'
+x_petey_run:
+  record: runs/judge_eval/form_runs/gsa_sf_24.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 4
+  review_rounds: 2
+  when: '2026-10-06 22:35:14'

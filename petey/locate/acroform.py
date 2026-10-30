@@ -68,13 +68,14 @@ MULTISELECT_FLAG = 1 << 21
 def choices(w) -> tuple[list[str], dict[str, str]]:
     """A dropdown's choices as the values it stores (export strings), and the
     shown text where it differs: pymupdf returns (export, display) pairs on
-    some forms (I-765 state lists). Blank entries (a leading " ") dropped."""
+    some forms (I-765 state lists). Blank entries (a leading " ") and prompt entries ("Select one") dropped."""
     out: list[str] = []
     shown: dict[str, str] = {}
     for c in w.choice_values or []:
         exp, disp = (c[0], c[1]) if isinstance(c, (list, tuple)) and len(c) > 1 else (c, c)
         exp, disp = str(exp).strip(), str(disp).strip()
-        if exp and exp not in out:
+        from petey.label.xfa import is_blank_choice
+        if exp and exp not in out and not is_blank_choice(disp):    # a prompt entry ("Select one") is no choice
             out.append(exp)
             if disp and disp != exp:
                 shown[exp] = disp
@@ -107,9 +108,15 @@ PUSHBUTTON_FLAG = 1 << 16
 READONLY_FLAG = 1 << 0
 
 
+# A checkbox's or radio button's value is its state ('Off' or an on-state), never printed words: IRS 1096 box 6's
+# 38 locked checkboxes hold 'Off' and were dropped as captions, with ~190 more over 21 other blueprints (IRS
+# information returns, W-3, 941-X, FMCSA MCS-150B; 2026-10-16).
+_STATE_TYPES = (pymupdf.PDF_WIDGET_TYPE_CHECKBOX, pymupdf.PDF_WIDGET_TYPE_RADIOBUTTON)
+
+
 def _is_caption_widget(w) -> bool:
     """A locked widget whose value IS the printed label."""
-    if not ((w.field_flags or 0) & READONLY_FLAG):
+    if not ((w.field_flags or 0) & READONLY_FLAG) or w.field_type in _STATE_TYPES:
         return False
     return bool((w.field_value or "").strip())
 

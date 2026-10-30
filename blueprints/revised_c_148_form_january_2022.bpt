@@ -7,11 +7,16 @@ source_pages:
 - 1
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-15 11:59:53'
 fields:
   operator_nm:
     x_petey_id: '1_1'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -24,7 +29,26 @@ fields:
     description: Operator Name
     x_petey_description_source: tooltip
     label_source: llm
-  ogrid_num:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: operator_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: operator_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: operator
+      suffix: nm
+  ogrid_nbr:
     x_petey_id: '1_2'
     type: string
     widget:
@@ -37,7 +61,26 @@ fields:
       widget_type: text
       path: OGRID
     label_source: llm
-  rf_num:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: ogrid_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: ogrid_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: ogrid
+      suffix: nbr
+  rf_nbr:
     x_petey_id: '1_3'
     type: string
     widget:
@@ -50,7 +93,26 @@ fields:
       widget_type: text
       path: RF
     label_source: llm
-  facility_num:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: rf_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: rf_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: rf
+      suffix: nbr
+  facility_nbr:
     x_petey_id: '1_4'
     type: string
     widget:
@@ -63,7 +125,26 @@ fields:
       widget_type: text
       path: Facility
     label_source: llm
-  recycling_containment_20pct_capacity_ind:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: facility_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: facility_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: facility
+      suffix: nbr
+  certify_capacity_usage_ind:
     x_petey_id: '1_5'
     type: boolean
     semantic_type: indicator
@@ -79,7 +160,10 @@ fields:
     description: this recycling facility are using >= 20% of the
     x_petey_description_source: tooltip
     label_source: llm
-  month_year:
+    x_petey_identifiers:
+      subject: certify_capacity_usage
+      suffix: ind
+  month_yr:
     x_petey_id: '1_6'
     type: string
     widget:
@@ -94,7 +178,26 @@ fields:
     label_source: llm
     x_petey_retype:
     - wide_widget_short_pattern:width=230
-  recycling_containment_1_operational_capacity_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: month_year
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: month_yr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: year -> yr'
+    x_petey_identifiers:
+      subject: month
+      suffix: yr
+  recycling_containment_operational_capacity_bbl_1:
     x_petey_id: '1_7'
     type: string
     widget:
@@ -109,7 +212,28 @@ fields:
     description: Operational Capacity, (bbl)B_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_1_produced_water_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_operational_capacity_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_operational_capacity_1_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: recycling_containment_operational_capacity
+      suffix: bbl
+      iteration: '1'
+      grid: p1-G1
+  recycling_containment_produced_water_received_bbl_1:
     x_petey_id: '1_8'
     type: string
     widget:
@@ -124,7 +248,28 @@ fields:
     description: Produced Water Received, (bbl)_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_1_other_fluid_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_produced_water_received_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_produced_water_received_1_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: recycling_containment_produced_water_received
+      suffix: bbl
+      iteration: '1'
+      grid: p1-G1
+  recycling_containment_other_fluid_received_bbl_1:
     x_petey_id: '1_9'
     type: string
     widget:
@@ -139,7 +284,28 @@ fields:
     description: Other Fluid Received, (bbl)_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_1_other_fluid_description:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_other_fluid_received_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_other_fluid_received_1_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: recycling_containment_other_fluid_received
+      suffix: bbl
+      iteration: '1'
+      grid: p1-G1
+  recycling_containment_other_fluid_description_txt_1:
     x_petey_id: '1_10'
     type: string
     semantic_type: description
@@ -156,7 +322,29 @@ fields:
       Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_1_volume_leaving_facility_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_other_fluid_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: recycling_containment_other_fluid_description_1_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt; first of a numbered set
+        gets 1'
+    x_petey_identifiers:
+      subject: recycling_containment_other_fluid_description
+      suffix: txt
+      iteration: '1'
+      grid: p1-G1
+  recycling_containment_volume_leaving_facility_bbl_1:
     x_petey_id: '1_11'
     type: string
     widget:
@@ -171,7 +359,28 @@ fields:
     description: Other Fluid Received, (bbl)_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_2_operational_capacity_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_volume_leaving_facility_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_volume_leaving_facility_1_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: recycling_containment_volume_leaving_facility
+      suffix: bbl
+      iteration: '1'
+      grid: p1-G1
+  recycling_containment_operational_capacity_bbl_2:
     x_petey_id: '1_13'
     type: string
     widget:
@@ -186,7 +395,28 @@ fields:
     description: Operational Capacity, (bbl)B_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_2_produced_water_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_operational_capacity_bbl_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_operational_capacity_2_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_operational_capacity
+      suffix: bbl
+      iteration: '2'
+      grid: p1-G1
+  recycling_containment_produced_water_received_bbl_2:
     x_petey_id: '1_14'
     type: string
     widget:
@@ -201,7 +431,28 @@ fields:
     description: Produced Water Received, (bbl)_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_2_other_fluid_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_produced_water_received_bbl_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_produced_water_received_2_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_produced_water_received
+      suffix: bbl
+      iteration: '2'
+      grid: p1-G1
+  recycling_containment_other_fluid_received_bbl_2:
     x_petey_id: '1_15'
     type: string
     widget:
@@ -216,7 +467,28 @@ fields:
     description: Other Fluid Received, (bbl)_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_2_other_fluid_description:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_other_fluid_received_bbl_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_other_fluid_received_2_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_other_fluid_received
+      suffix: bbl
+      iteration: '2'
+      grid: p1-G1
+  recycling_containment_other_fluid_description_txt_2:
     x_petey_id: '1_16'
     type: string
     semantic_type: description
@@ -233,7 +505,29 @@ fields:
       Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_2_volume_leaving_facility_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_other_fluid_description_2
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: recycling_containment_other_fluid_description_2_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt; number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_other_fluid_description
+      suffix: txt
+      iteration: '2'
+      grid: p1-G1
+  recycling_containment_volume_leaving_facility_bbl_2:
     x_petey_id: '1_12'
     type: string
     widget:
@@ -248,7 +542,28 @@ fields:
     description: Other Fluid Received, (bbl)_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_3_operational_capacity_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_volume_leaving_facility_bbl_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_volume_leaving_facility_2_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_volume_leaving_facility
+      suffix: bbl
+      iteration: '2'
+      grid: p1-G1
+  recycling_containment_operational_capacity_bbl_3:
     x_petey_id: '1_17'
     type: string
     widget:
@@ -263,7 +578,28 @@ fields:
     description: Operational Capacity, (bbl)B_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_3_produced_water_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_operational_capacity_bbl_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_operational_capacity_3_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_operational_capacity
+      suffix: bbl
+      iteration: '3'
+      grid: p1-G1
+  recycling_containment_produced_water_received_bbl_3:
     x_petey_id: '1_18'
     type: string
     widget:
@@ -278,7 +614,28 @@ fields:
     description: Produced Water Received, (bbl)_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_3_other_fluid_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_produced_water_received_bbl_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_produced_water_received_3_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_produced_water_received
+      suffix: bbl
+      iteration: '3'
+      grid: p1-G1
+  recycling_containment_other_fluid_received_bbl_3:
     x_petey_id: '1_19'
     type: string
     widget:
@@ -293,7 +650,28 @@ fields:
     description: Other Fluid Received, (bbl)_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_3_other_fluid_description:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_other_fluid_received_bbl_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_other_fluid_received_3_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_other_fluid_received
+      suffix: bbl
+      iteration: '3'
+      grid: p1-G1
+  recycling_containment_other_fluid_description_txt_3:
     x_petey_id: '1_20'
     type: string
     semantic_type: description
@@ -310,7 +688,29 @@ fields:
       Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_3_volume_leaving_facility_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_other_fluid_description_3
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: recycling_containment_other_fluid_description_3_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt; number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_other_fluid_description
+      suffix: txt
+      iteration: '3'
+      grid: p1-G1
+  recycling_containment_volume_leaving_facility_bbl_3:
     x_petey_id: '1_21'
     type: string
     widget:
@@ -322,10 +722,42 @@ fields:
       - 421.09600830078125
       widget_type: text
       path: Volume_3
-    description: Other Fluid Received, (bbl)_Recycling Containments
+    description: Volume Leaving Facility, (bbl) — Recycling Containments, row 3
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_4_operational_capacity_bbl:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Publisher field name is Volume_3, so the box holds volume leaving the
+        facility; the tooltip copied from the adjacent 'Other Fluid Received' column
+        contradicts the name, so the description is corrected while the name stands.
+      before:
+        type: string
+        description: Other Fluid Received, (bbl)_Recycling Containments
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_volume_leaving_facility_bbl_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_volume_leaving_facility_3_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_volume_leaving_facility
+      suffix: bbl
+      iteration: '3'
+      grid: p1-G1
+  recycling_containment_operational_capacity_bbl_4:
     x_petey_id: '1_22'
     type: string
     widget:
@@ -340,7 +772,28 @@ fields:
     description: Operational Capacity, (bbl)B_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_4_produced_water_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_operational_capacity_bbl_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_operational_capacity_4_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_operational_capacity
+      suffix: bbl
+      iteration: '4'
+      grid: p1-G1
+  recycling_containment_produced_water_received_bbl_4:
     x_petey_id: '1_23'
     type: string
     widget:
@@ -355,7 +808,28 @@ fields:
     description: Produced Water Received, (bbl)_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_4_other_fluid_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_produced_water_received_bbl_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_produced_water_received_4_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_produced_water_received
+      suffix: bbl
+      iteration: '4'
+      grid: p1-G1
+  recycling_containment_other_fluid_received_bbl_4:
     x_petey_id: '1_24'
     type: string
     widget:
@@ -370,7 +844,28 @@ fields:
     description: Other Fluid Received, (bbl)_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_4_other_fluid_description:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_other_fluid_received_bbl_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_other_fluid_received_4_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_other_fluid_received
+      suffix: bbl
+      iteration: '4'
+      grid: p1-G1
+  recycling_containment_other_fluid_description_txt_4:
     x_petey_id: '1_25'
     type: string
     semantic_type: description
@@ -387,7 +882,29 @@ fields:
       Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_4_volume_leaving_facility_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_other_fluid_description_4
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: recycling_containment_other_fluid_description_4_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt; number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_other_fluid_description
+      suffix: txt
+      iteration: '4'
+      grid: p1-G1
+  recycling_containment_volume_leaving_facility_bbl_4:
     x_petey_id: '1_26'
     type: string
     widget:
@@ -399,10 +916,42 @@ fields:
       - 442.4750061035156
       widget_type: text
       path: Volume_4
-    description: Other Fluid Received, (bbl)_Recycling Containments
+    description: Volume Leaving Facility, (bbl) - Recycling Containments (row 4)
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_5_operational_capacity_bbl:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Publisher field name is 'Volume'; the copied tooltip text ('Other Fluid
+        Received') contradicts the name and the column. Keep the name, correct the
+        description.
+      before:
+        type: string
+        description: Other Fluid Received, (bbl)_Recycling Containments
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_volume_leaving_facility_bbl_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_volume_leaving_facility_4_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_volume_leaving_facility
+      suffix: bbl
+      iteration: '4'
+      grid: p1-G1
+  recycling_containment_operational_capacity_bbl_5:
     x_petey_id: '1_27'
     type: string
     widget:
@@ -417,7 +966,28 @@ fields:
     description: Operational Capacity, (bbl)B_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_5_produced_water_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_operational_capacity_bbl_5
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_operational_capacity_5_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_operational_capacity
+      suffix: bbl
+      iteration: '5'
+      grid: p1-G1
+  recycling_containment_produced_water_received_bbl_5:
     x_petey_id: '1_28'
     type: string
     widget:
@@ -432,7 +1002,28 @@ fields:
     description: Produced Water Received, (bbl)_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_5_other_fluid_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_produced_water_received_bbl_5
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_produced_water_received_5_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_produced_water_received
+      suffix: bbl
+      iteration: '5'
+      grid: p1-G1
+  recycling_containment_other_fluid_received_bbl_5:
     x_petey_id: '1_29'
     type: string
     widget:
@@ -447,7 +1038,28 @@ fields:
     description: Other Fluid Received, (bbl)_Recycling Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_5_other_fluid_description:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_other_fluid_received_bbl_5
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_other_fluid_received_5_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_other_fluid_received
+      suffix: bbl
+      iteration: '5'
+      grid: p1-G1
+  recycling_containment_other_fluid_description_txt_5:
     x_petey_id: '1_30'
     type: string
     semantic_type: description
@@ -464,7 +1076,29 @@ fields:
       Containments
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_containment_5_volume_leaving_facility_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_other_fluid_description_5
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: recycling_containment_other_fluid_description_5_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt; number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_other_fluid_description
+      suffix: txt
+      iteration: '5'
+      grid: p1-G1
+  recycling_containment_volume_leaving_facility_bbl_5:
     x_petey_id: '1_31'
     type: string
     widget:
@@ -476,10 +1110,42 @@ fields:
       - 462.88299560546875
       widget_type: text
       path: Volume_5
-    description: Other Fluid Received, (bbl)_Recycling Containments
+    description: Volume Leaving Facility, (bbl) - Recycling Containments (row 5)
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_1_operational_capacity_bbl:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Publisher widget is 'Volume_5'; the inherited tooltip description names
+        a different column and contradicts the field name, so only the description
+        is corrected.
+      before:
+        type: string
+        description: Other Fluid Received, (bbl)_Recycling Containments
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: recycling_containment_volume_leaving_facility_bbl_5
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recycling_containment_volume_leaving_facility_5_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: recycling_containment_volume_leaving_facility
+      suffix: bbl
+      iteration: '5'
+      grid: p1-G1
+  above_ground_storage_tank_operational_capacity_bbl_1:
     x_petey_id: '1_32'
     type: string
     widget:
@@ -494,7 +1160,28 @@ fields:
     description: Operational Capacity, (bbl)B_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_1_produced_water_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_operational_capacity_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_operational_capacity_1_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_operational_capacity
+      suffix: bbl
+      iteration: '1'
+      grid: p1-G1
+  above_ground_storage_tank_produced_water_received_bbl_1:
     x_petey_id: '1_33'
     type: string
     widget:
@@ -509,7 +1196,28 @@ fields:
     description: Produced Water Received, (bbl)_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_1_other_fluid_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_produced_water_received_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_produced_water_received_1_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_produced_water_received
+      suffix: bbl
+      iteration: '1'
+      grid: p1-G1
+  above_ground_storage_tank_other_fluid_received_bbl_1:
     x_petey_id: '1_34'
     type: string
     widget:
@@ -524,7 +1232,28 @@ fields:
     description: Other Fluid Received, (bbl)_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_1_other_fluid_description:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_other_fluid_received_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_other_fluid_received_1_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_other_fluid_received
+      suffix: bbl
+      iteration: '1'
+      grid: p1-G1
+  above_ground_storage_tank_other_fluid_description_txt_1:
     x_petey_id: '1_35'
     type: string
     semantic_type: description
@@ -542,7 +1271,29 @@ fields:
       Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_1_volume_leaving_facility_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_other_fluid_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: above_ground_storage_tank_other_fluid_description_1_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt; first of a numbered set
+        gets 1'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_other_fluid_description
+      suffix: txt
+      iteration: '1'
+      grid: p1-G1
+  above_ground_storage_tank_volume_leaving_facility_bbl_1:
     x_petey_id: '1_36'
     type: string
     widget:
@@ -554,10 +1305,43 @@ fields:
       - 486.6570129394531
       widget_type: text
       path: Volume_6
-    description: Other Fluid Received, (bbl)_Recycling Containments
+    description: Volume Leaving Facility, (bbl) - Above Ground Storage Tanks (row
+      1)
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_facility_total_volume_leaving_facility_bbl:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Widget is 'Volume_6' in the Above Ground Storage Tanks block; the copied
+        tooltip names a Recycling Containments column and contradicts the name, so
+        the description is corrected.
+      before:
+        type: string
+        description: Other Fluid Received, (bbl)_Recycling Containments
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_volume_leaving_facility_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_volume_leaving_facility_1_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_volume_leaving_facility
+      suffix: bbl
+      iteration: '1'
+      grid: p1-G1
+  total_volume_leaving_facility_bbl:
     x_petey_id: '1_62'
     type: string
     widget:
@@ -569,10 +1353,25 @@ fields:
       - 610.8399658203125
       widget_type: text
       path: Volume_12
-    description: Other Fluid Received, (bbl)_Recycling Containments
+    description: Volume Leaving Facility, (bbl) — Recycling Facility Totals
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_2_operational_capacity_bbl:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Publisher field name Volume_12 is the totals-row volume column; the
+        stale 'Other Fluid Received' tooltip contradicts the name, so only the description
+        is corrected.
+      before:
+        type: string
+        description: Other Fluid Received, (bbl)_Recycling Containments
+      judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: total_volume_leaving_facility
+      suffix: bbl
+      grid: p1-G1
+  above_ground_storage_tank_operational_capacity_bbl_2:
     x_petey_id: '1_37'
     type: string
     widget:
@@ -587,7 +1386,28 @@ fields:
     description: Operational Capacity, (bbl)B_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_2_produced_water_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_operational_capacity_bbl_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_operational_capacity_2_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_operational_capacity
+      suffix: bbl
+      iteration: '2'
+      grid: p1-G1
+  above_ground_storage_tank_produced_water_received_bbl_2:
     x_petey_id: '1_38'
     type: string
     widget:
@@ -602,7 +1422,28 @@ fields:
     description: Produced Water Received, (bbl)_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_2_other_fluid_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_produced_water_received_bbl_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_produced_water_received_2_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_produced_water_received
+      suffix: bbl
+      iteration: '2'
+      grid: p1-G1
+  above_ground_storage_tank_other_fluid_received_bbl_2:
     x_petey_id: '1_39'
     type: string
     widget:
@@ -617,7 +1458,28 @@ fields:
     description: Other Fluid Received, (bbl)_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_2_other_fluid_description:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_other_fluid_received_bbl_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_other_fluid_received_2_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_other_fluid_received
+      suffix: bbl
+      iteration: '2'
+      grid: p1-G1
+  above_ground_storage_tank_other_fluid_description_txt_2:
     x_petey_id: '1_40'
     type: string
     semantic_type: description
@@ -635,7 +1497,29 @@ fields:
       Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_2_volume_leaving_facility_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_other_fluid_description_2
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: above_ground_storage_tank_other_fluid_description_2_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt; number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_other_fluid_description
+      suffix: txt
+      iteration: '2'
+      grid: p1-G1
+  above_ground_storage_tank_volume_leaving_facility_bbl_2:
     x_petey_id: '1_41'
     type: string
     widget:
@@ -647,10 +1531,42 @@ fields:
       - 505.572998046875
       widget_type: text
       path: Volume_7
-    description: Other Fluid Received, (bbl)_Recycling Containments
+    description: Volume Leaving Facility, (bbl) - Above Ground Storage Tanks (row
+      2)
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_3_operational_capacity_bbl:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Widget 'Volume_7' holds the volume-leaving-facility entry; the inherited
+        description names another column and contradicts the name.
+      before:
+        type: string
+        description: Other Fluid Received, (bbl)_Recycling Containments
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_volume_leaving_facility_bbl_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_volume_leaving_facility_2_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_volume_leaving_facility
+      suffix: bbl
+      iteration: '2'
+      grid: p1-G1
+  above_ground_storage_tank_operational_capacity_bbl_3:
     x_petey_id: '1_43'
     type: string
     widget:
@@ -665,7 +1581,28 @@ fields:
     description: Operational Capacity, (bbl)B_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_3_produced_water_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_operational_capacity_bbl_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_operational_capacity_3_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_operational_capacity
+      suffix: bbl
+      iteration: '3'
+      grid: p1-G1
+  above_ground_storage_tank_produced_water_received_bbl_3:
     x_petey_id: '1_44'
     type: string
     widget:
@@ -680,7 +1617,28 @@ fields:
     description: Produced Water Received, (bbl)_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_3_other_fluid_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_produced_water_received_bbl_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_produced_water_received_3_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_produced_water_received
+      suffix: bbl
+      iteration: '3'
+      grid: p1-G1
+  above_ground_storage_tank_other_fluid_received_bbl_3:
     x_petey_id: '1_45'
     type: string
     widget:
@@ -695,7 +1653,28 @@ fields:
     description: Other Fluid Received, (bbl)_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_3_other_fluid_description:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_other_fluid_received_bbl_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_other_fluid_received_3_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_other_fluid_received
+      suffix: bbl
+      iteration: '3'
+      grid: p1-G1
+  above_ground_storage_tank_other_fluid_description_txt_3:
     x_petey_id: '1_46'
     type: string
     semantic_type: description
@@ -713,7 +1692,29 @@ fields:
       Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_3_volume_leaving_facility_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_other_fluid_description_3
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: above_ground_storage_tank_other_fluid_description_3_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt; number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_other_fluid_description
+      suffix: txt
+      iteration: '3'
+      grid: p1-G1
+  above_ground_storage_tank_volume_leaving_facility_bbl_3:
     x_petey_id: '1_42'
     type: string
     widget:
@@ -725,10 +1726,42 @@ fields:
       - 525.4599609375
       widget_type: text
       path: Volume_8
-    description: Other Fluid Received, (bbl)_Recycling Containments
+    description: Volume Leaving Facility, (bbl) - Above Ground Storage Tanks (row
+      3)
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_4_operational_capacity_bbl:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Widget 'Volume_8'; the description copied from another column contradicts
+        the field name and is corrected.
+      before:
+        type: string
+        description: Other Fluid Received, (bbl)_Recycling Containments
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_volume_leaving_facility_bbl_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_volume_leaving_facility_3_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_volume_leaving_facility
+      suffix: bbl
+      iteration: '3'
+      grid: p1-G1
+  above_ground_storage_tank_operational_capacity_bbl_4:
     x_petey_id: '1_47'
     type: string
     widget:
@@ -743,7 +1776,28 @@ fields:
     description: Operational Capacity, (bbl)B_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_4_produced_water_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_operational_capacity_bbl_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_operational_capacity_4_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_operational_capacity
+      suffix: bbl
+      iteration: '4'
+      grid: p1-G1
+  above_ground_storage_tank_produced_water_received_bbl_4:
     x_petey_id: '1_48'
     type: string
     widget:
@@ -758,7 +1812,28 @@ fields:
     description: Produced Water Received, (bbl)_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_4_other_fluid_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_produced_water_received_bbl_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_produced_water_received_4_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_produced_water_received
+      suffix: bbl
+      iteration: '4'
+      grid: p1-G1
+  above_ground_storage_tank_other_fluid_received_bbl_4:
     x_petey_id: '1_49'
     type: string
     widget:
@@ -773,7 +1848,28 @@ fields:
     description: Other Fluid Received, (bbl)_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_4_other_fluid_description:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_other_fluid_received_bbl_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_other_fluid_received_4_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_other_fluid_received
+      suffix: bbl
+      iteration: '4'
+      grid: p1-G1
+  above_ground_storage_tank_other_fluid_description_txt_4:
     x_petey_id: '1_50'
     type: string
     semantic_type: description
@@ -791,7 +1887,29 @@ fields:
       Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_4_volume_leaving_facility_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_other_fluid_description_4
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: above_ground_storage_tank_other_fluid_description_4_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt; number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_other_fluid_description
+      suffix: txt
+      iteration: '4'
+      grid: p1-G1
+  above_ground_storage_tank_volume_leaving_facility_bbl_4:
     x_petey_id: '1_51'
     type: string
     widget:
@@ -803,10 +1921,42 @@ fields:
       - 546.3189697265625
       widget_type: text
       path: Volume_9
-    description: Other Fluid Received, (bbl)_Recycling Containments
+    description: Volume Leaving Facility, (bbl) - Above Ground Storage Tanks (row
+      4)
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_5_operational_capacity_bbl:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Widget 'Volume_9'; the inherited Recycling Containments description
+        contradicts both the name and the section, so only the description changes.
+      before:
+        type: string
+        description: Other Fluid Received, (bbl)_Recycling Containments
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_volume_leaving_facility_bbl_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_volume_leaving_facility_4_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_volume_leaving_facility
+      suffix: bbl
+      iteration: '4'
+      grid: p1-G1
+  above_ground_storage_tank_operational_capacity_bbl_5:
     x_petey_id: '1_53'
     type: string
     widget:
@@ -821,7 +1971,28 @@ fields:
     description: Operational Capacity, (bbl)B_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_5_produced_water_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_operational_capacity_bbl_5
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_operational_capacity_5_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_operational_capacity
+      suffix: bbl
+      iteration: '5'
+      grid: p1-G1
+  above_ground_storage_tank_produced_water_received_bbl_5:
     x_petey_id: '1_54'
     type: string
     widget:
@@ -836,7 +2007,28 @@ fields:
     description: Produced Water Received, (bbl)_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_5_other_fluid_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_produced_water_received_bbl_5
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_produced_water_received_5_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_produced_water_received
+      suffix: bbl
+      iteration: '5'
+      grid: p1-G1
+  above_ground_storage_tank_other_fluid_received_bbl_5:
     x_petey_id: '1_55'
     type: string
     widget:
@@ -851,7 +2043,28 @@ fields:
     description: Other Fluid Received, (bbl)_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_5_other_fluid_description:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_other_fluid_received_bbl_5
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_other_fluid_received_5_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_other_fluid_received
+      suffix: bbl
+      iteration: '5'
+      grid: p1-G1
+  above_ground_storage_tank_other_fluid_description_txt_5:
     x_petey_id: '1_56'
     type: string
     semantic_type: description
@@ -869,7 +2082,29 @@ fields:
       Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_5_volume_leaving_facility_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_other_fluid_description_5
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: above_ground_storage_tank_other_fluid_description_5_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt; number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_other_fluid_description
+      suffix: txt
+      iteration: '5'
+      grid: p1-G1
+  above_ground_storage_tank_volume_leaving_facility_bbl_5:
     x_petey_id: '1_52'
     type: string
     widget:
@@ -881,10 +2116,43 @@ fields:
       - 567.177978515625
       widget_type: text
       path: Volume_10
-    description: Other Fluid Received, (bbl)_Recycling Containments
+    description: Volume Leaving Facility, (bbl) — Above Ground Storage Tanks, row
+      5
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_6_operational_capacity_bbl:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Publisher field name Volume_10 confirms the volume-leaving column; the
+        tooltip text copied from the Recycling Containments 'Other Fluid Received'
+        column contradicts the name, so the description is corrected.
+      before:
+        type: string
+        description: Other Fluid Received, (bbl)_Recycling Containments
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_volume_leaving_facility_bbl_5
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_volume_leaving_facility_5_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_volume_leaving_facility
+      suffix: bbl
+      iteration: '5'
+      grid: p1-G1
+  above_ground_storage_tank_operational_capacity_bbl_6:
     x_petey_id: '1_57'
     type: string
     widget:
@@ -899,7 +2167,28 @@ fields:
     description: Operational Capacity, (bbl)B_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_6_produced_water_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_operational_capacity_bbl_6
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_operational_capacity_6_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_operational_capacity
+      suffix: bbl
+      iteration: '6'
+      grid: p1-G1
+  above_ground_storage_tank_produced_water_received_bbl_6:
     x_petey_id: '1_58'
     type: string
     widget:
@@ -914,7 +2203,28 @@ fields:
     description: Produced Water Received, (bbl)_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_6_other_fluid_received_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_produced_water_received_bbl_6
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_produced_water_received_6_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_produced_water_received
+      suffix: bbl
+      iteration: '6'
+      grid: p1-G1
+  above_ground_storage_tank_other_fluid_received_bbl_6:
     x_petey_id: '1_59'
     type: string
     widget:
@@ -929,7 +2239,28 @@ fields:
     description: Other Fluid Received, (bbl)_Above Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_6_other_fluid_description:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_other_fluid_received_bbl_6
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_other_fluid_received_6_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_other_fluid_received
+      suffix: bbl
+      iteration: '6'
+      grid: p1-G1
+  above_ground_storage_tank_other_fluid_description_txt_6:
     x_petey_id: '1_60'
     type: string
     semantic_type: description
@@ -947,7 +2278,29 @@ fields:
       Ground Storage Tanks
     x_petey_description_source: tooltip
     label_source: llm
-  above_ground_storage_tank_6_volume_leaving_facility_bbl:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_other_fluid_description_6
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: above_ground_storage_tank_other_fluid_description_6_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt; number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_other_fluid_description
+      suffix: txt
+      iteration: '6'
+      grid: p1-G1
+  above_ground_storage_tank_volume_leaving_facility_bbl_6:
     x_petey_id: '1_61'
     type: string
     widget:
@@ -959,10 +2312,42 @@ fields:
       - 589.009033203125
       widget_type: text
       path: Volume_11
-    description: Other Fluid Received, (bbl)_Recycling Containments
+    description: Volume Leaving Facility, (bbl) - Above Ground Storage Tanks (row
+      6)
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_facility_total_produced_water_received_bbl:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Widget 'Volume_11' in the Above Ground Storage Tanks block; the copied
+        description names a different column and contradicts the name.
+      before:
+        type: string
+        description: Other Fluid Received, (bbl)_Recycling Containments
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: above_ground_storage_tank_volume_leaving_facility_bbl_6
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: above_ground_storage_tank_volume_leaving_facility_6_bbl
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: above_ground_storage_tank_volume_leaving_facility
+      suffix: bbl
+      iteration: '6'
+      grid: p1-G1
+  total_produced_water_received_bbl:
     x_petey_id: '1_63'
     type: string
     widget:
@@ -977,7 +2362,11 @@ fields:
     description: Produced Water Received, (bbl)_Recycling Facility Totalsc
     x_petey_description_source: tooltip
     label_source: llm
-  recycling_facility_total_other_fluid_received_bbl:
+    x_petey_identifiers:
+      subject: total_produced_water_received
+      suffix: bbl
+      grid: p1-G1
+  total_other_fluid_received_bbl:
     x_petey_id: '1_64'
     type: string
     widget:
@@ -992,3 +2381,403 @@ fields:
     description: Other Fluid Received, (bbl)_Recycling Facility Totalsc
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: total_other_fluid_received
+      suffix: bbl
+      grid: p1-G1
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 45
+  collisions:
+  - original_label: recycling_containment_operational_capacity_bbl
+    assigned_label: recycling_containment_operational_capacity_bbl_2
+    page: 1
+    rect:
+    - 118.19999694824219
+    - 381.0
+    - 192.36000061035156
+    - 400.0799865722656
+  - original_label: recycling_containment_produced_water_received_bbl
+    assigned_label: recycling_containment_produced_water_received_bbl_2
+    page: 1
+    rect:
+    - 194.63999938964844
+    - 381.0
+    - 282.3599853515625
+    - 400.0799865722656
+  - original_label: recycling_containment_other_fluid_received_bbl
+    assigned_label: recycling_containment_other_fluid_received_bbl_2
+    page: 1
+    rect:
+    - 284.6400146484375
+    - 381.0
+    - 354.8399963378906
+    - 400.0799865722656
+  - original_label: recycling_containment_other_fluid_description
+    assigned_label: recycling_containment_other_fluid_description_2
+    page: 1
+    rect:
+    - 357.1199951171875
+    - 381.0
+    - 458.2799987792969
+    - 400.0799865722656
+  - original_label: recycling_containment_volume_leaving_facility_bbl
+    assigned_label: recycling_containment_volume_leaving_facility_bbl_2
+    page: 1
+    rect:
+    - 460.0299987792969
+    - 380.635986328125
+    - 586.593994140625
+    - 400.68798828125
+  - original_label: recycling_containment_operational_capacity_bbl
+    assigned_label: recycling_containment_operational_capacity_bbl_3
+    page: 1
+    rect:
+    - 118.19999694824219
+    - 401.8800048828125
+    - 192.36000061035156
+    - 420.9599914550781
+  - original_label: recycling_containment_produced_water_received_bbl
+    assigned_label: recycling_containment_produced_water_received_bbl_3
+    page: 1
+    rect:
+    - 194.63999938964844
+    - 401.8800048828125
+    - 282.3599853515625
+    - 420.9599914550781
+  - original_label: recycling_containment_other_fluid_received_bbl
+    assigned_label: recycling_containment_other_fluid_received_bbl_3
+    page: 1
+    rect:
+    - 284.6400146484375
+    - 401.8800048828125
+    - 354.8399963378906
+    - 420.9599914550781
+  - original_label: recycling_containment_other_fluid_description
+    assigned_label: recycling_containment_other_fluid_description_3
+    page: 1
+    rect:
+    - 357.1199951171875
+    - 401.8800048828125
+    - 458.2799987792969
+    - 420.9599914550781
+  - original_label: recycling_containment_volume_leaving_facility_bbl
+    assigned_label: recycling_containment_volume_leaving_facility_bbl_3
+    page: 1
+    rect:
+    - 459.0580139160156
+    - 401.04400634765625
+    - 585.6229858398438
+    - 421.09600830078125
+  - original_label: recycling_containment_operational_capacity_bbl
+    assigned_label: recycling_containment_operational_capacity_bbl_4
+    page: 1
+    rect:
+    - 118.19999694824219
+    - 422.8800048828125
+    - 192.36000061035156
+    - 441.9599914550781
+  - original_label: recycling_containment_produced_water_received_bbl
+    assigned_label: recycling_containment_produced_water_received_bbl_4
+    page: 1
+    rect:
+    - 194.63999938964844
+    - 422.8800048828125
+    - 282.3599853515625
+    - 441.9599914550781
+  - original_label: recycling_containment_other_fluid_received_bbl
+    assigned_label: recycling_containment_other_fluid_received_bbl_4
+    page: 1
+    rect:
+    - 284.6400146484375
+    - 422.8800048828125
+    - 354.8399963378906
+    - 441.9599914550781
+  - original_label: recycling_containment_other_fluid_description
+    assigned_label: recycling_containment_other_fluid_description_4
+    page: 1
+    rect:
+    - 357.1199951171875
+    - 422.8800048828125
+    - 458.2799987792969
+    - 441.9599914550781
+  - original_label: recycling_containment_volume_leaving_facility_bbl
+    assigned_label: recycling_containment_volume_leaving_facility_bbl_4
+    page: 1
+    rect:
+    - 460.0299987792969
+    - 422.4230041503906
+    - 586.593994140625
+    - 442.4750061035156
+  - original_label: recycling_containment_operational_capacity_bbl
+    assigned_label: recycling_containment_operational_capacity_bbl_5
+    page: 1
+    rect:
+    - 118.19999694824219
+    - 443.8800048828125
+    - 192.36000061035156
+    - 462.9599914550781
+  - original_label: recycling_containment_produced_water_received_bbl
+    assigned_label: recycling_containment_produced_water_received_bbl_5
+    page: 1
+    rect:
+    - 194.63999938964844
+    - 443.8800048828125
+    - 282.3599853515625
+    - 462.9599914550781
+  - original_label: recycling_containment_other_fluid_received_bbl
+    assigned_label: recycling_containment_other_fluid_received_bbl_5
+    page: 1
+    rect:
+    - 284.6400146484375
+    - 443.8800048828125
+    - 354.8399963378906
+    - 462.9599914550781
+  - original_label: recycling_containment_other_fluid_description
+    assigned_label: recycling_containment_other_fluid_description_5
+    page: 1
+    rect:
+    - 357.1199951171875
+    - 443.8800048828125
+    - 458.2799987792969
+    - 462.9599914550781
+  - original_label: recycling_containment_volume_leaving_facility_bbl
+    assigned_label: recycling_containment_volume_leaving_facility_bbl_5
+    page: 1
+    rect:
+    - 459.0580139160156
+    - 442.83099365234375
+    - 585.6229858398438
+    - 462.88299560546875
+  - original_label: above_ground_storage_tank_operational_capacity_bbl
+    assigned_label: above_ground_storage_tank_operational_capacity_bbl_2
+    page: 1
+    rect:
+    - 118.19999694824219
+    - 486.9599914550781
+    - 192.36000061035156
+    - 506.0400085449219
+  - original_label: above_ground_storage_tank_produced_water_received_bbl
+    assigned_label: above_ground_storage_tank_produced_water_received_bbl_2
+    page: 1
+    rect:
+    - 194.63999938964844
+    - 486.9599914550781
+    - 282.3599853515625
+    - 506.0400085449219
+  - original_label: above_ground_storage_tank_other_fluid_received_bbl
+    assigned_label: above_ground_storage_tank_other_fluid_received_bbl_2
+    page: 1
+    rect:
+    - 284.6400146484375
+    - 486.9599914550781
+    - 354.8399963378906
+    - 506.0400085449219
+  - original_label: above_ground_storage_tank_other_fluid_description
+    assigned_label: above_ground_storage_tank_other_fluid_description_2
+    page: 1
+    rect:
+    - 357.1199951171875
+    - 486.9599914550781
+    - 458.2799987792969
+    - 506.0400085449219
+  - original_label: above_ground_storage_tank_volume_leaving_facility_bbl
+    assigned_label: above_ground_storage_tank_volume_leaving_facility_bbl_2
+    page: 1
+    rect:
+    - 459.96099853515625
+    - 485.52099609375
+    - 586.5250244140625
+    - 505.572998046875
+  - original_label: above_ground_storage_tank_operational_capacity_bbl
+    assigned_label: above_ground_storage_tank_operational_capacity_bbl_3
+    page: 1
+    rect:
+    - 118.19999694824219
+    - 507.9599914550781
+    - 192.36000061035156
+    - 527.0400390625
+  - original_label: above_ground_storage_tank_produced_water_received_bbl
+    assigned_label: above_ground_storage_tank_produced_water_received_bbl_3
+    page: 1
+    rect:
+    - 194.63999938964844
+    - 507.9599914550781
+    - 282.3599853515625
+    - 527.0400390625
+  - original_label: above_ground_storage_tank_other_fluid_received_bbl
+    assigned_label: above_ground_storage_tank_other_fluid_received_bbl_3
+    page: 1
+    rect:
+    - 284.6400146484375
+    - 507.9599914550781
+    - 354.8399963378906
+    - 527.0400390625
+  - original_label: above_ground_storage_tank_other_fluid_description
+    assigned_label: above_ground_storage_tank_other_fluid_description_3
+    page: 1
+    rect:
+    - 357.1199951171875
+    - 507.9599914550781
+    - 458.2799987792969
+    - 527.0400390625
+  - original_label: above_ground_storage_tank_volume_leaving_facility_bbl
+    assigned_label: above_ground_storage_tank_volume_leaving_facility_bbl_3
+    page: 1
+    rect:
+    - 459.44000244140625
+    - 505.4079895019531
+    - 586.0050048828125
+    - 525.4599609375
+  - original_label: above_ground_storage_tank_operational_capacity_bbl
+    assigned_label: above_ground_storage_tank_operational_capacity_bbl_4
+    page: 1
+    rect:
+    - 118.19999694824219
+    - 528.8399658203125
+    - 192.36000061035156
+    - 547.9199829101562
+  - original_label: above_ground_storage_tank_produced_water_received_bbl
+    assigned_label: above_ground_storage_tank_produced_water_received_bbl_4
+    page: 1
+    rect:
+    - 194.63999938964844
+    - 528.8399658203125
+    - 282.3599853515625
+    - 547.9199829101562
+  - original_label: above_ground_storage_tank_other_fluid_received_bbl
+    assigned_label: above_ground_storage_tank_other_fluid_received_bbl_4
+    page: 1
+    rect:
+    - 284.6400146484375
+    - 528.8399658203125
+    - 354.8399963378906
+    - 547.9199829101562
+  - original_label: above_ground_storage_tank_other_fluid_description
+    assigned_label: above_ground_storage_tank_other_fluid_description_4
+    page: 1
+    rect:
+    - 357.1199951171875
+    - 528.8399658203125
+    - 458.2799987792969
+    - 547.9199829101562
+  - original_label: above_ground_storage_tank_volume_leaving_facility_bbl
+    assigned_label: above_ground_storage_tank_volume_leaving_facility_bbl_4
+    page: 1
+    rect:
+    - 460.8630065917969
+    - 526.2669677734375
+    - 587.427978515625
+    - 546.3189697265625
+  - original_label: above_ground_storage_tank_operational_capacity_bbl
+    assigned_label: above_ground_storage_tank_operational_capacity_bbl_5
+    page: 1
+    rect:
+    - 118.19999694824219
+    - 549.8399658203125
+    - 192.36000061035156
+    - 568.9199829101562
+  - original_label: above_ground_storage_tank_produced_water_received_bbl
+    assigned_label: above_ground_storage_tank_produced_water_received_bbl_5
+    page: 1
+    rect:
+    - 194.63999938964844
+    - 549.8399658203125
+    - 282.3599853515625
+    - 568.9199829101562
+  - original_label: above_ground_storage_tank_other_fluid_received_bbl
+    assigned_label: above_ground_storage_tank_other_fluid_received_bbl_5
+    page: 1
+    rect:
+    - 284.6400146484375
+    - 549.8399658203125
+    - 354.8399963378906
+    - 568.9199829101562
+  - original_label: above_ground_storage_tank_other_fluid_description
+    assigned_label: above_ground_storage_tank_other_fluid_description_5
+    page: 1
+    rect:
+    - 357.1199951171875
+    - 549.8399658203125
+    - 458.2799987792969
+    - 568.9199829101562
+  - original_label: above_ground_storage_tank_volume_leaving_facility_bbl
+    assigned_label: above_ground_storage_tank_volume_leaving_facility_bbl_5
+    page: 1
+    rect:
+    - 459.3710021972656
+    - 547.1259765625
+    - 585.9349975585938
+    - 567.177978515625
+  - original_label: above_ground_storage_tank_operational_capacity_bbl
+    assigned_label: above_ground_storage_tank_operational_capacity_bbl_6
+    page: 1
+    rect:
+    - 118.19999694824219
+    - 570.719970703125
+    - 192.36000061035156
+    - 589.9199829101562
+  - original_label: above_ground_storage_tank_produced_water_received_bbl
+    assigned_label: above_ground_storage_tank_produced_water_received_bbl_6
+    page: 1
+    rect:
+    - 194.63999938964844
+    - 570.719970703125
+    - 282.3599853515625
+    - 589.9199829101562
+  - original_label: above_ground_storage_tank_other_fluid_received_bbl
+    assigned_label: above_ground_storage_tank_other_fluid_received_bbl_6
+    page: 1
+    rect:
+    - 284.6400146484375
+    - 570.719970703125
+    - 354.8399963378906
+    - 589.9199829101562
+  - original_label: above_ground_storage_tank_other_fluid_description
+    assigned_label: above_ground_storage_tank_other_fluid_description_6
+    page: 1
+    rect:
+    - 357.1199951171875
+    - 570.719970703125
+    - 458.2799987792969
+    - 589.9199829101562
+  - original_label: above_ground_storage_tank_volume_leaving_facility_bbl
+    assigned_label: above_ground_storage_tank_volume_leaving_facility_bbl_6
+    page: 1
+    rect:
+    - 460.79400634765625
+    - 570.9010009765625
+    - 587.3579711914062
+    - 589.009033203125
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 1
+x_petey_page_check:
+  when: '2026-10-15 12:19:12'
+  model: claude-opus-5
+  prompt: 2ddd7670
+  pages:
+  - 1
+  fields: 64
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/revised_c_148_form_january_2022__8b5ca4__d448b215.json
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: revised_c_148_form_january_2022_20261015_120316
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/revised_c_148_form_january_2022.bpt
+  when: '2026-10-15 12:03:51'
+x_petey_run:
+  record: runs/judge_eval/form_runs/revised_c_148_form_january_2022.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 4
+  review_rounds: 2
+  when: '2026-10-15 12:03:52'

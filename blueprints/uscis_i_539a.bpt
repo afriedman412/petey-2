@@ -1,0 +1,3968 @@
+bpt_version: '1.1'
+name: uscis_i_539a
+form_version: null
+source_pdf: i-539a.pdf
+source_pdf_hash: 942ff15c1b102b4365b1273af5907c8fb413dcca
+source_pages:
+- 1
+- 2
+- 3
+- 4
+- 5
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 23:05:24'
+fields:
+  g28_attached_ind:
+    x_petey_id: '1_1'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 156.50399780273438
+      - 103.0009765625
+      - 166.50399780273438
+      - 113.0009765625
+      widget_type: checkbox
+      path: form1[0].#subform[0].CheckBox1[0]
+    description: To be completed by an Attorney or Accredited Representative (if any).
+      Select this box if Form G-28 or G-28 I is attached.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: g28_attached
+      suffix: ind
+  attorney_state_bar_nbr:
+    x_petey_id: '1_2'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 264.00201416015625
+      - 126.00299072265625
+      - 384.0039978027344
+      - 144.00299072265625
+      widget_type: text
+      path: form1[0].#subform[0].AttorneyStateBarNumber[0]
+    description: To be completed by an attorney or accredited representative (if any).
+      Enter Attorney State Bar Number (if applicable).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=120
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: attorney_state_bar_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_state_bar_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: attorney_state_bar
+      suffix: nbr
+  attorney_uscis_online_account_nbr:
+    x_petey_id: '1_3'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{12}$
+    widget:
+      page: 1
+      rect:
+      - 396.0
+      - 126.00299072265625
+      - 570.010009765625
+      - 144.00299072265625
+      widget_type: text
+      path: form1[0].#subform[0].USCISOnlineAcctNumber[0]
+    description: To be completed by an attorney or accredited representative (if any).
+      Enter Attorney or Accredited Representative U S C I S Online Account Number
+      (if any).
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999999999999}
+      pictures:
+        format:
+        - text{999999999999}
+        ui:
+        - text{999999999999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: attorney_uscis_online_account_number
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{12}$
+      to:
+        name: attorney_uscis_online_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{12}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: attorney_uscis_online_account
+      suffix: nbr
+  last_nm_1:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 1
+      rect:
+      - 60.000999450683594
+      - 348.0010070800781
+      - 234.0
+      - 366.0010070800781
+      widget_type: text
+      path: form1[0].#subform[0].P2_Line1a_FamilyName[0]
+    description: Part 2. Information About You. 1. Your Full Legal Name. Enter Family
+      Name (Last Name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: last_1_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: last
+      suffix: nm
+      iteration: '1'
+  first_nm_1:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 1
+      rect:
+      - 240.00100708007812
+      - 348.0010070800781
+      - 407.9989929199219
+      - 366.0010070800781
+      widget_type: text
+      path: form1[0].#subform[0].P2_Line1b_GivenName[0]
+    description: Part 2. Information About You. 1. Your Full Legal Name. Enter Given
+      Name (First Name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: first_name
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: first_1_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: first
+      suffix: nm
+      iteration: '1'
+  middle_nm_1:
+    x_petey_id: '1_9'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 414.0
+      - 348.0010070800781
+      - 576.0
+      - 366.0010070800781
+      widget_type: text
+      path: form1[0].#subform[0].P2_Line1c_MiddleName[0]
+    description: Part 2. Information About You. 1. Your Full Legal Name. Enter Middle
+      Name (if applicable).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: middle_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: middle_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: middle
+      suffix: nm
+      iteration: '1'
+  birth_dt:
+    x_petey_id: '1_10'
+    type: date
+    semantic_type: birth_date
+    widget:
+      page: 1
+      rect:
+      - 60.2869987487793
+      - 384.0010070800781
+      - 192.28799438476562
+      - 402.0010070800781
+      widget_type: text
+      path: form1[0].#subform[0].SupA_Line2_DateOfBirth[0]
+    description: Part 2. Information About You. 2. Enter Date of Birth. Enter as 2-digit
+      Month, 2-digit Day, and 4-digit Year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/DD/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
+    label_source: llm
+    x_petey_identifiers:
+      subject: birth
+      suffix: dt
+  country_of_birth_cd:
+    x_petey_id: '1_11'
+    type: string
+    semantic_type: country
+    widget:
+      page: 1
+      rect:
+      - 234.0260009765625
+      - 383.99798583984375
+      - 468.2699890136719
+      - 401.99798583984375
+      widget_type: text
+      path: form1[0].#subform[0].SupA_Line3_CountryOfBirth[0]
+    description: Part 2. Information About You. 3. Enter Country of Birth.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: country_of_birth
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: country_of_birth_cd
+        type: string
+        semantic_type: country
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      subject: country_of_birth
+      suffix: cd
+  country_of_citizenship_cd:
+    x_petey_id: '1_12'
+    type: string
+    semantic_type: country
+    widget:
+      page: 1
+      rect:
+      - 60.00899887084961
+      - 419.99798583984375
+      - 299.52801513671875
+      - 437.99798583984375
+      widget_type: text
+      path: form1[0].#subform[0].SupA_Line1f_CountryOfCitz[0]
+    description: Part 2. Information About You. 4. Enter Country of Citizenship or
+      Nationality.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: country_of_citizenship
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: country_of_citizenship_cd
+        type: string
+        semantic_type: country
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      subject: country_of_citizenship
+      suffix: cd
+  ssn:
+    x_petey_id: '1_13'
+    type: string
+    semantic_type: ssn
+    pattern: ^\d{9}$
+    widget:
+      page: 1
+      rect:
+      - 352.5169982910156
+      - 419.99798583984375
+      - 498.1809997558594
+      - 437.99798583984375
+      widget_type: text
+      path: form1[0].#subform[0].SupA_Line1g_SSN[0]
+    description: Part 2. Information About You. 5. Enter U.S. Social Security Number,
+      if any. Must be 9 digits; no dashes.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999999999}
+      pictures:
+        format:
+        - text{999999999}
+        ui:
+        - text{999999999}
+    label_source: llm
+    x_petey_identifiers:
+      suffix: ssn
+  alien_registration_nbr:
+    x_petey_id: '1_14'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 82.697998046875
+      - 456.0010070800781
+      - 252.0
+      - 474.0010070800781
+      widget_type: text
+      path: form1[0].#subform[0].#area[0].Pt1Line6_AlienNumber[0]
+    description: Part 2. Information About You. 6. Enter Alien Registration Number
+      (A. Number), if any. Must be 9 digits; no dashes.
+    x_petey_description_source: tooltip
+    pattern: ^\d{9}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999999999}
+      pictures:
+        format:
+        - text{999999999}
+        ui:
+        - text{999999999}
+    label_source: llm
+    x_petey_identifiers:
+      subject: alien_registration
+      suffix: nbr
+  arrival_dt:
+    x_petey_id: '1_15'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 60.000999450683594
+      - 510.0010070800781
+      - 209.99899291992188
+      - 528.0009765625
+      widget_type: text
+      path: form1[0].#subform[0].SupA_Line1i_DateOfArrival[0]
+    description: Part 2. Information About You. 7. Provide Information About Your
+      Most Recent Entry Into the United States. Enter Date of Arrival. Enter as 2-digit
+      Month, 2-digit Day, and 4-digit Year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/DD/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
+    label_source: llm
+    x_petey_identifiers:
+      subject: arrival
+      suffix: dt
+  i94_arrival_departure_record_nbr:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 228.9320068359375
+      - 510.0039978027344
+      - 402.0010070800781
+      - 528.0040283203125
+      widget_type: text
+      path: form1[0].#subform[0].SupA_Line1j_ArrivalDeparture[0]
+    description: Part 2. Information About You. 7. Provide Information About Your
+      Most Recent Entry Into the United States. Enter I-94 Arrival-Departure Record
+      Number.
+    x_petey_description_source: tooltip
+    pattern: ^\d{11}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999999999}
+      pictures:
+        format:
+        - text{99999999999}
+        ui:
+        - text{99999999999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:22:11'
+      from:
+        name: i94_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{11}$
+      to:
+        name: i94_arrival_departure_record_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{11}$
+      record: runs/hand_review/je__uscis_i_539a.json
+    x_petey_identifiers:
+      subject: i94_arrival_departure_record
+      suffix: nbr
+  passport_nbr:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 407.9989929199219
+      - 510.0010070800781
+      - 576.2039794921875
+      - 528.0009765625
+      widget_type: text
+      path: form1[0].#subform[0].SupA_Line1k_Passport[0]
+    description: Part 2. Information About You. 7. Provide Information About Your
+      Most Recent Entry Into the United States. Enter Passport Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: passport_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: passport_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: passport
+      suffix: nbr
+  travel_document_nbr:
+    x_petey_id: '1_18'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 60.04100036621094
+      - 558.0
+      - 210.1750030517578
+      - 576.0
+      widget_type: text
+      path: form1[0].#subform[0].SupA_Line1l_TravelDoc[0]
+    description: Part 2. Information About You. 7. Provide Information About Your
+      Most Recent Entry Into the United States. Enter Travel Document Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: travel_document_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: travel_document_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: travel_document
+      suffix: nbr
+  passport_or_travel_doc_country_of_issuance_cd:
+    x_petey_id: '1_19'
+    type: string
+    semantic_type: country
+    widget:
+      page: 1
+      rect:
+      - 216.03700256347656
+      - 558.0
+      - 402.3210144042969
+      - 576.0
+      widget_type: text
+      path: form1[0].#subform[0].SupA_Line1m_CountryOfIssuance[0]
+    description: Part 2. Information About You. 7. Provide Information About Your
+      Most Recent Entry Into the United States. Enter Country of Passport or Travel
+      Document Issuance.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: passport_or_travel_doc_country_of_issuance
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: passport_or_travel_doc_country_of_issuance_cd
+        type: string
+        semantic_type: country
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      subject: passport_or_travel_doc_country_of_issuance
+      suffix: cd
+  filer_last_nm:
+    x_petey_id: '1_4'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 1
+      rect:
+      - 60.000999450683594
+      - 227.9990234375
+      - 234.0
+      - 245.9990234375
+      widget_type: text
+      path: form1[0].#subform[0].P1Line1a_FamilyName[0]
+    description: Part 1. Information About the Person Filing Form I-5 39. 1. Your
+      Full Legal Name. Enter Family Name (Last Name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: filer_last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: filer_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: filer_last
+      suffix: nm
+  filer_first_nm:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 1
+      rect:
+      - 240.00100708007812
+      - 227.9990234375
+      - 407.9989929199219
+      - 245.9990234375
+      widget_type: text
+      path: form1[0].#subform[0].P1_Line1b_GivenName[0]
+    description: Part 1. Information About the Person Filing Form I-5 39. 1. Your
+      Full Legal Name. Enter Given Name (First Name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: filer_first_name
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: filer_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: filer_first
+      suffix: nm
+  filer_middle_nm:
+    x_petey_id: '1_6'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 414.0
+      - 227.9990234375
+      - 576.0
+      - 245.9990234375
+      widget_type: text
+      path: form1[0].#subform[0].P1_Line1c_MiddleName[0]
+    description: Part 1. Information About the Person Filing Form I-5 39. 1. Your
+      Full Legal Name. Enter Middle Name (if applicable).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: filer_middle_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: filer_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: filer_middle
+      suffix: nm
+  passport_or_travel_doc_expiration_dt:
+    x_petey_id: '1_20'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 408.2829895019531
+      - 558.0
+      - 575.9580078125
+      - 576.0
+      widget_type: text
+      path: form1[0].#subform[0].SupA_Line1n_ExpDate[0]
+    description: Part 2. Information About You. 7. Provide Information About Your
+      Most Recent Entry Into the United States. Enter Passport or Travel Document
+      Expiration Date. Enter as 2-digit Month, 2-digit Day, and 4-digit Year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/DD/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
+    label_source: llm
+    x_petey_identifiers:
+      subject: passport_or_travel_doc_expiration
+      suffix: dt
+  current_nonimmigrant_status:
+    x_petey_id: '1_21'
+    type: category
+    widget:
+      page: 1
+      rect:
+      - 60.000999450683594
+      - 593.9970092773438
+      - 402.0010070800781
+      - 611.9970092773438
+      widget_type: combobox
+      path: form1[0].#subform[0].Pt1Line15a_NewStatus[0]
+    description: Part 2. Information About You. 8. Current Nonimmigrant Status (for
+      example, F-1 student, H-4 dependent, etc.). Select Current Nonimmigrant Status
+      from the list.
+    x_petey_description_source: tooltip
+    values:
+    - 1B1
+    - 1B2
+    - 1B3
+    - 1B4
+    - 1B5
+    - 1BS
+    - A1
+    - A2
+    - A3
+    - AS
+    - ASD
+    - AW
+    - B1
+    - B1A
+    - B1B
+    - B1C
+    - B1D
+    - B2
+    - BE
+    - C1
+    - C2
+    - C3
+    - C4
+    - CC
+    - CH
+    - CP
+    - CW1
+    - CW2
+    - D1
+    - D2
+    - DA
+    - DE
+    - DT
+    - DX
+    - E1
+    - E2
+    - E2C
+    - E3
+    - '0'
+    - EAO
+    - EWI
+    - F1
+    - F2
+    - FSM
+    - FUG
+    - G1
+    - G2
+    - G3
+    - G4
+    - G5
+    - GB
+    - GT
+    - H1
+    - H1A
+    - H1B
+    - H1C
+    - H2
+    - H2A
+    - H2B
+    - H2R
+    - H3
+    - H3A
+    - H3B
+    - H4
+    - HSC
+    - I
+    - IMM
+    - IN
+    - J1
+    - J1S
+    - J2
+    - J2S
+    - K1
+    - K2
+    - K3
+    - K4
+    - L1
+    - L1A
+    - L1B
+    - L2
+    - LZ
+    - M1
+    - M2
+    - MIS
+    - ML
+    - N1
+    - N2
+    - N3
+    - N4
+    - N5
+    - N6
+    - N7
+    - N8
+    - N9
+    - O1
+    - O1A
+    - O1B
+    - O2
+    - O3
+    - OP
+    - P1
+    - P1A
+    - P1B
+    - P1S
+    - P2
+    - P2S
+    - P3
+    - P3S
+    - P4
+    - PAL
+    - PAR
+    - PI
+    - Q1
+    - '1'
+    - Q3
+    - R1
+    - R2
+    - RE
+    - RE5
+    - RW
+    - S1
+    - S2
+    - S9
+    - SDF
+    - ST
+    - T1
+    - T2
+    - T3
+    - T4
+    - T5
+    - TB
+    - TC
+    - TD
+    - TN1
+    - TN2
+    - TWO
+    - U1
+    - U2
+    - U3
+    - U4
+    - U5
+    - UN
+    - UU
+    - V1
+    - V2
+    - V3
+    - WB
+    - WD
+    - WI
+    - WT
+    - X
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      labels:
+        ? ''
+        : ''
+        1B1: 1B1 - H-1B1 SPECIALITY OCCUPATION
+        1B2: 1B2 - H-1B2 DoD SPECIALITY
+        1B3: 1B3 - H-1B3 FASHION MODEL
+        1B4: 1B4 - H-1B4 UNIQUE PGM ARTIST-ENT
+        1B5: 1B5 - H-1B5 ALIEN ATHLETE
+        1BS: 1BS - SUPPORT PERSON OF H-1
+        A1: A1 - AMBASSADOR, DIPLOMAT
+        A2: A2 - OTHER DIPLOMATIC OFFICIALS
+        A3: A3 - ATTENDANTS OF A-1, A-2
+        AS: AS - ASYLUM
+        ASD: ASD - ASYLUM STATUS DENIED
+        AW: AW - RAW APPLIED FOR AT A PORT
+        B1: B1 - TEMPORARY VISITOR FOR BUSINESS
+        B1A: B1A - NI PERSNL-DOM SRVANT OF NI EMP
+        B1B: B1B - NI DOMESTIC SERVANT OF USC
+        B1C: B1C - NI EMPLOYED BY FOREIGN AIRLINE
+        B1D: B1D - NI - MISSIONARIES
+        B2: B2 - TEMPORARY VISITOR FOR PLEASURE
+        BE: BE - BERING STRAIT ENTRIES
+        C1: C1 - ALIEN IN TRANSIT THROUGH U.S.
+        C2: C2 - ALIEN IN TRANSIT TO UN HQ
+        C3: C3 - FRN GOV OFF IN TRANSIT THRU US
+        C4: C4 - TRANSIT WITHOUT A VISA
+        CC: CC - CUBAN MASS MIGRATION PROJECT
+        CH: CH - PAROLEE (HUMANITARIAN-HQ AUTH)
+        CP: CP - PAROLEE (PUBLIC INT-HQ AUTH)
+        CW1: CW1 - PRINCIPAL TRANSITIONAL WORKERS
+        CW2: CW2 - DEPENDENT OF CW1
+        D1: D1 - ALIEN CREW DEPART SAME VESSEL
+        D2: D2 - ALIEN CREW DEPART OTHER VESSEL
+        DA: DA - ADVANCE PAROLE (DISTRICT AUTH)
+        DE: DE - PAROLEE (DEFERRED INSPECTION)
+        DT: DT - PAROLEE (DISTRICT-POE AUTH)
+        DX: DX - CREW ARRIVING DETAINED ON SHIP
+        E1: E1 - TREATY TRADER-SPOUSE-CHILDREN
+        E2: E2 - TREATY INVESTOR-SPOUSE-CHILD
+        E2C: E2C - CNMI INVESTOR
+        E3: E3 - AUSTRALIA FREE TRADE AGREEMENT
+        '0': E3D - SPOUSE OR CHILD OF E3
+        EAO: EAO - EMPLOYMENT ADVISORY OPTION
+        EWI: EWI - ENTRY WITHOUT INSPECTION
+        F1: F1 - STUDENT - ACADEMIC
+        F2: F2 - SPOUSE-CHILD OF F-1
+        FSM: FSM - CFA ADM FED STATES MICRONESIA
+        FUG: FUG - FAMILY UNITY GRANTED
+        G1: G1 - PRINCIPAL REP. FOREIGN GOVT
+        G2: G2 - OTHER REP FOREIGN GOVT
+        G3: G3 - REP NON-RECOGNIZED FOREIGN GOV
+        G4: G4 - OFFICER-EMPLOYEE INTL. ORG.
+        G5: G5 - ATTENDANTS OF G1, G2, G3, G4
+        GB: GB - VISITOR WITHOUT A VISA 15 DAYS
+        GT: GT - VISITOR WITHOUT A VISA 15 DAYS
+        H1: H1 - ALIEN OF DIST MERIT & ABILITY
+        H1A: H1A - REGISTERED NURSE
+        H1B: H1B - SPECIALITY OCCUPATION
+        H1C: H1C - NURSE RELIEF
+        H2: H2 - TEMPORARY LABOR CERTIFICATION
+        H2A: H2A - TEMPORARY AGRICULTURAL WORKER
+        H2B: H2B - TEMPORARY NON-AG WORKER
+        H2R: H2R - RET(H2B)WRKR NOT SUBJCT TO CAP
+        H3: H3 - ALIEN TRAINEE
+        H3A: H3A - TRAINEE
+        H3B: H3B - SPECIAL EDUCATION TRAINING
+        H4: H4 - SPS OR CHLD OF H1,H2,H3 OR H2R
+        HSC: HSC - FREE TRADE H1B1
+        I: I - FOREIGN PRESS
+        IMM: IMM - IMMIGRANT
+        IN: IN - INDEFINITE PAROLE
+        J1: J1 - EXCHANGE VISITOR - OTHERS
+        J1S: J1S - EXCHANGE VISITOR - STUDENT
+        J2: J2 - SPOUSE-CHILD OF J-1
+        J2S: J2S - SPOUSE-CHILD OF J-1S
+        K1: K1 - ALIEN FIANCE(E) OF USC
+        K2: K2 - CHILD OF K1
+        K3: K3 - SPOUSE OF USC
+        K4: K4 - CHILD OF USC
+        L1: L1 - INTRA-COMPANY TRANSFEREE
+        L1A: L1A - MANAGER OR EXECUTIVE
+        L1B: L1B - SPECIALIZED KNOWLEDGE ALIEN
+        L2: L2 - SPOUSE-CHILD OF L-1
+        LZ: LZ - BLANKET L PETITION
+        M1: M1 - STUDENT - VOCATIONAL-NON-ACAD.
+        M2: M2 - SPOUSE-CHILD OF M-1
+        MIS: MIS - CFA ADM REP MARSHALL ISLANDS
+        ML: ML - PAROLEE-MEDICAL, LEGAL, HUMAN
+        N1: N1 - PRINCIPAL REP. OF NATO MEMBER
+        N2: N2 - OTHER REP. OF NATO MEMBER
+        N3: N3 - CLERICAL STAFF FOR N-1, N-2
+        N4: N4 - OFFICIALS OF NATO
+        N5: N5 - EXPERTS EMPLOYED BY NATO
+        N6: N6 - CIVILIAN COMPONENT OF NATO
+        N7: N7 - ATTENDANTS OF N-1 THROUGH N-6
+        N8: N8 - PARENT OF SPEC IMMIGRANT CHILD
+        N9: N9 - SPOUSE-CHILD OF N8
+        O1: O1 - ALIEN W-EXTRAORDINARY ABILITY
+        O1A: O1A - EXTRAORDINARY ALIEN - NON-ARTS
+        O1B: O1B - EXTRAORDINARY ALIEN IN ARTS
+        O2: O2 - ACCOMPANYING ALIEN TO O1
+        O3: O3 - SPOUSE-CHILD OF O-1, O-2
+        OP: OP - PAROLEE (OVERSEAS AUTHORIZED)
+        P1: P1 - ATHLETE OR ENTERTAINER
+        P1A: P1A - ALIEN WITH ATHLETIC EVENT
+        P1B: P1B - ALIEN WITH ENTERTAINMENT GROUP
+        P1S: P1S - SUPPORT PERSON OF P-1
+        P2: P2 - EXHANGE ARTIST-ENTERTAINER
+        P2S: P2S - SUPPORT PERSON OF P-2
+        P3: P3 - UNIQUE PGM ARTIST-ENTERTAINER
+        P3S: P3S - SUPPORT PERSON OF P-3
+        P4: P4 - SPOUSE-CHILD OF P-1, P-2, P-3
+        PAL: PAL - CFA ADMISSION PALAU
+        PAR: PAR - PAROLEE
+        PI: PI - PACIFIC ISLANDER
+        Q1: Q1 - INTL CULTURAL XCHG VISITORS
+        '1': Q2 - IRISH PEACE PROCESS PARTICPNTS
+        Q3: Q3 - SPOUSE-CHILD OF Q2
+        R1: R1 - RELIGIOUS OCCUPATION
+        R2: R2 - SPOUSE-CHILD OF R-1
+        RE: RE - REFUGEE
+        RE5: RE5 - HAITIAN W-GRANTED REFUGEE STAT
+        RW: RW - RAW APPLIED FOR AT A US CO
+        S1: S1 - SPECIAL AGRICULTURAL WORKER
+        S2: S2 - SPECIAL AGRICULTURAL WORKER
+        S9: S9 - EMERGENCY FARM WORKER
+        SDF: SDF - SUSPECTED DOCUMENT FRAUD
+        ST: ST - STOWAWAY
+        T1: T1 - VICTIM OF SEVERE FORM OF TRAFK
+        T2: T2 - SPOUSE OF T1
+        T3: T3 - CHILD OF T1
+        T4: T4 - PARENT OF T1
+        T5: T5 - UNMARRIED UNDER 18 SIBLG T1 NI
+        TB: TB - SPOUSE OR CHILD OF CAN. FR
+        TC: TC - CANADIAN FREE TRADE AGREEMENT
+        TD: TD - NAFTA DEPENDENT
+        TN1: TN1 - NAFTA PRINCIPAL (CANADA)
+        TN2: TN2 - NAFTA PRINCIPAL (MEXICO)
+        TWO: TWO - TRANSIT WITHOUT A VISA
+        U1: U1 - VICTIM OF CRIMINAL ACTIVITY
+        U2: U2 - SPOUSE OF U1
+        U3: U3 - CHILD OF U1
+        U4: U4 - PARENT OF U1
+        U5: U5 - UNMARRIED UNDER 18 SIBLG U1 NI
+        UN: UN - UNKNOWN
+        UU: UU - UNKNOWN
+        V1: V1 - SPOUSE OF LPR
+        V2: V2 - CHILD OF LPR
+        V3: V3 - CHILD OF V2
+        WB: WB - VISITOR FOR BUSINESS - VWPP
+        WD: WD - WITHDRAWL (I-275)
+        WI: WI - WITHOUT INSPECTION
+        WT: WT - VISITOR FOR PLEASURE - VWPP
+        X: X - EOIR
+    label_source: llm
+    x_petey_retype:
+    - dropdown
+    - dropdown_options
+    options:
+      1B1:
+        caption: 1B1 - H-1B1 SPECIALITY OCCUPATION
+      1B2:
+        caption: 1B2 - H-1B2 DoD SPECIALITY
+      1B3:
+        caption: 1B3 - H-1B3 FASHION MODEL
+      1B4:
+        caption: 1B4 - H-1B4 UNIQUE PGM ARTIST-ENT
+      1B5:
+        caption: 1B5 - H-1B5 ALIEN ATHLETE
+      1BS:
+        caption: 1BS - SUPPORT PERSON OF H-1
+      A1:
+        caption: A1 - AMBASSADOR, DIPLOMAT
+      A2:
+        caption: A2 - OTHER DIPLOMATIC OFFICIALS
+      A3:
+        caption: A3 - ATTENDANTS OF A-1, A-2
+      AS:
+        caption: AS - ASYLUM
+      ASD:
+        caption: ASD - ASYLUM STATUS DENIED
+      AW:
+        caption: AW - RAW APPLIED FOR AT A PORT
+      B1:
+        caption: B1 - TEMPORARY VISITOR FOR BUSINESS
+      B1A:
+        caption: B1A - NI PERSNL-DOM SRVANT OF NI EMP
+      B1B:
+        caption: B1B - NI DOMESTIC SERVANT OF USC
+      B1C:
+        caption: B1C - NI EMPLOYED BY FOREIGN AIRLINE
+      B1D:
+        caption: B1D - NI - MISSIONARIES
+      B2:
+        caption: B2 - TEMPORARY VISITOR FOR PLEASURE
+      BE:
+        caption: BE - BERING STRAIT ENTRIES
+      C1:
+        caption: C1 - ALIEN IN TRANSIT THROUGH U.S.
+      C2:
+        caption: C2 - ALIEN IN TRANSIT TO UN HQ
+      C3:
+        caption: C3 - FRN GOV OFF IN TRANSIT THRU US
+      C4:
+        caption: C4 - TRANSIT WITHOUT A VISA
+      CC:
+        caption: CC - CUBAN MASS MIGRATION PROJECT
+      CH:
+        caption: CH - PAROLEE (HUMANITARIAN-HQ AUTH)
+      CP:
+        caption: CP - PAROLEE (PUBLIC INT-HQ AUTH)
+      CW1:
+        caption: CW1 - PRINCIPAL TRANSITIONAL WORKERS
+      CW2:
+        caption: CW2 - DEPENDENT OF CW1
+      D1:
+        caption: D1 - ALIEN CREW DEPART SAME VESSEL
+      D2:
+        caption: D2 - ALIEN CREW DEPART OTHER VESSEL
+      DA:
+        caption: DA - ADVANCE PAROLE (DISTRICT AUTH)
+      DE:
+        caption: DE - PAROLEE (DEFERRED INSPECTION)
+      DT:
+        caption: DT - PAROLEE (DISTRICT-POE AUTH)
+      DX:
+        caption: DX - CREW ARRIVING DETAINED ON SHIP
+      E1:
+        caption: E1 - TREATY TRADER-SPOUSE-CHILDREN
+      E2:
+        caption: E2 - TREATY INVESTOR-SPOUSE-CHILD
+      E2C:
+        caption: E2C - CNMI INVESTOR
+      E3:
+        caption: E3 - AUSTRALIA FREE TRADE AGREEMENT
+      '0':
+        caption: E3D - SPOUSE OR CHILD OF E3
+      EAO:
+        caption: EAO - EMPLOYMENT ADVISORY OPTION
+      EWI:
+        caption: EWI - ENTRY WITHOUT INSPECTION
+      F1:
+        caption: F1 - STUDENT - ACADEMIC
+      F2:
+        caption: F2 - SPOUSE-CHILD OF F-1
+      FSM:
+        caption: FSM - CFA ADM FED STATES MICRONESIA
+      FUG:
+        caption: FUG - FAMILY UNITY GRANTED
+      G1:
+        caption: G1 - PRINCIPAL REP. FOREIGN GOVT
+      G2:
+        caption: G2 - OTHER REP FOREIGN GOVT
+      G3:
+        caption: G3 - REP NON-RECOGNIZED FOREIGN GOV
+      G4:
+        caption: G4 - OFFICER-EMPLOYEE INTL. ORG.
+      G5:
+        caption: G5 - ATTENDANTS OF G1, G2, G3, G4
+      GB:
+        caption: GB - VISITOR WITHOUT A VISA 15 DAYS
+      GT:
+        caption: GT - VISITOR WITHOUT A VISA 15 DAYS
+      H1:
+        caption: H1 - ALIEN OF DIST MERIT & ABILITY
+      H1A:
+        caption: H1A - REGISTERED NURSE
+      H1B:
+        caption: H1B - SPECIALITY OCCUPATION
+      H1C:
+        caption: H1C - NURSE RELIEF
+      H2:
+        caption: H2 - TEMPORARY LABOR CERTIFICATION
+      H2A:
+        caption: H2A - TEMPORARY AGRICULTURAL WORKER
+      H2B:
+        caption: H2B - TEMPORARY NON-AG WORKER
+      H2R:
+        caption: H2R - RET(H2B)WRKR NOT SUBJCT TO CAP
+      H3:
+        caption: H3 - ALIEN TRAINEE
+      H3A:
+        caption: H3A - TRAINEE
+      H3B:
+        caption: H3B - SPECIAL EDUCATION TRAINING
+      H4:
+        caption: H4 - SPS OR CHLD OF H1,H2,H3 OR H2R
+      HSC:
+        caption: HSC - FREE TRADE H1B1
+      I:
+        caption: I - FOREIGN PRESS
+      IMM:
+        caption: IMM - IMMIGRANT
+      IN:
+        caption: IN - INDEFINITE PAROLE
+      J1:
+        caption: J1 - EXCHANGE VISITOR - OTHERS
+      J1S:
+        caption: J1S - EXCHANGE VISITOR - STUDENT
+      J2:
+        caption: J2 - SPOUSE-CHILD OF J-1
+      J2S:
+        caption: J2S - SPOUSE-CHILD OF J-1S
+      K1:
+        caption: K1 - ALIEN FIANCE(E) OF USC
+      K2:
+        caption: K2 - CHILD OF K1
+      K3:
+        caption: K3 - SPOUSE OF USC
+      K4:
+        caption: K4 - CHILD OF USC
+      L1:
+        caption: L1 - INTRA-COMPANY TRANSFEREE
+      L1A:
+        caption: L1A - MANAGER OR EXECUTIVE
+      L1B:
+        caption: L1B - SPECIALIZED KNOWLEDGE ALIEN
+      L2:
+        caption: L2 - SPOUSE-CHILD OF L-1
+      LZ:
+        caption: LZ - BLANKET L PETITION
+      M1:
+        caption: M1 - STUDENT - VOCATIONAL-NON-ACAD.
+      M2:
+        caption: M2 - SPOUSE-CHILD OF M-1
+      MIS:
+        caption: MIS - CFA ADM REP MARSHALL ISLANDS
+      ML:
+        caption: ML - PAROLEE-MEDICAL, LEGAL, HUMAN
+      N1:
+        caption: N1 - PRINCIPAL REP. OF NATO MEMBER
+      N2:
+        caption: N2 - OTHER REP. OF NATO MEMBER
+      N3:
+        caption: N3 - CLERICAL STAFF FOR N-1, N-2
+      N4:
+        caption: N4 - OFFICIALS OF NATO
+      N5:
+        caption: N5 - EXPERTS EMPLOYED BY NATO
+      N6:
+        caption: N6 - CIVILIAN COMPONENT OF NATO
+      N7:
+        caption: N7 - ATTENDANTS OF N-1 THROUGH N-6
+      N8:
+        caption: N8 - PARENT OF SPEC IMMIGRANT CHILD
+      N9:
+        caption: N9 - SPOUSE-CHILD OF N8
+      O1:
+        caption: O1 - ALIEN W-EXTRAORDINARY ABILITY
+      O1A:
+        caption: O1A - EXTRAORDINARY ALIEN - NON-ARTS
+      O1B:
+        caption: O1B - EXTRAORDINARY ALIEN IN ARTS
+      O2:
+        caption: O2 - ACCOMPANYING ALIEN TO O1
+      O3:
+        caption: O3 - SPOUSE-CHILD OF O-1, O-2
+      OP:
+        caption: OP - PAROLEE (OVERSEAS AUTHORIZED)
+      P1:
+        caption: P1 - ATHLETE OR ENTERTAINER
+      P1A:
+        caption: P1A - ALIEN WITH ATHLETIC EVENT
+      P1B:
+        caption: P1B - ALIEN WITH ENTERTAINMENT GROUP
+      P1S:
+        caption: P1S - SUPPORT PERSON OF P-1
+      P2:
+        caption: P2 - EXHANGE ARTIST-ENTERTAINER
+      P2S:
+        caption: P2S - SUPPORT PERSON OF P-2
+      P3:
+        caption: P3 - UNIQUE PGM ARTIST-ENTERTAINER
+      P3S:
+        caption: P3S - SUPPORT PERSON OF P-3
+      P4:
+        caption: P4 - SPOUSE-CHILD OF P-1, P-2, P-3
+      PAL:
+        caption: PAL - CFA ADMISSION PALAU
+      PAR:
+        caption: PAR - PAROLEE
+      PI:
+        caption: PI - PACIFIC ISLANDER
+      Q1:
+        caption: Q1 - INTL CULTURAL XCHG VISITORS
+      '1':
+        caption: Q2 - IRISH PEACE PROCESS PARTICPNTS
+      Q3:
+        caption: Q3 - SPOUSE-CHILD OF Q2
+      R1:
+        caption: R1 - RELIGIOUS OCCUPATION
+      R2:
+        caption: R2 - SPOUSE-CHILD OF R-1
+      RE:
+        caption: RE - REFUGEE
+      RE5:
+        caption: RE5 - HAITIAN W-GRANTED REFUGEE STAT
+      RW:
+        caption: RW - RAW APPLIED FOR AT A US CO
+      S1:
+        caption: S1 - SPECIAL AGRICULTURAL WORKER
+      S2:
+        caption: S2 - SPECIAL AGRICULTURAL WORKER
+      S9:
+        caption: S9 - EMERGENCY FARM WORKER
+      SDF:
+        caption: SDF - SUSPECTED DOCUMENT FRAUD
+      ST:
+        caption: ST - STOWAWAY
+      T1:
+        caption: T1 - VICTIM OF SEVERE FORM OF TRAFK
+      T2:
+        caption: T2 - SPOUSE OF T1
+      T3:
+        caption: T3 - CHILD OF T1
+      T4:
+        caption: T4 - PARENT OF T1
+      T5:
+        caption: T5 - UNMARRIED UNDER 18 SIBLG T1 NI
+      TB:
+        caption: TB - SPOUSE OR CHILD OF CAN. FR
+      TC:
+        caption: TC - CANADIAN FREE TRADE AGREEMENT
+      TD:
+        caption: TD - NAFTA DEPENDENT
+      TN1:
+        caption: TN1 - NAFTA PRINCIPAL (CANADA)
+      TN2:
+        caption: TN2 - NAFTA PRINCIPAL (MEXICO)
+      TWO:
+        caption: TWO - TRANSIT WITHOUT A VISA
+      U1:
+        caption: U1 - VICTIM OF CRIMINAL ACTIVITY
+      U2:
+        caption: U2 - SPOUSE OF U1
+      U3:
+        caption: U3 - CHILD OF U1
+      U4:
+        caption: U4 - PARENT OF U1
+      U5:
+        caption: U5 - UNMARRIED UNDER 18 SIBLG U1 NI
+      UN:
+        caption: UN - UNKNOWN
+      UU:
+        caption: UU - UNKNOWN
+      V1:
+        caption: V1 - SPOUSE OF LPR
+      V2:
+        caption: V2 - CHILD OF LPR
+      V3:
+        caption: V3 - CHILD OF V2
+      WB:
+        caption: WB - VISITOR FOR BUSINESS - VWPP
+      WD:
+        caption: WD - WITHDRAWL (I-275)
+      WI:
+        caption: WI - WITHOUT INSPECTION
+      WT:
+        caption: WT - VISITOR FOR PLEASURE - VWPP
+      X:
+        caption: X - EOIR
+    x_petey_identifiers:
+      subject: current_nonimmigrant_status
+  current_status_expiration_dt:
+    x_petey_id: '1_22'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 407.9849853515625
+      - 593.9970092773438
+      - 575.9660034179688
+      - 611.9970092773438
+      widget_type: text
+      path: form1[0].#subform[0].SupA_Line1p_DateExpires[0]
+    description: Part 2. Information About You. 8. Current Nonimmigrant Status (for
+      example, F-1 student, H-4 dependent, etc.). Enter Expiration Date. Enter as
+      2-digit Month, 2-digit Day, and 4-digit Year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/DD/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
+    label_source: llm
+    x_petey_identifiers:
+      subject: current_status_expiration
+      suffix: dt
+  current_passport_nbr:
+    x_petey_id: '1_23'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 59.99800109863281
+      - 690.0009765625
+      - 228.0330047607422
+      - 708.0009765625
+      widget_type: text
+      path: form1[0].#subform[0].P1_Line13_Passport[0]
+    description: Part 2. Information About You. 9. Current Passport Information. If
+      your current passport information is different from the information you provided
+      in Item Number 8., provide your current passport information. If your current
+      passport information matches the information you provided in Item Number 8.,
+      proceed to Item Number 10. Enter Passport Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: current_passport_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: current_passport_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: current_passport
+      suffix: nbr
+  current_passport_expiration_dt:
+    x_petey_id: '1_25'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 414.0
+      - 690.0009765625
+      - 576.0
+      - 708.0009765625
+      widget_type: text
+      path: form1[0].#subform[0].P1_Line13b_ExpDate[0]
+    description: Part 2. Information About You. 9. Current Passport Information. If
+      your current passport information is different from the information you provided
+      in Item Number 8., provide your current passport information. If your current
+      passport information matches the information you provided in Item Number 8.,
+      proceed to Item Number 10. Enter Passport Expiration Date. Enter as 2-digit
+      Month, 2-digit Day, and 4-digit Year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/DD/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
+    label_source: llm
+    x_petey_identifiers:
+      subject: current_passport_expiration
+      suffix: dt
+  uscis_online_account_nbr:
+    x_petey_id: '1_26'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{12}$
+    widget:
+      page: 1
+      rect:
+      - 75.76399993896484
+      - 725.9979858398438
+      - 228.1060028076172
+      - 743.9979858398438
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line10_USCISELISAcctNumber[0]
+    description: Part 2. Information About You. 10. U S C I S Online Account Number
+      (if any). Enter U S C I S Online Account Number, if any. Must be 12 digits;
+      no dashes.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999999999999}
+      pictures:
+        format:
+        - text{999999999999}
+        ui:
+        - text{999999999999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: uscis_online_account_number
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{12}$
+      to:
+        name: uscis_online_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{12}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: uscis_online_account
+      suffix: nbr
+  current_passport_country_of_issuance_cd:
+    x_petey_id: '1_24'
+    type: string
+    semantic_type: country
+    widget:
+      page: 1
+      rect:
+      - 234.0
+      - 690.0009765625
+      - 406.9739990234375
+      - 708.0009765625
+      widget_type: text
+      path: form1[0].#subform[0].P1_Line13b_CountryOfCitizenship[0]
+    description: Part 2. Information About You. 9. Current Passport Information. If
+      your current passport information is different from the information you provided
+      in Item Number 8., provide your current passport information. If your current
+      passport information matches the information you provided in Item Number 8.,
+      proceed to Item Number 10. Enter Country of Passport Issuance.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: current_passport_country_of_issuance
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: current_passport_country_of_issuance_cd
+        type: string
+        semantic_type: country
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      subject: current_passport_country_of_issuance
+      suffix: cd
+  applicant_email_txt:
+    x_petey_id: '3_3'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 3
+      rect:
+      - 60.4370002746582
+      - 168.0009765625
+      - 300.05499267578125
+      - 186.0009765625
+      widget_type: text
+      path: form1[0].#subform[2].P12_Line5_Email[0]
+    description: Part 4. Applicant's Contact Information, Certification, and Signature.
+      Applicant's Contact Information. 3. Enter Applicant's Email Address (if any).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: applicant_email
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: applicant_email_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: applicant_email
+      suffix: txt
+  applicant_daytime_phone_nbr:
+    x_petey_id: '3_1'
+    type: string
+    semantic_type: phone
+    pattern: ^\d{10}$
+    widget:
+      page: 3
+      rect:
+      - 60.4370002746582
+      - 132.0009765625
+      - 300.05499267578125
+      - 150.0009765625
+      widget_type: text
+      path: form1[0].#subform[2].P12_Line3_Telephone[0]
+    description: Part 4. Applicant's Contact Information, Certification, and Signature.
+      Applicant's Contact Information. 1. Enter Applicant's Daytime Telephone Number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{9999999999}
+      pictures:
+        validate:
+        - text{9999999999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: applicant_daytime_phone
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      to:
+        name: applicant_daytime_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: phone -> phone_nbr'
+    x_petey_identifiers:
+      subject: applicant_daytime_phone
+      suffix: nbr
+  applicant_mobile_phone_nbr:
+    x_petey_id: '3_2'
+    type: string
+    semantic_type: phone
+    pattern: ^\d{10}$
+    widget:
+      page: 3
+      rect:
+      - 335.9849853515625
+      - 132.0009765625
+      - 575.9829711914062
+      - 150.0009765625
+      widget_type: text
+      path: form1[0].#subform[2].P12_Line3_Mobile[0]
+    description: Part 4. Applicant's Contact Information, Certification, and Signature.
+      Applicant's Contact Information. 2. Enter Applicant's Mobile Telephone Number
+      (if any).
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{9999999999}
+      pictures:
+        validate:
+        - text{9999999999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: applicant_mobile_phone
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      to:
+        name: applicant_mobile_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: phone -> phone_nbr'
+    x_petey_identifiers:
+      subject: applicant_mobile_phone
+      suffix: nbr
+  applicant_signature:
+    x_petey_id: '3_4'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 59.854000091552734
+      - 311.99798583984375
+      - 438.0069885253906
+      - 329.99798583984375
+      widget_type: text
+      path: form1[0].#subform[2].P12_SignatureApplicant[0]
+    description: Part 4. Applicant's Contact Information, Certification, and Signature.
+      Applicant's Certification and Signature. 4. Enter Applicant's Signature. This
+      form can not be signed electronically. The name of the applicant can not be
+      typewritten into this space. If the applicant is a minor child, the parent must
+      sign the child's name in this space. This form will be rejected without a signature
+      in this space.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: applicant
+      suffix: signature
+  applicant_signature_dt:
+    x_petey_id: '3_5'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 3
+      rect:
+      - 444.00201416015625
+      - 311.99798583984375
+      - 576.0029907226562
+      - 329.99798583984375
+      widget_type: text
+      path: form1[0].#subform[2].P13_DateofSignature[0]
+    description: Part 4. Applicant's Contact Information, Certification, and Signature.
+      Applicant's Certification and Signature. 4. Applicant's Signature. Enter Date
+      of Signature. Enter as 2-digit Month, 2-digit Day, and 4-digit Year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/DD/YYYY}
+        validate:
+        - date{MM/DD/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}
+      message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
+    label_source: llm
+    x_petey_identifiers:
+      subject: applicant_signature
+      suffix: dt
+  interpreter_business_nm:
+    x_petey_id: '3_8'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 3
+      rect:
+      - 59.922000885009766
+      - 449.9939880371094
+      - 299.87799072265625
+      - 467.9939880371094
+      widget_type: text
+      path: form1[0].#subform[2].P14_Line2_NameofBusinessorOrgName[0]
+    description: Part 5. Interpreter's Contact Information, Certification, and Signature.
+      Interpreter's Full Name. 2. Enter Interpreter's Business or Organization Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: interpreter_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: interpreter_business_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: interpreter_business
+      suffix: nm
+  interpreter_first_nm:
+    x_petey_id: '3_7'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 3
+      rect:
+      - 306.125
+      - 413.99700927734375
+      - 575.9949951171875
+      - 431.99700927734375
+      widget_type: text
+      path: form1[0].#subform[2].P14_Line1_nterpreterGivenName[0]
+    description: Part 5. Interpreter's Contact Information, Certification, and Signature.
+      Interpreter's Full Name. 1. Enter Interpreter's Given Name (First Name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: interpreter_first_name
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: interpreter_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: interpreter_first
+      suffix: nm
+  interpreter_last_nm:
+    x_petey_id: '3_6'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 3
+      rect:
+      - 59.922000885009766
+      - 413.99700927734375
+      - 299.87799072265625
+      - 431.99700927734375
+      widget_type: text
+      path: form1[0].#subform[2].P14_Line1_nterpreterFamilyName[0]
+    description: Part 5. Interpreter's Contact Information, Certification, and Signature.
+      Interpreter's Full Name. 1. Enter Interpreter's Family Name (Last Name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: interpreter_last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: interpreter_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: interpreter_last
+      suffix: nm
+  interpreter_email_txt:
+    x_petey_id: '3_11'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 3
+      rect:
+      - 59.89899826049805
+      - 551.9990234375
+      - 294.0039978027344
+      - 569.9990234375
+      widget_type: text
+      path: form1[0].#subform[2].P14_Line5_EmailAddress[0]
+    description: Part 5. Interpreter's Contact Information, Certification, and Signature.
+      Interpreter's Contact Information. 5. Enter Interpreter's Email Address (if
+      any).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: interpreter_email
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: interpreter_email_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: interpreter_email
+      suffix: txt
+  interpreter_daytime_phone_nbr:
+    x_petey_id: '3_9'
+    type: string
+    semantic_type: phone
+    pattern: ^\d{10}$
+    widget:
+      page: 3
+      rect:
+      - 59.89899826049805
+      - 515.9959716796875
+      - 294.0039978027344
+      - 533.9959716796875
+      widget_type: text
+      path: form1[0].#subform[2].P14_Line4_Telephone[0]
+    description: Part 5. Interpreter's Contact Information, Certification, and Signature.
+      Interpreter's Contact Information. 3. Enter Interpreter's Daytime Telephone
+      Number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{9999999999}
+      pictures:
+        validate:
+        - text{9999999999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: interpreter_daytime_phone
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      to:
+        name: interpreter_daytime_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: phone -> phone_nbr'
+    x_petey_identifiers:
+      subject: interpreter_daytime_phone
+      suffix: nbr
+  interpreter_mobile_phone_nbr:
+    x_petey_id: '3_10'
+    type: string
+    semantic_type: phone
+    pattern: ^\d{10}$
+    widget:
+      page: 3
+      rect:
+      - 329.96099853515625
+      - 515.9990234375
+      - 576.0079956054688
+      - 533.9990234375
+      widget_type: text
+      path: form1[0].#subform[2].P14_Line5_Mobile[0]
+    description: Part 5. Interpreter's Contact Information, Certification, and Signature.
+      Interpreter's Contact Information. 4. Enter Interpreter's Mobile Telephone Number
+      (if any).
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{9999999999}
+      pictures:
+        validate:
+        - text{9999999999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: interpreter_mobile_phone
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      to:
+        name: interpreter_mobile_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: phone -> phone_nbr'
+    x_petey_identifiers:
+      subject: interpreter_mobile_phone
+      suffix: nbr
+  interpreter_signature_dt:
+    x_petey_id: '3_14'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 3
+      rect:
+      - 444.00201416015625
+      - 635.9949951171875
+      - 576.0029907226562
+      - 653.9949951171875
+      widget_type: text
+      path: form1[0].#subform[2].P14_DateofSignature[0]
+    description: Part 5. Interpreter's Contact Information, Certification, and Signature.
+      Interpreter's Contact Information. 6. Interpreter's Signature. Enter Date of
+      Signature. Enter as 2-digit Month, 2-digit Day, and 4-digit Year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/DD/YYYY}
+        validate:
+        - date{MM/DD/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}
+      message: Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+    x_petey_identifiers:
+      subject: interpreter_signature
+      suffix: dt
+  interpreter_signature:
+    x_petey_id: '3_13'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 60.00400161743164
+      - 635.9949951171875
+      - 438.1570129394531
+      - 653.9949951171875
+      widget_type: text
+      path: form1[0].#subform[2].P12_SignatureApplicant[1]
+    description: Part 5. Interpreter's Contact Information, Certification, and Signature.
+      Interpreter's Contact Information. 6. Enter Interpreter's Signature. This form
+      can not be signed electronically. The name of the applicant can not be typewritten
+      into this space. If the applicant is a minor child, the parent must sign the
+      child's name in this space. This form will be rejected without a signature in
+      this space.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: interpreter
+      suffix: signature
+  interpreter_language_txt:
+    x_petey_id: '3_12'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 300.00201416015625
+      - 575.9970092773438
+      - 480.0050048828125
+      - 593.9970092773438
+      widget_type: text
+      path: form1[0].#subform[2].P7_Line6_Language[0]
+    description: Part 5. Interpreter's Contact Information, Certification, and Signature.
+      I certify, under penalty of perjury, that I am fluent in English and I have
+      interpreted every question on the application and Instructions and interpreted
+      the applicant's answers to the questions in that language, and the applicant
+      informed me that they understood every instruction, question, and answer on
+      the application. Enter Language.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: interpreter_language
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: interpreter_language_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: interpreter_language
+      suffix: txt
+  preparer_first_nm:
+    x_petey_id: '4_2'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 4
+      rect:
+      - 312.27301025390625
+      - 131.99798583984375
+      - 575.9660034179688
+      - 149.99798583984375
+      widget_type: text
+      path: form1[0].#subform[3].P15_Line1_PreparerGivenName[0]
+    description: Part 6. Contact Information, Declaration, and Signature of the Person
+      Preparing this Application, if Other Than the Applicant. Preparer's Full Name.
+      1. Enter Preparer's Given Name (First Name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: preparer_first_name
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: preparer_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: preparer_first
+      suffix: nm
+  preparer_last_nm:
+    x_petey_id: '4_1'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 4
+      rect:
+      - 60.00699996948242
+      - 131.99798583984375
+      - 294.1830139160156
+      - 149.99798583984375
+      widget_type: text
+      path: form1[0].#subform[3].P15_Line1_PreparerFamilyName[0]
+    description: Part 6. Contact Information, Declaration, and Signature of the Person
+      Preparing this Application, if Other Than the Applicant. Preparer's Full Name.
+      1. Enter Preparer's Family Name (Last Name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: preparer_last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: preparer_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: preparer_last
+      suffix: nm
+  preparer_business_nm:
+    x_petey_id: '4_3'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 4
+      rect:
+      - 60.00699996948242
+      - 167.99798583984375
+      - 294.1830139160156
+      - 185.99798583984375
+      widget_type: text
+      path: form1[0].#subform[3].P15_Line2_NameofBusinessorOrgName[0]
+    description: Part 6. Contact Information, Declaration, and Signature of the Person
+      Preparing this Application, if Other Than the Applicant. Preparer's Full Name.
+      2. Enter Preparer's Business or Organization Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: preparer_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: preparer_business_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: preparer_business
+      suffix: nm
+  preparer_email_address_txt:
+    x_petey_id: '4_6'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 4
+      rect:
+      - 59.88199996948242
+      - 270.0
+      - 293.98699951171875
+      - 288.0
+      widget_type: text
+      path: form1[0].#subform[3].P15_Line6_Email[0]
+    description: Part 6. Contact Information, Declaration, and Signature of the Person
+      Preparing this Application, if Other Than the Applicant. Preparer's Contact
+      Information. 5. Enter Preparer's Mobile Telephone Number (if any).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: preparer_email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: preparer_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: preparer_email_address
+      suffix: txt
+  preparer_daytime_phone_nbr:
+    x_petey_id: '4_4'
+    type: string
+    semantic_type: phone
+    pattern: ^\d{10}$
+    widget:
+      page: 4
+      rect:
+      - 59.88199996948242
+      - 234.0
+      - 293.98699951171875
+      - 252.0
+      widget_type: text
+      path: form1[0].#subform[3].P15_Line4_Telephone[0]
+    description: Part 6. Contact Information, Declaration, and Signature of the Person
+      Preparing this Application, if Other Than the Applicant. Preparer's Contact
+      Information. 3. Enter Preparer's Daytime Telephone Number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{9999999999}
+      pictures:
+        validate:
+        - text{9999999999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: preparer_daytime_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      to:
+        name: preparer_daytime_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: preparer_daytime_phone
+      suffix: nbr
+  preparer_mobile_phone_nbr:
+    x_petey_id: '4_5'
+    type: string
+    semantic_type: phone
+    pattern: ^\d{10}$
+    widget:
+      page: 4
+      rect:
+      - 330.85400390625
+      - 234.0
+      - 575.9860229492188
+      - 252.0
+      widget_type: text
+      path: form1[0].#subform[3].P15_Line5_Mobile[0]
+    description: Part 6. Contact Information, Declaration, and Signature of the Person
+      Preparing this Application, if Other Than the Applicant. Preparer's Contact
+      Information. 4. Enter Preparer's Mobile Telephone Number (if any).
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{9999999999}
+      pictures:
+        validate:
+        - text{9999999999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: preparer_mobile_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      to:
+        name: preparer_mobile_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: preparer_mobile_phone
+      suffix: nbr
+  preparer_signature_dt:
+    x_petey_id: '4_8'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 4
+      rect:
+      - 444.00201416015625
+      - 396.00299072265625
+      - 576.0029907226562
+      - 414.00299072265625
+      widget_type: text
+      path: form1[0].#subform[3].P15_DateofSignature[0]
+    description: Part 6. Contact Information, Declaration, and Signature of the Person
+      Preparing this Application, if Other Than the Applicant. Preparer's Certification
+      and Signature. 6. Preparer's Signature. Enter Date of Signature. Enter as 2-digit
+      Month, 2-digit Day, and 4-digit Year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/DD/YYYY}
+        validate:
+        - date{MM/DD/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}
+      message: Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+    x_petey_identifiers:
+      subject: preparer_signature
+      suffix: dt
+  preparer_signature:
+    x_petey_id: '4_7'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 60.00400161743164
+      - 396.00299072265625
+      - 438.1570129394531
+      - 414.00299072265625
+      widget_type: text
+      path: form1[0].#subform[3].P12_SignatureApplicant[2]
+    description: Part 6. Contact Information, Declaration, and Signature of the Person
+      Preparing this Application, if Other Than the Applicant. Preparer's Certification
+      and Signature. 6. Enter Preparer's Signature. This form can not be signed electronically.
+      The name of the applicant can not be typewritten into this space. If the applicant
+      is a minor child, the parent must sign the child's name in this space. This
+      form will be rejected without a signature in this space.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_identifiers:
+      subject: preparer
+      suffix: signature
+  item_2_additional_info_txt:
+    x_petey_id: '5_16'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 60.290000915527344
+      - 510.0010070800781
+      - 576.0789794921875
+      - 600.0009765625
+      widget_type: text
+      path: form1[0].#subform[4].P7_Line5D[0]
+    description: Part 7. Additional Information. 5. Enter Additional Information.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:21:41'
+      from:
+        name: line_5_additional_info_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_2_additional_info_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: item
+      block_iteration: '2'
+      suffix: txt
+      subject: additional_info
+  item_1_page_nbr:
+    x_petey_id: '5_17'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 60.290000915527344
+      - 624.0020141601562
+      - 122.4229965209961
+      - 642.0020141601562
+      widget_type: text
+      path: form1[0].#subform[4].P11_Line6A[0]
+    description: Part 7. Additional Information. 6. Enter Page Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:21:41'
+      from:
+        name: line_6_page_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_1_page_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: item
+      block_iteration: '1'
+      suffix: nbr
+      subject: page
+  item_1_part_nbr:
+    x_petey_id: '5_18'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 153.48800659179688
+      - 624.0020141601562
+      - 215.62100219726562
+      - 642.0020141601562
+      widget_type: text
+      path: form1[0].#subform[4].P11_Line6B[0]
+    description: Part 7. Additional Information. 6. Enter Part Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:21:41'
+      from:
+        name: line_6_part_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_1_part_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: item
+      block_iteration: '1'
+      suffix: nbr
+      subject: part
+  item_1_item_nbr:
+    x_petey_id: '5_19'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 246.68499755859375
+      - 624.0020141601562
+      - 308.8179931640625
+      - 642.0020141601562
+      widget_type: text
+      path: form1[0].#subform[4].P11_Line6C[0]
+    description: Part 7. Additional Information. 6. Enter Item Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:21:41'
+      from:
+        name: line_6_item_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_1_item_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: item
+      block_iteration: '1'
+      suffix: nbr
+      subject: item
+  item_1_additional_info_txt:
+    x_petey_id: '5_20'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 60.290000915527344
+      - 648.0
+      - 576.0789794921875
+      - 738.0
+      widget_type: text
+      path: form1[0].#subform[4].P7_Line6D[0]
+    description: Part 7. Additional Information. 6. Enter Additional Information.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:21:41'
+      from:
+        name: line_6_additional_info_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_1_additional_info_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: item
+      block_iteration: '1'
+      suffix: txt
+      subject: additional_info
+  item_2_item_nbr:
+    x_petey_id: '5_15'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 246.68499755859375
+      - 486.0
+      - 308.8179931640625
+      - 504.0
+      widget_type: text
+      path: form1[0].#subform[4].P11_Line5C[0]
+    description: Part 7. Additional Information. 5. Enter Item Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:21:41'
+      from:
+        name: line_5_item_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_2_item_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: item
+      block_iteration: '2'
+      suffix: nbr
+      subject: item
+  item_2_part_nbr:
+    x_petey_id: '5_14'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 153.48800659179688
+      - 486.0
+      - 215.62100219726562
+      - 504.0
+      widget_type: text
+      path: form1[0].#subform[4].P11_Line5B[0]
+    description: Part 7. Additional Information. 5. Enter Part Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:21:41'
+      from:
+        name: line_5_part_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_2_part_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: item
+      block_iteration: '2'
+      suffix: nbr
+      subject: part
+  item_2_page_nbr:
+    x_petey_id: '5_13'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 60.290000915527344
+      - 486.0
+      - 122.4229965209961
+      - 504.0
+      widget_type: text
+      path: form1[0].#subform[4].P11_Line5A[0]
+    description: Part 7. Additional Information. 5. Enter Page Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:21:41'
+      from:
+        name: line_5_page_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_2_page_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: item
+      block_iteration: '2'
+      suffix: nbr
+      subject: page
+  alien_registration_num:
+    x_petey_id: '5_4'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 170.9459991455078
+      - 168.0009765625
+      - 299.95599365234375
+      - 186.0009765625
+      widget_type: text
+      path: form1[0].#subform[4].Global_ANumber[0].Pt1Line6_AlienNumber[1]
+    description: Part 7. Additional Information. No Entry. 2. A Number, (if any).
+      This is a read only field. This field pre-populated from page 1.
+    x_petey_description_source: tooltip
+    pattern: ^\d{9}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      join: shape
+      picture: text{999999999}
+      pictures:
+        format:
+        - text{999999999}
+        ui:
+        - text{999999999}
+    label_source: llm
+    x_petey_identifiers:
+      subject: alien_registration_num
+  item_3_page_nbr:
+    x_petey_id: '5_5'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 60.29899978637695
+      - 210.00201416015625
+      - 122.43199920654297
+      - 228.00201416015625
+      widget_type: text
+      path: form1[0].#subform[4].P11_Line3A[0]
+    description: Part 7. Additional Information. 3. Enter Page Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:21:40'
+      from:
+        name: item_1_page_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_3_page_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: item
+      block_iteration: '3'
+      suffix: nbr
+      subject: page
+  item_3_part_nbr:
+    x_petey_id: '5_6'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 153.49600219726562
+      - 210.00201416015625
+      - 215.62899780273438
+      - 228.00201416015625
+      widget_type: text
+      path: form1[0].#subform[4].P11_Line3B[0]
+    description: Part 7. Additional Information. 3. Enter Part Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:21:40'
+      from:
+        name: item_1_part_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_3_part_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: item
+      block_iteration: '3'
+      suffix: nbr
+      subject: part
+  item_3_item_nbr:
+    x_petey_id: '5_7'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 246.69400024414062
+      - 210.00201416015625
+      - 308.8269958496094
+      - 228.00201416015625
+      widget_type: text
+      path: form1[0].#subform[4].P11_Line3C[0]
+    description: Part 7. Additional Information. 3. Enter Item Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:21:40'
+      from:
+        name: item_1_item_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_3_item_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: item
+      block_iteration: '3'
+      suffix: nbr
+      subject: item
+  last_nm_2:
+    x_petey_id: '5_1'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 5
+      rect:
+      - 60.000999450683594
+      - 144.0
+      - 234.0030059814453
+      - 162.0
+      widget_type: text
+      path: form1[0].#subform[4].P2_Line1a_FamilyName[1]
+    description: Part 7. Additional Information. No Entry. 1. Family Name (Last Name).
+      This is a read only field. This field pre-populated from page 1.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: last_name_2
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: last_2_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: last
+      suffix: nm
+      iteration: '2'
+  first_nm_2:
+    x_petey_id: '5_2'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 5
+      rect:
+      - 240.00100708007812
+      - 144.0
+      - 414.00299072265625
+      - 162.0
+      widget_type: text
+      path: form1[0].#subform[4].P2_Line1b_GivenName[1]
+    description: Part 7. Additional Information. No Entry. 1. Given Name (First Name).
+      This is a read only field. This field pre-populated from page 1.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: first_name_2
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: first_2_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: first
+      suffix: nm
+      iteration: '2'
+  middle_nm_2:
+    x_petey_id: '5_3'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 420.0429992675781
+      - 144.0
+      - 576.0419921875
+      - 162.0
+      widget_type: text
+      path: form1[0].#subform[4].P2_Line1c_MiddleName[1]
+    description: Part 7. Additional Information. No Entry. 1. Middle Name. This is
+      a read only field. This field pre-populated from page 1.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:27'
+      from:
+        name: middle_name_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: middle_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: middle
+      suffix: nm
+      iteration: '2'
+  item_4_page_nbr:
+    x_petey_id: '5_9'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 60.284000396728516
+      - 347.99798583984375
+      - 122.41699981689453
+      - 365.99798583984375
+      widget_type: text
+      path: form1[0].#subform[4].P11_Line4A[0]
+    description: Part 7. Additional Information. 4. Enter Page Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:21:41'
+      from:
+        name: line_4_page_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_4_page_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: item
+      block_iteration: '4'
+      suffix: nbr
+      subject: page
+  item_4_part_nbr:
+    x_petey_id: '5_10'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 153.48199462890625
+      - 347.99798583984375
+      - 215.61500549316406
+      - 365.99798583984375
+      widget_type: text
+      path: form1[0].#subform[4].P11_Line4B[0]
+    description: Part 7. Additional Information. 4. Enter Part Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:21:41'
+      from:
+        name: line_4_part_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_4_part_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: item
+      block_iteration: '4'
+      suffix: nbr
+      subject: part
+  item_4_item_nbr:
+    x_petey_id: '5_11'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 246.6790008544922
+      - 347.99798583984375
+      - 308.81201171875
+      - 365.99798583984375
+      widget_type: text
+      path: form1[0].#subform[4].P11_Line4C[0]
+    description: Part 11. Part 7. Additional Information. 4. Enter Item Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:21:41'
+      from:
+        name: line_4_item_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_4_item_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: item
+      block_iteration: '4'
+      suffix: nbr
+      subject: item
+  item_3_additional_info_txt:
+    x_petey_id: '5_8'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 60.000999450683594
+      - 234.0
+      - 575.7899780273438
+      - 324.0
+      widget_type: text
+      path: form1[0].#subform[4].P7_Line3D[0]
+    description: Part 7. Additional Information. 3. Enter Additional Information.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:21:40'
+      from:
+        name: item_1_additional_info_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_3_additional_info_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: item
+      block_iteration: '3'
+      suffix: txt
+      subject: additional_info
+  item_4_additional_info_txt:
+    x_petey_id: '5_12'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 60.000999450683594
+      - 371.9989929199219
+      - 575.7899780273438
+      - 461.9989929199219
+      widget_type: text
+      path: form1[0].#subform[4].P7_Line4D[0]
+    description: Part 7. Additional Information. 4. Enter Additional Information.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:21:41'
+      from:
+        name: line_4_additional_info_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_4_additional_info_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: item
+      block_iteration: '4'
+      suffix: txt
+      subject: additional_info
+  applicant_for_immigrant_visa:
+    x_petey_id: '2_1'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 111.99700927734375
+        - 555.9949951171875
+        - 121.99700927734375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line1_ImmVisa[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 111.99700927734375
+        - 514.0
+        - 121.99700927734375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line1_ImmVisa[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 1. Are you an applicant
+      for an immigrant visa? Select No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - applicant_for_immigrant_visa::no
+      - applicant_for_immigrant_visa::yes
+    x_petey_identifiers:
+      subject: applicant_for_immigrant_visa
+  immigrant_petition_ever_filed:
+    x_petey_id: '2_2'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 135.9949951171875
+        - 555.9949951171875
+        - 145.9949951171875
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line2_PetFiled[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 135.9949951171875
+        - 514.0
+        - 145.9949951171875
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line2_PetFiled[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 2. Has an immigrant petition
+      EVER been filed for you? Select No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - immigrant_petition_ever_filed::no
+      - immigrant_petition_ever_filed::yes
+    x_petey_identifiers:
+      subject: immigrant_petition_ever_filed
+  ever_filed_form_i485:
+    x_petey_id: '2_3'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 159.9959716796875
+        - 555.9949951171875
+        - 169.9959716796875
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line3_I485Filed[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 159.9959716796875
+        - 514.0
+        - 169.9959716796875
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line3_I485Filed[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 3. Have you EVER filed
+      a Form I-485, Application to Register Permanent Residence or Adjust Status?
+      Select No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - ever_filed_form_i485::no
+      - ever_filed_form_i485::yes
+    x_petey_identifiers:
+      subject: ever_filed_form_i485
+  arrested_or_convicted_criminal_offense:
+    x_petey_id: '2_4'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 183.99700927734375
+        - 555.9949951171875
+        - 193.99700927734375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line4_CrimOffense[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 183.99700927734375
+        - 514.0
+        - 193.99700927734375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line4_CrimOffense[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 4. Have you EVER been arrested
+      or convicted of any criminal offense since last entering the United States?
+      Select No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - arrested_or_convicted_criminal_offense::no
+      - arrested_or_convicted_criminal_offense::yes
+    x_petey_identifiers:
+      subject: arrested_or_convicted_criminal_offense
+  acts_involving_torture_or_genocide:
+    x_petey_id: '2_5'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 225.99798583984375
+        - 555.9949951171875
+        - 235.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line5_TorGeno[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 225.99798583984375
+        - 514.0
+        - 235.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line5_TorGeno[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 5. Have you EVER ordered,
+      incited, called for, committed, assisted, helped with, or otherwise participated
+      in Acts involving torture or genocide? Select No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - acts_involving_torture_or_genocide::no
+      - acts_involving_torture_or_genocide::yes
+    x_petey_identifiers:
+      subject: acts_involving_torture_or_genocide
+  killing_any_person:
+    x_petey_id: '2_6'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 249.9990234375
+        - 555.9949951171875
+        - 259.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line6_Killing[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 249.9990234375
+        - 514.0
+        - 259.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line6_Killing[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 6. Have you EVER ordered,
+      incited, called for, committed, assisted, helped with, or otherwise participated
+      in Killing any person? Select No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - killing_any_person::no
+      - killing_any_person::yes
+    x_petey_identifiers:
+      subject: killing_any_person
+  severely_injuring_any_person:
+    x_petey_id: '2_7'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 273.99700927734375
+        - 555.9949951171875
+        - 283.99700927734375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line7_IntSevInjury[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 273.99700927734375
+        - 514.0
+        - 283.99700927734375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line7_IntSevInjury[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 7. Have you EVER ordered,
+      incited, called for, committed, assisted, helped with, or otherwise participated
+      in Intentionally and severely injuring any person? Select No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - severely_injuring_any_person::no
+      - severely_injuring_any_person::yes
+    x_petey_identifiers:
+      subject: severely_injuring_any_person
+  nonconsensual_sexual_contact:
+    x_petey_id: '2_8'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 295.99798583984375
+        - 555.9949951171875
+        - 305.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line8_SexContRel[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 295.99798583984375
+        - 514.0
+        - 305.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line8_SexContRel[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 8. Have you EVER ordered,
+      incited, called for, committed, assisted, helped with, or otherwise participated
+      in Engaging in any kind of sexual contact or relations with any person who did
+      not consent or was unable to consent, or was being forced or threatened? Select
+      No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - nonconsensual_sexual_contact::no
+      - nonconsensual_sexual_contact::yes
+    x_petey_identifiers:
+      subject: nonconsensual_sexual_contact
+  served_in_military_or_armed_group:
+    x_petey_id: '2_10'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 369.99798583984375
+        - 555.9949951171875
+        - 379.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line10_MilUnit[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 369.99798583984375
+        - 514.0
+        - 379.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line10_MilUnit[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 10. Have you EVER Served
+      in, been a member of, assisted, or participated in any military unit, paramilitary
+      unit, police unit, self-defense unit, vigilante unit, rebel group, guerilla
+      group, militia, insurgent organization, or any other armed group? Select No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - served_in_military_or_armed_group::no
+      - served_in_military_or_armed_group::yes
+    x_petey_identifiers:
+      subject: served_in_military_or_armed_group
+  served_in_prison_or_detention_facility:
+    x_petey_id: '2_11'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 409.9960021972656
+        - 555.9949951171875
+        - 419.9960021972656
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line11_WorkPrison[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 409.9960021972656
+        - 514.0
+        - 419.9960021972656
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line11_WorkPrison[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 11. Have you EVER Worked,
+      volunteered, or otherwise served in any prison, jail, prison camp, detention
+      facility, labor camp, or any other situation that involved detaining persons?
+      Select No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - served_in_prison_or_detention_facility::no
+      - served_in_prison_or_detention_facility::yes
+    x_petey_identifiers:
+      subject: served_in_prison_or_detention_facility
+  member_of_group_used_weapons:
+    x_petey_id: '2_12'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 441.99798583984375
+        - 555.9949951171875
+        - 451.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line12_MemOfGroup[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 441.99798583984375
+        - 514.0
+        - 451.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line12_MemOfGroup[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 12. Have you EVER been
+      a member of, assisted, or participated in any group, unit, or organization of
+      any kind in which you or other persons used or threatened to use any type of
+      weapon against any person or threatened to do so? Select No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - member_of_group_used_weapons::no
+      - member_of_group_used_weapons::yes
+    x_petey_identifiers:
+      subject: member_of_group_used_weapons
+  sold_provided_or_transported_weapons:
+    x_petey_id: '2_13'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9810180664062
+        - 481.9960021972656
+        - 555.9810180664062
+        - 491.9960021972656
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line12_SoldProvWeap[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 503.9859924316406
+        - 481.9960021972656
+        - 513.9860229492188
+        - 491.9960021972656
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line12_SoldProvWeap[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 13. Have you EVER sold,
+      provided, or transported weapons, or assisted any person in selling, providing,
+      or transporting weapons that you knew or believed would be used against another
+      person? Select No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - sold_provided_or_transported_weapons::no
+      - sold_provided_or_transported_weapons::yes
+    x_petey_identifiers:
+      subject: sold_provided_or_transported_weapons
+  limiting_or_denying_religious_beliefs:
+    x_petey_id: '2_9'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 327.99700927734375
+        - 555.9949951171875
+        - 337.99700927734375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line9_LimDenRelBel[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 327.99700927734375
+        - 514.0
+        - 337.99700927734375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line9_LimDenRelBel[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 9. Have you EVER ordered,
+      incited, called for, committed, assisted, helped with, or otherwise participated
+      in Limiting or denying any person's ability to exercise religious beliefs? Select
+      No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - limiting_or_denying_religious_beliefs::no
+      - limiting_or_denying_religious_beliefs::yes
+    x_petey_identifiers:
+      subject: limiting_or_denying_religious_beliefs
+  received_weapons_or_military_training:
+    x_petey_id: '2_14'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 514.0009765625
+        - 555.9949951171875
+        - 524.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line14_WeapParamilTrg[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 514.0009765625
+        - 514.0
+        - 524.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line14_WeapParamilTrg[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 14. Have you EVER received
+      any weapons training, paramilitary training, or other military-type training?
+      Select No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - received_weapons_or_military_training::no
+      - received_weapons_or_military_training::yes
+    x_petey_identifiers:
+      subject: received_weapons_or_military_training
+  violated_nonimmigrant_status_terms:
+    x_petey_id: '2_15'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 537.9990234375
+        - 555.9949951171875
+        - 547.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line15_NonImmViolSt[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 537.9990234375
+        - 514.0
+        - 547.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line15_NonImmViolSt[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 15. Have you EVER violated
+      the terms of the nonimmigrant status you now hold? Select No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - violated_nonimmigrant_status_terms::no
+      - violated_nonimmigrant_status_terms::yes
+    x_petey_identifiers:
+      subject: violated_nonimmigrant_status_terms
+  employed_in_united_states:
+    x_petey_id: '2_17'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 584.0009765625
+        - 555.9949951171875
+        - 594.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line17_AdmitGrantExt[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 584.0009765625
+        - 514.0
+        - 594.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line17_AdmitGrantExt[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 17. Have you ever been
+      employed in the United States since last admitted or granted an extension or
+      change of status? Select No. If you answered "No" to Item Number 17., fully
+      describe how you are supporting yourself in Part 7. Additional Information.
+      Include documentary evidence of the source, amount, and basis for any income.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - employed_in_united_states::no
+      - employed_in_united_states::yes
+    x_petey_identifiers:
+      subject: employed_in_united_states
+  j1_or_j2_exchange_visitor:
+    x_petey_id: '2_18'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 661.9710083007812
+        - 555.9949951171875
+        - 671.9710083007812
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line18_J1J2Visitor[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 661.9710083007812
+        - 514.0
+        - 671.9710083007812
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line18_J1J2Visitor[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 18. Are you currently or
+      have you ever been a J-1 exchange visitor or a J-2 dependent of a J-1 exchange
+      visitor? Select No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - j1_or_j2_exchange_visitor::no
+      - j1_or_j2_exchange_visitor::yes
+    x_petey_identifiers:
+      subject: j1_or_j2_exchange_visitor
+  now_in_removal_proceedings:
+    x_petey_id: '2_16'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'no':
+        page: 2
+        rect:
+        - 545.9949951171875
+        - 562.0
+        - 555.9949951171875
+        - 572.0
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line16_RemProceed[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+      'yes':
+        page: 2
+        rect:
+        - 504.0
+        - 562.0
+        - 514.0
+        - 572.0
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3_Line16_RemProceed[1]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+    description: Part 3. Additional Information About You. 16. Are you now in removal
+      proceedings? Select Yes.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:58'
+      from:
+      - now_in_removal_proceedings::no
+      - now_in_removal_proceedings::yes
+    x_petey_identifiers:
+      subject: now_in_removal_proceedings
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 3
+  collisions:
+  - original_label: last_name
+    assigned_label: last_name_2
+    page: 5
+    rect:
+    - 60.000999450683594
+    - 144.0
+    - 234.0030059814453
+    - 162.0
+  - original_label: first_name
+    assigned_label: first_name_2
+    page: 5
+    rect:
+    - 240.00100708007812
+    - 144.0
+    - 414.00299072265625
+    - 162.0
+  - original_label: middle_name
+    assigned_label: middle_name_2
+    page: 5
+    rect:
+    - 420.0429992675781
+    - 144.0
+    - 576.0419921875
+    - 162.0
+x_petey_dropped_widgets:
+  count: 5
+  widgets:
+  - path: form1[0].#pageSet[0].Page1[0].PDF417BarCode1[0]
+    page: 1
+    reason: caption
+    field_type: Text
+    tooltip: PDF417BarCode1
+    caption: I-539A|08/28/24|1
+  - path: form1[0].#pageSet[0].Page1[1].PDF417BarCode1[0]
+    page: 2
+    reason: caption
+    field_type: Text
+    tooltip: PDF417BarCode1
+    caption: I-539A|08/28/24|2
+  - path: form1[0].#pageSet[0].Page1[2].PDF417BarCode1[0]
+    page: 3
+    reason: caption
+    field_type: Text
+    tooltip: PDF417BarCode1
+    caption: I-539A|08/28/24|3
+  - path: form1[0].#pageSet[0].Page1[3].PDF417BarCode1[0]
+    page: 4
+    reason: caption
+    field_type: Text
+    tooltip: PDF417BarCode1
+    caption: I-539A|08/28/24|4
+  - path: form1[0].#pageSet[0].Page1[4].PDF417BarCode1[0]
+    page: 5
+    reason: caption
+    field_type: Text
+    tooltip: PDF417BarCode1
+    caption: I-539A|08/28/24|5
+x_petey_xfa_log:
+  joined: 68
+  pattern: 12
+  type: 1
+  values: 1
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 1
+  description_from_tooltip: 18
+x_petey_page_check:
+  when: '2026-10-16 13:02:26'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  fields: 86
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/uscis_i_539a__0b633a__33b84d4b.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: uscis_i_539a_20261006_230614
+  blueprint: /home/user/petey-2/runs/judge_eval/work/uscis_i_539a.bpt
+  when: '2026-10-06 23:07:51'
+x_petey_run:
+  record: runs/judge_eval/form_runs/uscis_i_539a.json
+  status: converged_with_residue
+  stop: no rule fix and no review edit
+  stable: true
+  rounds: 2
+  review_rounds: 1
+  when: '2026-10-06 23:07:59'

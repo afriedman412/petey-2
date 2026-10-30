@@ -9,7 +9,10 @@ description: ''
 instructions: ''
 authoring:
   method: auto_label
-  model: claude-opus-5
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-14 19:07:40'
 fields:
   affiant_signature:
     x_petey_id: '1_10'
@@ -26,10 +29,12 @@ fields:
     description: Affiant's Signature
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: affiant
+      suffix: signature
   affiant_nm:
     x_petey_id: '1_1'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -42,7 +47,10 @@ fields:
     description: First and Last Name
     x_petey_description_source: tooltip
     label_source: llm
-  company_business_name:
+    x_petey_identifiers:
+      subject: affiant
+      suffix: nm
+  company_nm:
     x_petey_id: '1_2'
     type: string
     semantic_type: business_name
@@ -58,6 +66,9 @@ fields:
     description: Company Name
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: company
+      suffix: nm
   company_address_line_1_txt:
     x_petey_id: '1_3'
     type: string
@@ -74,7 +85,10 @@ fields:
     description: Company Street Address
     x_petey_description_source: tooltip
     label_source: llm
-  company_city_nm:
+    x_petey_identifiers:
+      subject: company_address_line_1
+      suffix: txt
+  city_nm:
     x_petey_id: '1_4'
     type: string
     semantic_type: city
@@ -88,7 +102,10 @@ fields:
       widget_type: text
       path: form1[0].Page1[0].City[0]
     label_source: llm
-  company_state_abbreviation_cd:
+    x_petey_identifiers:
+      subject: city
+      suffix: nm
+  state_abbreviation_cd:
     x_petey_id: '1_5'
     type: string
     semantic_type: state_abbr
@@ -103,7 +120,10 @@ fields:
       widget_type: text
       path: form1[0].Page1[0].State[0]
     label_source: llm
-  company_zip_cd:
+    x_petey_identifiers:
+      subject: state_abbreviation
+      suffix: cd
+  zip_cd:
     x_petey_id: '1_6'
     type: string
     semantic_type: zip
@@ -118,11 +138,14 @@ fields:
       widget_type: text
       path: form1[0].Page1[0].ZipCode[0]
     label_source: llm
-  telephone_number:
+    x_petey_identifiers:
+      subject: zip
+      suffix: cd
+  telephone_nbr:
     x_petey_id: '1_7'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
@@ -135,10 +158,12 @@ fields:
     description: Telephone Number
     x_petey_description_source: tooltip
     label_source: llm
-  ndic_case_number_txt:
+    x_petey_identifiers:
+      subject: telephone
+      suffix: nbr
+  ndic_case_nbr:
     x_petey_id: '1_8'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -151,6 +176,9 @@ fields:
     description: NDIC Case Number(s)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: ndic_case
+      suffix: nbr
   testimony_dt:
     x_petey_id: '1_9'
     type: date
@@ -167,9 +195,10 @@ fields:
     description: Date of Testimony
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  notary_state_abbreviation_cd:
+    x_petey_identifiers:
+      subject: testimony
+      suffix: dt
+  notary_state:
     x_petey_id: '1_11'
     type: string
     widget:
@@ -184,10 +213,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - wide_widget_short_pattern:width=125
-  notary_county_nm:
+    x_petey_identifiers:
+      subject: notary_state
+  notary_county:
     x_petey_id: '1_12'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -198,7 +228,9 @@ fields:
       widget_type: text
       path: form1[0].Page1[0].Countyof[0]
     label_source: llm
-  sworn_before_me_dt:
+    x_petey_identifiers:
+      subject: notary_county
+  notary_signed_dt:
     x_petey_id: '1_13'
     type: date
     semantic_type: iso_date
@@ -211,13 +243,22 @@ fields:
       - 442.6659851074219
       widget_type: text
       path: form1[0].Page1[0].dateAffirmed[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{M/D/YYYY}
+        validate:
+        - date{MM/DD/YYYY}|date{MM-DD-YYYY}|date{M/D/YY}|date{M/D/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MM-DD-YYYY}|date{M/D/YY}|date{M/D/YYYY}
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
+    x_petey_identifiers:
+      subject: notary_signed
+      suffix: dt
   notary_public_nm:
     x_petey_id: '1_14'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -227,10 +268,55 @@ fields:
       - 469.6659851074219
       widget_type: text
       path: form1[0].Page1[0].Notary[0]
-    description: Notary Public
+    description: Printed name of the Notary Public (the signature line is a separate
+      field below)
     x_petey_description_source: tooltip
     label_source: llm
-  notary_commission_expiration_dt:
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: notary_public_nm
+      reason: The caption directly above the outlined box reads 'Notary Public' (a
+        name field), while the separate line below is labeled 'Signature of Notary
+        Public or Other Authorized Officer' — so this box holds a name, matching 'notary_public_nm',
+        not a signature.
+      model: claude-sonnet-4-6
+      contested: the page check says the name or type does not fit the box
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - description
+      - name
+      reason: The caption printed for this box is "Notary Public" and the publisher's
+        tooltip/field name agree; the signature is captured on a separate line labeled
+        "Signature of Notary Public or Other Authorized Officer". The current name
+        points at the wrong box.
+      before:
+        type: string
+        description: Notary Public
+      old_name: notary_public_signature
+      adjudicated: proposed
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-14 19:30:22'
+      from:
+        name: notary_public_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: notary_public_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: notary_public
+      suffix: nm
+  commission_expiration_dt:
     x_petey_id: '1_15'
     type: date
     semantic_type: iso_date
@@ -245,6 +331,43 @@ fields:
       path: form1[0].Page1[0].dateNotaryExpiration[0]
     description: Commission Expiration Date
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{M/D/YYYY}
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
+    x_petey_identifiers:
+      subject: commission_expiration
+      suffix: dt
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 1
+x_petey_page_check:
+  record: runs/judge_eval/form_runs/telephonic_comm_aff.json
+  model: gemini-3.8-flash (round 0), claude-opus-5 (loop)
+  prompt: 2ddd7670
+  when: '2026-10-14 19:08:33'
+  fields: 15
+  checked: 15
+  flagged: 0
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: telephonic_comm_aff_20261014_190829
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/telephonic_comm_aff.bpt
+  when: '2026-10-14 19:08:33'
+x_petey_run:
+  record: runs/judge_eval/form_runs/telephonic_comm_aff.json
+  status: clean
+  stop: nothing detected
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-14 19:08:33'

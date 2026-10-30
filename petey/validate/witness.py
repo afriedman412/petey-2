@@ -60,6 +60,7 @@ import collections
 import functools
 import json
 import math
+import os
 import re
 import string
 from pathlib import Path
@@ -107,6 +108,30 @@ def _key(spec: dict) -> str:
 
 # ------------------------------------------------------------------- publisher and page (blueprint + blank only)
 
+def _by_file(fn):
+    """Memo for a function of files that do not change while a page is open (the blank PDF, a run directory): keyed
+    by each path and its modification time, so an edited file is read again. Callers treat the result as read-only.
+    (2026-10-14: a change in Groups re-ran every witness on CMS-855A, 3.5 s, half of it re-reading the blank.)"""
+    memo: dict = {}
+
+    def stamp(a):
+        if isinstance(a, (str, Path)):
+            try:
+                return (str(a), Path(a).stat().st_mtime)
+            except OSError:
+                return (str(a), None)
+        return a
+
+    @functools.wraps(fn)
+    def wrapper(*args):
+        key = tuple(stamp(a) for a in args)
+        if key not in memo:
+            memo[key] = fn(*args)
+        return memo[key]
+    return wrapper
+
+
+@_by_file
 def publisher_words(blank: Path) -> dict[str, list[str]]:
     """`{path: [tooltip, xfa caption, xfa tooltip]}`: what the publisher says each widget is."""
     out: dict[str, list[str]] = collections.defaultdict(list)
@@ -147,6 +172,18 @@ def _toks(s: str) -> set[str]:
     return out
 
 
+_NUM_WORDS = {w: str(i) for i, ws in enumerate((("zero",), ("one", "first"), ("two", "second"), ("three", "third"),
+                                                  ("four", "fourth"), ("five", "fifth"), ("six", "sixth"),
+                                                  ("seven", "seventh"), ("eight", "eighth"), ("nine", "ninth"),
+                                                  ("ten", "tenth"))) for w in ws}
+
+
+def _nums(s: str) -> set[str]:
+    """The numbers in a name or text, digits or words ('address line one' ~ `address_line_1`)."""
+    return set(re.findall(r"\d+", s or "")) | {_NUM_WORDS[w] for w in re.findall(r"[a-z]+", (s or "").lower())
+                                               if w in _NUM_WORDS}
+
+
 _MORE_ABBR = {"nbr": "number"}     # slugs the labeler writes that `name_caption._ABBR` lacks
 # a name token that stands for several caption words, in whole words (name_caption._EXPAND has five-letter stems)
 _EXPAND_WORDS = {"ssn": ("social", "security"), "ein": ("employer", "identification"),
@@ -156,6 +193,19 @@ _EXPAND_WORDS = {"ssn": ("social", "security"), "ein": ("employer", "identificat
 
 @functools.lru_cache(maxsize=None)
 def _stem(w: str) -> str:
+    """Snowball by default. PETEY_STEM=plural strips plurals only ('addresses' ~ 'address', 'insured' stays apart
+    from 'insurer', which Snowball joins); PETEY_STEM=none keeps words as they are (a test, 2026-10-12)."""
+    mode = os.environ.get("PETEY_STEM", "snowball")
+    if mode == "none":
+        return w
+    if mode == "plural":
+        if len(w) > 4 and w.endswith("ies"):
+            return w[:-3] + "y"
+        if len(w) > 4 and w.endswith(("ses", "xes", "zes", "ches", "shes")):
+            return w[:-2]
+        if len(w) > 3 and w.endswith("s") and not w.endswith(("ss", "us", "is")):
+            return w[:-1]
+        return w
     return _STEMMER.stemWord(w)
 
 
@@ -234,6 +284,19 @@ class Names:
             out.append(other)
         return out
 
+    def tells(self, name: str, other: str, text: str) -> bool:
+        """Whether the text can say the other field is meant: it holds a word or number the other name has and this
+        one lacks, or the other name has nothing this one lacks (this one then claims words the text does not say:
+        ACORD 25 `gl_addl_insd_subr_wvd_cd` on 'SUBR WVD'). A row label ('17.6. Other financial account') names
+        neither the institution box nor the amount box beside it, so it cannot say which one it belongs to
+        (2026-10-13, Andrew: Schedule A/B's ten institution / amount flags). PETEY_TELLS=0 turns the rule off."""
+        if os.environ.get("PETEY_TELLS", "1") == "0":
+            return True
+        mine = self.toks.get(name, set()) | _nums(name)
+        theirs = self.toks.get(other, set()) | _nums(other)
+        only = theirs - mine
+        return not only or bool(only & (_toks(text) | _nums(text)))
+
     def judge(self, name: str, texts: list[str]) -> tuple[Optional[bool], str]:
         """True: the text explains the name; False: the text has words and the name shares none of them, or the
         text belongs to a nearby field more than to this one and more than that field's own text does (a swap, a
@@ -269,7 +332,7 @@ class Names:
         best, who = mine + _MARGIN, None
         for other in self.rivals(name):
             s = self.fit(other, tt)
-            if s > best and s > self.own_fit.get(other, 0.0) + _MARGIN:
+            if s > best and s > self.own_fit.get(other, 0.0) + _MARGIN and self.tells(name, other, " ".join(texts)):
                 best, who = s, other
         return (False, f"belongs to: {who}") if who else (True, "")
 
@@ -277,7 +340,7 @@ class Names:
         """How well the field's own texts (of this witness) describe it, by the model; cached."""
         if field not in self._own_model:
             ts = [t for t in (self.own_texts.get(field) or []) if t]
-            got = text_match.score_pairs([(t, text_match.name_words(field)) for t in ts]) if ts else []
+            got = text_match.score_pairs([(t, text_match.name_words(field, text=t)) for t in ts]) if ts else []
             self._own_model[field] = max(got or [0.0])
         return self._own_model[field]
 
@@ -289,17 +352,39 @@ class Names:
         text = " | ".join(texts)
         shared = _same_text(text) in self.shared   # a text several fields carry names none of them: no verdict
         rivals = [] if shared else self.rivals(name)
-        got = text_match.score_pairs([(text, text_match.name_words(n)) for n in [name] + rivals])
+        got = text_match.score_pairs([(text, text_match.name_words(n, text=text)) for n in [name] + rivals])
         mine, theirs = got[0], dict(zip(rivals, got[1:]))
         best, who = mine + _MARGIN_M, None
         for other, s in theirs.items():
-            if s > best and s > self._own_score(other) + 0.05:
+            if s > best and s > self._own_score(other) + 0.05 and self.tells(name, other, text):
                 best, who = s, other
         if who:
             return False, f"belongs to: {who}"
         if mine < _LOW:
             return (None, "") if shared else (False, f"does not describe ({mine:.2f})")
         return True, ""
+
+
+def prefetch_scores(fields: dict, by_witness: dict[str, "Names"]) -> int:
+    """Score every (text, name) pair the witnesses will ask about in one pass, so `_judge_model` reads them from
+    `text_match`'s cache instead of asking field by field (ACORD 125: 2,359 calls for 4,907 pairs). The same pairs
+    `_judge_model` builds: each text of a field against its own name and its rivals' (none for a shared text). Page
+    and classifier texts are only judged for text fields. Measured 2026-10-10: barely faster, since the cost is per
+    pair (dense forms with long tooltips hit the 96-token cap: I-130 4,610 pairs, ~12 s); the speed lever is the
+    int8 model (`text_match`, PETEY_TEXT_MATCH_INT8). Returns the number of pairs."""
+    pairs = []
+    for k, nm in by_witness.items():
+        for name, spec in fields.items():
+            if k != "publisher" and spec.get("widgets"):
+                continue
+            for t in nm.own_texts.get(name) or []:
+                if not t or not _toks(t):
+                    continue
+                rivals = [] if _same_text(t) in nm.shared else nm.rivals(name)
+                pairs += [(t, text_match.name_words(n, text=t)) for n in [name] + rivals]
+    pairs = list(dict.fromkeys(pairs))
+    text_match.score_pairs(pairs)
+    return len(pairs)
 
 
 _LOW = 0.01        # model: below this the text does not describe the name (0.2 flagged 286 looked-at accepts)
@@ -318,13 +403,28 @@ def printed_agrees(texts: list[str], printed: list[str]) -> bool:
     (of the shorter) with a line printed at the box. A flag built on a text the page does not echo is a hint: the
     tooltip may be a copy-paste from another box. On the 21 hand-flagged name errors: false alarms on looked-at
     fields 57 -> 22, real errors caught 16 -> 15."""
-    for t in texts:
-        a = _toks(t)
-        for line in printed:
-            b = _toks(line)
-            if a and b and len(a & b) / min(len(a), len(b)) >= _AGREE:
-                return True
-    return False
+    return any(_agreement(t, line) >= _AGREE for t in texts for line in printed)
+
+
+def _agreement(a: str, b: str) -> float:
+    """The share of the shorter text's words the other one has: the same word (`_toks`: abbreviations written out,
+    stemmed), or one an abbreviation of the other (`text_match.abbreviates`: the printed header 'ADDL INSD' ~ the
+    tooltip's 'additional insured'; 2026-10-12, before which ACORD 25's ADDL INSD flags were all demoted). Each
+    word of the longer text answers for one word only."""
+    wa, wb = (list(dict.fromkeys(w for w in re.findall(r"[a-z]+", (x or "").lower()) if _toks(w)))
+              for x in (a, b))
+    if len(wa) > len(wb):
+        wa, wb = wb, wa
+    if not wa:
+        return 0.0
+    left, hit = list(wb), 0
+    for w in wa:
+        for i, v in enumerate(left):
+            if _toks(w) & _toks(v) or text_match.abbreviates(w, v) or text_match.abbreviates(v, w):
+                hit += 1
+                del left[i]
+                break
+    return hit / len(wa)
 
 
 _AGREE = 2 / 3
@@ -356,6 +456,7 @@ def _xfa_parent(path: str) -> str:
     return path.rsplit(".", 1)[0] if "[" in path and "." in path else ""
 
 
+@_by_file
 def section_rules(blank: Path) -> dict[int, list[float]]:
     """`{page: [y]}`: the lines a form draws between sections: horizontal, across a good part of the page, and
     heavier than the page's usual line (ACORD 140: 0.96 / 0.72 section, 0.48 row, 0.24 cell; docs/TODO.md,
@@ -542,6 +643,7 @@ def grouping_witnesses(fields: dict, by_page: dict[int, list[dict]]) -> dict[str
     return out
 
 
+@_by_file
 def class_map_boxes(blank: Optional[Path], run_dir: Optional[Path]) -> dict[int, list[dict]]:
     """The classifier's boxes by page: the run's class map, else the cached one for the blank (never a new call)."""
     boxes = None
@@ -640,6 +742,7 @@ def _judge_rows(case_dir: Path) -> dict[str, dict]:
     return {}
 
 
+@_by_file
 def run_witnesses(run_dir: Path, blank: Optional[Path]) -> dict[str, dict]:
     """`{field key: {judge, classifier, structure, verified, run_name}}` from one run, keyed by widget path."""
     rbp = _load(run_dir / "blueprint.bpt") if (run_dir / "blueprint.bpt").exists() else {}
@@ -809,8 +912,11 @@ def explain(name: str, spec: dict, ws: dict[str, tuple], pc: Optional[dict]) -> 
             said = cap.group(1) if k == "classifier" and cap else said
             said = re.sub(r"\s+", " ", said.split(" | ")[0]).strip(" ;")
             said = said if len(said) <= 70 else said[:69] + "…"     # the text's start, not its first "sentence"
+            # "use" takes that name (Andrew, 2026-10-13); the other field still has it, so the page holds the rename
+            # back as a clash until that one is renamed too (usually a swap in a shifted block)
             out.append({"kind": "error", "text": f"{_WITNESS_TEXT[k]} ({said!r}) fits "
-                                                 f"`{m.group(2)}` better than this field."})
+                                                 f"`{m.group(2)}` better than this field.",
+                        "fix": {"name": m.group(2)}})
         elif k == "classifier" and "nothing goes here" in (detail or ""):
             out.append({"kind": "error", "text": "The page classifier read this box as one where nothing is written."})
         elif k == "judge":
@@ -902,12 +1008,19 @@ def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool =
                      ("classifier", {n: [b["label"]] if b and b.get("label") else [] for n, b in boxes.items()})):
         by_witness[k] = Names(fields, section_ys)
         by_witness[k].set_own(texts)
-    out = {}
-    for name, spec in fields.items():
+    if use_model():
+        prefetch_scores(fields, by_witness)
+    pvs = {}
+    for name in fields:
         pv = _per_line(name, pub[name], by_witness["publisher"])
         if pv[0] is False and ("belongs to:" in pv[1] or "does not describe" in pv[1]) \
                 and not printed_agrees(pub[name], printed[name]):
             pv = (False, "unconfirmed; " + pv[1])      # the page does not echo the tooltip: a hint (`grade`)
+        pvs[name] = pv
+    pvs.update(second_opinion(pvs, pub))
+    out = {}
+    for name, spec in fields.items():
+        pv = pvs[name]
         ws: dict[str, tuple] = {"publisher": pv,
                                 "page": page_witness(name, spec, lines, printed[name], by_witness["page"])}
         if by_page:
@@ -942,6 +1055,26 @@ def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool =
                                   + ([cap] if cap else []),
                                   key=lambda x: x["kind"] != "error")
     return {"blueprint": str(bpt_path), "run": run_dir.name if run_dir else None, "fields": out}
+
+
+def second_opinion(pvs: dict[str, tuple], pub: dict[str, list[str]]) -> dict[str, tuple]:
+    """Jev on the tooltip flags that still count (`label/jev.py`): one it reads as a clear match (`_JEV_OK`) gets a
+    note for the reviewer, '(Jev reads a match, 0.82)'; the flag still counts. Demoting such flags to hints was
+    measured 2026-10-13 on 57 known name errors: 2 looked-at false alarms cleared, 2 real errors lost (combined
+    names that contain the right words, `gl_addl_insd_subr_wvd_cd`), so Jev informs and does not vote (Andrew:
+    cheap and fast enough to keep). The name is written out against the tooltip as the text-match model reads it."""
+    from petey.label import jev
+    todo = [n for n, (v, d) in pvs.items() if v is False and not d.startswith("unconfirmed")
+            and ("belongs to:" in d or "does not describe" in d) and pub.get(n)]
+    if not todo or not jev.available():
+        return {}
+    texts = {n: " | ".join(pub[n]) for n in todo}
+    got = jev.describes([(texts[n], text_match.name_words(n, text=texts[n])) for n in todo])
+    return {n: (False, pvs[n][1] + f" (Jev reads a match, {s:.2f})")
+            for n, s in zip(todo, got) if s is not None and s >= _JEV_OK}
+
+
+_JEV_OK = 0.7      # Jev's 'same thing' above which a tooltip flag carries its note
 
 
 # ------------------------------------------------------------------- the loop's view

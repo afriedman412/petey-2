@@ -83,13 +83,17 @@ Flag a field when you can point to the problem on the page:
 swapped with another field). Do not flag style: abbreviations, suffixes (_nm name, _dt date, _amt money, _cd code, \
 _ind checkbox, _txt text, _nbr number), word order, copy numbers, or a name that is correct but could be more \
 detailed.
+- wrong_name also covers a table: every cell is named on one pattern, each column (or row) one wording and each \
+row (or column) one number, so flag a cell whose name breaks it (another number than its row's, a different wording \
+than the rest of its column); here a copy number does matter.
 - wrong_type: the type or semantic type does not fit the value (a date typed as plain text, a count typed as a \
 year, a box that takes one of a printed list of choices typed as free text).
 - not_a_field: nothing is written here by a filer (the box sits on printed text, a heading, an instruction, or it \
 duplicates another field's box).
 - continues: the box is a further line of another field's answer (the answer runs on from the line above, with no \
 caption of its own, or the page says it continues), so the two should be one field; put the name of the field it \
-continues in proposed_name.
+continues in proposed_name. Do not flag lines that are already named as numbered lines of one answer \
+(address_line_1, address_line_2; remarks_1, remarks_2): several fields for one multi-line answer are fine.
 - should_group: this checkbox is one of several that answer one question, whether the filer ticks one or several \
 (a list of boxes to tick under one question, item or column), and the blueprint keeps them as separate fields; name \
 the others in the reason.
@@ -176,17 +180,19 @@ def _letters(j: int) -> str:
 
 # ---------------------------------------------------------------- render
 
-def page_dpi(page) -> int:
+def page_dpi(page, max_edge: int = MAX_EDGE, max_px: int = MAX_PX) -> int:
     w_in, h_in = page.rect.width / 72, page.rect.height / 72
-    return int(min(MAX_EDGE / max(w_in, h_in), math.sqrt(MAX_PX / (w_in * h_in))))
+    return int(min(max_edge / max(w_in, h_in), math.sqrt(max_px / (w_in * h_in))))
 
 
-def render(blank: Path, page_no: int, rows: list[dict]) -> tuple[bytes, float, dict[str, list[float]]]:
-    """The page with every box on it outlined and labelled. Returns (png, dpi, {label: pixel box})."""
+def render(blank: Path, page_no: int, rows: list[dict], *, limits: Optional[tuple[int, int]] = None,
+           dpi: Optional[int] = None) -> tuple[bytes, float, dict[str, list[float]]]:
+    """The page with every box on it outlined and labelled. Returns (png, dpi, {label: pixel box}). `limits`
+    (long edge px, total px): another model's image limits (Jev's, `jev_page.py`); `dpi`: a fixed resolution."""
     doc = pymupdf.open(str(blank))
     try:
         page = doc[page_no - 1]
-        dpi = page_dpi(page)
+        dpi = dpi or page_dpi(page, *(limits or (MAX_EDGE, MAX_PX)))
         k = dpi / 72
         px: dict[str, list[float]] = {}
         on_page = [b for r in rows for b in r["boxes"] if b["page"] == page_no]
@@ -349,9 +355,8 @@ def ask(client, model: str, png: bytes, items: list[dict], *, page_no: int, n_pa
     if provider_for(model) is not None:
         answers, usage = _ask_openai_compatible(client, params)
     else:
-        with client.messages.stream(**params) as s:
-            resp = s.get_final_message()
-        answers, usage = parse(resp)
+        from petey.synth.generate import final_message
+        answers, usage = parse(final_message(lambda: client.messages.stream(**params), f"page_check p{page_no}"))
     usage["seconds"] = round(time.time() - t0, 1)
     try:
         from petey.label import call_log
@@ -500,9 +505,15 @@ def check(bpt: Path, *, model: str = MODEL, pages: Optional[set[int]] = None, dr
     usage_total: collections.Counter = collections.Counter()
     per_page: list[dict] = []        # one row per call: time, fields judged, tokens (time and cost per field)
     form = bp.get("name") or bpt.stem
+    # the pages are rendered one after another (pymupdf), then every page's calls go out together (Andrew,
+    # 2026-10-19: the pages ran one after another, each page's strips already side by side; a call's time is its
+    # output, so the form costs its slowest page, not the sum), then the answers are merged in page order
+    jobs: list[tuple] = []           # (page, view png, view items, only ids, view label)
+    items_of: dict[int, list] = {}
     for pg in want:
         png, dpi, px = render(blank, pg, rows)
         items = field_list(rows, pg, px)
+        items_of[pg] = items
         if png_dir is not None:
             png_dir.mkdir(parents=True, exist_ok=True)
             (png_dir / f"{bpt.stem}_p{pg}.png").write_bytes(png)
@@ -510,48 +521,49 @@ def check(bpt: Path, *, model: str = MODEL, pages: Optional[set[int]] = None, dr
         if dry:
             log(f"  page {pg}: {len(items)} fields, {dpi:.0f} dpi, {len(png) // 1024} KB")
             continue
-        if client is None:
-            client = _client(model)
         want_ids = {it["id"] for it in items if only_names is None or by_id[it["id"]]["name"] in only_names}
-        jobs = []
-        for vpng, vitems, own, label in views(model, png, items):
+        vs = views(model, png, items)
+        for vpng, vitems, own, label in vs:
             judge = sorted(own & want_ids, key=int)
             if judge:
-                full = only_names is None and len(views(model, png, items)) == 1
-                jobs.append((vpng, vitems, None if full else judge, label))
-        from concurrent.futures import ThreadPoolExecutor
-        with ThreadPoolExecutor(max_workers=max(1, len(jobs))) as ex:
-            results = list(ex.map(lambda j: ask(client, model, j[0], j[1], page_no=pg, n_pages=n_pages, form=form,
-                                                only=j[2], view=j[3]), jobs))
-        for (vpng, vitems, only, label), (answers, usage) in zip(jobs, results):
-            if not usage.get("cached"):
-                for k in ("input_tokens", "output_tokens"):
-                    usage_total[k] += usage.get(k, 0)
-                usage_total["calls"] += 1
-            else:
-                usage_total["cached"] += 1
-            asked = [it for it in vitems if only is None or it["id"] in only]
-            per_page.append({"page": pg, "view": label or None, "fields": len(asked), "on_page": len(items),
-                             "cached": bool(usage.get("cached")),
-                             "seconds": None if usage.get("cached") else usage.get("seconds"),
-                             "input_tokens": usage.get("input_tokens"), "output_tokens": usage.get("output_tokens")})
-            missing = [it["id"] for it in asked if it["id"] not in answers]
-            log(f"  page {pg}{' ' + label.split(' (')[0] if label else ''}: {len(asked)} fields"
-                f"{'' if only is None else f' of {len(vitems)}'}, {sum(a.get('verdict') == 'flag' for a in answers.values())} flagged"
-                + (f", {len(missing)} unanswered" if missing else "")
-                + (" (cached)" if usage.get("cached") else f", {usage.get('seconds')}s, {usage.get('stop_reason')}"))
-            for it in asked:
-                name = by_id[it["id"]]["name"]
-                a = answers.get(it["id"])
-                rec = ({"verdict": a.get("verdict"), "problem": a.get("problem"), "box_holds": a.get("box_holds"),
-                        "proposed_name": a.get("proposed_name") or None, "proposed_type": a.get("proposed_type") or None,
-                        "reason": a.get("reason"), "page": pg}
-                       if a else {"verdict": None, "problem": "unanswered", "page": pg})
-                rec["spec"] = spec_hash(by_id[it["id"]]["spec"])
-                rec["model"] = model
-                prev = fields.get(name)
-                if prev is None or (rec["verdict"] == "flag" and prev.get("verdict") != "flag"):
-                    fields[name] = rec            # a group over several pages: a flag on any page stands
+                full = only_names is None and len(vs) == 1
+                jobs.append((pg, vpng, vitems, None if full else judge, label))
+    if jobs and client is None:
+        client = _client(model)
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=max(1, len(jobs))) as ex:
+        results = list(ex.map(lambda j: ask(client, model, j[1], j[2], page_no=j[0], n_pages=n_pages, form=form,
+                                            only=j[3], view=j[4]), jobs))
+    for (pg, vpng, vitems, only, label), (answers, usage) in zip(jobs, results):
+        items = items_of[pg]
+        if not usage.get("cached"):
+            for k in ("input_tokens", "output_tokens"):
+                usage_total[k] += usage.get(k, 0)
+            usage_total["calls"] += 1
+        else:
+            usage_total["cached"] += 1
+        asked = [it for it in vitems if only is None or it["id"] in only]
+        per_page.append({"page": pg, "view": label or None, "fields": len(asked), "on_page": len(items),
+                         "cached": bool(usage.get("cached")),
+                         "seconds": None if usage.get("cached") else usage.get("seconds"),
+                         "input_tokens": usage.get("input_tokens"), "output_tokens": usage.get("output_tokens")})
+        missing = [it["id"] for it in asked if it["id"] not in answers]
+        log(f"  page {pg}{' ' + label.split(' (')[0] if label else ''}: {len(asked)} fields"
+            f"{'' if only is None else f' of {len(vitems)}'}, {sum(a.get('verdict') == 'flag' for a in answers.values())} flagged"
+            + (f", {len(missing)} unanswered" if missing else "")
+            + (" (cached)" if usage.get("cached") else f", {usage.get('seconds')}s, {usage.get('stop_reason')}"))
+        for it in asked:
+            name = by_id[it["id"]]["name"]
+            a = answers.get(it["id"])
+            rec = ({"verdict": a.get("verdict"), "problem": a.get("problem"), "box_holds": a.get("box_holds"),
+                    "proposed_name": a.get("proposed_name") or None, "proposed_type": a.get("proposed_type") or None,
+                    "reason": a.get("reason"), "page": pg}
+                   if a else {"verdict": None, "problem": "unanswered", "page": pg})
+            rec["spec"] = spec_hash(by_id[it["id"]]["spec"])
+            rec["model"] = model
+            prev = fields.get(name)
+            if prev is None or (rec["verdict"] == "flag" and prev.get("verdict") != "flag"):
+                fields[name] = rec            # a group over several pages: a flag on any page stands
     pin, pout = PRICES.get(model, (0.0, 0.0))
     cost = usage_total["input_tokens"] / 1e6 * pin + usage_total["output_tokens"] / 1e6 * pout
     return {"blueprint": str(bpt), "form": form, "blueprint_sha": _sha(bpt), "model": model, "prompt": PROMPT_VERSION,

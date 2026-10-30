@@ -54,7 +54,9 @@ from petey.validate.score import score  # noqa: E402
 from petey.validate.method_delta import is_judge, judge_name, legacy_name  # noqa: E402
 
 from petey.paths import REPO, RUNS, BLUEPRINTS
-DEFAULT_MODEL = "claude-sonnet-4-6"
+from petey.models import model_for  # noqa: E402
+DEFAULT_MODEL = model_for("reader")     # the judge; also the generator / labeler fallback when not given
+
 
 
 PETEY_CACHE_DIR = RUNS / "_petey_cache"
@@ -315,6 +317,25 @@ def _class_score(bpt: dict, blank_pdf: Path, case_dir: Path, tag: str) -> None:
           f"{inv['option_group_mismatch']} option-group mismatches, {inv['tie']} ties")
 
 
+def _bank_case(cmap: dict, blank_pdf: Path, filled: Path, bank_cp: Optional[Path],
+               gen_cache_key: Optional[str]) -> tuple[dict, dict]:
+    """(effective case, fill report) for a bank case: the frozen draw when one is saved, else a new draw, saved;
+    either way filled into the blank. Frozen once written: a case set must not drift when the class map or the bank
+    changes; regenerate a new set instead.
+
+    What is frozen is what was DRAWN, never what the filler made of it. The filler joins the cells of a widget the
+    finder split (a two-line box, a comb) into one string and reports that string on every cell; a frozen file
+    holding the joined string was joined again on its next fill (2026-10-20: Form 8825's two-line address cells
+    doubled, then doubled again, on 27 forms since 2026-09-30)."""
+    if bank_cp is not None and bank_cp.exists():
+        drawn = json.loads(bank_cp.read_text(encoding="utf-8"))
+    else:
+        drawn = generate_from_bank(cmap, seed=seed_from_key(gen_cache_key))
+        if bank_cp is not None:
+            bank_cp.write_text(json.dumps(drawn, indent=2))
+    return render_case(drawn, blank_pdf, filled, classes=_classes_of(cmap))
+
+
 def _run_case(
     *,
     bpt_path: Path, bpt: dict, blank_pdf: Path,
@@ -357,16 +378,7 @@ def _run_case(
         from petey.validate.provenance import case_basis
         bank_cp = (_adopt_legacy_case(gen_cache_dir, blank_pdf, gen_cache_key, case_basis(), adopt_from) if adopt_from
                    else _bank_cache_path(gen_cache_dir, blank_pdf, gen_cache_key, case_basis()))
-        if bank_cp is not None and bank_cp.exists():
-            # Frozen once written: a case set must not drift when the class
-            # map or the bank changes; regenerate a new set instead.
-            case_rects = json.loads(bank_cp.read_text(encoding="utf-8"))
-            case_rects, fill_report = render_case(case_rects, blank_pdf, filled, classes=_classes_of(cmap))
-        else:
-            drawn = generate_from_bank(cmap, seed=seed_from_key(gen_cache_key))
-            case_rects, fill_report = render_case(drawn, blank_pdf, filled, classes=_classes_of(cmap))
-            if bank_cp is not None:
-                bank_cp.write_text(json.dumps(case_rects, indent=2))
+        case_rects, fill_report = _bank_case(cmap, blank_pdf, filled, bank_cp, gen_cache_key)
         (case_dir / "case_rects.json").write_text(json.dumps(case_rects, indent=2))
         targets = fill_report.pop("targets", {})
         (case_dir / "case_targets.json").write_text(json.dumps(targets, indent=1))

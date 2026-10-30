@@ -1582,3 +1582,121 @@ What this says about a real flat form: structure is the risk, not meaning. On th
 of text widgets at the right size and 99% of option boxes, and proposes a fifth more rects than the form has
 fields. A real flat form inherits that, and nothing in the loop can see it; the twins table's weak forms (p_15:
 3 of 15) are where it bites. The next steps are in TODO under "Flat forms through the loop".
+
+## Name checks, the text-match model and the caption chooser (2026-10-09/10; `witness.py`, `label/text_match.py`, `label/caption_choice.py`)
+
+**Fixture.** `eval/belongs_to_fixture.py`: every hand-reviewed field (3,999 on 2026-10-10), which text witnesses
+flag it, against the 21 fields Andrew flagged or corrected for their NAME (`NAME_FLAGS`: 9 I-130, 4 ACORD 125, 2
+each 5500-SF / 1014r / 5021, 1 each cms_10883 / rdt120). "Looked at" excludes bulk verdicts (`bulk: settled`,
+`auto: only the tooltip check questioned it`), which turned out to hide real errors.
+
+**"Belongs to another field", honed** (rival within an inch, same XFA subform, no heavier rule between; margin
+0.10; texts several fields carry skipped; fit both ways): firings 1,862 -> 118, looked-at false alarms 285 -> 12,
+name errors caught unchanged. Ablation (firings without the part): reach 193, margin 338, shared text 208, sections
+131, two-way fit 248. Among the bulk-accepted fields it still fired on, the page confirmed slides: ACORD 125
+attachments (13 of 14 one box off), I-130 eye colour / race / province-country (Andrew flagged all 9), f5500sf
+day / month.
+
+**Text-match model** (MiniLM-L6 cross-encoder, fine-tuned one epoch, ~13 min on the M1; 355 training forms, every
+reviewed form and a fifth of the rest held out; pairs = publisher text or readable path against the own name and
+near rivals, plus option captions). Held-out pair tests, `eval/text_match_eval.py`, Jev on a seeded sample:
+
+| | local model | Jev (jev-1.13.0) | right when both pick the same |
+|---|---|---|---|
+| names: true field over near rivals (22,428 groups) | 86.6% (tooltips 93.8%, paths 79.5%) | 87.0% | 95.4% |
+| captions: true caption over siblings and nearby lines (1,238) | 89.1% | 80.5% | 93.9% |
+
+Caption truth excludes publisher option codes that are not printed at the box (I-130 stores `Y` for Female, `HZL`
+for Hazel); with them the caption test penalised Jev for picking the printed caption. Jev cost ~$0.10 for both runs.
+Weak spots: insurance paraphrase ('name of the previous insurer' vs `prior_carrier_company_name`), rows that
+differ only by a number (q8 / q10), and text-against-text (use word overlap there).
+
+**Combined witness** (rules or model 'belongs to', model 'does not describe' below 0.01, Snowball stems,
+word-for-word shared texts, path only without a tooltip, and Andrew's printed-text gate: a publisher flag is an
+error only when the tooltip shares two thirds of its words with a line printed at the box):
+
+| | caught (of 21) | looked-at false alarms |
+|---|---|---|
+| old tooltip check (an error until 10-07) | 11 | 93 (1,667 reviewed fields flagged) |
+| honed rules | 11 | 12 |
+| rules + gate | 12 | 9 |
+| rules + model + gate | 15 | 22 |
+
+About half the 22 look like real errors with an accept verdict (lib__acord25's shifted producer / insured block,
+1014r `city_nm`, 5500-SF `sponsor_zip_cd`). Still missed: cms_10883 (no useful text), 5021 `patient_birth_dt`
+(the printed label is not next to the box), rdt120 (publisher texts disagree), ACORD 125 aircraft / boat / vehicle
+item boxes. Ignoring rival comparisons when the two tooltips are mostly the same text was measured and rejected:
+the real errors are 67-92% shared with their rival (templated neighbours), so a 70% cutoff loses 10 of 13 for 2
+fewer false alarms. All cutoffs were set on these 21 errors; the next reviews are the test.
+
+**Caption chooser** (`eval/caption_choice_eval.py`): candidates are the text printed around the box plus the part
+of the tooltip the siblings do not share; the model scores them against the option's meaning; captions unique per
+group; XFA and hand captions never replaced; a proposal needs P >= 0.6 and 0.2 over the current caption.
+Flagged groups 12/13 (*Gender / Person / Nonbinary *Race -> M / F / Nonbinary, FILING / DATE -> P / N,
+Temporary -> Amended, missing SOLID FUEL found); hand corrections 31/34 (misses: cms_10883, whose printed text is
+'n M / n F'); 499 sentence-length captions (group apply copied tooltips), a short caption proposed for 214. On
+1,256 held-out options chosen as if the caption were missing: 75% picked, 92% of picks right; of the proposals that
+change a caption the test called right, most replace a publisher code (`Y` -> Male) or a rotated set (I-129F
+APT / STE / FLR on the wrong boxes, which Andrew had corrected by hand).
+
+**Speed (2026-10-10).** The witness with the model: ACORD 25 5.8 s, ACORD 125 13.5 s, I-130 13.9 s per blueprint
+(rules alone 0.3 / 1.4 / 0.7 s); nearly all of it is model scoring (I-130: 4,610 pairs, nearly all at the 96-token
+cap). Scoring the form's pairs in one length-sorted pass instead of field by field (2,359 calls on ACORD 125)
+changed almost nothing; tokenizing is 1% of the time. int8 dynamic quantization: 986 vs 436 pairs/s (2.3x),
+21 MB vs 86 MB, held-out name top-1 86.6% -> 86.4%, per form 2.5 / 6.6 / 6.1 s, fixture 554 s vs ~24 min; but it
+caught 13 of 21 name errors instead of 15, both losses at the 'does not describe' cutoff (1014r 'Contractor or
+Agent' vs `email_address_txt` 0.0067 -> 0.0115; 5021 'middle initial' 0.0159 -> 0.0178 via the classifier). Captions
+unchanged (12/13, 31/34; sentence proposals 214 -> 206). Full precision stays the default; int8 is opt-in for dev
+runs.
+
+
+## Indra OCR, and a code-only page reader against it (2026-10-17; branch `page-reader-prototype`, `eval/page_reader.py`)
+
+Andrew asked whether datalab's Indra OCR (huggingface.co/datalab-to/indra-ocr, 0.3.2; ~1M parameters on ONNX, CPU)
+"kills what we are doing". It does not: Indra turns a page into text, line and block boxes, block labels (Text,
+Section-Header, List-Group, Table, Form, Page-Header / Footer, Caption, Footnote), reading order and markdown. It
+gives no fields, field types or label-value pairs (checked in its JSON on five forms: no field keys at all).
+
+**How Indra works (read from its code).** On a PDF it reads the text layer and OCRs only what is missing (`--mode
+auto`): the layer is checked first (junk characters from a broken font map, invisible text, text with no ink under
+it), and a line detector on the rendered page (~190 of ~320 ms a page) finds printed text the layer lacks
+("hybrid": W-9 page 1; "ocr": the Farmers Branch tradework affidavit, broken font map). Reading order is a learned
+pairwise model (box geometry + text cues, "i before j"), but on digital PDFs it mostly keeps the PDF's own content
+order when that order passes a check (few upward moves that are not column changes; the model agrees on 85%+ of
+consecutive pairs). Tables come from its layout model; table lines are split into cells at gaps. XY-cut is only a
+baseline in its code. Weights: modified OpenRAIL-M, free under $20M funding / revenue.
+
+**The prototype.** `eval/page_reader.py` matches Indra's output (Andrew: "we are only aiming to match what Indra
+does") with code we have and no model: the text layer, `cheap_names.headings`, headers / footers by repetition and
+form stamps, a recursive XY-cut, tables from the grid finder on widget / finder boxes (combs merged) and from ruled
+lattices (pdfplumber's lines strategy written out on `lattice.segments`; a lattice is a Table when at most 40% of
+its body cells are empty). Field boxes are a layout signal only. On a 40-form random sample (one per source_pdfs
+folder, 116 pages) it keeps a median 98% of the page text (Indra 96.4%), at 0.02-0.3 s a page on widget forms
+(1.2-4.7 s with an uncached finder on flat ones; Indra ~0.4 s on the M1).
+
+**OmniParseBench** (datalab-to/omni_parse_bench; yes / no tests per page; scorer `opb` 0.2.0). Run on the three
+forms suites and tables_derived (610 pages; most forms_federal / forms_filled pages have no text layer). Both
+readers' output went through one converter (markdown to HTML with the benchmark's own converter, labels mapped,
+boxes to page fractions); our run of Indra gives the same verdict as Datalab's published Indra results on 93% of
+5,669 tests, 2-5 points lower per test type, so the glue costs both a little. On the 559 pages with a text layer
+that both read:
+
+| test type | tests | Indra | ours |
+|---|---|---|---|
+| text present | 247 | 81.0 | **87.9** |
+| block label | 527 | **90.9** | 40.6 |
+| table cell | 4,731 | **56.0** | 0.6 |
+
+523 of the 559 pages are journal-article tables (tables_derived), drawn with horizontal rules or none: ours finds a
+table on 84 of 528 (3,927 cell tests fail "no tables found"), and 189 of its block-label misses are Form where the
+answer is table (no widgets on the page, so the finder marks table cells as boxes). Indra finds a table on 518 of 523
+but puts cells under the wrong headings (787), misses them (694) or puts them in the wrong row group / section
+(367). On the ~120 forms-suite tests the two are about even. Pages with no text layer: ours returns nothing; the
+published Tesseract row is far behind Indra there (text present 16.6 vs 55.4 on the 788 image pages), and our
+layout code needs fonts, vector rules and widgets that a scan does not have.
+
+**Conclusion (Andrew, 2026-10-17: "lets just record this in the notes and move on").** Matching Indra further buys
+little for Petey: journal tables are well covered by other tools, and Indra attempts none of the blueprint work.
+The one plausible use is a gate for digital PDFs with a broken text layer (Indra's checks, its OCR as the fallback);
+how many of the 1,381 corpus PDFs have one was not measured. The benchmark runs lived in the session scratchpad and
+are gone; the prototype and its commits stay on `page-reader-prototype` (not pushed).

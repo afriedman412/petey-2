@@ -79,6 +79,9 @@ def export_onnx() -> None:
     torch.onnx.export(model, tuple(enc[k] for k in names), str(OUT / "model.onnx"), input_names=names,
                       output_names=["logits"], dynamic_axes={k: {0: "batch", 1: "seq"} for k in names} |
                       {"logits": {0: "batch"}}, opset_version=17, dynamo=False)
+    # what petey runs: int8 weights, 2.3x faster on the M1 for a 0.2-point drop in held-out top-1 (2026-10-10)
+    from onnxruntime.quantization import QuantType, quantize_dynamic
+    quantize_dynamic(str(OUT / "model.onnx"), str(OUT / "model.int8.onnx"), weight_type=QuantType.QInt8)
 
 
 def main() -> int:

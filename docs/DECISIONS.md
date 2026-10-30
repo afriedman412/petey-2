@@ -8,3 +8,6 @@
 - Tried a learned (gradient-boosted) confidence model: learned dev-set quirks ("gray = blocked", "both readers agree")
   and under-trusted correct fields on unseen forms. Replaced with programmatic tiers + named adjustments.
 - Harness: bake appearances when flattening; exclude push buttons; shaded-cell exclusion with a recorded threshold.
+- 2026-10-17: Indra OCR is not a threat (no fields or types) and matching it is not a goal; stopped the page-reader
+  prototype after OmniParseBench (`page-reader-prototype` branch, RESULTS "Indra OCR, and a code-only page reader").
+  Possible later use: a broken-text-layer gate with Indra's OCR as the fallback.

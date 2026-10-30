@@ -14,12 +14,24 @@ changed fields are re-keyed to the new definitions, as `money_retype` does.
 
     PYTHONPATH=. venv/bin/python -m petey.validate.dropdowns            # what would change
     PYTHONPATH=. venv/bin/python -m petey.validate.dropdowns --write
+
+Options (Andrew, 2026-10-14: "we should have separate formatting for dropdowns, the options should appear like group
+options"): a dropdown's entries become `options: {key: {caption, stored}}`, as an option group's boxes carry a key and
+a caption. The key is what extraction returns, the caption what the filer sees in the list, `stored` (only where it
+differs from the key) what the PDF writes when that entry is picked. `values` is the list of keys. Most lists store
+their codes (key = stored, caption = the full name: AB / Alberta); some store an index (CBP 7501 countries: 0 =
+Afghanistan; key = the caption as a slug) or codes shifted by a blank first entry (CRA NR4 box 11: code 1 stored as 2;
+key = the shown code). The list's empty entry (a blank label, "Select one") is no option and is dropped. The
+extractor maps a stored value back to its key (`petey.extract`).
+
+    PYTHONPATH=. venv/bin/python -m petey.validate.dropdowns --options je__cra-t4 ...   # into the working copies
 """
 from __future__ import annotations
 
 import argparse
 import collections
 import json
+import re
 
 import yaml
 
@@ -30,6 +42,86 @@ from petey.validate.money_retype import _rekey
 from petey.validate.retype import resolve_blank
 
 KINDS = ("combobox", "listbox")
+
+
+def labels_of(spec: dict, template=None) -> dict[str, str]:
+    """{stored value: shown label} for a dropdown: the XFA labels the blueprint kept, the AcroForm display texts, or
+    the blank's XFA template (`template`, `petey.label.xfa.parse`)."""
+    lab = ((spec.get("x_petey_xfa") or {}).get("labels")) or spec.get("x_petey_choice_labels") or {}
+    path = (spec.get("widget") or {}).get("path")
+    if not lab and template is not None and path:
+        f = template.lookup(path)
+        if f and f.items and len(f.item_labels) == len(f.items):
+            lab = dict(zip(f.items, f.item_labels))
+    return {str(k): str(v) for k, v in lab.items()}
+
+
+def _slug(s: str) -> str:
+    import unicodedata
+    s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode()     # Español -> Espanol
+    return re.sub(r"_+", "_", re.sub(r"[^a-z0-9]+", "_", s.lower())).strip("_") or "option"
+
+
+def to_options(spec: dict, labels: dict[str, str]) -> tuple[dict, list[str]]:
+    """(options {key: {caption[, stored]}}, the stored values dropped as the list's empty entry)."""
+    from petey.label.xfa import is_blank_choice
+    vals = [str(v) for v in spec.get("values") or []]
+    pairs, dropped = [], []
+    for v in vals:
+        shown = labels.get(v, v) if labels else v
+        if not v.strip() or is_blank_choice(shown):
+            dropped.append(v)
+        else:
+            pairs.append((v, str(shown).strip()))
+    stored = [v for v, _ in pairs]
+    digits = bool(stored) and all(v.isdigit() for v in stored)
+    index = digits and bool(labels) and not all(c.isdigit() for _, c in pairs)
+    shifted = digits and bool(labels) and all(c.isdigit() for _, c in pairs) and any(c != v for v, c in pairs)
+    opts = {}
+    for v, cap in pairs:
+        key = _slug(cap) if index else cap if shifted else v
+        base, i = key, 2
+        while key in opts:
+            key, i = f"{base}_{i}", i + 1
+        opts[key] = {"caption": cap, **({"stored": v} if key != v else {})}
+    return opts, dropped
+
+
+def options_into_working(bid: str) -> list[str]:
+    """Options on every dropdown of one blueprint, written into its review-page working copy; the change lines."""
+    from petey.label import xfa
+    from petey.validate import draft
+    from petey.validate.page_check import spec_hash
+    real = hand_review.blueprint_paths()[bid]
+    p = draft.ensure(bid, real)
+    bp = hand_review._load(p)
+    blank = resolve_blank(bp)
+    t = None
+    try:
+        t = xfa.parse(blank) if blank and blank.exists() else None
+    except Exception:                       # no XFA template: the AcroForm display texts the blueprint kept, if any
+        t = None
+    lines, moved = [], {}
+    for name, spec in (bp.get("fields") or {}).items():
+        if not isinstance(spec, dict) or spec.get("widgets") or not spec.get("values") or spec.get("options"):
+            continue
+        if (spec.get("widget") or {}).get("widget_type") not in KINDS:
+            continue
+        old = spec_hash(spec)
+        opts, dropped = to_options(spec, labels_of(spec, t))
+        spec["options"] = opts
+        spec["values"] = list(opts)
+        spec["x_petey_retype"] = list(spec.get("x_petey_retype") or []) + ["dropdown_options"]
+        moved[name] = (old, spec_hash(spec))
+        lines.append(f"{name}: {len(opts)} dropdown options" + (f", the empty entry {dropped} dropped" if dropped else "")
+                     + (" (stored values differ from the keys)" if any("stored" in o for o in opts.values()) else ""))
+    if lines:
+        before = hand_review._sha(p)
+        p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False), encoding="utf-8")
+        _rekey(bp, moved)
+        draft.follow(bid, before, hand_review._sha(p))
+        draft.log(bid, "claude", lines)
+    return lines
 
 
 def apply(bp: dict, by_path: dict[str, dict]) -> dict[str, str]:
@@ -95,7 +187,16 @@ def run(write: bool) -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--write", action="store_true")
-    print(json.dumps(run(ap.parse_args().write), indent=1))
+    ap.add_argument("--options", nargs="+", metavar="ID", help="options on these blueprints' dropdowns (working copies)")
+    args = ap.parse_args()
+    if args.options:
+        for bid in args.options:
+            lines = options_into_working(bid)
+            print(f"{bid}: {len(lines)} dropdowns")
+            for ln in lines:
+                print("   " + ln)
+        return 0
+    print(json.dumps(run(args.write), indent=1))
     return 0
 
 

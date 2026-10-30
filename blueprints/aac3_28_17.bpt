@@ -7,11 +7,17 @@ source_pages:
 - 1
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: claude-sonnet-4-6
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 10:32:29'
 fields:
   applicant_nm:
     x_petey_id: '1_1'
     type: string
-    semantic_type: person_name
+    semantic_type: organization_name
     widget:
       page: 1
       rect:
@@ -22,7 +28,35 @@ fields:
       widget_type: text
       path: Well Name
     label_source: llm
-  ogrid_number:
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: applicant_nm
+      reason: The caption directly to the left of the outlined box reads 'Applicant:';
+        a filer writes the applicant's name here, matching proposed name 'applicant_nm'
+        not 'well_nm'.
+      model: claude-sonnet-4-6
+      contested: the page check says the name or type does not fit the box
+    description: Name of the applicant (operator or company) filing the administrative
+      application.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - description
+      - name
+      reason: The caption printed for this box is 'Applicant:'; the Well Name line
+        is one row below. Widgets on this line are shifted one row, so the box holds
+        the applicant's (company) name, not a person or well name.
+      before:
+        type: string
+        semantic_type: person_name
+      old_name: well_nm
+      adjudicated: proposed
+      judged: 'kept: 4 -> 0'
+    x_petey_identifiers:
+      subject: applicant
+      suffix: nm
+  ogrid_nbr:
     x_petey_id: '1_2'
     type: string
     widget:
@@ -34,15 +68,15 @@ fields:
       - 200.8800048828125
       widget_type: text
       path: OGRID Number
-    label_source: llm
     description: OGRID Number
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: ogrid
+      suffix: nbr
   well_nm:
     x_petey_id: '1_3'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -53,10 +87,44 @@ fields:
       widget_type: text
       path: API
     label_source: llm
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: well_nm
+      reason: The red-outlined box sits immediately to the right of the 'Well Name:'
+        caption; the API field is a separate line to the right, so a filer writes
+        the well name here, matching proposed name 'well_nm'.
+      model: claude-sonnet-4-6
+      contested: the page check says the name or type does not fit the box
+    description: Name of the well covered by the application.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: The vision check of the page shows this box follows the printed caption
+        'Well Name:'; the API box is to its right. Renamed to match the caption it
+        sits on (the prior well_nm field is reassigned to the applicant line).
+      before:
+        type: string
+      judged: 'kept: 3 -> 1'
+    x_petey_hand_edit:
+      when: '2026-10-14 20:49:25'
+      from:
+        name: api
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: well_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/je__aac3_28_17.json
+    x_petey_identifiers:
+      subject: well
+      suffix: nm
   pool_nm:
     x_petey_id: '1_5'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -67,7 +135,26 @@ fields:
       widget_type: text
       path: Pool
     label_source: llm
-  api_number:
+    x_petey_hand_edit:
+      when: '2026-10-14 19:30:25'
+      from:
+        name: pool_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: pool_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: pool
+      suffix: nm
+  api_nbr:
     x_petey_id: '1_4'
     type: string
     widget:
@@ -80,217 +167,33 @@ fields:
       widget_type: text
       path: Pool Code
     label_source: llm
-  pool_cd:
-    x_petey_id: '1_6'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 469.79998779296875
-      - 216.84002685546875
-      - 572.280029296875
-      - 230.280029296875
-      widget_type: text
-      path: undefined
-    label_source: llm
-  notification:
-    x_petey_id: '1_10'
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: api_nbr
+      reason: The caption directly to the left of the red-outlined box reads 'API:'
+        — a filer would write the API well number here, matching 'api_nbr', not 'pool_cd'.
+      model: claude-sonnet-4-6
+      contested: the page check says the name or type does not fit the box
+    description: API number of the well.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - name
+      reason: Caption printed for this box is 'API:'; 'Pool Code:' below is only a
+        printed blank line. Both the name reader and the page check agree this box
+        holds the API number.
+      before:
+        type: string
+      old_name: pool_cd
+      adjudicated: proposed
+      judged: 'kept: 3 -> 0'
+    x_petey_identifiers:
+      subject: api
+      suffix: nbr
+  type_of_application_location:
+    x_petey_id: '1_35'
     type: multi_category
-    values:
-    - notification_offset_operators_ind
-    - notification_royalty_owners_ind
-    - notification_published_notice_ind
-    - notification_slo_ind
-    - notification_blm_ind
-    - notification_surface_owner_ind
-    - notification_proof_attached_ind
-    - notification_none_required_ind
-    widgets:
-      notification_offset_operators_ind:
-        page: 1
-        rect:
-        - 76.19999694824219
-        - 432.1199951171875
-        - 87.0
-        - 442.9200134277344
-        widget_type: checkbox
-        path: Offset operators or
-        on_state: 'On'
-        caption: Offset operators or
-        x_petey_caption_source: tooltip
-      notification_royalty_owners_ind:
-        page: 1
-        rect:
-        - 76.19999694824219
-        - 444.9599914550781
-        - 87.0
-        - 455.760009765625
-        widget_type: checkbox
-        path: Roya
-        on_state: 'On'
-      notification_published_notice_ind:
-        page: 1
-        rect:
-        - 76.19999694824219
-        - 459.6000061035156
-        - 87.0
-        - 470.3999938964844
-        widget_type: checkbox
-        path: Application requires published not
-        on_state: 'On'
-        caption: Application requires published not
-        x_petey_caption_source: tooltip
-      notification_slo_ind:
-        page: 1
-        rect:
-        - 76.19999694824219
-        - 473.5199890136719
-        - 87.0
-        - 484.32000732421875
-        widget_type: checkbox
-        path: Notif
-        on_state: 'On'
-      notification_blm_ind:
-        page: 1
-        rect:
-        - 76.19999694824219
-        - 486.4800109863281
-        - 87.0
-        - 497.2799987792969
-        widget_type: checkbox
-        path: Notif_2
-        on_state: 'On'
-      notification_surface_owner_ind:
-        page: 1
-        rect:
-        - 76.19999694824219
-        - 500.5199890136719
-        - 87.0
-        - 511.32000732421875
-        widget_type: checkbox
-        path: Surface owner
-        on_state: 'On'
-        caption: Surface owner
-        x_petey_caption_source: tooltip
-      notification_proof_attached_ind:
-        page: 1
-        rect:
-        - 76.19999694824219
-        - 513.5999755859375
-        - 87.0
-        - 524.4000244140625
-        widget_type: checkbox
-        path: For a
-        on_state: 'On'
-      notification_none_required_ind:
-        page: 1
-        rect:
-        - 76.19999694824219
-        - 527.52001953125
-        - 87.0
-        - 538.3200073242188
-        widget_type: checkbox
-        path: No notice required
-        on_state: 'On'
-        caption: No notice required
-        x_petey_caption_source: tooltip
-    x_petey_grouping:
-      source: group_review
-      when: '2026-10-05 23:10:59'
-      from:
-      - notification_offset_operators_ind
-      - notification_royalty_owners_ind
-      - notification_published_notice_ind
-      - notification_slo_ind
-      - notification_blm_ind
-      - notification_surface_owner_ind
-      - notification_proof_attached_ind
-      - notification_none_required_ind
-  certifier_print_nm:
-    x_petey_id: '1_12'
-    type: string
-    semantic_type: person_name
-    widget:
-      page: 1
-      rect:
-      - 36.0
-      - 657.9600219726562
-      - 295.67999267578125
-      - 671.4000244140625
-      widget_type: text
-      path: Print or Type Name
-    label_source: llm
-    description: Print or Type Name
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  certification_dt:
-    x_petey_id: '1_11'
-    type: date
-    semantic_type: iso_date
-    widget:
-      page: 1
-      rect:
-      - 360.1199951171875
-      - 642.0
-      - 547.4400024414062
-      - 655.4400024414062
-      widget_type: text
-      path: Date
-    label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  certifier_phone_number:
-    x_petey_id: '1_13'
-    type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
-    widget:
-      page: 1
-      rect:
-      - 360.7200012207031
-      - 686.6400146484375
-      - 548.0399780273438
-      - 700.0800170898438
-      widget_type: text
-      path: Phone Number
-    label_source: llm
-    description: Phone Number
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  certifier_signature_nm:
-    x_petey_id: '1_14'
-    type: string
-    semantic_type: person_name
-    widget:
-      page: 1
-      rect:
-      - 36.720001220703125
-      - 724.2000122070312
-      - 296.3999938964844
-      - 737.6400146484375
-      widget_type: text
-      path: Signature
-    label_source: llm
-  certifier_email_address_txt:
-    x_petey_id: '1_15'
-    type: string
-    semantic_type: email
-    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
-    widget:
-      page: 1
-      rect:
-      - 363.0
-      - 728.8255004882812
-      - 550.3200073242188
-      - 742.9199829101562
-      widget_type: text
-      path: Address
-    label_source: llm
-  application_type:
-    x_petey_id: '1_7'
-    type: category
     values:
     - nsp_project_area_ind
     - nsp_proration_unit_ind
@@ -308,7 +211,7 @@ fields:
         path: NSPPROJECT AREA
         on_state: 'On'
         caption: NSP(PROJECT AREA)
-        x_petey_caption_source: page_text
+        x_petey_caption_source: page_choice
       nsp_proration_unit_ind:
         page: 1
         rect:
@@ -320,7 +223,7 @@ fields:
         path: NSPPRORATION UNIT
         on_state: 'On'
         caption: NSP(PRORATION UNIT)
-        x_petey_caption_source: page_text
+        x_petey_caption_source: page_choice
       sd_ind:
         page: 1
         rect:
@@ -345,16 +248,20 @@ fields:
         on_state: 'On'
         caption: NSL
         x_petey_caption_source: page_text
+    label_source: llm
     x_petey_grouping:
       source: group_review
-      when: '2026-10-05 23:10:59'
+      when: '2026-10-14 20:50:47'
       from:
-      - application_type::nsp_project_area_ind
-      - application_type::nsp_proration_unit_ind
-      - application_type::sd_ind
-      - application_type::nsl_ind
-  application_type_2:
-    x_petey_id: '1_8'
+      - nsp_project_area_ind
+      - nsp_proration_unit_ind
+      - sd_ind
+      - nsl_ind
+      name_from: labeler
+    x_petey_identifiers:
+      subject: type_of_application_location
+  commingling_storage_measurement_type:
+    x_petey_id: '1_36'
     type: category
     values:
     - dhc_ind
@@ -436,18 +343,22 @@ fields:
         on_state: 'On'
         caption: OLM
         x_petey_caption_source: page_text
+    label_source: llm
     x_petey_grouping:
       source: group_review
-      when: '2026-10-05 23:10:59'
+      when: '2026-10-14 20:50:47'
       from:
-      - application_type::dhc_ind
-      - application_type::ctb_ind
-      - application_type::plc_ind
-      - application_type::pc_ind
-      - application_type::ols_ind
-      - application_type::olm_ind
-  application_type_3:
-    x_petey_id: '1_9'
+      - dhc_ind
+      - ctb_ind
+      - plc_ind
+      - pc_ind
+      - ols_ind
+      - olm_ind
+      name_from: labeler
+    x_petey_identifiers:
+      subject: commingling_storage_measurement_type
+  injection_disposal_pressure_increase_enhanced_oil_recovery_type:
+    x_petey_id: '1_37'
     type: category
     values:
     - wfx_ind
@@ -529,13 +440,270 @@ fields:
         on_state: 'On'
         caption: PPR
         x_petey_caption_source: page_text
+    label_source: llm
     x_petey_grouping:
       source: group_review
-      when: '2026-10-05 23:10:59'
+      when: '2026-10-14 20:50:47'
       from:
-      - application_type::wfx_ind
-      - application_type::pmx_ind
-      - application_type::swd_ind
-      - application_type::ipi_ind
-      - application_type::eor_ind
-      - application_type::ppr_ind
+      - wfx_ind
+      - pmx_ind
+      - swd_ind
+      - ipi_ind
+      - eor_ind
+      - ppr_ind
+      name_from: labeler
+    x_petey_identifiers:
+      subject: injection_disposal_pressure_increase_enhanced_oil_recovery_type
+  notification_required_type:
+    x_petey_id: '1_38'
+    type: multi_category
+    values:
+    - notify_offset_operators_ind
+    - notify_royalty_owners_ind
+    - notify_published_notice_ind
+    - notify_slo_ind
+    - notify_blm_ind
+    - notify_surface_owner_ind
+    - notify_proof_attached_ind
+    - no_notice_required_ind
+    widgets:
+      notify_offset_operators_ind:
+        page: 1
+        rect:
+        - 76.19999694824219
+        - 432.1199951171875
+        - 87.0
+        - 442.9200134277344
+        widget_type: checkbox
+        path: Offset operators or
+        on_state: 'On'
+        caption: Offset operators or lease holders
+        x_petey_caption_source: page_choice
+      notify_royalty_owners_ind:
+        page: 1
+        rect:
+        - 76.19999694824219
+        - 444.9599914550781
+        - 87.0
+        - 455.760009765625
+        widget_type: checkbox
+        path: Roya
+        on_state: 'On'
+        caption: Royalty, overriding royalty owners, revenue owners
+        x_petey_caption_source: page_choice
+      notify_published_notice_ind:
+        page: 1
+        rect:
+        - 76.19999694824219
+        - 459.6000061035156
+        - 87.0
+        - 470.3999938964844
+        widget_type: checkbox
+        path: Application requires published not
+        on_state: 'On'
+        caption: Application requires published notice
+        x_petey_caption_source: page_choice
+      notify_slo_ind:
+        page: 1
+        rect:
+        - 76.19999694824219
+        - 473.5199890136719
+        - 87.0
+        - 484.32000732421875
+        widget_type: checkbox
+        path: Notif
+        on_state: 'On'
+        caption: Notification and/or concurrent approval by SLO
+        x_petey_caption_source: page_choice
+      notify_blm_ind:
+        page: 1
+        rect:
+        - 76.19999694824219
+        - 486.4800109863281
+        - 87.0
+        - 497.2799987792969
+        widget_type: checkbox
+        path: Notif_2
+        on_state: 'On'
+        caption: Notification and/or concurrent approval by BLM
+        x_petey_caption_source: page_choice
+      notify_surface_owner_ind:
+        page: 1
+        rect:
+        - 76.19999694824219
+        - 500.5199890136719
+        - 87.0
+        - 511.32000732421875
+        widget_type: checkbox
+        path: Surface owner
+        on_state: 'On'
+        caption: Surface owner
+        x_petey_caption_source: tooltip
+      notify_proof_attached_ind:
+        page: 1
+        rect:
+        - 76.19999694824219
+        - 513.5999755859375
+        - 87.0
+        - 524.4000244140625
+        widget_type: checkbox
+        path: For a
+        on_state: 'On'
+        caption: For all of the above, proof of notification or publication is attached,
+          and/or,
+        x_petey_caption_source: page_choice
+      no_notice_required_ind:
+        page: 1
+        rect:
+        - 76.19999694824219
+        - 527.52001953125
+        - 87.0
+        - 538.3200073242188
+        widget_type: checkbox
+        path: No notice required
+        on_state: 'On'
+        caption: No notice required
+        x_petey_caption_source: tooltip
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 20:50:47'
+      from:
+      - notify_offset_operators_ind
+      - notify_royalty_owners_ind
+      - notify_published_notice_ind
+      - notify_slo_ind
+      - notify_blm_ind
+      - notify_surface_owner_ind
+      - notify_proof_attached_ind
+      - no_notice_required_ind
+      name_from: labeler
+    x_petey_identifiers:
+      subject: notification_required_type
+  print_or_type_nm:
+    x_petey_id: '1_31'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.0
+      - 657.9600219726562
+      - 295.67999267578125
+      - 671.4000244140625
+      widget_type: text
+      path: Print or Type Name
+    description: Print or Type Name
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-14 19:30:25'
+      from:
+        name: print_or_type_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: print_or_type_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: print_or_type
+      suffix: nm
+  signature_dt:
+    x_petey_id: '1_30'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 360.1199951171875
+      - 642.0
+      - 547.4400024414062
+      - 655.4400024414062
+      widget_type: text
+      path: Date
+    label_source: llm
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
+  phone_nbr:
+    x_petey_id: '1_32'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 360.7200012207031
+      - 686.6400146484375
+      - 548.0399780273438
+      - 700.0800170898438
+      widget_type: text
+      path: Phone Number
+    description: Phone Number
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: phone
+      suffix: nbr
+  signature:
+    x_petey_id: '1_33'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.720001220703125
+      - 724.2000122070312
+      - 296.3999938964844
+      - 737.6400146484375
+      widget_type: text
+      path: Signature
+    label_source: llm
+    x_petey_identifiers:
+      suffix: signature
+  email_address_line_1_txt:
+    x_petey_id: '1_34'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 1
+      rect:
+      - 363.0
+      - 728.8255004882812
+      - 550.3200073242188
+      - 742.9199829101562
+      widget_type: text
+      path: Address
+    label_source: llm
+    x_petey_identifiers:
+      subject: email_address_line_1
+      suffix: txt
+x_petey_page_check:
+  when: '2026-10-06 11:13:37'
+  model: claude-opus-5
+  prompt: 216f41cd
+  pages:
+  - 1
+  fields: 34
+  flagged: 2
+  unanswered: 0
+  record: runs/page_check/je__aac3_28_17__cf504404.json
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: aac3_28_17_20261006_111252
+  blueprint: runs/judge_eval/blueprints/aac3_28_17.bpt
+  when: '2026-10-06 11:13:10'

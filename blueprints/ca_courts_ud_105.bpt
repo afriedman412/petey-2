@@ -1,0 +1,2996 @@
+bpt_version: '1.1'
+name: ca_courts_ud_105
+form_version: null
+source_pdf: ud105.pdf
+source_pdf_hash: b8cb278f15e3e0eeddff4f2e2f30327c4bdea0f2
+source_pages:
+- 1
+- 2
+- 3
+- 4
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 19:20:17'
+fields:
+  case_nbr_1:
+    x_petey_id: '1_19'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 400.0050048828125
+      - 241.3590087890625
+      - 572.8049926757812
+      - 255.74798583984375
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].CaptionSub[0].CaseNumber[0].CaseNumber[0]
+    description: 'CASE NUMBER:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: case_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: case_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '1'
+  attorney_state_bar_nbr:
+    x_petey_id: '1_1'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 308.8269958496094
+      - 49.87200927734375
+      - 393.9930114746094
+      - 58.87200927734375
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].AttyPartyInfo[0].AttyBarNo[0]
+    description: 'STATE BAR NUMBER:'
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zzzzzzzzzzzz9}
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - -semantic_type
+      reason: Caption 'STATE BAR NUMBER:' is an identification number, not a state
+        abbreviation; an ID is best held as a string, so drop the state_abbr semantic_type
+        and type it as string.
+      before:
+        type: number
+        semantic_type: state_abbr
+        description: 'STATE BAR NUMBER:'
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: attorney_state_bar_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_state_bar_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: attorney_state_bar
+      suffix: nbr
+  attorney_nm:
+    x_petey_id: '1_2'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 57.553001403808594
+      - 60.844970703125
+      - 393.9930114746094
+      - 69.844970703125
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].AttyPartyInfo[0].Name[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: attorney_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney
+      suffix: nm
+  attorney_firm_nm:
+    x_petey_id: '1_3'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 73.6709976196289
+      - 72.416015625
+      - 393.9930114746094
+      - 81.416015625
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].AttyPartyInfo[0].AttyFirm[0]
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: '''FIRM NAME:'' holds an organization name, not a person''s name; drop
+        the person_name semantic_type. Name and string type already fit.'
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: attorney_firm_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_firm_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney_firm
+      suffix: nm
+  attorney_street_address_txt:
+    x_petey_id: '1_4'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 95.55999755859375
+      - 83.9849853515625
+      - 393.9930114746094
+      - 92.9849853515625
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].AttyPartyInfo[0].Street[0]
+    description: 'STREET ADDRESS:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: attorney_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: attorney_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: attorney_street_address
+      suffix: txt
+  attorney_city_nm:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 54.3380012512207
+      - 95.552978515625
+      - 240.40899658203125
+      - 104.552978515625
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].AttyPartyInfo[0].City[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: attorney_city_name
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: attorney_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney_city
+      suffix: nm
+  attorney_state_cd:
+    x_petey_id: '1_6'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 263.5190124511719
+      - 95.552978515625
+      - 293.6719970703125
+      - 104.552978515625
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].AttyPartyInfo[0].State[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: attorney_state
+      suffix: cd
+  attorney_zip_cd:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 326.75299072265625
+      - 95.552978515625
+      - 393.9930114746094
+      - 104.552978515625
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].AttyPartyInfo[0].Zip[0]
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999-9999}
+      pictures:
+        format:
+        - text{99999-9999}
+    label_source: llm
+    x_petey_identifiers:
+      subject: attorney_zip
+      suffix: cd
+  attorney_phone_nbr:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 89.76499938964844
+      - 107.1209716796875
+      - 216.8300018310547
+      - 116.1209716796875
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].AttyPartyInfo[0].Phone[0]
+    description: 'Telephone number:'
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: attorney_phone_number
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: attorney_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: attorney_phone
+      suffix: nbr
+  attorney_fax_nbr:
+    x_petey_id: '1_9'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 266.114013671875
+      - 107.1209716796875
+      - 393.9930114746094
+      - 116.1209716796875
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].AttyPartyInfo[0].Fax[0]
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: attorney_fax_number
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: attorney_fax_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: attorney_fax
+      suffix: nbr
+  attorney_email_address_txt:
+    x_petey_id: '1_10'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 1
+      rect:
+      - 91.05599975585938
+      - 118.6920166015625
+      - 393.9930114746094
+      - 127.6920166015625
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].AttyPartyInfo[0].Email[0]
+    description: 'EMAIL ADDRESS:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: attorney_email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: attorney_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: attorney_email_address
+      suffix: txt
+  attorney_for_nm:
+    x_petey_id: '1_11'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 107.80699920654297
+      - 130.260009765625
+      - 393.9930114746094
+      - 139.260009765625
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].AttyPartyInfo[0].AttyFor[0]
+    description: 'ATTORNEY FOR (name):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: attorney_for_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_for_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney_for
+      suffix: nm
+  court_county_nm:
+    x_petey_id: '1_12'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 227.71299743652344
+      - 145.844970703125
+      - 393.9930114746094
+      - 154.844970703125
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].CourtInfo[0].CrtCounty[0]
+    description: SUPERIOR COURT OF CALIFORNIA, COUNTY OF
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: County of the superior court is a jurisdiction, not a person; drop person_name
+        semantic_type. Name and type are correct.
+      before:
+        type: string
+        semantic_type: person_name
+        description: SUPERIOR COURT OF CALIFORNIA, COUNTY OF
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: court_county_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_county_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: court_county
+      suffix: nm
+  court_street_address_txt:
+    x_petey_id: '1_13'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 156.18902587890625
+      - 393.9930114746094
+      - 165.18902587890625
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].CourtInfo[0].CrtStreet[0]
+    description: 'STREET ADDRESS:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: court_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: court_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: court_street_address
+      suffix: txt
+  court_mailing_address_txt:
+    x_petey_id: '1_14'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 167.12701416015625
+      - 393.9930114746094
+      - 176.12701416015625
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].CourtInfo[0].CrtMailingAdd[0]
+    description: 'MAILING ADDRESS:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: court_mailing_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_mailing_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: court_mailing_address
+      suffix: txt
+  court_city_zip_cd:
+    x_petey_id: '1_15'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 96.98899841308594
+      - 178.3900146484375
+      - 393.9809875488281
+      - 187.3900146484375
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].CourtInfo[0].CrtCityZip[0]
+    description: 'CITY AND ZIP CODE:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      - -pattern
+      reason: Box holds city and ZIP together, so the zip semantic_type and zip-only
+        regex are wrong; name still points at the right box so it is kept.
+      before:
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        description: 'CITY AND ZIP CODE:'
+      judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: court_city_zip
+      suffix: cd
+  court_branch_nm:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 189.74200439453125
+      - 393.9930114746094
+      - 198.74200439453125
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].CourtInfo[0].CrtBranch[0]
+    description: 'BRANCH NAME:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: A courthouse branch name is a facility name, not a person's name; drop
+        person_name semantic_type.
+      before:
+        type: string
+        semantic_type: person_name
+        description: 'BRANCH NAME:'
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: court_branch_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_branch_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: court_branch
+      suffix: nm
+  plaintiff_nm_1:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 89.81300354003906
+      - 204.56201171875
+      - 394.3420104980469
+      - 213.56201171875
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].TitlePartyName[0].Party1[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: plaintiff_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: plaintiff
+      suffix: nm
+      iteration: '1'
+  defendant_nm_1:
+    x_petey_id: '1_18'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 89.48100280761719
+      - 217.8170166015625
+      - 394.3420104980469
+      - 227.114990234375
+      widget_type: text
+      path: UD-105[0].Page1[0].P1Caption[0].TitlePartyName[0].Party2[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: defendant_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: defendant
+      suffix: nm
+      iteration: '1'
+  answering_defendants_txt:
+    x_petey_id: '1_20'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 50.215999603271484
+      - 279.2919921875
+      - 575.9970092773438
+      - 302.5920104980469
+      widget_type: text
+      path: UD-105[0].Page1[0].List1[0].item1[0].FillField1[0]
+    description: 'Defendant (all defendants for whom this answer is filed must be
+      named and must sign this answer unless their attorney signs):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: answering_defendants
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: answering_defendants_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: answering_defendants
+      suffix: txt
+  general_denial_ind:
+    x_petey_id: '1_21'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 70.31600189208984
+      - 331.1940002441406
+      - 79.31600189208984
+      - 340.1940002441406
+      widget_type: checkbox
+      path: UD-105[0].Page1[0].List2[0].Lia[0].Check1[0]
+    description: General Denial (Do not check this box if the complaint demands more
+      than $1,000.) Defendant generally denies each statement of the complaint.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: general_denial
+      suffix: ind
+  specific_denials_ind:
+    x_petey_id: '1_22'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 70.22799682617188
+      - 360.2439880371094
+      - 79.22799682617188
+      - 369.2439880371094
+      widget_type: checkbox
+      path: UD-105[0].Page1[0].List2[0].Lib[0].Check1[0]
+    description: 'Specific Denials (Check this box and complete (1) and (2) below
+      if complaint demands more than $1,000.) Defendant admits that all the statements
+      of the complaint are true EXCEPT:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: specific_denials
+      suffix: ind
+  specific_denials_false_statements_txt:
+    x_petey_id: '1_24'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 78.63800048828125
+      - 445.85198974609375
+      - 557.9310302734375
+      - 481.99798583984375
+      widget_type: text
+      path: UD-105[0].Page1[0].List2[0].Lib[0].SubListb[0].Li1[0].Subitem1[0].Lia[0].FillField2[0]
+    description: 'Defendant claims the following statements of the complaint are false
+      (state paragraph numbers from the complaint or explain below or, if more room
+      needed, on form MC-025):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: specific_denials_false_statements
+      suffix: txt
+  attachment_2b1_ind:
+    x_petey_id: '1_23'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 82.37999725341797
+      - 434.8590087890625
+      - 91.37999725341797
+      - 443.8590087890625
+      widget_type: checkbox
+      path: UD-105[0].Page1[0].List2[0].Lib[0].SubListb[0].Li1[0].Subitem1[0].Lia[0].Check3[0]
+    description: Explanation is on form MC-025, titled as Attachment 2b(1).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: attachment_2b1
+      suffix: ind
+  specific_denials_uninformed_statements_txt:
+    x_petey_id: '1_26'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 79.0270004272461
+      - 524.9019775390625
+      - 558.0250244140625
+      - 560.7579956054688
+      widget_type: text
+      path: UD-105[0].Page1[0].List2[0].Lib[0].SubListb[0].Li1[0].Subitem1[0].Lib[0].FillField3[0]
+    description: 'Defendant has no information or belief that the following statements
+      of the complaint are true, so defendant denies them (state paragraph numbers
+      from the complaint or explain below or, if more room needed, on form MC-025):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: specific_denials_uninformed_statements
+      suffix: txt
+  attachment_2b2_ind:
+    x_petey_id: '1_25'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 83.33499908447266
+      - 514.1810302734375
+      - 93.33499908447266
+      - 524.1810302734375
+      widget_type: checkbox
+      path: UD-105[0].Page1[0].List2[0].Lib[0].SubListb[0].Li1[0].Subitem1[0].Lib[0].Check4[0]
+    description: Explanation is on form MC-025, titled as Attachment 2b(2).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: attachment_2b2
+      suffix: ind
+  breach_warranty_habitability_ind:
+    x_petey_id: '1_27'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 70.60800170898438
+      - 601.8189697265625
+      - 80.60800170898438
+      - 611.8189697265625
+      widget_type: checkbox
+      path: UD-105[0].Page1[0].List3[0].Lia[0].Check8[0]
+    description: (Nonpayment of rent only) Plaintiff has breached the warranty to
+      provide habitable premises.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: breach_warranty_habitability
+      suffix: ind
+  repair_and_deduct_ind:
+    x_petey_id: '1_28'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 70.60600280761719
+      - 615.7160034179688
+      - 80.60600280761719
+      - 625.7160034179688
+      widget_type: checkbox
+      path: UD-105[0].Page1[0].List3[0].Lib[0].Check9[0]
+    description: (Nonpayment of rent only) Defendant made needed repairs and properly
+      deducted the cost from the rent, and plaintiff did not give proper credit.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: repair_and_deduct
+      suffix: ind
+  rent_tendered_refused_ind:
+    x_petey_id: '1_29'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 70.5
+      - 641.863037109375
+      - 80.5
+      - 651.863037109375
+      widget_type: checkbox
+      path: UD-105[0].Page1[0].List3[0].Lic[0].Check10[0]
+    description: (Nonpayment of rent only)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: rent_tendered_refused
+      suffix: ind
+  rent_tendered_refused_dt:
+    x_petey_id: '1_30'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 240.64100646972656
+      - 641.9620361328125
+      - 340.7950134277344
+      - 652.35400390625
+      widget_type: text
+      path: UD-105[0].Page1[0].List3[0].Lic[0].Date1[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MMMM D, YYYY}
+    label_source: llm
+    x_petey_identifiers:
+      subject: rent_tendered_refused
+      suffix: dt
+  rent_due_over_one_year_ago_ind:
+    x_petey_id: '1_31'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 70.5459976196289
+      - 667.5330200195312
+      - 80.5459976196289
+      - 677.5330200195312
+      widget_type: checkbox
+      path: UD-105[0].Page1[0].List3[0].li3d[0].Check8[0]
+    description: (Nonpayment of rent only) Plaintiff's demand for possession is based
+      on nonpayment of rent due more than one year ago.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: rent_due_over_one_year_ago
+      suffix: ind
+  waived_changed_canceled_notice_ind:
+    x_petey_id: '1_32'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 70.60800170898438
+      - 682.010986328125
+      - 80.60800170898438
+      - 692.010986328125
+      widget_type: checkbox
+      path: UD-105[0].Page1[0].List3[0].Lie[0].Check11[0]
+    description: Plaintiff waived, changed, or canceled the notice to quit.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: waived_changed_canceled_notice
+      suffix: ind
+  retaliatory_eviction_ind:
+    x_petey_id: '1_33'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 70.60800170898438
+      - 696.1510009765625
+      - 80.60800170898438
+      - 706.1510009765625
+      widget_type: checkbox
+      path: UD-105[0].Page1[0].List3[0].Lif[0].Check12[0]
+    description: Plaintiff served defendant with the notice to quit or filed the complaint
+      to retaliate against defendant.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: retaliatory_eviction
+      suffix: ind
+  case_nbr_2:
+    x_petey_id: '2_2'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 400.0050048828125
+      - 58.87298583984375
+      - 572.8049926757812
+      - 73.26202392578125
+      widget_type: text
+      path: UD-105[0].Page2[0].PxCaption[0].CaseNumber[0].CaseNumber[0]
+    description: 'CASE NUMBER:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: case_number_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: case_2_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; number moved before the suffix'
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '2'
+  plaintiff_nm_2:
+    x_petey_id: '2_1'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 90.42500305175781
+      - 50.44000244140625
+      - 394.9540100097656
+      - 59.44000244140625
+      widget_type: text
+      path: UD-105[0].Page2[0].PxCaption[0].TitlePartyName[0].Party1[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: plaintiff_name_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: plaintiff
+      suffix: nm
+      iteration: '2'
+  defendant_nm_2:
+    x_petey_id: '2_3'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 90.09300231933594
+      - 64.4320068359375
+      - 394.9540100097656
+      - 73.72998046875
+      widget_type: text
+      path: UD-105[0].Page2[0].PxCaption[0].TitlePartyName[0].Party2[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: defendant_name_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: defendant
+      suffix: nm
+      iteration: '2'
+  defense_arbitrary_discrimination_ind:
+    x_petey_id: '2_4'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 70.03299713134766
+      - 85.88897705078125
+      - 80.03299713134766
+      - 95.88897705078125
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].Lig[0].Check13[0]
+    description: By serving defendant with the notice to quit or filing the complaint,
+      plaintiff is arbitrarily discriminating against the defendant in violation of
+      the Constitution or the laws of the United States or California.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_arbitrary_discrimination
+      suffix: ind
+  defense_rent_control_ordinance_ind:
+    x_petey_id: '2_5'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 70.6050033569336
+      - 111.593994140625
+      - 80.6050033569336
+      - 121.593994140625
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].Lih[0].Check14[0]
+    description: 'Plaintiff''s demand for possession violates the local rent control
+      or eviction control ordinance of (city or county, title of ordinance, and date
+      of passage):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_rent_control_ordinance
+      suffix: ind
+  rent_control_ordinance_description_txt:
+    x_petey_id: '2_6'
+    type: string
+    semantic_type: description
+    widget:
+      page: 2
+      rect:
+      - 227.7270050048828
+      - 121.40802001953125
+      - 576.0
+      - 132.16497802734375
+      widget_type: text
+      path: UD-105[0].Page2[0].List3[0].Lih[0].FillField6[0]
+    description: city or county, title of ordinance, and date of passage
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: rent_control_ordinance_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: rent_control_ordinance_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+    x_petey_identifiers:
+      subject: rent_control_ordinance_description
+      suffix: txt
+  defense_tenant_protection_act_ind:
+    x_petey_id: '2_7'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 70.45500183105469
+      - 148.30499267578125
+      - 80.45500183105469
+      - 158.30499267578125
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].li2i[0].Check15[0]
+    description: Plaintiff's demand for possession is subject to the Tenant Protection
+      Act of 2019, Civil Code section 1946.2 or 1947.12, and is not in compliance
+      with the act. (Check all that apply and briefly state in item 3t the facts that
+      support each.)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_tenant_protection_act
+      suffix: ind
+  defense_tenant_protection_act_just_cause_ind:
+    x_petey_id: '2_8'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 88.2959976196289
+      - 172.23297119140625
+      - 98.2959976196289
+      - 182.23297119140625
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].li2i[0].LI2I[0].L2i1[0].Check16[0]
+    description: Plaintiff failed to state a just cause for termination of tenancy
+      in the written notice to terminate.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_tenant_protection_act_just_cause
+      suffix: ind
+  defense_tenant_protection_act_opportunity_to_cure_ind:
+    x_petey_id: '2_9'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 87.93099975585938
+      - 186.77099609375
+      - 97.93099975585938
+      - 196.77099609375
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].li2i[0].LI2I[0].Li2[0].Check17[0]
+    description: Plaintiff failed to provide an opportunity to cure any alleged violations
+      of terms and conditions of the lease (other than payment of rent) as required
+      under Civil Code section 1946.2(c).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_tenant_protection_act_opportunity_to_cure
+      suffix: ind
+  defense_tenant_protection_act_relocation_assistance_ind:
+    x_petey_id: '2_10'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 88.2959976196289
+      - 213.17901611328125
+      - 98.2959976196289
+      - 223.17901611328125
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].li2i[0].LI2I[0].Li3[0].Check18[0]
+    description: Plaintiff failed to comply with the relocation assistance requirements
+      of Civil Code section 1946.2(d).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_tenant_protection_act_relocation_assistance
+      suffix: ind
+  defense_tenant_protection_act_unlawful_rent_increase_ind:
+    x_petey_id: '2_11'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 90.14199829101562
+      - 228.25
+      - 100.14199829101562
+      - 238.25
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].li2i[0].LI2I[0].Li4[0].Check19[0]
+    description: Plaintiff has raised the rent more than the amount allowed under
+      Civil Code section 1947.12, and the only unpaid rent is the unauthorized amount.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_tenant_protection_act_unlawful_rent_increase
+      suffix: ind
+  defense_tenant_protection_act_other_ind:
+    x_petey_id: '2_12'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 88.2959976196289
+      - 251.6710205078125
+      - 98.2959976196289
+      - 261.6710205078125
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].li2i[0].LI2I[0].Li5[0].Check20[0]
+    description: Plaintiff violated the Tenant Protection Act in another manner that
+      defeats the complaint.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_tenant_protection_act_other
+      suffix: ind
+  defense_rent_accepted_after_notice_ind:
+    x_petey_id: '2_13'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 70.60299682617188
+      - 270.9580078125
+      - 80.60299682617188
+      - 280.9580078125
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].Lij[0].Check21[0]
+    description: Plaintiff accepted rent from defendant to cover a period of time
+      after the date the notice to quit expired.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_rent_accepted_after_notice
+      suffix: ind
+  defense_domestic_violence_or_crime_victim_ind:
+    x_petey_id: '2_14'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 70.60299682617188
+      - 286.2250061035156
+      - 80.60299682617188
+      - 296.2250061035156
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].Lik[0].Check22[0]
+    description: 'Plaintiff seeks to evict defendant based on an act—against defendant,
+      defendant''s immediate family member, or a member of defendant''s household—that
+      constitutes domestic violence, sexual assault, stalking, human trafficking,
+      abuse of an elder or a dependent adult, or a crime that caused bodily injury,
+      involved a deadly weapon, or used force or threat of force. (This defense requires
+      one of the following, which may be included with this form: (1) a temporary
+      restraining order, protective order, or police report that is not more than
+      180 days old; (2) a signed statement from a qualified third party (e.g., a doctor,
+      domestic violence or sexual assault counselor, human trafficking caseworker,
+      psychologist, or a victim of violent crime advocate concerning the injuries
+      or abuse resulting from these acts); or (3) another form of documentation or
+      evidence that verifies that the abuse or violence occurred.)'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_domestic_violence_or_crime_victim
+      suffix: ind
+  defense_domestic_violence_non_resident_perpetrator_ind:
+    x_petey_id: '2_15'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 89.16699981689453
+      - 375.9620056152344
+      - 99.16699981689453
+      - 385.9620056152344
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].Lik[0].L3K[0].l3k11[0].Check16[0]
+    description: The abuse or violence was committed by a person who does not live
+      in the dwelling unit.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_domestic_violence_non_resident_perpetrator
+      suffix: ind
+  defense_domestic_violence_resident_perpetrator_ind:
+    x_petey_id: '2_16'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 89.16400146484375
+      - 390.5
+      - 99.16400146484375
+      - 400.5
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].Lik[0].L3K[0].l3k2[0].Check17[0]
+    description: The abuse or violence was committed by a person who lives in the
+      dwelling unit and defendant claims protection from eviction under Code of Civil
+      Procedure section 1161.3(d)(2).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_domestic_violence_resident_perpetrator
+      suffix: ind
+  defense_emergency_assistance_called_ind:
+    x_petey_id: '2_17'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 70.60299682617188
+      - 417.0889892578125
+      - 80.60299682617188
+      - 427.0889892578125
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].l3il[0].Check23[0]
+    description: Plaintiff seeks to evict defendant based on defendant or another
+      person calling the police or emergency assistance (e.g., ambulance) by or on
+      behalf of a victim of abuse, a victim of crime, or an individual in an emergency
+      when defendant or the other person believed that assistance was necessary.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_emergency_assistance_called
+      suffix: ind
+  defense_rental_assistance_basis_ind:
+    x_petey_id: '2_18'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 70.38200378417969
+      - 454.7900085449219
+      - 80.38200378417969
+      - 464.7900085449219
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].l3m[0].Check38[0]
+    description: Plaintiff's demand for possession of a residential property is based
+      on nonpayment of rent or other financial obligations and (check all that apply)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_rental_assistance_basis
+      suffix: ind
+  defense_rental_assistance_received_or_pending_ind:
+    x_petey_id: '2_19'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 89.16400146484375
+      - 479.7969970703125
+      - 99.16400146484375
+      - 489.7969970703125
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].l3m[0].L3M1[0].l3m1[0].Check35[0]
+    description: plaintiff received or has a pending application for rental assistance
+      from a governmental rental assistance program or some other source relating
+      to the amount claimed in the notice to pay rent or quit. (Health & Saf. Code,
+      §§ 50897.1(d)(2)(B) and 50897.3(e)(2).)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_rental_assistance_received_or_pending
+      suffix: ind
+  defense_rental_assistance_pending_accruing_rent_ind:
+    x_petey_id: '2_20'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 89.16699981689453
+      - 516.281982421875
+      - 98.16699981689453
+      - 525.281982421875
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].l3m[0].L3M1[0].li3m2[0].Check35[0]
+    description: plaintiff received or has a pending application for rental assistance
+      from a governmental rental assistance program or some other source for rent
+      accruing since the notice to pay rent or quit. (Health & Saf. Code, §§ 50897.1(d)(2)(B)
+      and 50897.3(e)(2).)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_rental_assistance_pending_accruing_rent
+      suffix: ind
+  defense_rental_assistance_late_fees_only_ind:
+    x_petey_id: '2_21'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 89.16699981689453
+      - 551.35498046875
+      - 98.16699981689453
+      - 560.35498046875
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].l3m[0].L3M1[0].li3m3[0].Check35[0]
+    description: plaintiff's demand for possession is based only on late fees for
+      defendant's failure to provide landlord payment within 15 days of receiving
+      governmental rental assistance. (Health & Saf. Code, § 50897.1(e)(2)(B).)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_rental_assistance_late_fees_only
+      suffix: ind
+  defense_covid_19_ordinance_violation_ind:
+    x_petey_id: '2_22'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 70.86299896240234
+      - 578.93896484375
+      - 79.86299896240234
+      - 587.93896484375
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].li3n[0].Check39[0]
+    description: Plaintiff violated a local COVID-19–related ordinance regarding evictions
+      (briefly state facts describing this in item 3t).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: defense_covid19_ordinance_violation_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: defense_covid_19_ordinance_violation_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: defense_covid_19_ordinance_violation
+      suffix: ind
+  defense_cares_act_notice_violation_ind:
+    x_petey_id: '2_23'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 70.90299987792969
+      - 593.5040283203125
+      - 79.90299987792969
+      - 602.5040283203125
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].li3o[0].Check39[0]
+    description: The property is covered by the federal CARES Act and the plaintiff
+      did not provide 30 days' notice to vacate.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_cares_act_notice_violation
+      suffix: ind
+  defense_improperly_applied_payments_ind:
+    x_petey_id: '2_24'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 70.76100158691406
+      - 665.3419799804688
+      - 80.76100158691406
+      - 675.3419799804688
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].li3p[0].Check42[0]
+    description: 'Before October 1, 2025, plaintiff improperly applied payments made
+      by defendant in a tenancy that was in existence between March 1, 2020, and September
+      30, 2021 (Code Civ. Proc., § 1179.04.5), as follows (check all that apply):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_improperly_applied_payments
+      suffix: ind
+  defense_applied_security_deposit_without_agreement_ind:
+    x_petey_id: '2_25'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 89.62799835205078
+      - 690.9619750976562
+      - 99.62799835205078
+      - 700.9619750976562
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].li3p[0].LI3P[0].li3p1[0].Check43[0]
+    description: Plaintiff applied a security deposit to rent, or other financial
+      obligations due, without tenant’s written agreement.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_applied_security_deposit_without_agreement
+      suffix: ind
+  defense_applied_monthly_payment_without_agreement_ind:
+    x_petey_id: '2_26'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 89.62799835205078
+      - 703.5
+      - 99.62799835205078
+      - 713.5
+      widget_type: checkbox
+      path: UD-105[0].Page2[0].List3[0].li3p[0].LI3P[0].li3p2[0].Check44[0]
+    description: Plaintiff applied a monthly rental payment to rent or other financial
+      obligations that were due between March 1, 2020, and September 30, 2021, other
+      than to the prospective month’s rent, without tenant’s written agreement.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: defense_applied_monthly_payment_without_agreement
+      suffix: ind
+  case_nbr_3:
+    x_petey_id: '3_2'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 400.0050048828125
+      - 58.17901611328125
+      - 572.8049926757812
+      - 73.26202392578125
+      widget_type: text
+      path: UD-105[0].Page3[0].PxCaption[0].CaseNumber[0].CaseNumber[0]
+    description: 'CASE NUMBER:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: case_number_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: case_3_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; number moved before the suffix'
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '3'
+  plaintiff_nm_3:
+    x_petey_id: '3_1'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 89.9209976196289
+      - 50.44000244140625
+      - 394.45001220703125
+      - 59.44000244140625
+      widget_type: text
+      path: UD-105[0].Page3[0].PxCaption[0].TitlePartyName[0].Party1[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: plaintiff_name_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_3_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: plaintiff
+      suffix: nm
+      iteration: '3'
+  defendant_nm_3:
+    x_petey_id: '3_3'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 89.58899688720703
+      - 64.4320068359375
+      - 394.45001220703125
+      - 73.72998046875
+      widget_type: text
+      path: UD-105[0].Page3[0].PxCaption[0].TitlePartyName[0].Party2[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: defendant_name_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_3_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: defendant
+      suffix: nm
+      iteration: '3'
+  refused_third_party_payment_ind:
+    x_petey_id: '3_4'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 70.44100189208984
+      - 93.30902099609375
+      - 80.44100189208984
+      - 103.30902099609375
+      widget_type: checkbox
+      path: UD-105[0].Page3[0].List3[0].li3q[0].Check45[0]
+    description: Plaintiff refused to accept payment from a third party for rent due.
+      (Civ. Code, § 1947.3; Gov. Code, § 12955.)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: refused_third_party_payment
+      suffix: ind
+  refused_reasonable_accommodation_ind:
+    x_petey_id: '3_5'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 70.31900024414062
+      - 109.093994140625
+      - 79.31900024414062
+      - 118.093994140625
+      widget_type: checkbox
+      path: UD-105[0].Page3[0].List3[0].li3r[0].CheckBox19[0]
+    description: Defendant has a disability and plaintiff refused to provide a reasonable
+      accommodation that was requested. (Cal. Code Regs., tit. 2, § 12176(c).)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: refused_reasonable_accommodation
+      suffix: ind
+  other_defenses_ind:
+    x_petey_id: '3_6'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 69.70700073242188
+      - 135.46502685546875
+      - 79.70700073242188
+      - 145.46502685546875
+      widget_type: checkbox
+      path: UD-105[0].Page3[0].List3[0].li3s[0].Check45[0]
+    description: Other defenses and objections are stated in item 3t.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: other_defenses
+      suffix: ind
+  facts_supporting_defenses_txt:
+    x_petey_id: '3_8'
+    type: string
+    semantic_type: text
+    widget:
+      page: 3
+      rect:
+      - 65.87999725341797
+      - 174.3709716796875
+      - 575.7760009765625
+      - 281.7640075683594
+      widget_type: text
+      path: UD-105[0].Page3[0].List3[0].li3t[0].FillField9[0]
+    description: '(Provide facts for each item checked above, either below or, if
+      more room needed, on form MC-025):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: facts_supporting_defenses
+      suffix: txt
+  facts_on_mc025_attachment_ind:
+    x_petey_id: '3_7'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 69.91600036621094
+      - 161.89898681640625
+      - 79.91600036621094
+      - 171.89898681640625
+      widget_type: checkbox
+      path: UD-105[0].Page3[0].List3[0].li3t[0].Check46[0]
+    description: Description of facts or defenses are on form MC-025, titled as Attachment
+      3t.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 14:23:12'
+      from:
+        name: attachment_3t_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: facts_on_mc025_attachment_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/hand_review/je__ca_courts_ud_105.json
+    x_petey_identifiers:
+      subject: facts_on_mc025_attachment
+      suffix: ind
+  vacated_premises_ind:
+    x_petey_id: '3_9'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 69.96099853515625
+      - 303.2170104980469
+      - 79.96099853515625
+      - 313.2170104980469
+      widget_type: checkbox
+      path: UD-105[0].Page3[0].List4[0].Lia[0].Check47[0]
+    description: Defendant vacated the premises on
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: vacated_premises
+      suffix: ind
+  vacated_premises_dt:
+    x_petey_id: '3_10'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 3
+      rect:
+      - 266.31298828125
+      - 303.70599365234375
+      - 371.4739990234375
+      - 312.73199462890625
+      widget_type: text
+      path: UD-105[0].Page3[0].List4[0].Lia[0].Date2[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MMMM D, YYYY}
+    label_source: llm
+    x_petey_identifiers:
+      subject: vacated_premises
+      suffix: dt
+  fair_rental_value_excessive_ind:
+    x_petey_id: '3_11'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 69.22200012207031
+      - 320.18701171875
+      - 79.22200012207031
+      - 330.18701171875
+      widget_type: checkbox
+      path: UD-105[0].Page3[0].List4[0].Lib[0].Check48[0]
+    description: The fair rental value of the premises alleged in the complaint is
+      excessive (explain below or, if more room needed, on form MC-025).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: fair_rental_value_excessive
+      suffix: ind
+  attachment_4b_ind:
+    x_petey_id: '3_12'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 96.26399993896484
+      - 342.6189880371094
+      - 106.26399993896484
+      - 352.6189880371094
+      widget_type: checkbox
+      path: UD-105[0].Page3[0].List4[0].Lib[0].Check49[0]
+    description: Explanation is on form MC-025, titled as Attachment 4b.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: attachment_4b
+      suffix: ind
+  fair_rental_value_excessive_txt:
+    x_petey_id: '3_13'
+    type: string
+    semantic_type: text
+    widget:
+      page: 3
+      rect:
+      - 65.71800231933594
+      - 353.9419860839844
+      - 575.166015625
+      - 398.0920104980469
+      widget_type: text
+      path: UD-105[0].Page3[0].List4[0].Lib[0].FillField10[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: fair_rental_value_excessive
+      suffix: txt
+  other_statements_ind:
+    x_petey_id: '3_14'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 68.97000122070312
+      - 407.322998046875
+      - 78.97000122070312
+      - 417.322998046875
+      widget_type: checkbox
+      path: UD-105[0].Page3[0].List4[0].Lic[0].Check50[0]
+    description: 'Other (specify below or, if more room needed, on form MC-025):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: other_statements
+      suffix: ind
+  other_statements_on_mc025_ind:
+    x_petey_id: '3_15'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 95.50499725341797
+      - 418.8909912109375
+      - 105.50499725341797
+      - 428.8909912109375
+      widget_type: checkbox
+      path: UD-105[0].Page3[0].List4[0].Lic[0].Check51[0]
+    description: Other statements are on form MC-025, titled as Attachment 4c.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 14:23:26'
+      from:
+        name: attachment_4c_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: other_statements_on_mc025_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/hand_review/je__ca_courts_ud_105.json
+    x_petey_identifiers:
+      subject: other_statements_on_mc025
+      suffix: ind
+  other_statements_txt:
+    x_petey_id: '3_16'
+    type: string
+    semantic_type: text
+    widget:
+      page: 3
+      rect:
+      - 65.27899932861328
+      - 430.7380065917969
+      - 575.7449951171875
+      - 475.68701171875
+      widget_type: text
+      path: UD-105[0].Page3[0].List4[0].Lic[0].FillField11[0]
+    description: specify other
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: other_statements
+      suffix: txt
+  request_attorney_fees_ind:
+    x_petey_id: '3_17'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 70.38500213623047
+      - 528.68896484375
+      - 80.38500213623047
+      - 538.68896484375
+      widget_type: checkbox
+      path: UD-105[0].Page3[0].List5[0].li5c[0].Check52[0]
+    description: reasonable attorney fees.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: request_attorney_fees
+      suffix: ind
+  request_other_ind:
+    x_petey_id: '3_19'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 69.625
+      - 571.3900146484375
+      - 79.625
+      - 581.3900146484375
+      widget_type: checkbox
+      path: UD-105[0].Page3[0].List5[0].Lie[0].Check54[0]
+    description: 'Other (specify below or on form MC-025):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: request_other
+      suffix: ind
+  other_requests_on_mc025_ind:
+    x_petey_id: '3_20'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 97.27999877929688
+      - 582.8370361328125
+      - 107.27999877929688
+      - 592.8370361328125
+      widget_type: checkbox
+      path: UD-105[0].Page3[0].List5[0].Lie[0].Check55[0]
+    description: All other requests are stated on form MC-025, titled as Attachment
+      5e.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 14:23:46'
+      from:
+        name: attachment_5e_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: other_requests_on_mc025_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/hand_review/je__ca_courts_ud_105.json
+    x_petey_identifiers:
+      subject: other_requests_on_mc025
+      suffix: ind
+  request_other_txt:
+    x_petey_id: '3_21'
+    type: string
+    semantic_type: text
+    widget:
+      page: 3
+      rect:
+      - 65.01599884033203
+      - 596.9110107421875
+      - 575.2130126953125
+      - 684.08203125
+      widget_type: text
+      path: UD-105[0].Page3[0].List5[0].Lie[0].FillField12[0]
+    description: specify other
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: request_other
+      suffix: txt
+  request_repairs_and_rent_reduction_ind:
+    x_petey_id: '3_18'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 69.88800048828125
+      - 543.8189697265625
+      - 79.88800048828125
+      - 553.8189697265625
+      widget_type: checkbox
+      path: UD-105[0].Page3[0].List5[0].Lid[0].Check53[0]
+    description: that plaintiff be ordered to (1) make repairs and correct the conditions
+      that constitute a breach of the warranty to provide habitable premises and (2)
+      reduce the monthly rent to a reasonable rental value until the conditions are
+      corrected.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: request_repairs_and_rent_reduction
+      suffix: ind
+  pages_attached_ind:
+    x_petey_id: '3_22'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 55.18199920654297
+      - 694.7459716796875
+      - 64.18199920654297
+      - 703.7459716796875
+      widget_type: checkbox
+      path: UD-105[0].Page3[0].List6[0].item20[0].Eighteen[0]
+    description: Pages attached
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: pages_attached
+      suffix: ind
+  attached_pages_cnt:
+    x_petey_id: '3_23'
+    type: integer
+    semantic_type: count
+    widget:
+      page: 3
+      rect:
+      - 250.04299926757812
+      - 694.0120239257812
+      - 286.0010070800781
+      - 704.0830078125
+      widget_type: text
+      path: UD-105[0].Page3[0].List6[0].item20[0].FillText215[0]
+    description: '(specify number of pages):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: attached_pages
+      suffix: cnt
+  case_nbr_4:
+    x_petey_id: '4_2'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 400.0050048828125
+      - 58.87298583984375
+      - 572.8049926757812
+      - 73.26202392578125
+      widget_type: text
+      path: UD-105[0].Page4[0].PxCaption[0].CaseNumber[0].CaseNumber[0]
+    description: 'CASE NUMBER:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: case_number_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: case_4_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; number moved before the suffix'
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '4'
+  plaintiff_nm_4:
+    x_petey_id: '4_1'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 89.9209976196289
+      - 50.44000244140625
+      - 394.45001220703125
+      - 59.44000244140625
+      widget_type: text
+      path: UD-105[0].Page4[0].PxCaption[0].TitlePartyName[0].Party1[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: plaintiff_name_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_4_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: plaintiff
+      suffix: nm
+      iteration: '4'
+  defendant_nm_4:
+    x_petey_id: '4_3'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 89.58899688720703
+      - 64.4320068359375
+      - 394.45001220703125
+      - 73.72998046875
+      widget_type: text
+      path: UD-105[0].Page4[0].PxCaption[0].TitlePartyName[0].Party2[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: defendant_name_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_4_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: defendant
+      suffix: nm
+      iteration: '4'
+  assistant_nm:
+    x_petey_id: '4_5'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 141.5489959716797
+      - 132.43701171875
+      - 305.38800048828125
+      - 141.43701171875
+      widget_type: text
+      path: UD-105[0].Page4[0].List7[0].Lia[0].AsstName[0]
+    description: 'assistant''s name:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: assistant_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: assistant_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: assistant
+      suffix: nm
+  assistant_phone_nbr:
+    x_petey_id: '4_6'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 4
+      rect:
+      - 428.0369873046875
+      - 132.43701171875
+      - 574.9710083007812
+      - 141.43701171875
+      widget_type: text
+      path: UD-105[0].Page4[0].List7[0].Lib[0].PhoneNum[0]
+    description: 'telephone number:'
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+        validate:
+        - text{999-999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: assistant_phone_number
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: assistant_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: assistant_phone
+      suffix: nbr
+  assistant_address_txt:
+    x_petey_id: '4_7'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 205.55499267578125
+      - 149.26898193359375
+      - 574.9710083007812
+      - 158.26898193359375
+      widget_type: text
+      path: UD-105[0].Page4[0].List7[0].Lic[0].Address[0]
+    description: 'street address, city, and zip code:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: assistant_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: assistant_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: assistant_address
+      suffix: txt
+  assistant_county_of_registration_txt:
+    x_petey_id: '4_8'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 158.5570068359375
+      - 167.43402099609375
+      - 257.1109924316406
+      - 176.43402099609375
+      widget_type: text
+      path: UD-105[0].Page4[0].List7[0].Lid[0].RegCounty[0]
+    description: 'county of registration:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: assistant_county_of_registration
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: assistant_county_of_registration_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: assistant_county_of_registration
+      suffix: txt
+  assistant_registration_nbr:
+    x_petey_id: '4_9'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 363.1990051269531
+      - 167.43402099609375
+      - 433.24700927734375
+      - 176.43402099609375
+      widget_type: text
+      path: UD-105[0].Page4[0].List7[0].Lie[0].RegNo[0]
+    description: 'registration number:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: assistant_registration_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: assistant_registration_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: assistant_registration
+      suffix: nbr
+  assistant_expiration_dt:
+    x_petey_id: '4_10'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 4
+      rect:
+      - 513.885986328125
+      - 167.41998291015625
+      - 574.5260009765625
+      - 176.44598388671875
+      widget_type: text
+      path: UD-105[0].Page4[0].List7[0].Lif[0].RegExp[0]
+    description: 'expiration date:'
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MMM D, YYYY}
+    label_source: llm
+    x_petey_identifiers:
+      subject: assistant_expiration
+      suffix: dt
+  defendant_or_attorney_nm_1:
+    x_petey_id: '4_11'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 36.0
+      - 260.364990234375
+      - 274.22601318359375
+      - 274.93902587890625
+      widget_type: text
+      path: UD-105[0].Page4[0].Sign[0].PrintName1[0]
+    description: (TYPE OR PRINT NAME)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: defendant_or_attorney_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_or_attorney_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: defendant_or_attorney
+      suffix: nm
+      iteration: '1'
+  defendant_or_attorney_nm_2:
+    x_petey_id: '4_12'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 36.0
+      - 295.114990234375
+      - 274.22601318359375
+      - 309.6889953613281
+      widget_type: text
+      path: UD-105[0].Page4[0].Sign[0].PrintName2[0]
+    description: (TYPE OR PRINT NAME)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: defendant_or_attorney_name_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_or_attorney_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: defendant_or_attorney
+      suffix: nm
+      iteration: '2'
+  defendant_or_attorney_nm_3:
+    x_petey_id: '4_13'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 36.0
+      - 332.74700927734375
+      - 274.22601318359375
+      - 347.3210144042969
+      widget_type: text
+      path: UD-105[0].Page4[0].Sign[0].PrintName11[0]
+    description: (TYPE OR PRINT NAME)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: defendant_or_attorney_name_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_or_attorney_3_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: defendant_or_attorney
+      suffix: nm
+      iteration: '3'
+  verification_dt_1:
+    x_petey_id: '4_14'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 4
+      rect:
+      - 60.178001403808594
+      - 450.54998779296875
+      - 174.37600708007812
+      - 461.4119873046875
+      widget_type: text
+      path: UD-105[0].Page4[0].Verification[0].Date3[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MMMM D, YYYY}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: verification_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: verification_1_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: verification
+      suffix: dt
+      iteration: '1'
+  verification_defendant_nm_1:
+    x_petey_id: '4_15'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 36.0
+      - 471.9320068359375
+      - 274.22601318359375
+      - 485.7820129394531
+      widget_type: text
+      path: UD-105[0].Page4[0].Verification[0].PrintName3[0]
+    description: (TYPE OR PRINT NAME)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: verification_defendant_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: verification_defendant_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: verification_defendant
+      suffix: nm
+      iteration: '1'
+  verification_dt_2:
+    x_petey_id: '4_16'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 4
+      rect:
+      - 60.178001403808594
+      - 505.3890075683594
+      - 174.37600708007812
+      - 516.2509765625
+      widget_type: text
+      path: UD-105[0].Page4[0].Verification[0].Date4[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MMMM D, YYYY}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: verification_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: verification_2_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: verification
+      suffix: dt
+      iteration: '2'
+  verification_defendant_nm_2:
+    x_petey_id: '4_17'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 36.0
+      - 526.77099609375
+      - 274.22601318359375
+      - 540.6209716796875
+      widget_type: text
+      path: UD-105[0].Page4[0].Verification[0].PrintName4[0]
+    description: (TYPE OR PRINT NAME)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: verification_defendant_name_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: verification_defendant_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: verification_defendant
+      suffix: nm
+      iteration: '2'
+  verification_dt_3:
+    x_petey_id: '4_18'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 4
+      rect:
+      - 60.178001403808594
+      - 561.2340087890625
+      - 174.37600708007812
+      - 572.0960083007812
+      widget_type: text
+      path: UD-105[0].Page4[0].Verification[0].Date5[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MMMM D, YYYY}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: verification_dt_3
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: verification_3_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: verification
+      suffix: dt
+      iteration: '3'
+  verification_defendant_nm_3:
+    x_petey_id: '4_19'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 36.0
+      - 582.615966796875
+      - 274.22601318359375
+      - 596.4660034179688
+      widget_type: text
+      path: UD-105[0].Page4[0].Verification[0].PrintName5[0]
+    description: (TYPE OR PRINT NAME)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:17'
+      from:
+        name: verification_defendant_name_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: verification_defendant_3_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: verification_defendant
+      suffix: nm
+      iteration: '3'
+  unlawful_detainer_assistant:
+    x_petey_id: '4_4'
+    type: category
+    values:
+    - did_not
+    - did
+    widgets:
+      did_not:
+        page: 4
+        rect:
+        - 324.9519958496094
+        - 105.4730224609375
+        - 334.9519958496094
+        - 115.4730224609375
+        widget_type: checkbox
+        path: UD-105[0].Page4[0].List7[0].Check561[0]
+        on_state: '1'
+        caption: did not
+        x_petey_caption_source: page_text
+      did:
+        page: 4
+        rect:
+        - 390.3680114746094
+        - 105.4730224609375
+        - 400.3680114746094
+        - 115.4730224609375
+        widget_type: checkbox
+        path: UD-105[0].Page4[0].List7[0].Check561[1]
+        on_state: '2'
+        caption: did
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-15 14:17:37'
+      from:
+      - unlawful_detainer_assistant::did_not
+      - unlawful_detainer_assistant::did
+    x_petey_identifiers:
+      subject: unlawful_detainer_assistant
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 15
+  collisions:
+  - original_label: case_number
+    assigned_label: case_number_2
+    page: 2
+    rect:
+    - 400.0050048828125
+    - 58.87298583984375
+    - 572.8049926757812
+    - 73.26202392578125
+  - original_label: plaintiff_name
+    assigned_label: plaintiff_name_2
+    page: 2
+    rect:
+    - 90.42500305175781
+    - 50.44000244140625
+    - 394.9540100097656
+    - 59.44000244140625
+  - original_label: defendant_name
+    assigned_label: defendant_name_2
+    page: 2
+    rect:
+    - 90.09300231933594
+    - 64.4320068359375
+    - 394.9540100097656
+    - 73.72998046875
+  - original_label: case_number
+    assigned_label: case_number_3
+    page: 3
+    rect:
+    - 400.0050048828125
+    - 58.17901611328125
+    - 572.8049926757812
+    - 73.26202392578125
+  - original_label: plaintiff_name
+    assigned_label: plaintiff_name_3
+    page: 3
+    rect:
+    - 89.9209976196289
+    - 50.44000244140625
+    - 394.45001220703125
+    - 59.44000244140625
+  - original_label: defendant_name
+    assigned_label: defendant_name_3
+    page: 3
+    rect:
+    - 89.58899688720703
+    - 64.4320068359375
+    - 394.45001220703125
+    - 73.72998046875
+  - original_label: case_number
+    assigned_label: case_number_4
+    page: 4
+    rect:
+    - 400.0050048828125
+    - 58.87298583984375
+    - 572.8049926757812
+    - 73.26202392578125
+  - original_label: plaintiff_name
+    assigned_label: plaintiff_name_4
+    page: 4
+    rect:
+    - 89.9209976196289
+    - 50.44000244140625
+    - 394.45001220703125
+    - 59.44000244140625
+  - original_label: defendant_name
+    assigned_label: defendant_name_4
+    page: 4
+    rect:
+    - 89.58899688720703
+    - 64.4320068359375
+    - 394.45001220703125
+    - 73.72998046875
+  - original_label: defendant_or_attorney_name
+    assigned_label: defendant_or_attorney_name_2
+    page: 4
+    rect:
+    - 36.0
+    - 295.114990234375
+    - 274.22601318359375
+    - 309.6889953613281
+  - original_label: defendant_or_attorney_name
+    assigned_label: defendant_or_attorney_name_3
+    page: 4
+    rect:
+    - 36.0
+    - 332.74700927734375
+    - 274.22601318359375
+    - 347.3210144042969
+  - original_label: verification_dt
+    assigned_label: verification_dt_2
+    page: 4
+    rect:
+    - 60.178001403808594
+    - 505.3890075683594
+    - 174.37600708007812
+    - 516.2509765625
+  - original_label: verification_defendant_name
+    assigned_label: verification_defendant_name_2
+    page: 4
+    rect:
+    - 36.0
+    - 526.77099609375
+    - 274.22601318359375
+    - 540.6209716796875
+  - original_label: verification_dt
+    assigned_label: verification_dt_3
+    page: 4
+    rect:
+    - 60.178001403808594
+    - 561.2340087890625
+    - 174.37600708007812
+    - 572.0960083007812
+  - original_label: verification_defendant_name
+    assigned_label: verification_defendant_name_3
+    page: 4
+    rect:
+    - 36.0
+    - 582.615966796875
+    - 274.22601318359375
+    - 596.4660034179688
+x_petey_dropped_widgets:
+  count: 3
+  widgets:
+  - path: UD-105[0].#pageSet[0].MPLast[0].#area[0].Print[0]
+    page: 4
+    reason: pushbutton
+    field_type: Button
+    tooltip: Print
+  - path: UD-105[0].#pageSet[0].MPLast[0].#area[0].Save[0]
+    page: 4
+    reason: pushbutton
+    field_type: Button
+    tooltip: Save
+  - path: UD-105[0].#pageSet[0].MPLast[0].#area[0].Reset[0]
+    page: 4
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear
+x_petey_xfa_log:
+  joined: 100
+  type: 1
+  pattern: 5
+x_petey_page_check:
+  when: '2026-10-15 14:34:57'
+  model: claude-opus-5
+  prompt: 2ddd7670
+  pages:
+  - 1
+  - 2
+  - 3
+  - 4
+  fields: 101
+  flagged: 2
+  unanswered: 0
+  record: runs/page_check/je__ca_courts_ud_105__5ad19354.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: ca_courts_ud_105_20261006_192316
+  blueprint: /home/user/petey-2/runs/judge_eval/work/ca_courts_ud_105.bpt
+  when: '2026-10-06 19:23:37'
+x_petey_run:
+  record: runs/judge_eval/form_runs/ca_courts_ud_105.json
+  status: clean
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 19:23:40'

@@ -41,6 +41,12 @@ CACHE_DIR = RUNS / "_gen_cache" / "boxes"
 FINDER_LABEL = "step2flat-3"     # line cues with a leading sign; checkbox squares drawn as glyphs (2026-10-01)
 FINDER_CODE_SHA = "93d5efe257db"
 FINDER_ENV = "pymupdf 1.28.2; tesseract 5.5.3"
+# Minor versions (2026-10-15): additive rules applied on top of the finder's output (`finder_addons`), so cached
+# finder runs and class maps keep their key; added boxes are numbered after the finder's. 1: radio circles drawn as
+# curves. 2: hollow glyph squares, small drawn squares, underlines and underscore runs (2026-10-27). 3: circles and
+# squares up to 20 pt, kept out only by an option box of their size, dotted rings beside empty ones (2026-10-27). A
+# rule that changes or drops the finder's own boxes is a FINDER_LABEL bump instead.
+FINDER_MINOR = 3
 
 
 def _code_sha() -> str:
@@ -90,7 +96,8 @@ def finder_stamp() -> dict:
     if env != FINDER_ENV:
         drift.append(f"env '{FINDER_ENV}' -> '{env}'")
         version += "+env" + hashlib.sha256(env.encode()).hexdigest()[:6]
-    return {"label": FINDER_LABEL, "code_sha": sha, "env": env, "version": version, "drift": drift}
+    return {"label": FINDER_LABEL, "minor": FINDER_MINOR, "full": f"{FINDER_LABEL}.{FINDER_MINOR}", "code_sha": sha,
+            "env": env, "version": version, "drift": drift}
 
 
 _STAMP = finder_stamp()
@@ -131,8 +138,26 @@ def widget_key(wb: dict) -> Optional[str]:
 
 
 def find_boxes(pdf_path: str | Path, cache_dir: Path = CACHE_DIR) -> list[dict]:
-    """The page's fillable boxes, in reading order, ids 1..n across the form."""
+    """The page's fillable boxes, ids 1..n across the form in reading order, then the minor version's additions
+    (`finder_addons`), numbered after them."""
     pdf_path = Path(pdf_path)
+    base = _finder_boxes(pdf_path, cache_dir)
+    if not FINDER_MINOR:
+        return base
+    h = hashlib.sha256(pdf_path.read_bytes() + b"\x00boxes\x00" + FINDER_VERSION.encode()).hexdigest()
+    ap = cache_dir / f"{h}.minor{FINDER_MINOR}.json"
+    if ap.exists():
+        add = json.loads(ap.read_text(encoding="utf-8"))
+    else:
+        from petey.synth.finder_addons import added_boxes
+        add = added_boxes(pdf_path, base, _rect_key)
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        ap.write_text(json.dumps(add, indent=1))
+    return base + add
+
+
+def _finder_boxes(pdf_path: Path, cache_dir: Path = CACHE_DIR) -> list[dict]:
+    """The finder's own boxes (step2flat), cached under FINDER_VERSION."""
     pdf_bytes = pdf_path.read_bytes()
     h = hashlib.sha256(pdf_bytes + b"\x00boxes\x00" + FINDER_VERSION.encode()).hexdigest()
     cp = cache_dir / f"{h}.json"

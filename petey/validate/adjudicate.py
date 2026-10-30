@@ -42,9 +42,10 @@ from typing import Any, Optional
 import pymupdf
 import yaml
 
+from petey.models import model_for
 from petey.validate.name_caption import tokens
 
-MODEL = "claude-sonnet-4-6"
+MODEL = model_for("adjudicator")
 PRICES = {  # $ per million tokens, input / output (list price, 2026-06); same table as review.py
     "claude-opus-5": (5.0, 25.0), "claude-sonnet-5": (2.0, 10.0), "claude-sonnet-4-6": (3.0, 15.0),
     "claude-haiku-4-5": (1.0, 5.0), "claude-fable-5-1": (10.0, 50.0),
@@ -155,9 +156,9 @@ def contested_because(spec: dict, chain_rec: Optional[dict], limits: dict[str, d
 
 # ------------------------------------------------------------------ model
 
-def _client():
+def _client(model: str = MODEL):
     from petey.synth.generate import make_client
-    return make_client(MODEL)
+    return make_client(model)
 
 
 def ask(client, model: str, png: bytes, *, field: str, proposed: str, reason: str, spec: dict,
@@ -176,17 +177,21 @@ def ask(client, model: str, png: bytes, *, field: str, proposed: str, reason: st
     content = [{"type": "image", "source": {"type": "base64", "media_type": "image/png",
                                             "data": base64.standard_b64encode(png).decode("ascii")}},
                {"type": "text", "text": user}]
-    kwargs: dict[str, Any] = dict(model=model, max_tokens=4000, system=SYSTEM,
-                                  messages=[{"role": "user", "content": content}],
-                                  output_config={"format": {"type": "json_schema", "schema": SCHEMA}})
     t0 = time.time()
-    resp = client.messages.create(**kwargs)
-    text = next((b.text for b in resp.content if getattr(b, "type", None) == "text"), "")
-    usage = {"input_tokens": resp.usage.input_tokens, "output_tokens": resp.usage.output_tokens,
-             "stop_reason": resp.stop_reason, "model_served": resp.model}
+    from petey.synth.generate import chat_compat, provider_for
+    if provider_for(model) is not None:                 # Gemini, a local model (petey/models.py)
+        text, stop, usage = chat_compat(client, model, system=SYSTEM, content=content, max_tokens=4000, schema=SCHEMA)
+    else:
+        kwargs: dict[str, Any] = dict(model=model, max_tokens=4000, system=SYSTEM,
+                                      messages=[{"role": "user", "content": content}],
+                                      output_config={"format": {"type": "json_schema", "schema": SCHEMA}})
+        resp = client.messages.create(**kwargs)
+        text, stop = next((b.text for b in resp.content if getattr(b, "type", None) == "text"), ""), resp.stop_reason
+        usage = {"input_tokens": resp.usage.input_tokens, "output_tokens": resp.usage.output_tokens,
+                 "stop_reason": stop, "model_served": resp.model}
     try:
         from petey.label import call_log
-        call_log.record(f"{tag}/{model}", raw=text, finish_reason=resp.stop_reason,
+        call_log.record(f"{tag}/{model}", raw=text, finish_reason=stop,
                         request={"model": model, "field": field, "proposed": proposed},
                         usage={k: usage[k] for k in ("input_tokens", "output_tokens")}, elapsed=time.time() - t0)
     except Exception:
@@ -196,7 +201,7 @@ def ask(client, model: str, png: bytes, *, field: str, proposed: str, reason: st
         if ans.get("verdict") not in ("current", "proposed", "unclear"):
             raise ValueError("bad verdict")
     except (json.JSONDecodeError, ValueError, AttributeError):
-        ans = {"verdict": "unclear", "box_holds": None, "reason": f"no usable answer ({resp.stop_reason}): {text[:80]}"}
+        ans = {"verdict": "unclear", "box_holds": None, "reason": f"no usable answer ({stop}): {text[:80]}"}
     return ans, usage
 
 
@@ -228,7 +233,7 @@ def adjudicate_decisions(bp: dict, blank: Path, decisions: list[dict], chain: di
             tally["no_rect"] += 1
             continue
         if client is None:
-            client = _client()
+            client = _client(model)
         png = crop_png(blank, w["page"], w["rect"])
         if crop_dir is not None:
             crop_dir.mkdir(parents=True, exist_ok=True)

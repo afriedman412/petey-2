@@ -9,10 +9,16 @@ group, key and own tooltip. Which fields a text is compared against (near the bo
 `witness.Names.rivals`, not here.
 
 Trained by `eval/text_match_train.py` on pairs from `eval/text_match_data.py`; weights in `models/text_match/`
-(gitignored). Without the model file every scorer returns None and callers fall back to the rules.
+(gitignored). Without a model file every scorer returns None and callers fall back to the rules.
+
+`model.int8.onnx` (dynamic int8 quantization, written by the training script) is 2.3x faster on the M1 with held-out
+top-1 86.6% -> 86.4%, but it moves scores near the witness's 'does not describe' cutoff (P < 0.01): on the name
+fixture it lost 2 of 15 real errors (1014r 'Contractor or Agent' vs `email_address_txt`: 0.0067 -> 0.0115). The
+full-precision model is the default; PETEY_TEXT_MATCH_INT8=1 picks int8 for long dev runs (the fixture: 24 -> 9 min).
 """
 from __future__ import annotations
 
+import os
 import re
 from functools import lru_cache
 from pathlib import Path
@@ -20,8 +26,9 @@ from typing import Optional
 
 from petey.paths import MODELS
 
-MODEL_DIR = MODELS / "text_match"
+MODEL_DIR = Path(os.environ.get("PETEY_TEXT_MATCH_DIR") or MODELS / "text_match")     # override: compare two models
 MAX_LEN = 96
+_BATCH = 64
 
 # slug pieces the labeler writes, in words; the model learns the rest (street ~ address, M ~ male)
 _WORDS = {"nm": "name", "no": "number", "nbr": "number", "num": "number", "dt": "date", "amt": "amount",
@@ -38,15 +45,35 @@ _GENERIC = re.compile(r"^(?:text|field|check|box|checkbox|button|radio|group|cho
                       r"page|subform|f|c|p|tf|cb|rb|txt|undefined|fill|textfield|dropdown|list|combo)$")
 
 
-def name_words(name: str) -> str:
-    """`patient_sex_cd` -> 'patient sex code'; `line_12a_waiver_letter_ruling_day` -> 'line 12a waiver letter
-    ruling day'."""
+def name_words(name: str, expand: bool = True, text: Optional[str] = None) -> str:
+    """`patient_sex_cd` -> 'patient sex code'; `insured_policy_eff_dt2` -> 'insured policy effective date 2' (a
+    number glued to a word is split off, so the word is read as itself). `expand=False` keeps the labeler's
+    abbreviations ('insured policy eff dt 2'): training sees both, so the model learns abbreviations `_WORDS`
+    does not list (`gl`, `insd`) from examples. With `text`, a part `_WORDS` does not know is written out as the
+    text's word it abbreviates (`abbreviates`): `gl_addl_insd_txt` against '... named as an additional insured'
+    -> 'gl additional insured text' (2026-10-12; the model read 'gl addl insd text' at 0.09, written out 0.74)."""
+    tw = re.findall(r"[a-z]+", text.lower()) if (text and expand) else []
+    seen = set(tw)
     out = []
-    for t in re.split(r"[_\s]+", name or ""):
-        if not t:
-            continue
-        out.append(_WORDS.get(t.lower(), t.lower()))
+    for t in re.split(r"[_\s]+", (name or "").lower()):
+        for p in re.sub(r"^([a-z]+)(\d+)$", r"\1 \2", t).split():
+            if expand and p in _WORDS:
+                out.append(_WORDS[p])
+            elif p not in seen and (w := next((w for w in tw if abbreviates(p, w)), None)):
+                out.append(w)
+            else:
+                out.append(p)
     return " ".join(w for w in out if w)
+
+
+def abbreviates(short: str, long: str) -> bool:
+    """`short` reads as an abbreviation of `long`: at least three letters, the same first letter, and its letters
+    in `long` in order ('addl' ~ 'additional', 'insd' ~ 'insured', 'subr' ~ 'subrogation', 'wvd' ~ 'waived'). No
+    list (Andrew, 2026-10-12). It also matches 'insd' ~ 'inside': callers compare against one text's words."""
+    if len(short) < 3 or len(short) >= len(long) or short[0] != long[0] or not short.isalpha():
+        return False
+    it = iter(long)
+    return all(c in it for c in short)
 
 
 def path_words(path: Optional[str]) -> Optional[str]:
@@ -85,9 +112,42 @@ def clean_text(t: Optional[str]) -> Optional[str]:
     return t[:300]
 
 
+def _onnx() -> Path:
+    if os.environ.get("PETEY_TEXT_MATCH_INT8") == "1" and (MODEL_DIR / "model.int8.onnx").exists():
+        return MODEL_DIR / "model.int8.onnx"        # dev runs only: see the module docstring
+    return MODEL_DIR / "model.onnx"
+
+
+@lru_cache(maxsize=1)
+def _model_id() -> str:
+    """The model file's content hash: the disk cache's key, so two models (or fp32 and int8) never share scores."""
+    import hashlib
+    h = hashlib.sha1()
+    with open(_onnx(), "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()[:16]
+
+
+@lru_cache(maxsize=1)
+def _disk():
+    """Scores kept between runs (2026-10-13: a name-fixture rerun after a rules-only change rescored everything,
+    ~25 min): runs/text_match/score_cache.sqlite, keyed by (model id, text, field). PETEY_TEXT_MATCH_DISK=0 skips it."""
+    if os.environ.get("PETEY_TEXT_MATCH_DISK", "1") == "0":
+        return None
+    import sqlite3
+    from petey.paths import RUNS
+    path = RUNS / "text_match" / "score_cache.sqlite"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    db = sqlite3.connect(str(path), timeout=30, check_same_thread=False)
+    db.execute("PRAGMA journal_mode=WAL")
+    db.execute("CREATE TABLE IF NOT EXISTS s (model TEXT, text TEXT, field TEXT, p REAL, PRIMARY KEY (model, text, field))")
+    return db
+
+
 @lru_cache(maxsize=1)
 def _session():
-    onnx = MODEL_DIR / "model.onnx"
+    onnx = _onnx()
     if not onnx.exists():
         return None
     import onnxruntime as ort
@@ -112,15 +172,31 @@ def score_pairs(pairs: list[tuple[str, str]]) -> Optional[list[float]]:
     import numpy as np
     sess, tok = s
     todo = list(dict.fromkeys(p for p in pairs if p not in _cache))     # a witness asks the same pair many times
+    db = _disk()
+    if db is not None and todo:
+        mid = _model_id()
+        # one primary-key lookup per pair: an OR of 400 (text, field) terms is not served by the index and scanned
+        # the whole table each time (2026-10-13: 2.8 s per chunk at 395k rows, 50 s to open FAA 8710 in Review;
+        # by key, 0.02 s for all 6,772 pairs)
+        for t, f in todo:
+            row = db.execute("SELECT p FROM s WHERE model=? AND text=? AND field=?", (mid, t, f)).fetchone()
+            if row:
+                _cache[(t, f)] = row[0]
+        todo = [p for p in todo if p not in _cache]
+    new = list(todo)
+    todo.sort(key=lambda p: len(p[0]) + len(p[1]))       # similar lengths together: each batch pads to its longest
     names = {i.name for i in sess.get_inputs()}
-    for i in range(0, len(todo), 64):
-        enc = tok.encode_batch(todo[i:i + 64])
+    for i in range(0, len(todo), _BATCH):
+        enc = tok.encode_batch(todo[i:i + _BATCH])
         feed = {"input_ids": np.array([e.ids for e in enc], dtype=np.int64),
                 "attention_mask": np.array([e.attention_mask for e in enc], dtype=np.int64)}
         if "token_type_ids" in names:
             feed["token_type_ids"] = np.array([e.type_ids for e in enc], dtype=np.int64)
         logits = sess.run(None, feed)[0].reshape(-1)
-        _cache.update(zip(todo[i:i + 64], (1.0 / (1.0 + np.exp(-logits))).tolist()))
+        _cache.update(zip(todo[i:i + _BATCH], (1.0 / (1.0 + np.exp(-logits))).tolist()))
+    if db is not None and new:
+        db.executemany("INSERT OR REPLACE INTO s VALUES (?, ?, ?, ?)", [(_model_id(), t, f, _cache[(t, f)]) for t, f in new])
+        db.commit()
     return [_cache[p] for p in pairs]
 
 

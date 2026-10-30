@@ -1,0 +1,1180 @@
+bpt_version: '1.1'
+name: faa_8050_2
+form_version: null
+source_pdf: AC_8050-2_pra_ext.pdf
+source_pdf_hash: f930f3b24e6bf767a735ca5aa17cdbc3d694878b
+source_pages:
+- 3
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 22:12:48'
+fields:
+  sale_amt:
+    x_petey_id: '3_1'
+    type: number
+    semantic_type: money
+    widget:
+      page: 3
+      rect:
+      - 333.3489990234375
+      - 117.64398193359375
+      - 388.5920104980469
+      - 130.614013671875
+      widget_type: text
+      path: Sale Amount of the Aircraft
+    description: Enter the Sale Amount of the Aircraft.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: sale
+      suffix: amt
+  aircraft_registration_nbr:
+    x_petey_id: '3_2'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 275.3429870605469
+      - 175.739990234375
+      - 415.2489929199219
+      - 202.15997314453125
+      widget_type: text
+      path: United States Registration Number N-Number
+    description: Enter the United States Registration Number - N Number
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: aircraft_registration_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: aircraft_registration_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: aircraft_registration
+      suffix: nbr
+  aircraft_manufacturer_nm:
+    x_petey_id: '3_3'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 3
+      rect:
+      - 59.052398681640625
+      - 218.7239990234375
+      - 417.2659912109375
+      - 232.0009765625
+      widget_type: text
+      path: Aircraft Manufacturer
+    description: Enter the Aircraft Manufacturer.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption 'AIRCRAFT MANUFACTURER' holds a company name; name and type
+        are right, only the person_name semantic type is wrong.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter the Aircraft Manufacturer.
+      judged: 'kept: 3 -> 2'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: aircraft_manufacturer_name
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      to:
+        name: aircraft_manufacturer_nm
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: aircraft_manufacturer
+      suffix: nm
+  aircraft_model_txt:
+    x_petey_id: '3_4'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 59.05440139770508
+      - 245.42999267578125
+      - 417.2690124511719
+      - 258.70697021484375
+      widget_type: text
+      path: Aircraft Model
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: aircraft_model
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: aircraft_model_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: aircraft_model
+      suffix: txt
+  aircraft_serial_nbr:
+    x_petey_id: '3_5'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 59.05440139770508
+      - 272.447021484375
+      - 417.2690124511719
+      - 285.7239990234375
+      widget_type: text
+      path: Aircraft Serial Number
+    description: Enter the Aircraft Serial Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: aircraft_serial_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: aircraft_serial_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: aircraft_serial
+      suffix: nbr
+  sale_day:
+    x_petey_id: '3_6'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 162.65499877929688
+      - 287.8080139160156
+      - 219.7449951171875
+      - 300.7869873046875
+      widget_type: text
+      path: Day
+    label_source: llm
+    x_petey_identifiers:
+      subject: sale
+      suffix: day
+  sale_month:
+    x_petey_id: '3_7'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 278.0400085449219
+      - 287.8080139160156
+      - 363.5799865722656
+      - 300.78900146484375
+      widget_type: text
+      path: Month
+    label_source: llm
+    x_petey_identifiers:
+      subject: sale
+      suffix: month
+  sale_yr:
+    x_petey_id: '3_8'
+    type: string
+    semantic_type: year
+    pattern: ^\d{4}$
+    widget:
+      page: 3
+      rect:
+      - 379.39300537109375
+      - 287.8059997558594
+      - 416.8840026855469
+      - 300.7869873046875
+      widget_type: text
+      path: Year
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: sale_year
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: sale_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: year -> yr'
+    x_petey_identifiers:
+      subject: sale
+      suffix: yr
+  purchaser_nm_1:
+    x_petey_id: '3_9'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 120.30400085449219
+      - 372.3760070800781
+      - 559.9429931640625
+      - 394.2640075683594
+      widget_type: text
+      path: Purchaser Name
+    description: Enter the Name of Purchaser (If Individual(s) Last Name, First Name,
+      Middle Initial).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: purchaser_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: purchaser_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: purchaser
+      suffix: nm
+      iteration: '1'
+  purchaser_address_line_1_txt:
+    x_petey_id: '3_10'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 183.93800354003906
+      - 396.7909851074219
+      - 404.8580017089844
+      - 412.3999938964844
+      widget_type: text
+      path: Number and Street of Purchaser
+    description: Enter the Number and Street of Purchaser.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: purchaser_address_line_1
+      suffix: txt
+  purchaser_unit_nbr:
+    x_petey_id: '3_11'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 473.4100036621094
+      - 396.7919921875
+      - 559.9439697265625
+      - 412.4020080566406
+      widget_type: text
+      path: Apt/Suite Number of Purchaser
+    description: Enter the Apt/Suite Number of Purchaser.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: purchaser_apt_suite_no
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: purchaser_unit_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: apt_suite_no -> unit_nbr'
+    x_petey_identifiers:
+      subject: purchaser_unit
+      suffix: nbr
+  purchaser_city_nm:
+    x_petey_id: '3_12'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 133.90899658203125
+      - 414.4079895019531
+      - 559.9439697265625
+      - 430.2909851074219
+      widget_type: text
+      path: City of Purchaser
+    label_source: llm
+    x_petey_identifiers:
+      subject: purchaser_city
+      suffix: nm
+  purchaser_state_nm:
+    x_petey_id: '3_13'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 263.92498779296875
+      - 433.06201171875
+      - 436.5480041503906
+      - 447.1449890136719
+      widget_type: text
+      path: State or Foreign Province State Country of Purchaser
+    description: Enter the State or Foreign Province, State, Country of Purchaser
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=173
+    x_petey_identifiers:
+      subject: purchaser_state
+      suffix: nm
+  purchaser_zip_cd:
+    x_petey_id: '3_14'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 475.39599609375
+      - 433.7139892578125
+      - 559.9439697265625
+      - 447.1419982910156
+      widget_type: text
+      path: Zip Code of Purchaser
+    description: Enter the Zip Code of Purchaser.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: purchaser_zip
+      suffix: cd
+  purchaser_phone_nbr_area:
+    x_petey_id: '3_15'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 3
+      rect:
+      - 187.78900146484375
+      - 451.9599914550781
+      - 207.8179931640625
+      - 463.42498779296875
+      widget_type: text
+      path: Area Code of Purchaser
+    description: Enter the Area Code of Purchaser.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: purchaser_phone_area_cd
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: purchaser_phone_nbr_area
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: phone -> phone_nbr; part ''area'' of one phone value
+        after the suffix'
+    x_petey_identifiers:
+      subject: purchaser_phone
+      suffix: nbr
+      part: area
+  purchaser_phone_nbr_local:
+    x_petey_id: '3_16'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 3
+      rect:
+      - 211.81399536132812
+      - 451.9580078125
+      - 341.4330139160156
+      - 463.4280090332031
+      widget_type: text
+      path: Telephone Number of Purchaser
+    description: Enter the Telephone Number of Purchaser.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: purchaser_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: purchaser_phone_nbr_local
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: phone -> phone_nbr; part ''local'' of one phone value
+        after the suffix'
+    x_petey_identifiers:
+      subject: purchaser_phone
+      suffix: nbr
+      part: local
+  purchaser_email_address_txt:
+    x_petey_id: '3_17'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 3
+      rect:
+      - 398.72698974609375
+      - 451.9580078125
+      - 559.9439697265625
+      - 463.4280090332031
+      widget_type: text
+      path: Email Address of Purchaser
+    description: Enter the Email Address of Purchaser.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: purchaser_email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: purchaser_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: purchaser_email_address
+      suffix: txt
+  dealer_certificate_nbr:
+    x_petey_id: '3_18'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 254.84100341796875
+      - 468.76300048828125
+      - 559.9439697265625
+      - 479.0610046386719
+      widget_type: text
+      path: Dealer Certificate Number
+    description: Enter the Dealer Certificate Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: dealer_certificate_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: dealer_certificate_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: dealer_certificate
+      suffix: nbr
+  purchaser_nm_2:
+    x_petey_id: '3_19'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 91.18319702148438
+      - 480.8370056152344
+      - 271.1390075683594
+      - 492.8110046386719
+      widget_type: text
+      path: Purchaser Name 2
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: purchaser_name_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: purchaser_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: purchaser
+      suffix: nm
+      iteration: '2'
+  seller_nm:
+    x_petey_id: '3_20'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 157.03399658203125
+      - 514.7059936523438
+      - 248.61300659179688
+      - 524.405029296875
+      widget_type: text
+      path: Seller Name 2
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: seller_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: seller_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: seller
+      suffix: nm
+  seller_hand_pronoun_txt:
+    x_petey_id: '3_21'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 290.5820007324219
+      - 514.7030029296875
+      - 351.0090026855469
+      - 524.405029296875
+      widget_type: text
+      path: Hand (His or Her)
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: seller_hand_pronoun
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: seller_hand_pronoun_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: seller_hand_pronoun
+      suffix: txt
+  execution_day:
+    x_petey_id: '3_22'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 438.72601318359375
+      - 514.7059936523438
+      - 463.98199462890625
+      - 524.405029296875
+      widget_type: text
+      path: Day2
+    label_source: llm
+    x_petey_identifiers:
+      subject: execution
+      suffix: day
+  execution_month_yr:
+    x_petey_id: '3_23'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 500.40899658203125
+      - 514.7030029296875
+      - 562.9439697265625
+      - 524.405029296875
+      widget_type: text
+      path: Month2
+    label_source: llm
+    description: Enter the month and year of execution (the 'day of ___' line).
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      - -pattern
+      reason: Box after 'DAY OF' holds month (and year) text, not a 4-digit year;
+        drop the year semantic type and the year pattern.
+      before:
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: execution_month_year
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: execution_month_yr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: year -> yr'
+    x_petey_identifiers:
+      subject: execution_month
+      suffix: yr
+  seller_nm_1:
+    x_petey_id: '3_24'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 115.80000305175781
+      - 566.9310302734375
+      - 259.9570007324219
+      - 589.7839965820312
+      widget_type: text
+      path: Name of Seller1
+    description: Enter the Name of Seller 1 (Typed or Printed).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: seller1_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: seller_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      subject: seller
+      suffix: nm
+      iteration: '1'
+      grid: p3-G1
+  seller_signature_1:
+    x_petey_id: '3_25'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 267.9880065917969
+      - 566.406982421875
+      - 412.1449890136719
+      - 589.260009765625
+      widget_type: text
+      path: Signature of Seller 1
+    description: Enter the Signature of Seller 1 (All Must Sign).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: seller1_signature
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: seller_1_signature
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: seller
+      suffix: signature
+      iteration: '1'
+      grid: p3-G1
+  seller_1_title_txt:
+    x_petey_id: '3_26'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 418.1199951171875
+      - 566.9310302734375
+      - 562.2769775390625
+      - 589.7839965820312
+      widget_type: text
+      path: Title of Seller 1
+    description: Enter the Title of Seller 1 (Typed or Printed).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: seller1_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: seller_1_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: seller
+      block_iteration: '1'
+      subject: title
+      suffix: txt
+      grid: p3-G1
+  seller_nm_2:
+    x_petey_id: '3_27'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 116.26899719238281
+      - 597.864013671875
+      - 260.4259948730469
+      - 620.7169799804688
+      widget_type: text
+      path: Name of Seller 2
+    description: Enter the Name of Seller 2 (Typed or Printed).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: seller2_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: seller_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      subject: seller
+      suffix: nm
+      iteration: '2'
+      grid: p3-G1
+  seller_signature_2:
+    x_petey_id: '3_28'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 267.9880065917969
+      - 597.864013671875
+      - 412.1449890136719
+      - 620.7169799804688
+      widget_type: text
+      path: Signature of Seller 2
+    description: Enter the Signature of Seller 2 (All Must Sign).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: seller2_signature
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: seller_2_signature
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: seller
+      suffix: signature
+      iteration: '2'
+      grid: p3-G1
+  seller_2_title_txt:
+    x_petey_id: '3_29'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 418.1199951171875
+      - 597.2789916992188
+      - 562.2769775390625
+      - 620.7169799804688
+      widget_type: text
+      path: Title of Seller 2
+    description: Enter the Title of Seller 2 (Typed or Printed).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: seller2_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: seller_2_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: seller
+      block_iteration: '2'
+      subject: title
+      suffix: txt
+      grid: p3-G1
+  seller_nm_3:
+    x_petey_id: '3_30'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 115.80000305175781
+      - 628.04296875
+      - 259.9570007324219
+      - 650.89599609375
+      widget_type: text
+      path: Name of Seller 3
+    description: Enter the Name of Seller 3 (Typed or Printed).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: seller3_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: seller_3_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      subject: seller
+      suffix: nm
+      iteration: '3'
+      grid: p3-G1
+  seller_signature_3:
+    x_petey_id: '3_31'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 267.9880065917969
+      - 628.04296875
+      - 412.1449890136719
+      - 650.89599609375
+      widget_type: text
+      path: Signature of Seller 3
+    description: Enter the Signature of Seller 3 (All Must Sign).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: seller3_signature
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: seller_3_signature
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: seller
+      suffix: signature
+      iteration: '3'
+      grid: p3-G1
+  seller_3_title_txt:
+    x_petey_id: '3_32'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 418.1199951171875
+      - 627.573974609375
+      - 562.2769775390625
+      - 650.427001953125
+      widget_type: text
+      path: Title of Seller 3
+    description: Enter the Title of Seller 3 (Typed or Printed).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: seller3_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: seller_3_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: seller
+      block_iteration: '3'
+      subject: title
+      suffix: txt
+      grid: p3-G1
+  seller_nm_4:
+    x_petey_id: '3_33'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 116.26899719238281
+      - 657.2830200195312
+      - 260.4259948730469
+      - 680.135986328125
+      widget_type: text
+      path: Name of Selle r4
+    description: Enter the Name of Seller 4 (Typed or Printed).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: seller4_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: seller_4_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      subject: seller
+      suffix: nm
+      iteration: '4'
+      grid: p3-G1
+  seller_signature_4:
+    x_petey_id: '3_34'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 267.9880065917969
+      - 657.2830200195312
+      - 412.1449890136719
+      - 680.135986328125
+      widget_type: text
+      path: Signature of Seller 4
+    description: Enter the Signature of Seller 4 (All Must Sign).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: seller4_signature
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: seller_4_signature
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: seller
+      suffix: signature
+      iteration: '4'
+      grid: p3-G1
+  seller_4_title_txt:
+    x_petey_id: '3_35'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 418.1199951171875
+      - 657.2830200195312
+      - 562.2769775390625
+      - 680.135986328125
+      widget_type: text
+      path: Title of Seller 4
+    description: Enter the Title of Seller 4 (Typed or Printed).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: seller4_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: seller_4_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: seller
+      block_iteration: '4'
+      subject: title
+      suffix: txt
+      grid: p3-G1
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 1
+  collisions:
+  - original_label: purchaser_name
+    assigned_label: purchaser_name_2
+    page: 3
+    rect:
+    - 91.18319702148438
+    - 480.8370056152344
+    - 271.1390075683594
+    - 492.8110046386719
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 1
+x_petey_page_check:
+  when: '2026-10-16 13:23:10'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 3
+  fields: 35
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/faa_8050_2__076a87__0fe06465.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: faa_8050_2_20261006_221421
+  blueprint: /home/user/petey-2/runs/judge_eval/work/faa_8050_2.bpt
+  when: '2026-10-06 22:14:33'
+x_petey_run:
+  record: runs/judge_eval/form_runs/faa_8050_2.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 22:14:34'

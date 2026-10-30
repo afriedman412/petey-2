@@ -612,6 +612,14 @@ def mutex_groups(t: "XfaTemplate") -> list[list[str]]:
 
 # ---------------------------------------------------------------- overlay
 
+_PROMPT = re.compile(r"^\s*(-+\s*)?(select|choose|please\s+(select|choose)|pick one)\b|^\s*-+\s*$", re.I)
+
+
+def is_blank_choice(label) -> bool:
+    """A dropdown entry that stands for no choice: a blank label or a prompt ("Select one", "-- Choose --")."""
+    return not str(label or "").strip() or bool(_PROMPT.search(str(label)))
+
+
 def choices_description(choices: dict) -> str:
     """`{"0": "FEMALE", "1": "MALE"}` -> 'One of: 0 = FEMALE; 1 = MALE'."""
     return "One of: " + "; ".join(f"{k} = {v}" for k, v in choices.items() if v)
@@ -668,11 +676,17 @@ def apply_declared(spec: dict, f: XfaField) -> list[str]:
             set_("pattern", regex)
             x["picture"] = pic
     elif f.kind == "choice" and f.items:
+        # an entry with no value, or with a shown label that is blank or a prompt ("Select one"), is the list's
+        # empty choice, not a value (2026-10-14: CRA T4 box 29 offers a blank stored as "18"; NR4 box 11 a blank
+        # stored as "1")
+        labels = f.item_labels if len(f.item_labels) == len(f.items) else []
+        keep = [(v, labels[i] if labels else v) for i, v in enumerate(f.items)
+                if str(v).strip() and not (labels and is_blank_choice(labels[i]))]
         set_("type", "category")
-        set_("values", list(f.items))
+        set_("values", [v for v, _ in keep])
         spec.pop("pattern", None)
-        if f.item_labels:
-            x["labels"] = dict(zip(f.items, f.item_labels))
+        if labels:
+            x["labels"] = dict(keep)
     elif f.kind == "excl":
         # On a Designer hybrid the AcroForm appearance states are the
         # members' ordinals (0..n-1) in template order, while the XFA

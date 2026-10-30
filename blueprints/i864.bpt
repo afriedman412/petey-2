@@ -19,6 +19,189 @@ source_pages:
 description: ''
 instructions: ''
 fields:
+  affidavit_of_support_submitter:
+    x_petey_id: '1_13'
+    type: category
+    values:
+    - petitioner_ind
+    - uscis_ind
+    - f_2nd_joint_sponsor_ind
+    - substitute_sponsor_ind
+    - f_5_owner_ind
+    widgets:
+      petitioner_ind:
+        page: 1
+        rect:
+        - 89.5
+        - 116.5
+        - 96.5
+        - 123.5
+        widget_type: checkbox
+        path: null
+        caption: Petitioner
+        x_petey_caption_source: page_text
+      uscis_ind:
+        page: 1
+        rect:
+        - 89.5
+        - 131.5
+        - 96.5
+        - 138.5
+        widget_type: checkbox
+        path: null
+        caption: USCIS
+        x_petey_caption_source: page_text
+      f_2nd_joint_sponsor_ind:
+        page: 1
+        rect:
+        - 89.5
+        - 146.5
+        - 96.5
+        - 153.5
+        widget_type: checkbox
+        path: null
+        caption: 2nd Joint Sponsor
+        x_petey_caption_source: page_text
+      substitute_sponsor_ind:
+        page: 1
+        rect:
+        - 89.5
+        - 161.7
+        - 96.5
+        - 168.7
+        widget_type: checkbox
+        path: null
+        caption: Substitute Sponsor
+        x_petey_caption_source: page_text
+      f_5_owner_ind:
+        page: 1
+        rect:
+        - 89.5
+        - 176.63
+        - 96.5
+        - 183.63
+        widget_type: checkbox
+        path: null
+        caption: 5% Owner
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-27 21:10:14'
+      from:
+      - petitioner_ind
+      - uscis_ind
+      - f_2nd_joint_sponsor_ind
+      - substitute_sponsor_ind
+      - f_5_owner_ind
+    x_petey_identifiers:
+      subject: affidavit_of_support_submitter
+    x_petey_hand_edit:
+      when: '2026-10-27 21:11:51'
+      from:
+        name: group_p1
+        type: category
+        semantic_type: null
+        pattern: null
+        identifiers:
+          subject: group_p1
+      to:
+        name: affidavit_of_support_submitter
+        type: category
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__i864.json
+  section_213a_review_result:
+    x_petey_id: '1_14'
+    type: category
+    values:
+    - meets_ind
+    - does_not_meet_ind
+    widgets:
+      meets_ind:
+        page: 1
+        rect:
+        - 227.5
+        - 116.5
+        - 234.5
+        - 123.5
+        widget_type: checkbox
+        path: null
+        caption: MEETS
+        x_petey_caption_source: page_text
+      does_not_meet_ind:
+        page: 1
+        rect:
+        - 299.5
+        - 116.5
+        - 306.5
+        - 123.5
+        widget_type: checkbox
+        path: null
+        caption: DOES NOT MEET
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-27 21:10:14'
+      from:
+      - meets_ind
+      - does_not_meet_ind
+    x_petey_identifiers:
+      subject: section_213a_review_result
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:03'
+      from:
+        name: group_p1_2
+        type: category
+        semantic_type: null
+        pattern: null
+        identifiers:
+          iteration: '2'
+          subject: group_p1
+      to:
+        name: section_213a_review_result
+        type: category
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__i864.json
+  uscis_use_only_number_of_support_affidavits_in_file:
+    x_petey_id: '1_15'
+    type: category
+    values:
+    - of_ind
+    - affidavits_ind
+    widgets:
+      of_ind:
+        page: 1
+        rect:
+        - 443.5
+        - 116.5
+        - 450.5
+        - 123.5
+        widget_type: checkbox
+        path: null
+        caption: of
+        x_petey_caption_source: page_text
+      affidavits_ind:
+        page: 1
+        rect:
+        - 503.5
+        - 116.5
+        - 510.5
+        - 123.5
+        widget_type: checkbox
+        path: null
+        caption: Affidavits
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-27 21:10:14'
+      from:
+      - of_ind
+      - affidavits_ind
+      name_from: labeler
+    x_petey_identifiers:
+      subject: uscis_use_only_number_of_support_affidavits_in_file
   g28_attached_ind:
     x_petey_id: '1_1'
     type: boolean
@@ -37,7 +220,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attorney_state_bar_number:
+    x_petey_identifiers:
+      subject: g28_attached
+      suffix: ind
+  attorney_state_bar_nbr:
     x_petey_id: '1_2'
     type: string
     widget:
@@ -55,7 +241,10 @@ fields:
     description: To be completed by an attorney or accredited representative (if any).
       Enter Attorney or State Bar Number (if applicable).
     x_petey_description_source: tooltip
-  attorney_uscis_online_account_number:
+    x_petey_identifiers:
+      subject: attorney_state_bar
+      suffix: nbr
+  attorney_uscis_online_account_nbr:
     x_petey_id: '1_3'
     type: string
     semantic_type: account_number
@@ -75,6 +264,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: attorney_uscis_online_account
+      suffix: nbr
   alien_worker_petition_relationship_txt:
     x_petey_id: '1_5'
     type: string
@@ -94,7 +286,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  ownership_interest_business_name:
+    x_petey_identifiers:
+      subject: alien_worker_petition_relationship
+      suffix: txt
+  ownership_interest_business_nm:
     x_petey_id: '1_6'
     type: string
     semantic_type: business_name
@@ -114,6 +309,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: ownership_interest_business
+      suffix: nm
   ownership_interest_relationship_txt:
     x_petey_id: '1_7'
     type: string
@@ -133,6 +331,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: ownership_interest_relationship
+      suffix: txt
   substitute_sponsor_relationship_txt:
     x_petey_id: '1_8'
     type: string
@@ -152,7 +353,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  sponsor_last_nm:
+    x_petey_identifiers:
+      subject: substitute_sponsor_relationship
+      suffix: txt
+  sponsor_family_nm:
     x_petey_id: '1_9'
     type: string
     semantic_type: last_name
@@ -170,7 +374,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  sponsor_first_nm:
+    x_petey_identifiers:
+      block_prefix: sponsor
+      subject: family
+      suffix: nm
+    x_petey_hand_edit:
+      when: '2026-10-27 21:13:10'
+      from:
+        name: sponsor_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+        identifiers:
+          subject: sponsor_last
+          suffix: nm
+      to:
+        name: sponsor_family_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT4: the type''s parts'
+  sponsor_given_nm:
     x_petey_id: '1_10'
     type: string
     semantic_type: first_name
@@ -188,6 +415,29 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: sponsor
+      subject: given
+      suffix: nm
+    x_petey_hand_edit:
+      when: '2026-10-27 21:13:10'
+      from:
+        name: sponsor_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+        identifiers:
+          subject: sponsor_first
+          suffix: nm
+      to:
+        name: sponsor_given_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT4: the type''s parts'
   sponsor_middle_nm:
     x_petey_id: '1_11'
     type: string
@@ -206,7 +456,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  in_care_of_nm:
+    x_petey_identifiers:
+      subject: sponsor_middle
+      suffix: nm
+  sponsor_mailing_in_care_of_nm:
     x_petey_id: '2_1'
     type: string
     semantic_type: person_name
@@ -224,7 +477,31 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  mailing_address_street_nm:
+    x_petey_identifiers:
+      block_prefix: sponsor_mailing
+      subject: in_care_of
+      suffix: nm
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:50'
+      from:
+        name: mailing_in_care_of_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+        identifiers:
+          block_prefix: mailing
+          subject: in_care_of
+          suffix: nm
+      to:
+        name: sponsor_mailing_in_care_of_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  sponsor_mailing_address_street_nm:
     x_petey_id: '2_2'
     type: string
     semantic_type: street_address
@@ -242,7 +519,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  mailing_unit_number_txt:
+    x_petey_identifiers:
+      block_prefix: sponsor_mailing
+      subject: address_street
+      suffix: nm
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:50'
+      from:
+        name: mailing_address_street_nm
+        type: string
+        semantic_type: street_address
+        pattern: null
+        identifiers:
+          subject: mailing_address_street
+          suffix: nm
+      to:
+        name: sponsor_mailing_address_street_nm
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  sponsor_mailing_unit_number_txt:
     x_petey_id: '2_3'
     type: string
     semantic_type: text
@@ -260,7 +560,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  mailing_city_nm:
+    x_petey_identifiers:
+      block_prefix: sponsor_mailing
+      subject: unit_number
+      suffix: txt
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:50'
+      from:
+        name: mailing_unit_number_txt
+        type: string
+        semantic_type: text
+        pattern: null
+        identifiers:
+          subject: mailing_unit_number
+          suffix: txt
+      to:
+        name: sponsor_mailing_unit_number_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  sponsor_mailing_city_nm:
     x_petey_id: '2_5'
     type: string
     semantic_type: city
@@ -278,7 +601,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  mailing_state_abbreviation_cd:
+    x_petey_identifiers:
+      block_prefix: sponsor_mailing
+      subject: city
+      suffix: nm
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:50'
+      from:
+        name: mailing_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+        identifiers:
+          subject: mailing_city
+          suffix: nm
+      to:
+        name: sponsor_mailing_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  sponsor_mailing_state_abbreviation_cd:
     x_petey_id: '2_6'
     type: category
     semantic_type: state_abbr
@@ -356,7 +702,30 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
-  mailing_zip_cd:
+    x_petey_identifiers:
+      block_prefix: sponsor_mailing
+      subject: state_abbreviation
+      suffix: cd
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:50'
+      from:
+        name: mailing_state_abbreviation_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+        identifiers:
+          subject: mailing_state_abbreviation
+          suffix: cd
+      to:
+        name: sponsor_mailing_state_abbreviation_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  sponsor_mailing_zip_cd:
     x_petey_id: '2_7'
     type: string
     semantic_type: zip
@@ -375,7 +744,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  mailing_province_txt:
+    x_petey_identifiers:
+      block_prefix: sponsor_mailing
+      subject: zip
+      suffix: cd
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:50'
+      from:
+        name: mailing_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        identifiers:
+          subject: mailing_zip
+          suffix: cd
+      to:
+        name: sponsor_mailing_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  sponsor_mailing_province_txt:
     x_petey_id: '2_8'
     type: string
     semantic_type: text
@@ -393,7 +785,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  mailing_postal_cd:
+    x_petey_identifiers:
+      block_prefix: sponsor_mailing
+      subject: province
+      suffix: txt
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:50'
+      from:
+        name: mailing_province_txt
+        type: string
+        semantic_type: text
+        pattern: null
+        identifiers:
+          subject: mailing_province
+          suffix: txt
+      to:
+        name: sponsor_mailing_province_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  sponsor_mailing_postal_cd:
     x_petey_id: '2_9'
     type: string
     semantic_type: zip
@@ -412,7 +827,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  mailing_country_cd:
+    x_petey_identifiers:
+      block_prefix: sponsor_mailing
+      subject: postal
+      suffix: cd
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:50'
+      from:
+        name: mailing_postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        identifiers:
+          subject: mailing_postal
+          suffix: cd
+      to:
+        name: sponsor_mailing_postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  sponsor_mailing_country_cd:
     x_petey_id: '2_10'
     type: string
     widget:
@@ -430,44 +868,69 @@ fields:
     description: Part 2. Information About You (Sponsor) 2. Sponsor's Current Mailing
       Address. Enter Country.
     x_petey_description_source: tooltip
-  mailing_same_as_physical_yes_ind:
-    x_petey_id: '2_11'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 501.9110107421875
-      - 238.0
-      - 511.9110107421875
-      - 248.0
-      widget_type: checkbox
-      path: form1[0].#subform[1].P1_Line3_Checkbox[0]
-    description: Part 2. Information About You (Sponsor) 3. Is your current mailing
-      address the same as your physical address? Select Yes.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  mailing_same_as_physical_no_ind:
-    x_petey_id: '2_12'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 542.9710083007812
-      - 238.0
-      - 552.9710083007812
-      - 248.0
-      widget_type: checkbox
-      path: form1[0].#subform[1].P1_Line3_Checkbox[1]
-    description: Part 2. Information About You (Sponsor) 3. Is your current mailing
-      address the same as your physical address? Select No. If you answered "No" to
-      Item Number 3., provide your physical address in Item Number 4.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  physical_address_street_nm:
+    x_petey_identifiers:
+      block_prefix: sponsor_mailing
+      subject: country
+      suffix: cd
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:50'
+      from:
+        name: mailing_country_cd
+        type: string
+        semantic_type: null
+        pattern: null
+        identifiers:
+          subject: mailing_country
+          suffix: cd
+      to:
+        name: sponsor_mailing_country_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  mailing_same_as_physical:
+    x_petey_id: '2_29'
+    type: category
+    values:
+    - mailing_same_as_physical_yes_ind
+    - mailing_same_as_physical_no_ind
+    widgets:
+      mailing_same_as_physical_yes_ind:
+        page: 2
+        rect:
+        - 501.9110107421875
+        - 238.0
+        - 511.9110107421875
+        - 248.0
+        widget_type: checkbox
+        path: form1[0].#subform[1].P1_Line3_Checkbox[0]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      mailing_same_as_physical_no_ind:
+        page: 2
+        rect:
+        - 542.9710083007812
+        - 238.0
+        - 552.9710083007812
+        - 248.0
+        widget_type: checkbox
+        path: form1[0].#subform[1].P1_Line3_Checkbox[1]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-27 21:03:51'
+      from:
+      - mailing_same_as_physical_yes_ind
+      - mailing_same_as_physical_no_ind
+    x_petey_identifiers:
+      subject: mailing_same_as_physical
+  sponsor_physical_address_street_nm:
     x_petey_id: '2_13'
     type: string
     semantic_type: street_address
@@ -485,7 +948,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_unit_number_txt:
+    x_petey_identifiers:
+      block_prefix: sponsor_physical
+      subject: address_street
+      suffix: nm
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:58'
+      from:
+        name: physical_address_street_nm
+        type: string
+        semantic_type: street_address
+        pattern: null
+        identifiers:
+          subject: physical_address_street
+          suffix: nm
+      to:
+        name: sponsor_physical_address_street_nm
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  sponsor_physical_unit_number_txt:
     x_petey_id: '2_14'
     type: string
     semantic_type: text
@@ -503,7 +989,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_city_nm:
+    x_petey_identifiers:
+      block_prefix: sponsor_physical
+      subject: unit_number
+      suffix: txt
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:58'
+      from:
+        name: physical_unit_number_txt
+        type: string
+        semantic_type: text
+        pattern: null
+        identifiers:
+          subject: physical_unit_number
+          suffix: txt
+      to:
+        name: sponsor_physical_unit_number_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  sponsor_physical_city_nm:
     x_petey_id: '2_16'
     type: string
     semantic_type: city
@@ -521,7 +1030,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_state_abbreviation_cd:
+    x_petey_identifiers:
+      block_prefix: sponsor_physical
+      subject: city
+      suffix: nm
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:58'
+      from:
+        name: physical_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+        identifiers:
+          subject: physical_city
+          suffix: nm
+      to:
+        name: sponsor_physical_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  sponsor_physical_state_abbreviation_cd:
     x_petey_id: '2_17'
     type: category
     semantic_type: state_abbr
@@ -599,7 +1131,30 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
-  physical_zip_cd:
+    x_petey_identifiers:
+      block_prefix: sponsor_physical
+      subject: state_abbreviation
+      suffix: cd
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:58'
+      from:
+        name: physical_state_abbreviation_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+        identifiers:
+          subject: physical_state_abbreviation
+          suffix: cd
+      to:
+        name: sponsor_physical_state_abbreviation_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  sponsor_physical_zip_cd:
     x_petey_id: '2_18'
     type: string
     semantic_type: zip
@@ -618,7 +1173,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_postal_cd:
+    x_petey_identifiers:
+      block_prefix: sponsor_physical
+      subject: zip
+      suffix: cd
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:58'
+      from:
+        name: physical_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        identifiers:
+          subject: physical_zip
+          suffix: cd
+      to:
+        name: sponsor_physical_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  sponsor_physical_postal_cd:
     x_petey_id: '2_20'
     type: string
     semantic_type: zip
@@ -637,7 +1215,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_province_txt:
+    x_petey_identifiers:
+      block_prefix: sponsor_physical
+      subject: postal
+      suffix: cd
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:58'
+      from:
+        name: physical_postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        identifiers:
+          subject: physical_postal
+          suffix: cd
+      to:
+        name: sponsor_physical_postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  sponsor_physical_province_txt:
     x_petey_id: '2_19'
     type: string
     semantic_type: text
@@ -655,7 +1256,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_country_cd:
+    x_petey_identifiers:
+      block_prefix: sponsor_physical
+      subject: province
+      suffix: txt
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:58'
+      from:
+        name: physical_province_txt
+        type: string
+        semantic_type: text
+        pattern: null
+        identifiers:
+          subject: physical_province
+          suffix: txt
+      to:
+        name: sponsor_physical_province_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  sponsor_physical_country_cd:
     x_petey_id: '2_21'
     type: string
     widget:
@@ -673,6 +1297,29 @@ fields:
     description: Part 2. Information About You (Sponsor) 4. Sponsor's Physical Address
       (if different from above). Enter Country.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      block_prefix: sponsor_physical
+      subject: country
+      suffix: cd
+    x_petey_hand_edit:
+      when: '2026-10-27 21:12:58'
+      from:
+        name: physical_country_cd
+        type: string
+        semantic_type: null
+        pattern: null
+        identifiers:
+          subject: physical_country
+          suffix: cd
+      to:
+        name: sponsor_physical_country_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
   country_of_domicile_cd:
     x_petey_id: '2_22'
     type: string
@@ -691,6 +1338,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: country_of_domicile
+      suffix: cd
   birth_dt:
     x_petey_id: '2_23'
     type: date
@@ -710,6 +1360,9 @@ fields:
     description: Part 2. Information About You (Sponsor) Other Information. 6. Enter
       Date of Birth. Enter as 2 digit month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: birth
+      suffix: dt
   country_of_birth_cd:
     x_petey_id: '2_24'
     type: string
@@ -728,6 +1381,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: country_of_birth
+      suffix: cd
   sponsor_ssn:
     x_petey_id: '2_25'
     type: string
@@ -748,6 +1404,9 @@ fields:
     description: Part 2. Information About You (Sponsor) Other Information 8. Enter
       U.S. Social Security Number (Required).
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: sponsor
+      suffix: ssn
   sponsor_a_nbr:
     x_petey_id: '2_27'
     type: string
@@ -765,6 +1424,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: sponsor_a
+      suffix: nbr
   uscis_online_acct_nbr:
     x_petey_id: '2_28'
     type: string
@@ -782,44 +1444,48 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  active_duty_military_yes_ind:
-    x_petey_id: '2_29'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 500.15899658203125
-      - 634.0
-      - 510.15899658203125
-      - 644.0
-      widget_type: checkbox
-      path: form1[0].#subform[1].P4_Line14_Checkboxes[0]
-    description: Part 2. Information About You (Sponsor). Military Service (To be
-      completed by petitioner sponsors only). 12. I am currently on active duty in
-      the United States Armed Forces or U.S. Coast Guard. Select Yes.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  active_duty_military_no_ind:
+    x_petey_identifiers:
+      subject: uscis_online_acct
+      suffix: nbr
+  active_duty_military:
     x_petey_id: '2_30'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 542.1599731445312
-      - 634.0
-      - 552.1599731445312
-      - 644.0
-      widget_type: checkbox
-      path: form1[0].#subform[1].P4_Line14_Checkboxes[1]
-    description: Part 2. Information About You (Sponsor). Military Service (To be
-      completed by petitioner sponsors only). 12. I am currently on active duty in
-      the United States Armed Forces or U.S. Coast Guard. Select No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    type: category
+    values:
+    - active_duty_military_yes_ind
+    - active_duty_military_no_ind
+    widgets:
+      active_duty_military_yes_ind:
+        page: 2
+        rect:
+        - 500.15899658203125
+        - 634.0
+        - 510.15899658203125
+        - 644.0
+        widget_type: checkbox
+        path: form1[0].#subform[1].P4_Line14_Checkboxes[0]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      active_duty_military_no_ind:
+        page: 2
+        rect:
+        - 542.1599731445312
+        - 634.0
+        - 552.1599731445312
+        - 644.0
+        widget_type: checkbox
+        path: form1[0].#subform[1].P4_Line14_Checkboxes[1]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-27 21:03:51'
+      from:
+      - active_duty_military_yes_ind
+      - active_duty_military_no_ind
+    x_petey_identifiers:
+      subject: active_duty_military
   principal_immigrant_family_nm:
     x_petey_id: '3_1'
     type: string
@@ -838,6 +1504,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: principal_immigrant_family
+      suffix: nm
   principal_immigrant_given_nm:
     x_petey_id: '3_2'
     type: string
@@ -856,6 +1525,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: principal_immigrant_given
+      suffix: nm
   principal_immigrant_middle_nm:
     x_petey_id: '3_3'
     type: string
@@ -874,7 +1546,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  in_care_of_nm_2:
+    x_petey_identifiers:
+      subject: principal_immigrant_middle
+      suffix: nm
+  current_mailing_in_care_of_nm:
     x_petey_id: '3_4'
     type: string
     semantic_type: person_name
@@ -892,7 +1567,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  street_number_and_name_txt:
+    x_petey_identifiers:
+      block_prefix: current_mailing
+      subject: in_care_of
+      suffix: nm
+    x_petey_hand_edit:
+      when: '2026-10-27 21:13:26'
+      from:
+        name: in_care_of_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+        identifiers:
+          subject: in_care_of
+          suffix: nm
+      to:
+        name: current_mailing_in_care_of_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  current_mailing_address_street_nm:
     x_petey_id: '3_5'
     type: string
     semantic_type: street_address
@@ -910,61 +1608,104 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  apt_ind:
-    x_petey_id: '3_7'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 419.7860107421875
-      - 195.9990234375
-      - 429.7860107421875
-      - 205.9990234375
-      widget_type: checkbox
-      path: form1[0].#subform[2].P2_Line2_Unit[0]
-    description: Part 3. Information About the Principal Immigrant. 2. Current Mailing
-      Address. Select Apartment.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  ste_ind:
-    x_petey_id: '3_8'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 437.5820007324219
-      - 195.9990234375
-      - 447.5820007324219
-      - 205.9990234375
-      widget_type: checkbox
-      path: form1[0].#subform[2].P2_Line2_Unit[1]
-    description: Part 3. Information About the Principal Immigrant. 2. Current Mailing
-      Address. Select Suite.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  flr_ind:
-    x_petey_id: '3_9'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 455.3869934082031
-      - 195.9990234375
-      - 465.3869934082031
-      - 205.9990234375
-      widget_type: checkbox
-      path: form1[0].#subform[2].P2_Line2_Unit[2]
-    description: Part 3. Information About the Principal Immigrant. 2. Current Mailing
-      Address. Select Floor.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  unit_number_txt:
+    x_petey_identifiers:
+      block_prefix: current_mailing
+      subject: address_street
+      suffix: nm
+    x_petey_hand_edit:
+      when: '2026-10-27 21:13:26'
+      from:
+        name: address_street_nm
+        type: string
+        semantic_type: street_address
+        pattern: null
+        identifiers:
+          subject: address_street
+          suffix: nm
+      to:
+        name: current_mailing_address_street_nm
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  current_mailing_unit_type:
+    x_petey_id: '3_32'
+    type: category
+    values:
+    - apt_ind
+    - ste_ind
+    - flr_ind
+    widgets:
+      apt_ind:
+        page: 3
+        rect:
+        - 419.7860107421875
+        - 195.9990234375
+        - 429.7860107421875
+        - 205.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[2].P2_Line2_Unit[0]
+        on_state: '#20APT#20'
+        caption: Apt.
+        x_petey_caption_source: page_choice
+      ste_ind:
+        page: 3
+        rect:
+        - 437.5820007324219
+        - 195.9990234375
+        - 447.5820007324219
+        - 205.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[2].P2_Line2_Unit[1]
+        on_state: '#20STE#20'
+        caption: Ste.
+        x_petey_caption_source: page_choice
+      flr_ind:
+        page: 3
+        rect:
+        - 455.3869934082031
+        - 195.9990234375
+        - 465.3869934082031
+        - 205.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[2].P2_Line2_Unit[2]
+        on_state: '#20FLR#20'
+        caption: Flr.
+        x_petey_caption_source: page_choice
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-27 21:13:53'
+      from:
+      - apt_ind
+      - ste_ind
+      - flr_ind
+      name_from: labeler
+    x_petey_identifiers:
+      block_prefix: current_mailing
+      subject: unit_type
+    x_petey_hand_edit:
+      when: '2026-10-27 21:14:03'
+      from:
+        name: principal_immigrant_mailing_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        identifiers:
+          subject: principal_immigrant_mailing_unit_type
+      to:
+        name: current_mailing_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  current_mailing_unit_number_txt:
     x_petey_id: '3_6'
     type: string
     semantic_type: text
@@ -982,7 +1723,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  city_nm:
+    x_petey_identifiers:
+      block_prefix: current_mailing
+      subject: unit_number
+      suffix: txt
+    x_petey_hand_edit:
+      when: '2026-10-27 21:13:26'
+      from:
+        name: unit_number_txt
+        type: string
+        semantic_type: text
+        pattern: null
+        identifiers:
+          subject: unit_number
+          suffix: txt
+      to:
+        name: current_mailing_unit_number_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  current_mailing_city_nm:
     x_petey_id: '3_10'
     type: string
     semantic_type: city
@@ -1000,7 +1764,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  state_abbreviation_cd:
+    x_petey_identifiers:
+      block_prefix: current_mailing
+      subject: city
+      suffix: nm
+    x_petey_hand_edit:
+      when: '2026-10-27 21:13:26'
+      from:
+        name: city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+        identifiers:
+          subject: city
+          suffix: nm
+      to:
+        name: current_mailing_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  current_mailing_state_abbreviation_cd:
     x_petey_id: '3_11'
     type: category
     semantic_type: state_abbr
@@ -1078,7 +1865,30 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
-  zip_cd:
+    x_petey_identifiers:
+      block_prefix: current_mailing
+      subject: state_abbreviation
+      suffix: cd
+    x_petey_hand_edit:
+      when: '2026-10-27 21:13:26'
+      from:
+        name: state_abbreviation_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+        identifiers:
+          subject: state_abbreviation
+          suffix: cd
+      to:
+        name: current_mailing_state_abbreviation_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  current_mailing_zip_cd:
     x_petey_id: '3_12'
     type: string
     semantic_type: zip
@@ -1097,7 +1907,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  province_txt:
+    x_petey_identifiers:
+      block_prefix: current_mailing
+      subject: zip
+      suffix: cd
+    x_petey_hand_edit:
+      when: '2026-10-27 21:13:26'
+      from:
+        name: zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        identifiers:
+          subject: zip
+          suffix: cd
+      to:
+        name: current_mailing_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  current_mailing_province_txt:
     x_petey_id: '3_13'
     type: string
     semantic_type: text
@@ -1115,7 +1948,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  postal_cd:
+    x_petey_identifiers:
+      block_prefix: current_mailing
+      subject: province
+      suffix: txt
+    x_petey_hand_edit:
+      when: '2026-10-27 21:13:26'
+      from:
+        name: province_txt
+        type: string
+        semantic_type: text
+        pattern: null
+        identifiers:
+          subject: province
+          suffix: txt
+      to:
+        name: current_mailing_province_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  current_mailing_postal_cd:
     x_petey_id: '3_14'
     type: string
     semantic_type: zip
@@ -1134,7 +1990,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  country_cd:
+    x_petey_identifiers:
+      block_prefix: current_mailing
+      subject: postal
+      suffix: cd
+    x_petey_hand_edit:
+      when: '2026-10-27 21:13:26'
+      from:
+        name: postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        identifiers:
+          subject: postal
+          suffix: cd
+      to:
+        name: current_mailing_postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  current_mailing_country_cd:
     x_petey_id: '3_15'
     type: string
     widget:
@@ -1152,6 +2031,29 @@ fields:
     description: Part 3. Information About the Principal Immigrant. 2. Current Mailing
       Address. Enter Country.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      block_prefix: current_mailing
+      subject: country
+      suffix: cd
+    x_petey_hand_edit:
+      when: '2026-10-27 21:13:26'
+      from:
+        name: country_cd
+        type: string
+        semantic_type: null
+        pattern: null
+        identifiers:
+          subject: country
+          suffix: cd
+      to:
+        name: current_mailing_country_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
   country_of_citizenship_or_nationality_txt:
     x_petey_id: '3_16'
     type: string
@@ -1170,6 +2072,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: country_of_citizenship_or_nationality
+      suffix: txt
   date_of_birth_dt:
     x_petey_id: '3_17'
     type: date
@@ -1189,6 +2094,9 @@ fields:
     description: Part 3. Information About the Principal Immigrant. Other Information.
       4. Enter Date of Birth. Enter as 2 digit month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: date_of_birth
+      suffix: dt
   alien_registration_number_txt:
     x_petey_id: '3_18'
     type: string
@@ -1207,6 +2115,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: alien_registration_number
+      suffix: txt
   uscis_online_account_number_txt:
     x_petey_id: '3_19'
     type: string
@@ -1226,6 +2137,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: uscis_online_account_number
+      suffix: txt
   daytime_telephone_number_txt:
     x_petey_id: '3_20'
     type: string
@@ -1246,44 +2160,50 @@ fields:
     description: Part 3. Information About the Principal Immigrant. Other Information.
       7. Enter Daytime Telephone Number. Enter 10 digit number.
     x_petey_description_source: tooltip
-  sponsoring_principal_immigrant_yes_ind:
-    x_petey_id: '3_21'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 60.867000579833984
-      - 475.0
-      - 70.86699676513672
-      - 485.0
-      widget_type: checkbox
-      path: form1[0].#subform[2].P3_Line1_Checkbox[0]
-    description: Part 4. Information About the Immigrants You Are Sponsoring. 1. I
-      am sponsoring the principal immigrant named in Part 3. Select Yes.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  sponsoring_principal_immigrant_no_ind:
-    x_petey_id: '3_22'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 102.37999725341797
-      - 475.0
-      - 112.37999725341797
-      - 485.0
-      widget_type: checkbox
-      path: form1[0].#subform[2].P3_Line1_Checkbox[1]
-    description: Part 4. Information About the Immigrants You Are Sponsoring. 1. I
-      am sponsoring the principal immigrant named in Part 3. Select No, I am sponsoring
-      family members in Part 4. as the second joint sponsor or I am sponsoring family
-      members who are immigrating more than six months after the principal immigrant.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    x_petey_identifiers:
+      subject: daytime_telephone_number
+      suffix: txt
+  sponsoring_principal_immigrant:
+    x_petey_id: '3_33'
+    type: category
+    values:
+    - sponsoring_principal_immigrant_yes_ind
+    - sponsoring_principal_immigrant_no_ind
+    widgets:
+      sponsoring_principal_immigrant_yes_ind:
+        page: 3
+        rect:
+        - 60.867000579833984
+        - 475.0
+        - 70.86699676513672
+        - 485.0
+        widget_type: checkbox
+        path: form1[0].#subform[2].P3_Line1_Checkbox[0]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+      sponsoring_principal_immigrant_no_ind:
+        page: 3
+        rect:
+        - 102.37999725341797
+        - 475.0
+        - 112.37999725341797
+        - 485.0
+        widget_type: checkbox
+        path: form1[0].#subform[2].P3_Line1_Checkbox[1]
+        on_state: N
+        caption: No, I am sponsoring family members in Part 4. as the second joint
+          sponsor or I am sponsoring family members who are immigrating more than
+          six months after the principal immigrant.
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-27 21:18:14'
+      from:
+      - sponsoring_principal_immigrant_yes_ind
+      - sponsoring_principal_immigrant_no_ind
+    x_petey_identifiers:
+      subject: sponsoring_principal_immigrant
   sponsoring_family_members_same_time_ind:
     x_petey_id: '3_23'
     type: boolean
@@ -1305,6 +2225,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: sponsoring_family_members_same_time
+      suffix: ind
   sponsoring_family_members_after_six_months_ind:
     x_petey_id: '3_24'
     type: boolean
@@ -1325,6 +2248,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: sponsoring_family_members_after_six_months
+      suffix: ind
   family_member_1_family_nm:
     x_petey_id: '3_25'
     type: string
@@ -1343,6 +2269,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '1'
+      subject: family
+      suffix: nm
   family_member_1_given_nm:
     x_petey_id: '3_26'
     type: string
@@ -1361,6 +2292,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '1'
+      subject: given
+      suffix: nm
   family_member_1_middle_nm:
     x_petey_id: '3_27'
     type: string
@@ -1379,7 +2315,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  family_member_1_relationship_to_principal_immigrant_txt:
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '1'
+      subject: middle
+      suffix: nm
+  family_member_1_relationship_to_principal_immigrant:
     x_petey_id: '3_28'
     type: string
     semantic_type: text
@@ -1397,7 +2338,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  family_member_1_date_of_birth_dt:
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '1'
+      subject: relationship_to_principal_immigrant
+    x_petey_hand_edit:
+      when: '2026-10-27 21:18:33'
+      from:
+        name: family_member_1_relationship_to_principal_immigrant_txt
+        type: string
+        semantic_type: text
+        pattern: null
+        identifiers:
+          subject: family_member_1_relationship_to_principal_immigrant
+          suffix: txt
+      to:
+        name: family_member_1_relationship_to_principal_immigrant
+        type: string
+        semantic_type: text
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT2: the type''s parts'
+  family_member_1_dob_dt:
     x_petey_id: '3_29'
     type: date
     semantic_type: birth_date
@@ -1417,7 +2381,31 @@ fields:
       Member 1. Enter Date of Birth. Enter as 2-digit Month, 2-digit Day, and 4-digit
       Year.
     x_petey_description_source: tooltip
-  family_member_1_alien_registration_number_txt:
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '1'
+      subject: dob
+      suffix: dt
+    x_petey_hand_edit:
+      when: '2026-10-27 21:18:33'
+      from:
+        name: family_member_1_date_of_birth_dt
+        type: date
+        semantic_type: birth_date
+        pattern: null
+        identifiers:
+          subject: family_member_1_date_of_birth
+          suffix: dt
+      to:
+        name: family_member_1_dob_dt
+        type: date
+        semantic_type: birth_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT2: the type''s parts'
+  family_member_1_alien_registration_nbr:
     x_petey_id: '3_30'
     type: string
     semantic_type: text
@@ -1435,7 +2423,31 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  family_member_1_uscis_online_account_number_txt:
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '1'
+      subject: alien_registration
+      suffix: nbr
+    x_petey_hand_edit:
+      when: '2026-10-27 21:18:33'
+      from:
+        name: family_member_1_alien_registration_number_txt
+        type: string
+        semantic_type: text
+        pattern: null
+        identifiers:
+          subject: family_member_1_alien_registration_number
+          suffix: txt
+      to:
+        name: family_member_1_alien_registration_nbr
+        type: string
+        semantic_type: text
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT2: the type''s parts'
+  family_member_1_uscis_online_account_nbr:
     x_petey_id: '3_31'
     type: string
     semantic_type: account_number
@@ -1454,6 +2466,30 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '1'
+      subject: uscis_online_account
+      suffix: nbr
+    x_petey_hand_edit:
+      when: '2026-10-27 21:18:33'
+      from:
+        name: family_member_1_uscis_online_account_number_txt
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+        identifiers:
+          subject: family_member_1_uscis_online_account_number
+          suffix: txt
+      to:
+        name: family_member_1_uscis_online_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT2: the type''s parts'
   family_member_2_family_nm:
     x_petey_id: '4_1'
     type: string
@@ -1472,6 +2508,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '2'
+      subject: family
+      suffix: nm
   family_member_2_given_nm:
     x_petey_id: '4_2'
     type: string
@@ -1490,6 +2531,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '2'
+      subject: given
+      suffix: nm
   family_member_2_middle_nm:
     x_petey_id: '4_3'
     type: string
@@ -1508,6 +2554,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '2'
+      subject: middle
+      suffix: nm
   family_member_2_relationship_to_principal_immigrant:
     x_petey_id: '4_4'
     type: string
@@ -1525,6 +2576,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '2'
+      subject: relationship_to_principal_immigrant
   family_member_2_dob_dt:
     x_petey_id: '4_5'
     type: date
@@ -1545,6 +2600,11 @@ fields:
       Number 2. Enter Date of Birth. Enter as 2-digit Month, 2-digit Day, and 4-digit
       Year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '2'
+      subject: dob
+      suffix: dt
   family_member_2_alien_registration_nbr:
     x_petey_id: '4_6'
     type: string
@@ -1562,6 +2622,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '2'
+      subject: alien_registration
+      suffix: nbr
   family_member_2_uscis_online_account_nbr:
     x_petey_id: '4_7'
     type: string
@@ -1579,6 +2644,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '2'
+      subject: uscis_online_account
+      suffix: nbr
   family_member_3_family_nm:
     x_petey_id: '4_8'
     type: string
@@ -1597,6 +2667,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '3'
+      subject: family
+      suffix: nm
   family_member_3_given_nm:
     x_petey_id: '4_9'
     type: string
@@ -1615,6 +2690,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '3'
+      subject: given
+      suffix: nm
   family_member_3_middle_nm:
     x_petey_id: '4_10'
     type: string
@@ -1633,6 +2713,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '3'
+      subject: middle
+      suffix: nm
   family_member_3_relationship_to_principal_immigrant:
     x_petey_id: '4_11'
     type: string
@@ -1650,6 +2735,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '3'
+      subject: relationship_to_principal_immigrant
   family_member_3_dob_dt:
     x_petey_id: '4_12'
     type: date
@@ -1670,6 +2759,11 @@ fields:
       Number 3. Enter Date of Birth. Enter as 2-digit Month, 2-digit Day, and 4-digit
       Year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '3'
+      subject: dob
+      suffix: dt
   family_member_3_alien_registration_nbr:
     x_petey_id: '4_13'
     type: string
@@ -1687,6 +2781,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '3'
+      subject: alien_registration
+      suffix: nbr
   family_member_3_uscis_online_account_nbr:
     x_petey_id: '4_14'
     type: string
@@ -1704,6 +2803,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '3'
+      subject: uscis_online_account
+      suffix: nbr
   family_member_4_family_nm:
     x_petey_id: '4_15'
     type: string
@@ -1722,6 +2826,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '4'
+      subject: family
+      suffix: nm
   family_member_4_given_nm:
     x_petey_id: '4_16'
     type: string
@@ -1740,6 +2849,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '4'
+      subject: given
+      suffix: nm
   family_member_4_middle_nm:
     x_petey_id: '4_17'
     type: string
@@ -1758,6 +2872,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '4'
+      subject: middle
+      suffix: nm
   family_member_4_relationship_to_principal_immigrant:
     x_petey_id: '4_18'
     type: string
@@ -1775,6 +2894,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '4'
+      subject: relationship_to_principal_immigrant
   family_member_4_dob_dt:
     x_petey_id: '4_19'
     type: date
@@ -1795,6 +2918,11 @@ fields:
       Number 4. Enter Date of Birth. Enter as 2-digit Month, 2-digit Day, and 4-digit
       Year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '4'
+      subject: dob
+      suffix: dt
   family_member_4_alien_registration_nbr:
     x_petey_id: '4_20'
     type: string
@@ -1812,6 +2940,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '4'
+      subject: alien_registration
+      suffix: nbr
   family_member_4_uscis_online_account_nbr:
     x_petey_id: '4_21'
     type: string
@@ -1829,6 +2962,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: family_member
+      block_iteration: '4'
+      subject: uscis_online_account
+      suffix: nbr
   total_immigrants_sponsored_cnt:
     x_petey_id: '5_1'
     type: integer
@@ -1853,6 +2991,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: total_immigrants_sponsored
+      suffix: cnt
   spouse_cnt:
     x_petey_id: '5_2'
     type: integer
@@ -1872,6 +3013,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: spouse
+      suffix: cnt
   dependent_children_cnt:
     x_petey_id: '5_3'
     type: integer
@@ -1891,6 +3035,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: dependent_children
+      suffix: cnt
   other_dependents_cnt:
     x_petey_id: '5_4'
     type: integer
@@ -1910,6 +3057,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: other_dependents
+      suffix: cnt
   prior_sponsored_lpr_cnt:
     x_petey_id: '5_5'
     type: integer
@@ -1931,6 +3081,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: prior_sponsored_lpr
+      suffix: cnt
   household_member_income_combiners_cnt:
     x_petey_id: '5_6'
     type: integer
@@ -1952,6 +3105,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: household_member_income_combiners
+      suffix: cnt
   household_size_total_cnt:
     x_petey_id: '5_7'
     type: integer
@@ -1971,6 +3127,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: household_size_total
+      suffix: cnt
   employed_ind:
     x_petey_id: '5_9'
     type: boolean
@@ -1989,7 +3148,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  employer_1_nm:
+    x_petey_identifiers:
+      subject: employed
+      suffix: ind
+  employer_nm_1:
     x_petey_id: '5_8'
     type: string
     semantic_type: person_name
@@ -2007,7 +3169,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  employer_2_nm:
+    x_petey_identifiers:
+      subject: employer
+      suffix: nm
+      iteration: '1'
+  employer_nm_2:
     x_petey_id: '5_10'
     type: string
     semantic_type: person_name
@@ -2025,7 +3191,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  employer_3_nm:
+    x_petey_identifiers:
+      subject: employer
+      suffix: nm
+      iteration: '2'
+  employer_nm_3:
     x_petey_id: '5_11'
     type: string
     semantic_type: person_name
@@ -2043,6 +3213,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer
+      suffix: nm
+      iteration: '3'
   self_employed_ind:
     x_petey_id: '5_13'
     type: boolean
@@ -2061,6 +3235,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: self_employed
+      suffix: ind
   self_employed_occupation_txt:
     x_petey_id: '5_12'
     type: string
@@ -2079,6 +3256,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: self_employed_occupation
+      suffix: txt
   retired_ind:
     x_petey_id: '5_15'
     type: boolean
@@ -2097,6 +3277,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: retired
+      suffix: ind
   retired_since_dt:
     x_petey_id: '5_14'
     type: date
@@ -2116,6 +3299,9 @@ fields:
     description: Part 6. Sponsor's Employment and Income. 5. Enter Retired Since Date.
       Enter as 2-digit Month, 2-digit Day and 4-digit Year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: retired_since
+      suffix: dt
   unemployed_ind:
     x_petey_id: '5_17'
     type: boolean
@@ -2134,6 +3320,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: unemployed
+      suffix: ind
   unemployed_since_dt:
     x_petey_id: '5_16'
     type: date
@@ -2153,6 +3342,9 @@ fields:
     description: Part 6. Sponsor's Employment and Income. 6. Enter Unemployed Since
       Date. Enter as 2-digit Month, 2-digit Day and 4-digit Year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: unemployed_since
+      suffix: dt
   current_individual_annual_income_amt:
     x_petey_id: '5_18'
     type: number
@@ -2172,7 +3364,10 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  person_1_nm:
+    x_petey_identifiers:
+      subject: current_individual_annual_income
+      suffix: amt
+  employer_1_nm:
     x_petey_id: '6_1'
     type: string
     semantic_type: person_name
@@ -2192,7 +3387,33 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  person_1_relationship:
+    x_petey_identifiers:
+      block_prefix: employer
+      block_iteration: '1'
+      suffix: nm
+      grid: p6-G1
+    x_petey_hand_edit:
+      when: '2026-10-27 21:19:15'
+      from:
+        name: person_nm_1
+        type: string
+        semantic_type: person_name
+        pattern: null
+        identifiers:
+          subject: person
+          suffix: nm
+          iteration: '1'
+          grid: p6-G1
+      to:
+        name: employer_1_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT6: the type''s parts'
+  employer_1_relationship:
     x_petey_id: '6_2'
     type: string
     widget:
@@ -2208,7 +3429,33 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  person_1_current_income_amt:
+    x_petey_identifiers:
+      block_prefix: employer
+      block_iteration: '1'
+      subject: relationship
+      grid: p6-G1
+    x_petey_hand_edit:
+      when: '2026-10-27 21:19:15'
+      from:
+        name: person_1_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+        identifiers:
+          block_prefix: person
+          block_iteration: '1'
+          subject: relationship
+          grid: p6-G1
+      to:
+        name: employer_1_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT6: the type''s parts'
+  employer_1_current_income_amt:
     x_petey_id: '6_3'
     type: number
     semantic_type: money
@@ -2227,7 +3474,35 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  person_2_nm:
+    x_petey_identifiers:
+      block_prefix: employer
+      block_iteration: '1'
+      subject: current_income
+      suffix: amt
+      grid: p6-G1
+    x_petey_hand_edit:
+      when: '2026-10-27 21:19:15'
+      from:
+        name: person_1_current_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: person
+          block_iteration: '1'
+          subject: current_income
+          suffix: amt
+          grid: p6-G1
+      to:
+        name: employer_1_current_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT6: the type''s parts'
+  employer_2_nm:
     x_petey_id: '6_4'
     type: string
     semantic_type: person_name
@@ -2247,7 +3522,33 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  person_2_relationship:
+    x_petey_identifiers:
+      block_prefix: employer
+      block_iteration: '2'
+      suffix: nm
+      grid: p6-G1
+    x_petey_hand_edit:
+      when: '2026-10-27 21:19:15'
+      from:
+        name: person_nm_2
+        type: string
+        semantic_type: person_name
+        pattern: null
+        identifiers:
+          subject: person
+          suffix: nm
+          iteration: '2'
+          grid: p6-G1
+      to:
+        name: employer_2_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT6: the type''s parts'
+  employer_2_relationship:
     x_petey_id: '6_5'
     type: string
     widget:
@@ -2263,7 +3564,33 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  person_2_current_income_amt:
+    x_petey_identifiers:
+      block_prefix: employer
+      block_iteration: '2'
+      subject: relationship
+      grid: p6-G1
+    x_petey_hand_edit:
+      when: '2026-10-27 21:19:15'
+      from:
+        name: person_2_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+        identifiers:
+          block_prefix: person
+          block_iteration: '2'
+          subject: relationship
+          grid: p6-G1
+      to:
+        name: employer_2_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT6: the type''s parts'
+  employer_2_current_income_amt:
     x_petey_id: '6_6'
     type: number
     semantic_type: money
@@ -2282,7 +3609,35 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  person_3_nm:
+    x_petey_identifiers:
+      block_prefix: employer
+      block_iteration: '2'
+      subject: current_income
+      suffix: amt
+      grid: p6-G1
+    x_petey_hand_edit:
+      when: '2026-10-27 21:19:15'
+      from:
+        name: person_2_current_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: person
+          block_iteration: '2'
+          subject: current_income
+          suffix: amt
+          grid: p6-G1
+      to:
+        name: employer_2_current_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT6: the type''s parts'
+  employer_3_nm:
     x_petey_id: '6_7'
     type: string
     semantic_type: person_name
@@ -2302,7 +3657,33 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  person_3_relationship:
+    x_petey_identifiers:
+      block_prefix: employer
+      block_iteration: '3'
+      suffix: nm
+      grid: p6-G1
+    x_petey_hand_edit:
+      when: '2026-10-27 21:19:15'
+      from:
+        name: person_nm_3
+        type: string
+        semantic_type: person_name
+        pattern: null
+        identifiers:
+          subject: person
+          suffix: nm
+          iteration: '3'
+          grid: p6-G1
+      to:
+        name: employer_3_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT6: the type''s parts'
+  employer_3_relationship:
     x_petey_id: '6_8'
     type: string
     widget:
@@ -2318,7 +3699,33 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  person_3_current_income_amt:
+    x_petey_identifiers:
+      block_prefix: employer
+      block_iteration: '3'
+      subject: relationship
+      grid: p6-G1
+    x_petey_hand_edit:
+      when: '2026-10-27 21:19:15'
+      from:
+        name: person_3_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+        identifiers:
+          block_prefix: person
+          block_iteration: '3'
+          subject: relationship
+          grid: p6-G1
+      to:
+        name: employer_3_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT6: the type''s parts'
+  employer_3_current_income_amt:
     x_petey_id: '6_9'
     type: number
     semantic_type: money
@@ -2337,7 +3744,35 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  person_4_nm:
+    x_petey_identifiers:
+      block_prefix: employer
+      block_iteration: '3'
+      subject: current_income
+      suffix: amt
+      grid: p6-G1
+    x_petey_hand_edit:
+      when: '2026-10-27 21:19:15'
+      from:
+        name: person_3_current_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: person
+          block_iteration: '3'
+          subject: current_income
+          suffix: amt
+          grid: p6-G1
+      to:
+        name: employer_3_current_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT6: the type''s parts'
+  employer_4_nm:
     x_petey_id: '6_10'
     type: string
     semantic_type: person_name
@@ -2357,7 +3792,33 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  person_4_relationship:
+    x_petey_identifiers:
+      block_prefix: employer
+      block_iteration: '4'
+      suffix: nm
+      grid: p6-G1
+    x_petey_hand_edit:
+      when: '2026-10-27 21:19:15'
+      from:
+        name: person_nm_4
+        type: string
+        semantic_type: person_name
+        pattern: null
+        identifiers:
+          subject: person
+          suffix: nm
+          iteration: '4'
+          grid: p6-G1
+      to:
+        name: employer_4_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT6: the type''s parts'
+  employer_4_relationship:
     x_petey_id: '6_11'
     type: string
     widget:
@@ -2373,7 +3834,33 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  person_4_current_income_amt:
+    x_petey_identifiers:
+      block_prefix: employer
+      block_iteration: '4'
+      subject: relationship
+      grid: p6-G1
+    x_petey_hand_edit:
+      when: '2026-10-27 21:19:15'
+      from:
+        name: person_4_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+        identifiers:
+          block_prefix: person
+          block_iteration: '4'
+          subject: relationship
+          grid: p6-G1
+      to:
+        name: employer_4_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT6: the type''s parts'
+  employer_4_current_income_amt:
     x_petey_id: '6_12'
     type: number
     semantic_type: money
@@ -2392,6 +3879,34 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_identifiers:
+      block_prefix: employer
+      block_iteration: '4'
+      subject: current_income
+      suffix: amt
+      grid: p6-G1
+    x_petey_hand_edit:
+      when: '2026-10-27 21:19:15'
+      from:
+        name: person_4_current_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: person
+          block_iteration: '4'
+          subject: current_income
+          suffix: amt
+          grid: p6-G1
+      to:
+        name: employer_4_current_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT6: the type''s parts'
   current_annual_household_income_amt:
     x_petey_id: '6_13'
     type: number
@@ -2412,6 +3927,9 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: current_annual_household_income
+      suffix: amt
   household_member_i864a_completed_ind:
     x_petey_id: '6_14'
     type: boolean
@@ -2432,6 +3950,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: household_member_i864a_completed
+      suffix: ind
   household_member_no_i864a_required_ind:
     x_petey_id: '6_15'
     type: boolean
@@ -2452,6 +3973,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: household_member_no_i864a_required
+      suffix: ind
   intending_immigrant_no_dependents_nm:
     x_petey_id: '6_16'
     type: string
@@ -2469,42 +3993,48 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  filed_federal_tax_return_yes_ind:
+    x_petey_identifiers:
+      subject: intending_immigrant_no_dependents
+      suffix: nm
+  filed_federal_tax_return:
     x_petey_id: '6_17'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 500.15899658203125
-      - 607.0009765625
-      - 510.15899658203125
-      - 617.0009765625
-      widget_type: checkbox
-      path: form1[0].#subform[5].P6_Line18a_Checkbox[0]
-    description: Part 6. Sponsor's Employment and Income. 15. Have you filed a Federal
-      income tax return for each of the three most recent tax years? Select Yes.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  filed_federal_tax_return_no_ind:
-    x_petey_id: '6_18'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 542.1599731445312
-      - 607.0009765625
-      - 552.1599731445312
-      - 617.0009765625
-      widget_type: checkbox
-      path: form1[0].#subform[5].P6_Line18a_Checkbox[1]
-    description: Part 6. Sponsor's Employment and Income. 15. Have you filed a Federal
-      income tax return for each of the three most recent tax years? Select No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    type: category
+    values:
+    - filed_federal_tax_return_yes_ind
+    - filed_federal_tax_return_no_ind
+    widgets:
+      filed_federal_tax_return_yes_ind:
+        page: 6
+        rect:
+        - 500.15899658203125
+        - 607.0009765625
+        - 510.15899658203125
+        - 617.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[5].P6_Line18a_Checkbox[0]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      filed_federal_tax_return_no_ind:
+        page: 6
+        rect:
+        - 542.1599731445312
+        - 607.0009765625
+        - 552.1599731445312
+        - 617.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[5].P6_Line18a_Checkbox[1]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-27 21:03:51'
+      from:
+      - filed_federal_tax_return_yes_ind
+      - filed_federal_tax_return_no_ind
+    x_petey_identifiers:
+      subject: filed_federal_tax_return
   tax_yr_most_recent:
     x_petey_id: '7_1'
     type: string
@@ -2525,6 +4055,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: tax_yr_most_recent
   total_income_most_recent_amt:
     x_petey_id: '7_2'
     type: number
@@ -2545,6 +4077,9 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: total_income_most_recent
+      suffix: amt
   tax_yr_2nd_most_recent:
     x_petey_id: '7_3'
     type: string
@@ -2565,6 +4100,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: tax_yr_2nd_most_recent
   total_income_2nd_most_recent_amt:
     x_petey_id: '7_4'
     type: number
@@ -2585,6 +4122,9 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: total_income_2nd_most_recent
+      suffix: amt
   tax_yr_3rd_most_recent:
     x_petey_id: '7_5'
     type: string
@@ -2605,6 +4145,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: tax_yr_3rd_most_recent
   total_income_3rd_most_recent_amt:
     x_petey_id: '7_6'
     type: number
@@ -2625,6 +4167,9 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: total_income_3rd_most_recent
+      suffix: amt
   not_required_to_file_federal_tax_return_ind:
     x_petey_id: '7_7'
     type: boolean
@@ -2645,6 +4190,253 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: not_required_to_file_federal_tax_return
+      suffix: ind
+  for_ind:
+    x_petey_id: '7_13'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 7
+      rect:
+      - 83.5
+      - 284.73
+      - 90.5
+      - 291.73
+      widget_type: checkbox
+      path: null
+    description: For
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-10-27 21:21:06'
+      geometry: selection
+      name_from: option caption
+      caption: For
+    x_petey_identifiers:
+      suffix: ind
+      subject: for
+  household_ind_3:
+    x_petey_id: '7_14'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 7
+      rect:
+      - 113.5
+      - 284.67
+      - 120.5
+      - 291.67
+      widget_type: checkbox
+      path: null
+    description: Household
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-10-27 21:21:06'
+      geometry: selection
+      name_from: option caption
+      caption: Household
+    x_petey_identifiers:
+      iteration: '3'
+      suffix: ind
+      subject: household
+  size_ind:
+    x_petey_id: '7_15'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 7
+      rect:
+      - 143.5
+      - 284.73
+      - 150.5
+      - 291.73
+      widget_type: checkbox
+      path: null
+    description: Size
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-10-27 21:21:06'
+      geometry: selection
+      name_from: option caption
+      caption: Size
+    x_petey_identifiers:
+      suffix: ind
+      subject: size
+  use_uscis_ind:
+    x_petey_id: '7_16'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 7
+      rect:
+      - 83.5
+      - 299.57
+      - 90.5
+      - 306.57
+      widget_type: checkbox
+      path: null
+    description: Use USCIS
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-10-27 21:21:06'
+      geometry: selection
+      name_from: option caption
+      caption: Use USCIS
+    x_petey_identifiers:
+      suffix: ind
+      subject: use_uscis
+  household_ind_2:
+    x_petey_id: '7_17'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 7
+      rect:
+      - 113.5
+      - 299.63
+      - 120.5
+      - 306.63
+      widget_type: checkbox
+      path: null
+    description: Household
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-10-27 21:21:06'
+      geometry: selection
+      name_from: option caption
+      caption: Household
+    x_petey_identifiers:
+      iteration: '2'
+      suffix: ind
+      subject: household
+  size_ind_2:
+    x_petey_id: '7_18'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 7
+      rect:
+      - 143.5
+      - 299.6
+      - 150.5
+      - 306.6
+      widget_type: checkbox
+      path: null
+    description: Size
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-10-27 21:21:06'
+      geometry: selection
+      name_from: option caption
+      caption: Size
+    x_petey_identifiers:
+      iteration: '2'
+      suffix: ind
+      subject: size
+  only_ind:
+    x_petey_id: '7_19'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 7
+      rect:
+      - 83.5
+      - 314.54
+      - 90.5
+      - 321.54
+      widget_type: checkbox
+      path: null
+    description: Only
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-10-27 21:21:06'
+      geometry: selection
+      name_from: option caption
+      caption: Only
+    x_petey_identifiers:
+      suffix: ind
+      subject: only
+  household_ind:
+    x_petey_id: '7_20'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 7
+      rect:
+      - 113.5
+      - 314.67
+      - 120.5
+      - 321.67
+      widget_type: checkbox
+      path: null
+    description: Household
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-10-27 21:21:06'
+      geometry: selection
+      name_from: option caption
+      caption: Household
+    x_petey_identifiers:
+      suffix: ind
+      subject: household
+  size_ind_3:
+    x_petey_id: '7_21'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 7
+      rect:
+      - 143.5
+      - 314.57
+      - 150.5
+      - 321.57
+      widget_type: checkbox
+      path: null
+    description: Size
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-10-27 21:21:06'
+      geometry: selection
+      name_from: option caption
+      caption: Size
+    x_petey_identifiers:
+      iteration: '3'
+      suffix: ind
+      subject: size
+  evidence_ind:
+    x_petey_id: '7_22'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 7
+      rect:
+      - 83.5
+      - 329.73
+      - 90.5
+      - 336.73
+      widget_type: checkbox
+      path: null
+    description: evidence
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-10-27 21:21:06'
+      geometry: selection
+      name_from: option caption
+      caption: evidence
+    x_petey_identifiers:
+      suffix: ind
+      subject: evidence
   cash_savings_checking_balance_amt:
     x_petey_id: '7_8'
     type: number
@@ -2667,6 +4459,9 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: cash_savings_checking_balance
+      suffix: amt
   real_estate_net_cash_value_amt:
     x_petey_id: '7_9'
     type: number
@@ -2690,6 +4485,9 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: real_estate_net_cash_value
+      suffix: amt
   stocks_bonds_other_assets_net_value_amt:
     x_petey_id: '7_10'
     type: number
@@ -2713,6 +4511,9 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: stocks_bonds_other_assets_net_value
+      suffix: amt
   total_sponsor_assets_amt:
     x_petey_id: '7_11'
     type: number
@@ -2735,6 +4536,9 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: total_sponsor_assets
+      suffix: amt
   household_members_total_assets_amt:
     x_petey_id: '7_12'
     type: number
@@ -2757,6 +4561,9 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: household_members_total_assets
+      suffix: amt
   principal_immigrant_savings_checking_amt:
     x_petey_id: '8_1'
     type: number
@@ -2779,6 +4586,9 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: principal_immigrant_savings_checking
+      suffix: amt
   principal_immigrant_real_estate_net_amt:
     x_petey_id: '8_2'
     type: number
@@ -2802,6 +4612,9 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: principal_immigrant_real_estate_net
+      suffix: amt
   principal_immigrant_stocks_bonds_other_assets_amt:
     x_petey_id: '8_3'
     type: number
@@ -2825,6 +4638,9 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: principal_immigrant_stocks_bonds_other_assets
+      suffix: amt
   principal_immigrant_assets_subtotal_amt:
     x_petey_id: '8_4'
     type: number
@@ -2847,6 +4663,9 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: principal_immigrant_assets_subtotal
+      suffix: amt
   total_assets_amt:
     x_petey_id: '8_5'
     type: number
@@ -2866,6 +4685,9 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: total_assets
+      suffix: amt
   sponsor_reads_english_ind:
     x_petey_id: '10_1'
     type: boolean
@@ -2886,6 +4708,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: sponsor_reads_english
+      suffix: ind
   sponsor_used_interpreter_ind:
     x_petey_id: '10_2'
     type: boolean
@@ -2907,6 +4732,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: sponsor_used_interpreter
+      suffix: ind
   interpreter_language_nm:
     x_petey_id: '10_3'
     type: string
@@ -2926,6 +4754,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: interpreter_language
+      suffix: nm
   sponsor_used_preparer_ind:
     x_petey_id: '10_4'
     type: boolean
@@ -2946,6 +4777,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: sponsor_used_preparer
+      suffix: ind
   preparer_language_nm:
     x_petey_id: '10_5'
     type: string
@@ -2964,6 +4798,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: preparer_language
+      suffix: nm
   sponsor_daytime_telephone_number_txt:
     x_petey_id: '10_6'
     type: string
@@ -2985,6 +4822,9 @@ fields:
       Signature. Sponsor's Contact Information. 3. Enter Sponsor's Daytime Telephone
       Number. Enter 10 digit number
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: sponsor_daytime_telephone_number
+      suffix: txt
   sponsor_mobile_telephone_number_txt:
     x_petey_id: '10_7'
     type: string
@@ -3006,6 +4846,9 @@ fields:
       Signature. Sponsor's Contact Information. 4. Enter Sponsor's Mobile Telephone
       Number, if any. Enter 10 digit number.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: sponsor_mobile_telephone_number
+      suffix: txt
   sponsor_email_address_txt:
     x_petey_id: '10_8'
     type: string
@@ -3026,6 +4869,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: sponsor_email_address
+      suffix: txt
   sponsor_signature_txt:
     x_petey_id: '10_9'
     type: string
@@ -3046,6 +4892,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: sponsor_signature
+      suffix: txt
   sponsor_signature_dt:
     x_petey_id: '10_10'
     type: date
@@ -3066,6 +4915,9 @@ fields:
       Signature. 6. Sponsor's Signature. Enter Date of Signature. Enter as 2-digit
       Month, 2-digit Day, and 4-digit Year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: sponsor_signature
+      suffix: dt
   interpreter_family_nm:
     x_petey_id: '11_1'
     type: string
@@ -3084,6 +4936,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: interpreter_family
+      suffix: nm
   interpreter_given_nm:
     x_petey_id: '11_2'
     type: string
@@ -3102,7 +4957,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  interpreter_business_name:
+    x_petey_identifiers:
+      subject: interpreter_given
+      suffix: nm
+  interpreter_business_nm:
     x_petey_id: '11_3'
     type: string
     semantic_type: business_name
@@ -3120,6 +4978,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: interpreter_business
+      suffix: nm
   interpreter_daytime_telephone_nbr:
     x_petey_id: '11_4'
     type: string
@@ -3141,6 +5002,9 @@ fields:
       Interpreter's Contact Information. 3. Enter Interpreter's Daytime Telephone
       Number.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: interpreter_daytime_telephone
+      suffix: nbr
   interpreter_mobile_telephone_nbr:
     x_petey_id: '11_5'
     type: string
@@ -3162,6 +5026,9 @@ fields:
       Interpreter's Contact Information. 4. Interpreter's Mobile Telephone Number
       (if any).
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: interpreter_mobile_telephone
+      suffix: nbr
   interpreter_email_address_txt:
     x_petey_id: '11_6'
     type: string
@@ -3181,6 +5048,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: interpreter_email_address
+      suffix: txt
   interpreter_language_txt:
     x_petey_id: '11_7'
     type: string
@@ -3204,6 +5074,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: interpreter_language
+      suffix: txt
   interpreter_signature:
     x_petey_id: '11_8'
     type: string
@@ -3225,6 +5098,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: interpreter
+      suffix: signature
   interpreter_signature_dt:
     x_petey_id: '11_9'
     type: date
@@ -3245,6 +5121,9 @@ fields:
       Interpreter's Certification and Signature. 6. Enter Date of Signature. Enter
       as 2-digit Month, 2-digit Day, and 4-digit Year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: interpreter_signature
+      suffix: dt
   preparer_family_nm:
     x_petey_id: '11_10'
     type: string
@@ -3264,6 +5143,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: preparer_family
+      suffix: nm
   preparer_given_nm:
     x_petey_id: '11_11'
     type: string
@@ -3283,7 +5165,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  preparer_business_name:
+    x_petey_identifiers:
+      subject: preparer_given
+      suffix: nm
+  preparer_business_nm:
     x_petey_id: '11_12'
     type: string
     semantic_type: business_name
@@ -3302,6 +5187,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: preparer_business
+      suffix: nm
   preparer_daytime_telephone_nbr:
     x_petey_id: '11_13'
     type: string
@@ -3323,6 +5211,9 @@ fields:
       Preparing this Affidavit, if Other Than the Sponsor. Preparer's Contact Information.
       3. Enter Preparer's Daytime Telephone Number.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: preparer_daytime_telephone
+      suffix: nbr
   preparer_mobile_telephone_nbr:
     x_petey_id: '11_14'
     type: string
@@ -3343,6 +5234,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: preparer_mobile_telephone
+      suffix: nbr
   preparer_email_address_txt:
     x_petey_id: '11_15'
     type: string
@@ -3363,6 +5257,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: preparer_email_address
+      suffix: txt
   preparer_signature:
     x_petey_id: '11_16'
     type: string
@@ -3384,6 +5281,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: preparer
+      suffix: signature
   preparer_signature_dt:
     x_petey_id: '11_17'
     type: date
@@ -3405,6 +5305,9 @@ fields:
       and Signature. 6. Enter Date of Signature. Enter as 2-digit Month, 2-digit Day,
       and 4-digit Year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: preparer_signature
+      suffix: dt
   family_nm:
     x_petey_id: '12_1'
     type: string
@@ -3429,6 +5332,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: family
+      suffix: nm
   given_nm:
     x_petey_id: '12_2'
     type: string
@@ -3447,6 +5353,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: given
+      suffix: nm
   middle_nm:
     x_petey_id: '12_3'
     type: string
@@ -3465,7 +5374,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  a_number:
+    x_petey_identifiers:
+      subject: middle
+      suffix: nm
+  a_nbr:
     x_petey_id: '12_4'
     type: string
     widget:
@@ -3483,7 +5395,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_info_3_page_number:
+    x_petey_identifiers:
+      subject: a
+      suffix: nbr
+  additional_info_3_page_nbr:
     x_petey_id: '12_5'
     type: string
     widget:
@@ -3499,7 +5414,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_info_3_part_number:
+    x_petey_identifiers:
+      block_prefix: additional_info
+      block_iteration: '3'
+      subject: page
+      suffix: nbr
+  additional_info_3_part_nbr:
     x_petey_id: '12_6'
     type: string
     widget:
@@ -3515,7 +5435,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_info_3_item_number:
+    x_petey_identifiers:
+      block_prefix: additional_info
+      block_iteration: '3'
+      subject: part
+      suffix: nbr
+  additional_info_3_item_nbr:
     x_petey_id: '12_7'
     type: string
     widget:
@@ -3531,7 +5456,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_info_3_txt:
+    x_petey_identifiers:
+      block_prefix: additional_info
+      block_iteration: '3'
+      subject: item
+      suffix: nbr
+  additional_info_txt_3:
     x_petey_id: '12_8'
     type: string
     semantic_type: text
@@ -3548,7 +5478,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_info_4_page_number:
+    x_petey_identifiers:
+      subject: additional_info
+      suffix: txt
+      iteration: '3'
+  additional_info_4_page_nbr:
     x_petey_id: '12_9'
     type: string
     widget:
@@ -3564,7 +5498,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_info_4_part_number:
+    x_petey_identifiers:
+      block_prefix: additional_info
+      block_iteration: '4'
+      subject: page
+      suffix: nbr
+  additional_info_4_part_nbr:
     x_petey_id: '12_10'
     type: string
     widget:
@@ -3580,7 +5519,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_info_4_item_number:
+    x_petey_identifiers:
+      block_prefix: additional_info
+      block_iteration: '4'
+      subject: part
+      suffix: nbr
+  additional_info_4_item_nbr:
     x_petey_id: '12_11'
     type: string
     widget:
@@ -3596,7 +5540,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_info_4_txt:
+    x_petey_identifiers:
+      block_prefix: additional_info
+      block_iteration: '4'
+      subject: item
+      suffix: nbr
+  additional_info_txt_4:
     x_petey_id: '12_12'
     type: string
     semantic_type: text
@@ -3613,7 +5562,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_info_5_page_number:
+    x_petey_identifiers:
+      subject: additional_info
+      suffix: txt
+      iteration: '4'
+  additional_info_5_page_nbr:
     x_petey_id: '12_13'
     type: string
     widget:
@@ -3629,7 +5582,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_info_5_part_number:
+    x_petey_identifiers:
+      block_prefix: additional_info
+      block_iteration: '5'
+      subject: page
+      suffix: nbr
+  additional_info_5_part_nbr:
     x_petey_id: '12_14'
     type: string
     widget:
@@ -3645,7 +5603,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_info_5_item_number:
+    x_petey_identifiers:
+      block_prefix: additional_info
+      block_iteration: '5'
+      subject: part
+      suffix: nbr
+  additional_info_5_item_nbr:
     x_petey_id: '12_15'
     type: string
     widget:
@@ -3661,7 +5624,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_info_5_txt:
+    x_petey_identifiers:
+      block_prefix: additional_info
+      block_iteration: '5'
+      subject: item
+      suffix: nbr
+  additional_info_txt_5:
     x_petey_id: '12_16'
     type: string
     semantic_type: text
@@ -3678,7 +5646,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_info_6_page_number:
+    x_petey_identifiers:
+      subject: additional_info
+      suffix: txt
+      iteration: '5'
+  additional_info_6_page_nbr:
     x_petey_id: '12_17'
     type: string
     widget:
@@ -3694,7 +5666,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_info_6_part_number:
+    x_petey_identifiers:
+      block_prefix: additional_info
+      block_iteration: '6'
+      subject: page
+      suffix: nbr
+  additional_info_6_part_nbr:
     x_petey_id: '12_18'
     type: string
     widget:
@@ -3710,7 +5687,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_info_6_item_number:
+    x_petey_identifiers:
+      block_prefix: additional_info
+      block_iteration: '6'
+      subject: part
+      suffix: nbr
+  additional_info_6_item_nbr:
     x_petey_id: '12_19'
     type: string
     widget:
@@ -3726,7 +5708,12 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_info_6_txt:
+    x_petey_identifiers:
+      block_prefix: additional_info
+      block_iteration: '6'
+      subject: item
+      suffix: nbr
+  additional_info_txt_6:
     x_petey_id: '12_20'
     type: string
     semantic_type: text
@@ -3743,16 +5730,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: additional_info
+      suffix: txt
+      iteration: '6'
   basis_for_filing:
     x_petey_id: '1_4'
     type: category
     values:
-    - alien_worker_petition_ind
-    - first_joint_sponsor_ind
-    - only_joint_sponsor_ind
-    - ownership_interest_ind
     - petitioner_ind
-    - second_joint_sponsor_ind
+    - alien_worker_petition_ind
+    - ownership_interest_ind
+    - only_joint_sponsor_ind
+    - first_joint_sponsor_ind
     - substitute_sponsor_ind
     widgets:
       petitioner_ind:
@@ -3810,18 +5800,6 @@ fields:
         path: form1[0].#subform[0].P1_Line1a-f_CB[4]
         on_state: 1E
         caption: 1E
-      second_joint_sponsor_ind:
-        page: 1
-        rect:
-        - 121.0009994506836
-        - 433.00201416015625
-        - 131.00100708007812
-        - 443.00201416015625
-        widget_type: checkbox
-        path: form1[0].#subform[0].P1_Line1e1_Checkbox[0]
-        on_state: '1'
-        caption: first
-        x_petey_caption_source: page_text
       substitute_sponsor_ind:
         page: 1
         rect:
@@ -3833,7 +5811,60 @@ fields:
         path: form1[0].#subform[0].P1_Line1a-f_CB[5]
         on_state: 1F
         caption: 1F
-  mailing_unit_type:
+    x_petey_identifiers:
+      subject: basis_for_filing
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-27 21:05:44'
+      from:
+      - basis_for_filing::petitioner_ind
+      - basis_for_filing::alien_worker_petition_ind
+      - basis_for_filing::ownership_interest_ind
+      - basis_for_filing::only_joint_sponsor_ind
+      - basis_for_filing::first_joint_sponsor_ind
+      - basis_for_filing::substitute_sponsor_ind
+  part1_basis_for_filing_joint_sponsor_order:
+    x_petey_id: '1_12'
+    type: category
+    values:
+    - basis_for_filing_second_joint_sponsor_ind
+    - second_of_two_joint_sponsors_ind
+    widgets:
+      basis_for_filing_second_joint_sponsor_ind:
+        page: 1
+        rect:
+        - 121.0009994506836
+        - 433.00201416015625
+        - 131.00100708007812
+        - 443.00201416015625
+        widget_type: checkbox
+        path: form1[0].#subform[0].P1_Line1e1_Checkbox[0]
+        on_state: '1'
+        caption: first
+        x_petey_caption_source: page_text
+      second_of_two_joint_sponsors_ind:
+        page: 1
+        rect:
+        - 162.99899291992188
+        - 433.00201416015625
+        - 172.99899291992188
+        - 443.00201416015625
+        widget_type: checkbox
+        path: form1[0].#subform[0].P1_Line1e1_Checkbox[1]
+        on_state: '2'
+        caption: second of two joint sponsors.
+        x_petey_caption_source: page_choice
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-27 21:06:24'
+      from:
+      - basis_for_filing_second_joint_sponsor_ind
+      - second_of_two_joint_sponsors_ind
+      name_from: labeler
+    x_petey_identifiers:
+      subject: part1_basis_for_filing_joint_sponsor_order
+  sponsor_mailing_unit_type:
     x_petey_id: '2_4'
     type: category
     values:
@@ -3874,7 +5905,28 @@ fields:
         path: form1[0].#subform[1].P4_Line2c_Unit[2]
         on_state: ' FLR '
         caption: ' FLR '
-  physical_unit_type:
+    x_petey_identifiers:
+      block_prefix: sponsor_mailing
+      subject: unit_type
+    x_petey_hand_edit:
+      when: '2026-10-27 21:14:42'
+      from:
+        name: mailing_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        identifiers:
+          subject: mailing_unit_type
+      to:
+        name: sponsor_mailing_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  sponsor_physical_mailing_unit_type:
     x_petey_id: '2_15'
     type: category
     values:
@@ -3915,6 +5967,27 @@ fields:
         path: form1[0].#subform[1].P4_Line4b_Unit[2]
         on_state: ' FLR '
         caption: ' FLR '
+    x_petey_identifiers:
+      block_prefix: sponsor_physical
+      subject: mailing_unit_type
+    x_petey_hand_edit:
+      when: '2026-10-27 21:14:46'
+      from:
+        name: physical_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        identifiers:
+          subject: physical_unit_type
+      to:
+        name: sponsor_physical_mailing_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
   immigration_status:
     x_petey_id: '2_26'
     type: category
@@ -3956,6 +6029,8 @@ fields:
         path: form1[0].#subform[1].P4_Line11c_Checkbox[0]
         on_state: C
         caption: C
+    x_petey_identifiers:
+      subject: immigration_status
 x_petey_dedup_log:
   duplicate_labels_reassigned: 7
   collisions:

@@ -3,6 +3,21 @@
 The words the loop is described in, one meaning each (Andrew, 2026-10-01: codify the terms). Where a term names a
 module, the module is given. Older documents use some of these loosely; this page is the reference.
 
+## The pipeline stages
+
+Every form moves through three stages, in order (Andrew, 2026-10-16). The home page shows each form's stage.
+
+- **Generated**: made by the generation pipeline and its loops (`petey.validate`: the labeler, the loop, runs). The
+  command is still `validate --blank ...`, and older documents say "validation" or "validated" for a generation run;
+  they mean generation.
+- **Cleared**: through the automated passes after generation (`scripts/validate_passes.sh`: mechanical pass, naming
+  standard, re-read captions, page check, Jev), recorded per form in `runs/hand_review/passes.json`
+  (`eval/passes_record.py`). Clearing began on 2026-10-15; nothing earlier is cleared.
+- **Validated**: the manual check. A person has a verdict on every field, nothing is flagged, every correction is
+  applied, and the file is the one checked. On the way there a form is *in review* (verdicts after clearing),
+  *needs work* (all verdicts, something flagged or pending) or *changed since check* (the file moved after the check).
+  Forms fully checked before clearing existed keep their stage.
+
 ## The document
 
 - **Blank**: the publisher's PDF as downloaded, under `source_pdfs/`. The only input generation is allowed to read.
@@ -57,7 +72,7 @@ module, the module is given. Older documents use some of these loosely; this pag
 - **Widget key** (`boxes.widget_key`): the key a widget's ground truth is stored under: its AcroForm path, or on a
   flat blueprint `rect:p<page>:<rect>`. The scorer, the rect join and the witness identity all go through it.
 - **Build stamp** (`x_petey_build`, `petey/validate/provenance.py`): the finder version, classifier model and
-  prompt, generator, case set and run of the blueprint's latest validation. Written by the loop after every run.
+  prompt, generator, case set and run of the blueprint's latest generation run. Written by the loop after every run.
 
 ## The page side
 
@@ -91,7 +106,7 @@ module, the module is given. Older documents use some of these loosely; this pag
 
 ## Reading back
 
-- **Run** (`runs/<form>_<timestamp>/`): one validation: the blueprint copy, each case's directory, scores, the
+- **Run** (`runs/<form>_<timestamp>/`): one generation run: the blueprint copy, each case's directory, scores, the
   summary with its build record.
 - **Native reader**: extraction through the AcroForm paths the blueprint names, then the text layer clipped to
   the rect, then (a path-less option box, flat blueprints) ink against the blank, then OCR. Cannot see a misnamed
@@ -100,10 +115,10 @@ module, the module is given. Older documents use some of these loosely; this pag
   text or image, so a wrong name produces a wrong value. A dev-time instrument, metered; not product extraction.
 - **Reviewer** (`petey/validate/review.py`): the model that receives flagged fields with their evidence and
   returns `ok` or a fix (rename, type, pattern, description). Its edits are applied and then judged by the next
-  validation (`iterate.judge_review`).
+  generation run (`iterate.judge_review`).
 - **Adjudicator** (`petey/validate/adjudicate.py`): the vision model that decides a contested rename from a crop
   of the blank with the widget outlined: `current` / `proposed` / `unclear`. Independent of the classifier.
-- **The loop** (`petey/validate/iterate.py`): validate, detect, fix (rules, then reviewer), validate again; keeps
+- **The loop** (`petey/validate/iterate.py`): run, detect, fix (rules, then reviewer), run again; keeps
   a reviewed change only if the next run says it helped.
 
 ## Checks and measures
@@ -137,6 +152,29 @@ module, the module is given. Older documents use some of these loosely; this pag
   judge (read back by name), structure (option grouping), adjudicator, page check (accepted / flagged). **Tier**: `contested` (any against),
   `settled` (two or more for, none against), `single`, `unknown`; the hand-review page sorts by it and can accept
   the settled fields in bulk. No API calls.
+- **Rival** (`witness.Names.rivals`, 2026-10-09): a field a swap or a one-row slip could involve: same page,
+  within an inch of the box, same XFA subform, no heavier-than-usual rule line between. "Belongs to another
+  field" only ever names a rival.
+
+- **Belongs to / does not describe**: the two ways a text witness turns against a name. *Belongs to*: the text
+  fits a rival clearly better than this field (and better than the rival's own text). *Does not describe*: the
+  text-match model gives P < 0.01 that the text describes the name. A text several fields carry word for word
+  is never used to flag (it cannot tell them apart).
+
+- **Printed-text gate** (`witness.printed_agrees`, Andrew 2026-10-09): a publisher flag counts (contests the
+  field) only when the tooltip shares two thirds of its words with a line printed at the box; otherwise it is
+  *unconfirmed*, a hint, and the loop's reviewer never gets it.
+
+- **Text-match model** (`petey/label/text_match.py`): a local cross-encoder (MiniLM-L6, fine-tuned, ONNX) that
+  scores whether a text describes a field, 0 to 1. Weights in `models/text_match/` (gitignored);
+  `PETEY_TEXT_MATCH=0` turns it off and the witness falls back to word overlap.
+
+- **Caption chooser** (`petey/label/caption_choice.py`): picks an option's printed caption from the text around
+  its box with the text-match model; its proposals are review-page suggestions. Never replaces an XFA or hand
+  caption.
+
+- **Jev** (TypeSafe System One, API): a calibrated yes/no model used as an independent second opinion
+  (`eval/jev_hand_check.py`, `eval/text_match_eval.py`).
 
 - **Flat calibration** (`eval/flat_calibration.py`): the whole flat path run on a form whose truth is known (a
   test form baked flat, or a true flat copy with a fillable twin) and compared with the widget layer (structure)

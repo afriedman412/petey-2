@@ -34,13 +34,11 @@ from dotenv import dotenv_values
 
 from petey.paths import RUNS
 from petey.validate import witness as W
-from petey.validate.field_chain import _page_lines
-from petey.validate.retype import resolve_blank
+from petey.validate.jev_page import states  # noqa: F401  (moved there 2026-10-15; imported from here by other evals)
 
 URL = "https://api.typesafe.ai/v1/systemone"
 MODEL = "jev-1.13.0"          # pinned: an alias moves when a release ships, and thresholds are per version
 CACHE = RUNS / "jev" / "cache"
-N_NEIGHBOURS = 6
 
 NAME_FITS = {
     "type": "noul",
@@ -68,58 +66,6 @@ ONE_QUESTION = {
         "false": "It is a stand-alone yes/no checkbox, or its question has no other checkbox among the neighbours.",
     },
 }
-
-
-def _centre(spec: dict):
-    w = (W._widgets(spec) or [{}])[0]
-    r = w.get("rect")
-    return (w.get("page"), (r[0] + r[2]) / 2, (r[1] + r[3]) / 2) if r else None
-
-
-def states(bpt: Path) -> dict[str, dict]:
-    """`{field: state}` for every field of the blueprint, from the blank, the cached class map and the file."""
-    bp = W._load(bpt)
-    blank = resolve_blank(bp)
-    fields = {n: s for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
-    words = W.publisher_words(blank) if blank and blank.exists() else {}
-    lines = _page_lines(str(blank)) if blank and blank.exists() else {}
-    by_page = W.class_map_boxes(blank, None)
-    printed = {n: W.page_texts(s, lines) for n, s in fields.items()}
-    centres = {n: _centre(s) for n, s in fields.items()}
-    out = {}
-    for name, spec in fields.items():
-        w = (W._widgets(spec) or [{}])[0]
-        kind = "option group" if spec.get("widgets") else (w.get("widget_type") or "text")
-        b = W._box(spec, by_page) if by_page else None
-        near = []
-        c = centres[name]
-        if c:
-            dist = sorted((math.hypot(c[1] - o[1], c[2] - o[2]), n) for n, o in centres.items()
-                          if n != name and o and o[0] == c[0])
-            for _, n in dist[:N_NEIGHBOURS]:
-                ow = (W._widgets(fields[n]) or [{}])[0]
-                near.append({"name": n, "kind": ow.get("widget_type") or ("option group" if fields[n].get("widgets") else "text"),
-                             "printed_text_at_box": (printed[n] or [None])[0],
-                             "publisher_text": (W.publisher_texts(fields[n], words) or [None])[0]})
-        st = {
-            "form": bp.get("name"),
-            "field": {k: v for k, v in {
-                "name": name, "kind": kind, "type": spec.get("type"), "semantic_type": spec.get("semantic_type"),
-                "description": (spec.get("description") or "")[:240] or None,
-                "options": [x.get("caption") or k for k, x in spec["widgets"].items()] if spec.get("widgets") else None,
-            }.items() if v},
-            "publisher_text": W.publisher_texts(spec, words) or None,
-            "printed_text_at_box": printed[name][:3] or None,
-            "classifier_caption": (b or {}).get("label"),
-            "classifier_class": (b or {}).get("class"),
-            "neighbours": near,
-        }
-        if w.get("rect") and lines.get(w.get("page")):
-            pl = lines[w["page"]]
-            st["column_header"] = W.column_header(w["rect"], pl)
-            st["row_header"] = W.row_header(w["rect"], pl)
-        out[name] = {k: v for k, v in st.items() if v not in (None, [], {})}
-    return out
 
 
 def ask(client: httpx.Client, key: str, state: dict, checkbox: bool) -> dict:

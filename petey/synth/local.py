@@ -177,6 +177,7 @@ SEMANTIC: dict[str, Callable[[random.Random], str]] = {
     "birth_date": lambda r: _date(r, 1940, 2005),
     "service_date": lambda r: _date(r, 2018, 2026),
     "iso_date": lambda r: _date(r, 2015, 2026),
+    "datetime": lambda r: f"{_date(r, 2015, 2026)}T{r.randint(7, 18):02d}:{r.choice((0, 15, 30, 45)):02d}",
     "year": lambda r: str(r.randint(2018, 2026)),
     "phone": lambda r: f"{r.randint(201, 989)}-{r.randint(200, 999)}-{r.randint(1000, 9999)}",
     "email": lambda r: f"{r.choice(_FIRST).lower()}.{r.choice(_LAST).lower()}@example.com",
@@ -186,6 +187,9 @@ SEMANTIC: dict[str, Callable[[random.Random], str]] = {
     "country_code": lambda r: r.choice(_COUNTRY_CODES),
     "country": lambda r: r.choice(_COUNTRIES),
     "street_address": lambda r: f"{r.randint(10, 9899)} {r.choice(_STREETS)}",
+    "name_and_address": lambda r: (f"{r.choice(_BUSINESS) if r.random() < 0.5 else r.choice(_FIRST) + ' ' + r.choice(_LAST)}, "
+                                   f"{r.randint(10, 9899)} {r.choice(_STREETS)}, {r.choice(_CITIES)}, "
+                                   f"{r.choice(_STATES)} {r.randint(10000, 99999):05d}"),
     "entity_name": lambda r: r.choice(_BUSINESS),
     "business_name": lambda r: r.choice(_BUSINESS),
     "first_name": lambda r: r.choice(_FIRST),

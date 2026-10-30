@@ -1,0 +1,553 @@
+bpt_version: '1.1'
+name: form_1099_ltc
+form_version: null
+source_pdf: f1099ltc.pdf
+source_pdf_hash: 66363643962af3bd012a345ef6f8cbb5bdbef34c
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 22:58:38'
+fields:
+  calendar_yr:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: year
+    pattern: ^\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 417.6000061035156
+      - 96.0009765625
+      - 446.3999938964844
+      - 105.0
+      widget_type: text
+      path: Form1099-LTC[0].CopyA[0].CopyHeader[0].CalendarYear[0].f1_1[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: calendar
+      suffix: yr
+  void:
+    x_petey_id: '1_21'
+    type: category
+    values:
+    - void_ind
+    - corrected_ind
+    widgets:
+      void_ind:
+        page: 1
+        rect:
+        - 187.1999969482422
+        - 25.0
+        - 197.1999969482422
+        - 35.0
+        widget_type: checkbox
+        path: Form1099-LTC[0].CopyA[0].CopyHeader[0].c1_1[0]
+        on_state: '1'
+        caption: VOID
+        x_petey_caption_source: page_text
+      corrected_ind:
+        page: 1
+        rect:
+        - 244.8000030517578
+        - 25.0
+        - 254.8000030517578
+        - 35.0
+        widget_type: checkbox
+        path: Form1099-LTC[0].CopyA[0].CopyHeader[0].c1_1[1]
+        on_state: '2'
+        caption: CORRECTED
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:22:15'
+      from:
+      - void_ind
+      - corrected_ind
+    x_petey_identifiers:
+      subject: void
+  payer_name_address_phone_txt:
+    x_petey_id: '1_3'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 52.400001525878906
+      - 60.0009765625
+      - 294.20001220703125
+      - 108.0
+      widget_type: text
+      path: Form1099-LTC[0].CopyA[0].LeftCol[0].f1_2[0]
+    label_source: llm
+    description: Payer's name, street address, city or town, state or province, country,
+      ZIP or foreign postal code, and telephone number.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      - -pattern
+      reason: The caption shows this box holds a full name/address/phone block, not
+        a telephone number alone; the phone semantic_type and phone regex wrongly
+        restrict it. Name already describes the block and is kept.
+      before:
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: payer_name_address_phone
+      suffix: txt
+  payer_tin:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: tin
+    pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 50.400001525878906
+      - 118.0
+      - 172.8000030517578
+      - 132.0009765625
+      widget_type: text
+      path: Form1099-LTC[0].CopyA[0].LeftCol[0].f1_3[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: payer
+      suffix: tin
+  policyholder_tin:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: tin
+    pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 172.8000030517578
+      - 118.0
+      - 295.20001220703125
+      - 132.0009765625
+      widget_type: text
+      path: Form1099-LTC[0].CopyA[0].LeftCol[0].f1_4[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: policyholder
+      suffix: tin
+  policyholder_nm:
+    x_petey_id: '1_11'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 52.400001525878906
+      - 142.0009765625
+      - 294.20001220703125
+      - 168.0009765625
+      widget_type: text
+      path: Form1099-LTC[0].CopyA[0].LeftCol[0].f1_5[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: policyholder_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: policyholder_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: policyholder
+      suffix: nm
+  policyholder_street_address_txt:
+    x_petey_id: '1_13'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 52.400001525878906
+      - 178.0009765625
+      - 294.20001220703125
+      - 192.00201416015625
+      widget_type: text
+      path: Form1099-LTC[0].CopyA[0].LeftCol[0].f1_6[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: policyholder_street_address
+      suffix: txt
+  policyholder_city_state_zip_cd:
+    x_petey_id: '1_15'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 52.400001525878906
+      - 201.9990234375
+      - 294.20001220703125
+      - 216.0
+      widget_type: text
+      path: Form1099-LTC[0].CopyA[0].LeftCol[0].f1_7[0]
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=242
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: policyholder_city_state_zip_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: policyholder_city_state_zip_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_txt -> zip_cd'
+    x_petey_identifiers:
+      subject: policyholder_city_state_zip
+      suffix: cd
+  account_nbr:
+    x_petey_id: '1_18'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 1
+      rect:
+      - 50.400001525878906
+      - 226.0
+      - 216.0
+      - 240.0009765625
+      widget_type: text
+      path: Form1099-LTC[0].CopyA[0].LeftCol[0].f1_8[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: account_number_txt
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      to:
+        name: account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number_txt -> nbr'
+    x_petey_identifiers:
+      subject: account
+      suffix: nbr
+  gross_long_term_care_benefits_paid_amt:
+    x_petey_id: '1_4'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 309.6000061035156
+      - 72.0
+      - 395.0
+      - 83.9990234375
+      widget_type: text
+      path: Form1099-LTC[0].CopyA[0].RightCol[0].f1_9[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: gross_long_term_care_benefits_paid
+      suffix: amt
+  accelerated_death_benefits_paid_amt:
+    x_petey_id: '1_6'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 309.6000061035156
+      - 108.0
+      - 395.0
+      - 119.9990234375
+      widget_type: text
+      path: Form1099-LTC[0].CopyA[0].RightCol[0].f1_10[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: accelerated_death_benefits_paid
+      suffix: amt
+  insured_tin:
+    x_petey_id: '1_9'
+    type: string
+    semantic_type: tin
+    pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 396.0
+      - 118.0
+      - 496.79998779296875
+      - 144.0
+      widget_type: text
+      path: Form1099-LTC[0].CopyA[0].RightCol[0].f1_11[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: insured
+      suffix: tin
+  insured_nm:
+    x_petey_id: '1_12'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 297.20001220703125
+      - 154.0
+      - 495.79998779296875
+      - 168.0009765625
+      widget_type: text
+      path: Form1099-LTC[0].CopyA[0].RightCol[0].f1_12[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: insured_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: insured_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: insured
+      suffix: nm
+  insured_street_address_txt:
+    x_petey_id: '1_14'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 297.20001220703125
+      - 178.0009765625
+      - 495.79998779296875
+      - 192.00201416015625
+      widget_type: text
+      path: Form1099-LTC[0].CopyA[0].RightCol[0].f1_13[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: insured_street_address
+      suffix: txt
+  insured_city_state_zip_cd:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 297.20001220703125
+      - 201.9990234375
+      - 495.79998779296875
+      - 216.0
+      widget_type: text
+      path: Form1099-LTC[0].CopyA[0].RightCol[0].f1_14[0]
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=199
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: insured_city_state_zip_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: insured_city_state_zip_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_txt -> zip_cd'
+    x_petey_identifiers:
+      subject: insured_city_state_zip
+      suffix: cd
+  qualified_contract_ind:
+    x_petey_id: '1_19'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 223.1999969482422
+      - 227.99798583984375
+      - 233.1999969482422
+      - 237.99798583984375
+      widget_type: checkbox
+      path: Form1099-LTC[0].CopyA[0].RightCol[0].c1_3[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: qualified_contract
+      suffix: ind
+  date_certified_dt:
+    x_petey_id: '1_20'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 439.20001220703125
+      - 226.0
+      - 496.79998779296875
+      - 240.0009765625
+      widget_type: text
+      path: Form1099-LTC[0].CopyA[0].RightCol[0].f1_15[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: date_certified
+      suffix: dt
+  payment_type:
+    x_petey_id: '1_10'
+    type: category
+    values:
+    - per_diem
+    - reimbursed_amount
+    widgets:
+      per_diem:
+        page: 1
+        rect:
+        - 302.3999938964844
+        - 132.0
+        - 310.3999938964844
+        - 140.0
+        widget_type: checkbox
+        path: Form1099-LTC[0].CopyA[0].RightCol[0].c1_2[0]
+        on_state: '1'
+        caption: Per diem
+        x_petey_caption_source: page_text
+      reimbursed_amount:
+        page: 1
+        rect:
+        - 338.3999938964844
+        - 132.0
+        - 346.3999938964844
+        - 140.0
+        widget_type: checkbox
+        path: Form1099-LTC[0].CopyA[0].RightCol[0].c1_2[1]
+        on_state: '2'
+        caption: Reimbursed amount
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:22:32'
+      from:
+      - payment_type::per_diem
+      - payment_type::reimbursed_amount
+    x_petey_identifiers:
+      subject: payment_type
+  insured_status:
+    x_petey_id: '1_17'
+    type: category
+    values:
+    - chronically_ill
+    - terminally_ill
+    widgets:
+      chronically_ill:
+        page: 1
+        rect:
+        - 381.6000061035156
+        - 217.9990234375
+        - 389.6000061035156
+        - 225.9990234375
+        widget_type: checkbox
+        path: Form1099-LTC[0].CopyA[0].RightCol[0].c1_4[0]
+        on_state: '1'
+        caption: Chronically ill
+        x_petey_caption_source: page_choice
+      terminally_ill:
+        page: 1
+        rect:
+        - 381.6000061035156
+        - 229.99798583984375
+        - 389.6000061035156
+        - 237.99798583984375
+        widget_type: checkbox
+        path: Form1099-LTC[0].CopyA[0].RightCol[0].c1_5[0]
+        on_state: '1'
+        caption: Terminally ill
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:22:32'
+      from:
+      - insured_status::chronically_ill
+      - insured_status::terminally_ill
+    x_petey_identifiers:
+      subject: insured_status
+x_petey_copy_pages_log:
+  threshold: 0.85
+  canonical_pages:
+  - 1
+  dropped_as_copies:
+    2:
+      canonical: 1
+      similarity: 0.955
+    4:
+      canonical: 1
+      similarity: 0.955
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 2
+x_petey_page_check:
+  when: '2026-10-16 13:23:05'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  fields: 19
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/form_1099_ltc__61b247__b0181b38.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: form_1099_ltc_20261006_225954
+  blueprint: /home/user/petey-2/runs/judge_eval/work/form_1099_ltc.bpt
+  when: '2026-10-06 23:00:00'
+x_petey_run:
+  record: runs/judge_eval/form_runs/form_1099_ltc.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 23:00:00'

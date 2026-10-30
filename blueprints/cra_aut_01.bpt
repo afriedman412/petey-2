@@ -1,0 +1,953 @@
+bpt_version: '1.1'
+name: cra_aut_01
+form_version: null
+source_pdf: aut-01-fill-25e.pdf
+source_pdf_hash: e8ccbd1616d873bf780f4a6ca265b60444c4c992
+source_pages:
+- 1
+- 2
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 22:26:06'
+fields:
+  sin_ttn_or_itn:
+    x_petey_id: '1_3'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 30.999000549316406
+      - 239.99798583984375
+      - 136.99899291992188
+      - 251.0
+      widget_type: text
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln1_sf[0].Account_Number_Comb_EN[0].Account_Number[0]
+    description: Step 1. Account information. Social insurance number, temporary tax
+      number, or individual tax number. 9 digits.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: sin_ttn_or_itn
+  first_nm:
+    x_petey_id: '1_1'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 1
+      rect:
+      - 144.9969940185547
+      - 236.9990234375
+      - 361.9960021972656
+      - 251.0
+      widget_type: text
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln1_sf[0].P1_Ln1_inpt1[0]
+    description: Step 1. Account information. First name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: first
+      suffix: nm
+  last_nm:
+    x_petey_id: '1_2'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 1
+      rect:
+      - 369.99700927734375
+      - 236.9990234375
+      - 586.9959716796875
+      - 251.0
+      widget_type: text
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln1_sf[0].P1_Ln1_inpt2[0]
+    description: Step 1. Account information. Last name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: last
+      suffix: nm
+  trust_account_nbr:
+    x_petey_id: '1_4'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 1
+      rect:
+      - 42.99800109863281
+      - 267.0009765625
+      - 136.99899291992188
+      - 281.00201416015625
+      widget_type: text
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln2_sf[0].P1_Ln2_grp[0].P1_Ln2_grp_TrustAccNum[0]
+    description: Step 1. Account information. Trust account number. Remaining 8 digits
+      after the letter T.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: trust_account
+      suffix: nbr
+  trust_nm:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: entity_name
+    widget:
+      page: 1
+      rect:
+      - 144.9969940185547
+      - 267.0009765625
+      - 586.9959716796875
+      - 281.00201416015625
+      widget_type: text
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln2_sf[0].P1_Ln2_inpt[0]
+    description: Step 1. Account information. Trust name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: trust
+      suffix: nm
+  non_resident_account_nbr:
+    x_petey_id: '1_6'
+    type: string
+    semantic_type: id_part
+    pattern: ^\d{1,7}$
+    widget:
+      page: 1
+      rect:
+      - 55.0
+      - 299.9989929199219
+      - 136.99899291992188
+      - 314.0
+      widget_type: text
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln3_sf[0].P1_Ln3_grp1[0].P1_Ln3_grp1_fill[0]
+    description: Step 1. Account information. Non-resident account number. Remaining
+      7 characters after the letters NR.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:7
+    x_petey_identifiers:
+      subject: non_resident_account
+      suffix: nbr
+  non_resident_account_nm:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 1
+      rect:
+      - 144.9969940185547
+      - 299.9989929199219
+      - 586.9959716796875
+      - 314.0
+      widget_type: text
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln3_sf[0].P1_Ln3_inpt[0]
+    description: Step 1. Account information. Non-resident account name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: A non-resident account name is the account holder's/entity name, not
+        a person's name; semantic_type corrected to organization_name per the printed
+        caption.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Step 1. Account information. Non-resident account name.
+      judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: non_resident_account
+      suffix: nm
+  other_cra_identifier:
+    x_petey_id: '1_8'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 57.999000549316406
+      - 344.9989929199219
+      - 163.99899291992188
+      - 356.0010070800781
+      widget_type: text
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln3_sf[0].Account_Number_Comb_EN[0].Account_Number[0]
+    description: Step 1. Account information. Other Canada Revenue Agency identifier.
+      9 digits.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: other_cra_identifier
+  type_of_cra_identifier:
+    x_petey_id: '1_9'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 171.9969940185547
+      - 344.9989929199219
+      - 592.9970092773438
+      - 359.0
+      widget_type: text
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln3_sf[0].P1_Ln3_inpt2[0]
+    description: Step 1. Account information. Type of Canada Revenue Agency identifier.
+      Social insurance number, temporary tax number, individual tax number, trust
+      account number or business number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: type_of_cra_identifier
+  business_nbr:
+    x_petey_id: '1_10'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 30.999000549316406
+      - 389.9989929199219
+      - 136.99899291992188
+      - 404.0
+      widget_type: text
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln4_sf[0].P1_Ln4_grp[0].P1_Ln4_grp_BN[0]
+    description: Step 1. Account information. Other CRA identifier. 9 digits.
+    x_petey_description_source: tooltip
+    pattern: ^\d{9}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999999999}
+      pictures:
+        format:
+        - text{999999999}
+    label_source: llm
+    x_petey_identifiers:
+      subject: business
+      suffix: nbr
+  business_nm:
+    x_petey_id: '1_11'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 1
+      rect:
+      - 144.9969940185547
+      - 389.9989929199219
+      - 586.9959716796875
+      - 404.0
+      widget_type: text
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln4_sf[0].P1_Ln4_inpt[0]
+    description: Step 1. Account information. Business name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: business
+      suffix: nm
+  business_access_option:
+    x_petey_id: '1_12'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 29.99799919128418
+        - 426.5
+        - 41.99800109863281
+        - 438.5
+        widget_type: radiobutton
+        path: form1[0].Page1[0].P1_sf[0].P1_In5_sf[0].cbGrp[0]
+        on_state: '0'
+        caption: Option 1 – Give access to all my business number program accounts
+      '1':
+        page: 1
+        rect:
+        - 29.99799919128418
+        - 453.5
+        - 41.99800109863281
+        - 465.5
+        widget_type: radiobutton
+        path: form1[0].Page1[0].P1_sf[0].P1_In5_sf[0].cbGrp[0]
+        on_state: '1'
+        caption: Option 2 – Give access to specific business number program accounts
+    description: 'One of: 0 = Option 1 – Give access to all my business number program
+      accounts; 1 = Option 2 – Give access to specific business number program accounts'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': Option 1 – Give access to all my business number program accounts
+        '1': Option 2 – Give access to specific business number program accounts
+    x_petey_identifiers:
+      subject: business_access_option
+  row1_program_identifier:
+    x_petey_id: '1_13'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 81.99700164794922
+      - 518.9979858398438
+      - 103.99800109863281
+      - 529.9970092773438
+      widget_type: text
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln7_sf[0].P1_Ln7_table[0].P1_Ln7_table_row1[0].cell1[0].inpt[0]
+    description: Step 1. Account information. Option 2. Give access to specific business
+      number program accounts. Program identifier. 2 letters. Row 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: row1_program_identifier
+  row1_all_reference_numbers_ind:
+    x_petey_id: '1_14'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 197.9969940185547
+      - 518.9979858398438
+      - 209.9969940185547
+      - 530.9979858398438
+      widget_type: checkbox
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln7_sf[0].P1_Ln7_table[0].P1_Ln7_table_row1[0].cell2[0].cb[0]
+    description: Step 1. Account information. Option 2. Give access to specific business
+      number program accounts. All reference numbers. Row 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: row1_all_reference_numbers
+      suffix: ind
+  row1_specific_reference_nbr:
+    x_petey_id: '1_15'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 327.99798583984375
+      - 518.9979858398438
+      - 373.99700927734375
+      - 529.9970092773438
+      widget_type: text
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln7_sf[0].P1_Ln7_table[0].P1_Ln7_table_row1[0].cell2[0].grp[0].RefNmbr_dgt[0]
+    description: Step 1. Account information. Option 2. Give access to specific business
+      number program accounts. A specific reference number. 4 digits. Row 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: row1_specific_reference
+      suffix: nbr
+  row2_program_identifier:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 81.99700164794922
+      - 539.9970092773438
+      - 103.99800109863281
+      - 550.9959716796875
+      widget_type: text
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln7_sf[0].P1_Ln7_table[0].P1_Ln7_table_row2[0].cell1[0].inpt[0]
+    description: Step 1. Account information. Option 2. Give access to specific business
+      number program accounts. Program identifier. 2 letters. Row 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: row2_program_identifier
+  row2_all_reference_numbers_ind:
+    x_petey_id: '1_17'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 197.9969940185547
+      - 539.9970092773438
+      - 209.9969940185547
+      - 551.9970092773438
+      widget_type: checkbox
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln7_sf[0].P1_Ln7_table[0].P1_Ln7_table_row2[0].cell2[0].cb[0]
+    description: Step 1. Account information. Option 2. Give access to specific business
+      number program accounts. All reference numbers. Row 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: row2_all_reference_numbers
+      suffix: ind
+  row2_specific_reference_nbr:
+    x_petey_id: '1_18'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 327.99798583984375
+      - 539.9970092773438
+      - 373.99700927734375
+      - 550.9959716796875
+      widget_type: text
+      path: form1[0].Page1[0].P1_sf[0].P1_Ln7_sf[0].P1_Ln7_table[0].P1_Ln7_table_row2[0].cell2[0].grp[0].RefNmbr_dgt[0]
+    description: Step 1. Account information. Option 2. Give access to specific business
+      number program accounts. A specific reference number. 4 digits. Row 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: row2_specific_reference
+      suffix: nbr
+  representative_first_nm:
+    x_petey_id: '1_20'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 1
+      rect:
+      - 30.99799919128418
+      - 638.9979858398438
+      - 202.9969940185547
+      - 652.9990234375
+      widget_type: text
+      path: form1[0].Page1[0].P2_sf[0].P2_Ln2_sf[0].P2_Ln2_inpt1[0]
+    description: Step 2. Representative information. Option 1. First name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: representative_first
+      suffix: nm
+  representative_last_nm:
+    x_petey_id: '1_21'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 1
+      rect:
+      - 210.9980010986328
+      - 638.9979858398438
+      - 409.99700927734375
+      - 652.9990234375
+      widget_type: text
+      path: form1[0].Page1[0].P2_sf[0].P2_Ln2_sf[0].P2_Ln2_inpt2[0]
+    description: Step 2. Representative information. Option 1. Last name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: representative_last
+      suffix: nm
+  representative_telephone_nbr:
+    x_petey_id: '1_22'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\d{3}\-\d{3}\-\d{4}|\d{3}\-\d{2}\-\d{3}\-\d{3}\-\d{4}|\d{2}\-\d{2}\-\d{3}\-\d{3}\-\d{4})$
+    widget:
+      page: 1
+      rect:
+      - 417.99798583984375
+      - 638.9979858398438
+      - 523.9979858398438
+      - 652.9990234375
+      widget_type: text
+      path: form1[0].Page1[0].P2_sf[0].P2_Ln2_sf[0].P2_Ln2_inpt3[0]
+    description: Step 2. Representative information. Option 1. Telephone number. 10
+      digits for a North American telephone number or up to 15 digits for an international
+      number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999-999-9999}|text{999-99-999-999-9999}|text{99-99-999-999-9999}
+      pictures:
+        format:
+        - text{999-999-9999}|text{999-99-999-999-9999}|text{99-99-999-999-9999}
+        ui:
+        - text{999-999-9999}|text{999-99-999-999-9999}|text{99-99-999-999-9999}
+    label_source: llm
+    x_petey_identifiers:
+      subject: representative_telephone
+      suffix: nbr
+  representative_extension:
+    x_petey_id: '1_23'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 531.9990234375
+      - 638.9979858398438
+      - 586.9979858398438
+      - 652.9990234375
+      widget_type: text
+      path: form1[0].Page1[0].P2_sf[0].P2_Ln2_sf[0].P2_Ln2_inpt4[0]
+    description: Step 2. Representative information. Option 1. Extension. Maximum
+      6 digits.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: representative_extension
+  firm_nm:
+    x_petey_id: '1_24'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 1
+      rect:
+      - 30.99799919128418
+      - 692.9979858398438
+      - 409.99700927734375
+      - 706.9990234375
+      widget_type: text
+      path: form1[0].Page1[0].P2_sf[0].P2_Ln4_sf[0].P2_Ln4_inpt1[0]
+    description: Step 2. Representative information. Option 2. Firm name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption and tooltip both say 'Firm name' — a business name, so person_name
+        is wrong.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Step 2. Representative information. Option 2. Firm name.
+      judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: firm
+      suffix: nm
+  firm_telephone_nbr:
+    x_petey_id: '1_25'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\d{3}\-\d{3}\-\d{4}|\d{3}\-\d{2}\-\d{3}\-\d{3}\-\d{4}|\d{2}\-\d{2}\-\d{3}\-\d{3}\-\d{4}|\+\d{2}\-\d{3}\-\d{3}\-\d{4})$
+    widget:
+      page: 1
+      rect:
+      - 417.99798583984375
+      - 692.9979858398438
+      - 523.9979858398438
+      - 706.9990234375
+      widget_type: text
+      path: form1[0].Page1[0].P2_sf[0].P2_Ln4_sf[0].P2_Ln4_inpt2[0]
+    description: Step 2. Representative information. Option 2. Telephone number. 10
+      digits for a North American telephone number or up to 15 digits for an international
+      number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999-999-9999}|text{999-99-999-999-9999}|text{99-99-999-999-9999}|text{'+'99-999-999-9999}
+      pictures:
+        format:
+        - text{999-999-9999}|text{999-99-999-999-9999}|text{99-99-999-999-9999}|text{'+'99-999-999-9999}
+        ui:
+        - text{999-999-9999}|text{999-99-999-999-9999}|text{99-99-999-999-9999}|text{'+'99-999-999-9999}
+    label_source: llm
+    x_petey_identifiers:
+      subject: firm_telephone
+      suffix: nbr
+  firm_extension:
+    x_petey_id: '1_26'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 531.9990234375
+      - 692.9979858398438
+      - 586.9979858398438
+      - 706.9990234375
+      widget_type: text
+      path: form1[0].Page1[0].P2_sf[0].P2_Ln4_sf[0].P2_Ln4_inpt3[0]
+    description: Step 2. Representative information. Option 2. Extension. Maximum
+      6 digits.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: firm_extension
+  authorization_expiry_dt:
+    x_petey_id: '2_2'
+    type: string
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 156.9980010986328
+      - 210.0009765625
+      - 250.99899291992188
+      - 224.00201416015625
+      widget_type: text
+      path: form1[0].Page2[0].P4_sf[0].P4_Ln1_sf[0].P4_Ln1_grp[0].P4_Ln_grp_fill[0]
+    description: Step 4. Authorization expiry date. Expiry date. Year 4 digits. Month
+      2 digits. Day 2 digits. Optional.
+    x_petey_description_source: tooltip
+    pattern: ^\d{8}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999999}
+      pictures:
+        format:
+        - text{99999999}
+    label_source: llm
+    x_petey_identifiers:
+      subject: authorization_expiry
+      suffix: dt
+  signatory_role:
+    x_petey_id: '2_3'
+    type: category
+    values:
+    - '0'
+    - '1'
+    - '2'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    widgets:
+      '0':
+        page: 2
+        rect:
+        - 80.9990005493164
+        - 330.4989929199219
+        - 92.9990005493164
+        - 342.4989929199219
+        widget_type: radiobutton
+        path: form1[0].Page2[0].P5_sf[0].P5_Ln3_sf[0].cbGrp[0]
+        on_state: '0'
+        caption: taxpayer
+      '1':
+        page: 2
+        rect:
+        - 80.9990005493164
+        - 351.49798583984375
+        - 92.9990005493164
+        - 363.49798583984375
+        widget_type: radiobutton
+        path: form1[0].Page2[0].P5_sf[0].P5_Ln3_sf[0].cbGrp[0]
+        on_state: '1'
+        caption: parent or legal guardian of a taxpayer under the age of 16
+      '2':
+        page: 2
+        rect:
+        - 80.9990005493164
+        - 372.5
+        - 92.9990005493164
+        - 384.5
+        widget_type: radiobutton
+        path: form1[0].Page2[0].P5_sf[0].P5_Ln3_sf[0].cbGrp[0]
+        on_state: '2'
+        caption: legal representative (such as the executor, power of attorney, or
+          trustee)
+      '3':
+        page: 2
+        rect:
+        - 80.9990005493164
+        - 393.4989929199219
+        - 92.9990005493164
+        - 405.4989929199219
+        widget_type: radiobutton
+        path: form1[0].Page2[0].P5_sf[0].P5_Ln3_sf[0].cbGrp[0]
+        on_state: '3'
+        caption: owner (such as the sole proprietor, or a partner of a partnership)
+      '4':
+        page: 2
+        rect:
+        - 80.9990005493164
+        - 414.49798583984375
+        - 92.9990005493164
+        - 426.49798583984375
+        widget_type: radiobutton
+        path: form1[0].Page2[0].P5_sf[0].P5_Ln3_sf[0].cbGrp[0]
+        on_state: '4'
+        caption: officer of a non-profit organization
+      '5':
+        page: 2
+        rect:
+        - 80.9990005493164
+        - 435.5
+        - 92.9990005493164
+        - 447.5
+        widget_type: radiobutton
+        path: form1[0].Page2[0].P5_sf[0].P5_Ln3_sf[0].cbGrp[0]
+        on_state: '5'
+        caption: corporate director or corporate officer
+      '6':
+        page: 2
+        rect:
+        - 80.9990005493164
+        - 456.4989929199219
+        - 92.9990005493164
+        - 468.4989929199219
+        widget_type: radiobutton
+        path: form1[0].Page2[0].P5_sf[0].P5_Ln3_sf[0].cbGrp[0]
+        on_state: '6'
+        caption: individual with delegated authority for the business account
+    description: 'One of: 0 = taxpayer; 1 = parent or legal guardian of a taxpayer
+      under the age of 16; 2 = legal representative (such as the executor, power of
+      attorney, or trustee); 3 = owner (such as the sole proprietor, or a partner
+      of a partnership); 4 = officer of a non-profit organization; 5 = corporate director
+      or corporate officer; 6 = individual with delegated authority for the business
+      account'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': taxpayer
+        '1': parent or legal guardian of a taxpayer under the age of 16
+        '2': legal representative (such as the executor, power of attorney, or trustee)
+        '3': owner (such as the sole proprietor, or a partner of a partnership)
+        '4': officer of a non-profit organization
+        '5': corporate director or corporate officer
+        '6': individual with delegated authority for the business account
+    x_petey_identifiers:
+      subject: signatory_role
+  certifier_first_nm:
+    x_petey_id: '2_4'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 2
+      rect:
+      - 30.99799919128418
+      - 518.9990234375
+      - 229.9969940185547
+      - 533.0
+      widget_type: text
+      path: form1[0].Page2[0].P5_sf[0].P5_Ln5_sf[0].P5_Ln5_inpt1[0]
+    description: Step 5. Certification. First name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: certifier_first
+      suffix: nm
+  certifier_last_nm:
+    x_petey_id: '2_5'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 2
+      rect:
+      - 237.9980010986328
+      - 518.9990234375
+      - 439.9989929199219
+      - 533.0
+      widget_type: text
+      path: form1[0].Page2[0].P5_sf[0].P5_Ln5_sf[0].P5_Ln5_inpt2[0]
+    description: Step 5. Certification. Last name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: certifier_last
+      suffix: nm
+  certifier_phone_num:
+    x_petey_id: '2_6'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\d{3}\-\d{3}\-\d{4}|\d{3}\-\d{2}\-\d{3}\-\d{3}\-\d{4}|\d{2}\-\d{2}\-\d{3}\-\d{3}\-\d{4})$
+    widget:
+      page: 2
+      rect:
+      - 447.99700927734375
+      - 518.9990234375
+      - 586.9979858398438
+      - 533.0
+      widget_type: text
+      path: form1[0].Page2[0].P5_sf[0].P5_Ln5_sf[0].P5_Ln5_inpt3[0]
+    description: Step 5. Certification. Telephone number. 10 digits for a North American
+      telephone number or up to 15 digits for an international number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999-999-9999}|text{999-99-999-999-9999}|text{99-99-999-999-9999}
+      pictures:
+        format:
+        - text{999-999-9999}|text{999-99-999-999-9999}|text{99-99-999-999-9999}
+        ui:
+        - text{999-999-9999}|text{999-99-999-999-9999}|text{99-99-999-999-9999}
+    label_source: llm
+    x_petey_identifiers:
+      subject: certifier_phone_num
+  signature_dt:
+    x_petey_id: '2_7'
+    type: string
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 493.0
+      - 561.0009765625
+      - 586.9979858398438
+      - 575.0020141601562
+      widget_type: text
+      path: form1[0].Page2[0].P5_sf[0].P5_Ln7_sf[0].P5_Ln7_grp2[0].P5_Ln7_grp2_fill[0]
+    description: Step 5. Certification. Date. Year 4 digits. Month 2 digits. Day 2
+      digits.
+    x_petey_description_source: tooltip
+    pattern: ^\d{8}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999999}
+      pictures:
+        format:
+        - text{99999999}
+    label_source: llm
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
+  representative_type:
+    x_petey_id: '1_19'
+    type: category
+    values:
+    - firm
+    - individual
+    widgets:
+      individual:
+        page: 1
+        rect:
+        - 29.99799919128418
+        - 609.5
+        - 41.99800109863281
+        - 621.5
+        widget_type: checkbox
+        path: form1[0].Page1[0].P2_sf[0].P2_Ln1_sf[0].P2_Ln1_cb[0]
+        on_state: '1'
+        caption: Choose
+        x_petey_caption_source: page_text
+      firm:
+        page: 1
+        rect:
+        - 29.99799919128418
+        - 663.5009765625
+        - 41.99800109863281
+        - 675.5009765625
+        widget_type: checkbox
+        path: form1[0].Page1[0].P2_sf[0].P2_Ln3_sf[0].P2_Ln1_cb[0]
+        on_state: '2'
+        caption: First
+        x_petey_caption_source: page_text
+    description: Step 2. Representative information. Choose one of the following options
+      and fill in the required information. Option 1. I am authorizing an individual.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: representative_type
+  access_level:
+    x_petey_id: '2_1'
+    type: category
+    values:
+    - level_1
+    - level_2
+    widgets:
+      level_1:
+        page: 2
+        rect:
+        - 32.99700164794922
+        - 78.5
+        - 44.99700164794922
+        - 90.5
+        widget_type: checkbox
+        path: form1[0].Page2[0].P3_sf[0].P3_Ln1_sf[0].P3_cb[0]
+        on_state: '1'
+        caption: Choose
+        x_petey_caption_source: page_text
+      level_2:
+        page: 2
+        rect:
+        - 32.99700164794922
+        - 114.4990234375
+        - 44.99700164794922
+        - 126.4990234375
+        widget_type: checkbox
+        path: form1[0].Page2[0].P3_sf[0].P3_Ln3_sf[0].P3_cb[0]
+        on_state: '2'
+        caption: The
+        x_petey_caption_source: page_text
+    description: Step 3. Level of access. Choose one of the following levels. Level
+      1. Allow access to information only.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: access_level
+x_petey_dropped_widgets:
+  count: 7
+  widgets:
+  - path: form1[0].#pageSet[0].Page1[0].ClearData_EN[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear Data
+  - path: form1[0].Page1[0].P1_sf[0].P1_Ln2_sf[0].P1_Ln2_grp[0].P1_Ln2_grp_T[0]
+    page: 1
+    reason: caption
+    field_type: Text
+    tooltip: P1_Ln2_grp_T
+    caption: T
+  - path: form1[0].Page1[0].P1_sf[0].P1_Ln3_sf[0].P1_Ln3_grp1[0].P1_Ln3_grp1_NR[0]
+    page: 1
+    reason: caption
+    field_type: Text
+    tooltip: P1_Ln3_grp1_NR
+    caption: NR
+  - path: form1[0].Page1[0].P1_sf[0].P1_Ln3_sf[0].Note[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Note
+  - path: form1[0].#pageSet[0].Page1[1].ClearData_EN[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear Data
+  - path: form1[0].#pageSet[0].Page1[2].ClearData_EN[0]
+    page: 3
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear Data
+  - path: form1[0].#pageSet[0].Page1[3].ClearData_EN[0]
+    page: 4
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear Data
+x_petey_xfa_log:
+  joined: 31
+  pattern: 6
+  description: 2
+  type: 2
+x_petey_emit_fixes:
+  part_by_maxlen: 1
+  description_from_tooltip: 2
+x_petey_page_check:
+  record: runs/judge_eval/form_runs/cra_aut_01.json
+  model: gemini-3.8-flash (round 0), claude-opus-5 (loop)
+  prompt: 1f223214
+  when: '2026-10-06 22:28:03'
+  fields: 33
+  checked: 33
+  flagged: 2
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: cra_aut_01_20261006_222752
+  blueprint: /home/user/petey-2/runs/judge_eval/work/cra_aut_01.bpt
+  when: '2026-10-06 22:28:02'
+x_petey_run:
+  record: runs/judge_eval/form_runs/cra_aut_01.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 22:28:03'

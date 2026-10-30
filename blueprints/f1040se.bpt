@@ -8,11 +8,16 @@ source_pages:
 - 2
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-15 11:42:26'
 fields:
-  taxpayer_nm:
+  taxpayer_nm_1:
     x_petey_id: '1_1'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -22,7 +27,28 @@ fields:
       - 108.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_1[0]
-  taxpayer_ssn:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:52'
+      from:
+        name: taxpayer_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: taxpayer_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: taxpayer
+      suffix: nm
+      iteration: '1'
+  taxpayer_ssn_1:
     x_petey_id: '1_2'
     type: string
     semantic_type: ssn
@@ -36,62 +62,31 @@ fields:
       - 108.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_2[0]
-  made_payments_requiring_1099_yes_ind:
-    x_petey_id: '1_3'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 504.0
-      - 139.998046875
-      - 512.0
-      - 147.998046875
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_1[0]
-  made_payments_requiring_1099_no_ind:
-    x_petey_id: '1_4'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 540.0
-      - 139.998046875
-      - 548.0
-      - 147.998046875
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_1[1]
-  will_file_required_1099_yes_ind:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:52'
+      from:
+        name: taxpayer_ssn
+        type: string
+        semantic_type: ssn
+        pattern: ^\d{3}-\d{2}-\d{4}$
+      to:
+        name: taxpayer_1_ssn
+        type: string
+        semantic_type: ssn
+        pattern: ^\d{3}-\d{2}-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: taxpayer
+      suffix: ssn
+      iteration: '1'
+  property_a_physical_address_txt:
     x_petey_id: '1_5'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 504.0
-      - 151.75
-      - 512.0
-      - 159.75
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_2[0]
-  will_file_required_1099_no_ind:
-    x_petey_id: '1_6'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 540.0
-      - 151.75
-      - 548.0
-      - 159.75
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_2[1]
-  property_a_address_line_1_txt:
-    x_petey_id: '1_7'
     type: string
-    semantic_type: street_address
+    semantic_type: address
     widget:
       page: 1
       rect:
@@ -101,10 +96,29 @@ fields:
       - 191.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Line1a[0].RowA[0].f1_3[0]
-  property_b_address_line_1_txt:
-    x_petey_id: '1_8'
+    label_source: llm
+    description: Physical address (street, city, state, ZIP code) of rental property
+      A
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - description
+      reason: Box holds a full address block, not generic text; name already matches,
+        only the semantic_type is wrong.
+      before:
+        type: string
+        semantic_type: text
+      judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: physical_address
+      suffix: txt
+  property_b_physical_address_txt:
+    x_petey_id: '1_6'
     type: string
-    semantic_type: street_address
+    semantic_type: address
     widget:
       page: 1
       rect:
@@ -114,10 +128,28 @@ fields:
       - 203.998046875
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Line1a[0].RowB[0].f1_4[0]
-  property_c_address_line_1_txt:
-    x_petey_id: '1_9'
+    label_source: llm
+    description: Physical address (street, city, state, ZIP code) of rental property
+      B
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - description
+      reason: Same line 1a address row, property B copy; semantic_type should be address.
+      before:
+        type: string
+        semantic_type: text
+      judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: physical_address
+      suffix: txt
+  property_c_physical_address_txt:
+    x_petey_id: '1_7'
     type: string
-    semantic_type: street_address
+    semantic_type: address
     widget:
       page: 1
       rect:
@@ -127,8 +159,26 @@ fields:
       - 215.99700927734375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Line1a[0].RowC[0].f1_5[0]
+    label_source: llm
+    description: Physical address (street, city, state, ZIP code) of rental property
+      C
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - description
+      reason: Same line 1a address row, property C copy; semantic_type should be address.
+      before:
+        type: string
+        semantic_type: text
+      judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: physical_address
+      suffix: txt
   property_a_type_cd:
-    x_petey_id: '1_10'
+    x_petey_id: '1_8'
     type: string
     widget:
       page: 1
@@ -139,8 +189,13 @@ fields:
       - 252.0
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Line1b[0].RowA[0].f1_6[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: property_a_type
+      suffix: cd
+      grid: p1-G1
   property_b_type_cd:
-    x_petey_id: '1_14'
+    x_petey_id: '1_12'
     type: string
     widget:
       page: 1
@@ -151,8 +206,13 @@ fields:
       - 263.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Line1b[0].RowB[0].f1_7[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: property_b_type
+      suffix: cd
+      grid: p1-G1
   property_c_type_cd:
-    x_petey_id: '1_18'
+    x_petey_id: '1_16'
     type: string
     widget:
       page: 1
@@ -163,8 +223,13 @@ fields:
       - 275.998046875
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Line1b[0].RowC[0].f1_8[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: property_c_type
+      suffix: cd
+      grid: p1-G1
   property_a_fair_rental_days_cnt:
-    x_petey_id: '1_11'
+    x_petey_id: '1_9'
     type: integer
     semantic_type: count
     widget:
@@ -176,8 +241,13 @@ fields:
       - 252.0
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Line2[0].RowA[0].f1_9[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: property_a_fair_rental_days
+      suffix: cnt
+      grid: p1-G1
   property_a_personal_use_days_cnt:
-    x_petey_id: '1_12'
+    x_petey_id: '1_10'
     type: integer
     semantic_type: count
     widget:
@@ -189,8 +259,13 @@ fields:
       - 252.0
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Line2[0].RowA[0].f1_10[0]
-  property_a_qjv_ind:
-    x_petey_id: '1_13'
+    label_source: llm
+    x_petey_identifiers:
+      subject: property_a_personal_use_days
+      suffix: cnt
+      grid: p1-G1
+  property_a_qualified_joint_venture_ind:
+    x_petey_id: '1_11'
     type: boolean
     semantic_type: indicator
     widget:
@@ -202,8 +277,13 @@ fields:
       - 250.0
       widget_type: checkbox
       path: topmostSubform[0].Page1[0].Table_Line2[0].RowA[0].c1_3[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: property_a_qualified_joint_venture
+      suffix: ind
+      grid: p1-G1
   property_b_fair_rental_days_cnt:
-    x_petey_id: '1_15'
+    x_petey_id: '1_13'
     type: integer
     semantic_type: count
     widget:
@@ -215,8 +295,13 @@ fields:
       - 263.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Line2[0].RowB[0].f1_11[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: property_b_fair_rental_days
+      suffix: cnt
+      grid: p1-G1
   property_b_personal_use_days_cnt:
-    x_petey_id: '1_16'
+    x_petey_id: '1_14'
     type: integer
     semantic_type: count
     widget:
@@ -228,8 +313,13 @@ fields:
       - 263.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Line2[0].RowB[0].f1_12[0]
-  property_b_qjv_ind:
-    x_petey_id: '1_17'
+    label_source: llm
+    x_petey_identifiers:
+      subject: property_b_personal_use_days
+      suffix: cnt
+      grid: p1-G1
+  property_b_qualified_joint_venture_ind:
+    x_petey_id: '1_15'
     type: boolean
     semantic_type: indicator
     widget:
@@ -241,8 +331,13 @@ fields:
       - 261.9990234375
       widget_type: checkbox
       path: topmostSubform[0].Page1[0].Table_Line2[0].RowB[0].c1_4[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: property_b_qualified_joint_venture
+      suffix: ind
+      grid: p1-G1
   property_c_fair_rental_days_cnt:
-    x_petey_id: '1_19'
+    x_petey_id: '1_17'
     type: integer
     semantic_type: count
     widget:
@@ -254,8 +349,13 @@ fields:
       - 275.998046875
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Line2[0].RowC[0].f1_13[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: property_c_fair_rental_days
+      suffix: cnt
+      grid: p1-G1
   property_c_personal_use_days_cnt:
-    x_petey_id: '1_20'
+    x_petey_id: '1_18'
     type: integer
     semantic_type: count
     widget:
@@ -267,8 +367,13 @@ fields:
       - 275.998046875
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Line2[0].RowC[0].f1_14[0]
-  property_c_qjv_ind:
-    x_petey_id: '1_21'
+    label_source: llm
+    x_petey_identifiers:
+      subject: property_c_personal_use_days
+      suffix: cnt
+      grid: p1-G1
+  property_c_qualified_joint_venture_ind:
+    x_petey_id: '1_19'
     type: boolean
     semantic_type: indicator
     widget:
@@ -280,8 +385,13 @@ fields:
       - 273.998046875
       widget_type: checkbox
       path: topmostSubform[0].Page1[0].Table_Line2[0].RowC[0].c1_5[0]
-  other_expense_description_txt:
-    x_petey_id: '1_22'
+    label_source: llm
+    x_petey_identifiers:
+      subject: property_c_qualified_joint_venture
+      suffix: ind
+      grid: p1-G1
+  other_property_type_desc_txt:
+    x_petey_id: '1_20'
     type: string
     semantic_type: description
     widget:
@@ -293,8 +403,28 @@ fields:
       - 311.9980163574219
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_15[0]
-  rents_received_a_amt:
-    x_petey_id: '1_23'
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:52'
+      from:
+        name: other_property_type_desc
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: other_property_type_desc_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: desc -> desc_txt'
+    x_petey_identifiers:
+      subject: other_property_type_desc
+      suffix: txt
+  property_a_rents_received_amt:
+    x_petey_id: '1_21'
     type: number
     semantic_type: money
     widget:
@@ -306,10 +436,15 @@ fields:
       - 353.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Income[0].Line3[0].f1_16[0]
-    x_petey_retype:
-    - money
-  rents_received_b_amt:
-    x_petey_id: '1_24'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: rents_received
+      suffix: amt
+      grid: p1-G2
+  property_b_rents_received_amt:
+    x_petey_id: '1_22'
     type: number
     semantic_type: money
     widget:
@@ -321,10 +456,15 @@ fields:
       - 353.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Income[0].Line3[0].f1_17[0]
-    x_petey_retype:
-    - money
-  rents_received_c_amt:
-    x_petey_id: '1_25'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: rents_received
+      suffix: amt
+      grid: p1-G2
+  property_c_rents_received_amt:
+    x_petey_id: '1_23'
     type: number
     semantic_type: money
     widget:
@@ -336,10 +476,15 @@ fields:
       - 353.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Income[0].Line3[0].f1_18[0]
-    x_petey_retype:
-    - money
-  royalties_received_a_amt:
-    x_petey_id: '1_26'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: rents_received
+      suffix: amt
+      grid: p1-G2
+  property_a_royalties_received_amt:
+    x_petey_id: '1_24'
     type: number
     semantic_type: money
     widget:
@@ -351,10 +496,15 @@ fields:
       - 365.9980163574219
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Income[0].Line4[0].f1_19[0]
-    x_petey_retype:
-    - money
-  royalties_received_b_amt:
-    x_petey_id: '1_27'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: royalties_received
+      suffix: amt
+      grid: p1-G2
+  property_b_royalties_received_amt:
+    x_petey_id: '1_25'
     type: number
     semantic_type: money
     widget:
@@ -366,10 +516,15 @@ fields:
       - 365.9980163574219
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Income[0].Line4[0].f1_20[0]
-    x_petey_retype:
-    - money
-  royalties_received_c_amt:
-    x_petey_id: '1_28'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: royalties_received
+      suffix: amt
+      grid: p1-G2
+  property_c_royalties_received_amt:
+    x_petey_id: '1_26'
     type: number
     semantic_type: money
     widget:
@@ -381,10 +536,15 @@ fields:
       - 365.9980163574219
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Income[0].Line4[0].f1_21[0]
-    x_petey_retype:
-    - money
-  advertising_a_amt:
-    x_petey_id: '1_29'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: royalties_received
+      suffix: amt
+      grid: p1-G2
+  property_a_advertising_amt:
+    x_petey_id: '1_27'
     type: number
     semantic_type: money
     widget:
@@ -396,10 +556,15 @@ fields:
       - 389.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line5[0].f1_22[0]
-    x_petey_retype:
-    - money
-  advertising_b_amt:
-    x_petey_id: '1_30'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: advertising
+      suffix: amt
+      grid: p1-G2
+  property_b_advertising_amt:
+    x_petey_id: '1_28'
     type: number
     semantic_type: money
     widget:
@@ -411,10 +576,15 @@ fields:
       - 389.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line5[0].f1_23[0]
-    x_petey_retype:
-    - money
-  advertising_c_amt:
-    x_petey_id: '1_31'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: advertising
+      suffix: amt
+      grid: p1-G2
+  property_c_advertising_amt:
+    x_petey_id: '1_29'
     type: number
     semantic_type: money
     widget:
@@ -426,10 +596,15 @@ fields:
       - 389.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line5[0].f1_24[0]
-    x_petey_retype:
-    - money
-  auto_and_travel_a_amt:
-    x_petey_id: '1_32'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: advertising
+      suffix: amt
+      grid: p1-G2
+  property_a_auto_and_travel_amt:
+    x_petey_id: '1_30'
     type: number
     semantic_type: money
     widget:
@@ -441,10 +616,15 @@ fields:
       - 401.9980163574219
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line6[0].f1_25[0]
-    x_petey_retype:
-    - money
-  auto_and_travel_b_amt:
-    x_petey_id: '1_33'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: auto_and_travel
+      suffix: amt
+      grid: p1-G2
+  property_b_auto_and_travel_amt:
+    x_petey_id: '1_31'
     type: number
     semantic_type: money
     widget:
@@ -456,10 +636,15 @@ fields:
       - 401.9980163574219
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line6[0].f1_26[0]
-    x_petey_retype:
-    - money
-  auto_and_travel_c_amt:
-    x_petey_id: '1_34'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: auto_and_travel
+      suffix: amt
+      grid: p1-G2
+  property_c_auto_and_travel_amt:
+    x_petey_id: '1_32'
     type: number
     semantic_type: money
     widget:
@@ -471,10 +656,15 @@ fields:
       - 401.9980163574219
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line6[0].f1_27[0]
-    x_petey_retype:
-    - money
-  cleaning_and_maintenance_a_amt:
-    x_petey_id: '1_35'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: auto_and_travel
+      suffix: amt
+      grid: p1-G2
+  property_a_cleaning_and_maintenance_amt:
+    x_petey_id: '1_33'
     type: number
     semantic_type: money
     widget:
@@ -486,10 +676,15 @@ fields:
       - 413.99700927734375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line7[0].f1_28[0]
-    x_petey_retype:
-    - money
-  cleaning_and_maintenance_b_amt:
-    x_petey_id: '1_36'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: cleaning_and_maintenance
+      suffix: amt
+      grid: p1-G2
+  property_b_cleaning_and_maintenance_amt:
+    x_petey_id: '1_34'
     type: number
     semantic_type: money
     widget:
@@ -501,10 +696,15 @@ fields:
       - 413.99700927734375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line7[0].f1_29[0]
-    x_petey_retype:
-    - money
-  cleaning_and_maintenance_c_amt:
-    x_petey_id: '1_37'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: cleaning_and_maintenance
+      suffix: amt
+      grid: p1-G2
+  property_c_cleaning_and_maintenance_amt:
+    x_petey_id: '1_35'
     type: number
     semantic_type: money
     widget:
@@ -516,10 +716,15 @@ fields:
       - 413.99700927734375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line7[0].f1_30[0]
-    x_petey_retype:
-    - money
-  commissions_a_amt:
-    x_petey_id: '1_38'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: cleaning_and_maintenance
+      suffix: amt
+      grid: p1-G2
+  property_a_commissions_amt:
+    x_petey_id: '1_36'
     type: number
     semantic_type: money
     widget:
@@ -531,10 +736,15 @@ fields:
       - 425.99603271484375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line8[0].f1_31[0]
-    x_petey_retype:
-    - money
-  commissions_b_amt:
-    x_petey_id: '1_39'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: commissions
+      suffix: amt
+      grid: p1-G2
+  property_b_commissions_amt:
+    x_petey_id: '1_37'
     type: number
     semantic_type: money
     widget:
@@ -546,10 +756,15 @@ fields:
       - 425.99603271484375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line8[0].f1_32[0]
-    x_petey_retype:
-    - money
-  commissions_c_amt:
-    x_petey_id: '1_40'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: commissions
+      suffix: amt
+      grid: p1-G2
+  property_c_commissions_amt:
+    x_petey_id: '1_38'
     type: number
     semantic_type: money
     widget:
@@ -561,10 +776,15 @@ fields:
       - 425.99603271484375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line8[0].f1_33[0]
-    x_petey_retype:
-    - money
-  insurance_a_amt:
-    x_petey_id: '1_41'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: commissions
+      suffix: amt
+      grid: p1-G2
+  property_a_insurance_amt:
+    x_petey_id: '1_39'
     type: number
     semantic_type: money
     widget:
@@ -576,10 +796,15 @@ fields:
       - 437.9950256347656
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line9[0].f1_34[0]
-    x_petey_retype:
-    - money
-  insurance_b_amt:
-    x_petey_id: '1_42'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: insurance
+      suffix: amt
+      grid: p1-G2
+  property_b_insurance_amt:
+    x_petey_id: '1_40'
     type: number
     semantic_type: money
     widget:
@@ -591,10 +816,15 @@ fields:
       - 437.9950256347656
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line9[0].f1_35[0]
-    x_petey_retype:
-    - money
-  insurance_c_amt:
-    x_petey_id: '1_43'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: insurance
+      suffix: amt
+      grid: p1-G2
+  property_c_insurance_amt:
+    x_petey_id: '1_41'
     type: number
     semantic_type: money
     widget:
@@ -606,10 +836,15 @@ fields:
       - 437.9950256347656
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line9[0].f1_36[0]
-    x_petey_retype:
-    - money
-  legal_and_professional_fees_a_amt:
-    x_petey_id: '1_44'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: insurance
+      suffix: amt
+      grid: p1-G2
+  property_a_legal_and_professional_fees_amt:
+    x_petey_id: '1_42'
     type: number
     semantic_type: money
     widget:
@@ -621,10 +856,15 @@ fields:
       - 449.9940185546875
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line10[0].f1_37[0]
-    x_petey_retype:
-    - money
-  legal_and_professional_fees_b_amt:
-    x_petey_id: '1_45'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: legal_and_professional_fees
+      suffix: amt
+      grid: p1-G2
+  property_b_legal_and_professional_fees_amt:
+    x_petey_id: '1_43'
     type: number
     semantic_type: money
     widget:
@@ -636,10 +876,15 @@ fields:
       - 449.9940185546875
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line10[0].f1_38[0]
-    x_petey_retype:
-    - money
-  legal_and_professional_fees_c_amt:
-    x_petey_id: '1_46'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: legal_and_professional_fees
+      suffix: amt
+      grid: p1-G2
+  property_c_legal_and_professional_fees_amt:
+    x_petey_id: '1_44'
     type: number
     semantic_type: money
     widget:
@@ -651,10 +896,15 @@ fields:
       - 449.9940185546875
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line10[0].f1_39[0]
-    x_petey_retype:
-    - money
-  management_fees_a_amt:
-    x_petey_id: '1_47'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: legal_and_professional_fees
+      suffix: amt
+      grid: p1-G2
+  property_a_management_fees_amt:
+    x_petey_id: '1_45'
     type: number
     semantic_type: money
     widget:
@@ -666,10 +916,15 @@ fields:
       - 461.9930114746094
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line11[0].f1_40[0]
-    x_petey_retype:
-    - money
-  management_fees_b_amt:
-    x_petey_id: '1_48'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: management_fees
+      suffix: amt
+      grid: p1-G2
+  property_b_management_fees_amt:
+    x_petey_id: '1_46'
     type: number
     semantic_type: money
     widget:
@@ -681,10 +936,15 @@ fields:
       - 461.9930114746094
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line11[0].f1_41[0]
-    x_petey_retype:
-    - money
-  management_fees_c_amt:
-    x_petey_id: '1_49'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: management_fees
+      suffix: amt
+      grid: p1-G2
+  property_c_management_fees_amt:
+    x_petey_id: '1_47'
     type: number
     semantic_type: money
     widget:
@@ -696,10 +956,15 @@ fields:
       - 461.9930114746094
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line11[0].f1_42[0]
-    x_petey_retype:
-    - money
-  mortgage_interest_a_amt:
-    x_petey_id: '1_50'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: management_fees
+      suffix: amt
+      grid: p1-G2
+  property_a_mortgage_interest_amt:
+    x_petey_id: '1_48'
     type: number
     semantic_type: money
     widget:
@@ -711,10 +976,15 @@ fields:
       - 473.99200439453125
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line12[0].f1_43[0]
-    x_petey_retype:
-    - money
-  mortgage_interest_b_amt:
-    x_petey_id: '1_51'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: mortgage_interest
+      suffix: amt
+      grid: p1-G2
+  property_b_mortgage_interest_amt:
+    x_petey_id: '1_49'
     type: number
     semantic_type: money
     widget:
@@ -726,10 +996,15 @@ fields:
       - 473.99200439453125
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line12[0].f1_44[0]
-    x_petey_retype:
-    - money
-  mortgage_interest_c_amt:
-    x_petey_id: '1_52'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: mortgage_interest
+      suffix: amt
+      grid: p1-G2
+  property_c_mortgage_interest_amt:
+    x_petey_id: '1_50'
     type: number
     semantic_type: money
     widget:
@@ -741,10 +1016,15 @@ fields:
       - 473.99200439453125
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line12[0].f1_45[0]
-    x_petey_retype:
-    - money
-  other_interest_a_amt:
-    x_petey_id: '1_53'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: mortgage_interest
+      suffix: amt
+      grid: p1-G2
+  property_a_other_interest_amt:
+    x_petey_id: '1_51'
     type: number
     semantic_type: money
     widget:
@@ -756,10 +1036,15 @@ fields:
       - 485.99102783203125
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line13[0].f1_46[0]
-    x_petey_retype:
-    - money
-  other_interest_b_amt:
-    x_petey_id: '1_54'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: other_interest
+      suffix: amt
+      grid: p1-G2
+  property_b_other_interest_amt:
+    x_petey_id: '1_52'
     type: number
     semantic_type: money
     widget:
@@ -771,10 +1056,15 @@ fields:
       - 485.99102783203125
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line13[0].f1_47[0]
-    x_petey_retype:
-    - money
-  other_interest_c_amt:
-    x_petey_id: '1_55'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: other_interest
+      suffix: amt
+      grid: p1-G2
+  property_c_other_interest_amt:
+    x_petey_id: '1_53'
     type: number
     semantic_type: money
     widget:
@@ -786,10 +1076,15 @@ fields:
       - 485.99102783203125
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line13[0].f1_48[0]
-    x_petey_retype:
-    - money
-  repairs_a_amt:
-    x_petey_id: '1_56'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: other_interest
+      suffix: amt
+      grid: p1-G2
+  property_a_repairs_amt:
+    x_petey_id: '1_54'
     type: number
     semantic_type: money
     widget:
@@ -801,10 +1096,15 @@ fields:
       - 497.9900207519531
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line14[0].f1_49[0]
-    x_petey_retype:
-    - money
-  repairs_b_amt:
-    x_petey_id: '1_57'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: repairs
+      suffix: amt
+      grid: p1-G2
+  property_b_repairs_amt:
+    x_petey_id: '1_55'
     type: number
     semantic_type: money
     widget:
@@ -816,10 +1116,15 @@ fields:
       - 497.9900207519531
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line14[0].f1_50[0]
-    x_petey_retype:
-    - money
-  repairs_c_amt:
-    x_petey_id: '1_58'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: repairs
+      suffix: amt
+      grid: p1-G2
+  property_c_repairs_amt:
+    x_petey_id: '1_56'
     type: number
     semantic_type: money
     widget:
@@ -831,10 +1136,15 @@ fields:
       - 497.9900207519531
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line14[0].f1_51[0]
-    x_petey_retype:
-    - money
-  supplies_a_amt:
-    x_petey_id: '1_59'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: repairs
+      suffix: amt
+      grid: p1-G2
+  property_a_supplies_amt:
+    x_petey_id: '1_57'
     type: number
     semantic_type: money
     widget:
@@ -846,10 +1156,15 @@ fields:
       - 509.989013671875
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line15[0].f1_52[0]
-    x_petey_retype:
-    - money
-  supplies_b_amt:
-    x_petey_id: '1_60'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: supplies
+      suffix: amt
+      grid: p1-G2
+  property_b_supplies_amt:
+    x_petey_id: '1_58'
     type: number
     semantic_type: money
     widget:
@@ -861,10 +1176,15 @@ fields:
       - 509.989013671875
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line15[0].f1_53[0]
-    x_petey_retype:
-    - money
-  supplies_c_amt:
-    x_petey_id: '1_61'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: supplies
+      suffix: amt
+      grid: p1-G2
+  property_c_supplies_amt:
+    x_petey_id: '1_59'
     type: number
     semantic_type: money
     widget:
@@ -876,10 +1196,15 @@ fields:
       - 509.989013671875
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line15[0].f1_54[0]
-    x_petey_retype:
-    - money
-  taxes_a_amt:
-    x_petey_id: '1_62'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: supplies
+      suffix: amt
+      grid: p1-G2
+  property_a_taxes_amt:
+    x_petey_id: '1_60'
     type: number
     semantic_type: money
     widget:
@@ -891,10 +1216,15 @@ fields:
       - 521.988037109375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line16[0].f1_55[0]
-    x_petey_retype:
-    - money
-  taxes_b_amt:
-    x_petey_id: '1_63'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: taxes
+      suffix: amt
+      grid: p1-G2
+  property_b_taxes_amt:
+    x_petey_id: '1_61'
     type: number
     semantic_type: money
     widget:
@@ -906,10 +1236,15 @@ fields:
       - 521.988037109375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line16[0].f1_56[0]
-    x_petey_retype:
-    - money
-  taxes_c_amt:
-    x_petey_id: '1_64'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: taxes
+      suffix: amt
+      grid: p1-G2
+  property_c_taxes_amt:
+    x_petey_id: '1_62'
     type: number
     semantic_type: money
     widget:
@@ -921,10 +1256,15 @@ fields:
       - 521.988037109375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line16[0].f1_57[0]
-    x_petey_retype:
-    - money
-  utilities_a_amt:
-    x_petey_id: '1_65'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: taxes
+      suffix: amt
+      grid: p1-G2
+  property_a_utilities_amt:
+    x_petey_id: '1_63'
     type: number
     semantic_type: money
     widget:
@@ -936,10 +1276,15 @@ fields:
       - 533.987060546875
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line17[0].f1_58[0]
-    x_petey_retype:
-    - money
-  utilities_b_amt:
-    x_petey_id: '1_66'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: utilities
+      suffix: amt
+      grid: p1-G2
+  property_b_utilities_amt:
+    x_petey_id: '1_64'
     type: number
     semantic_type: money
     widget:
@@ -951,10 +1296,15 @@ fields:
       - 533.987060546875
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line17[0].f1_59[0]
-    x_petey_retype:
-    - money
-  utilities_c_amt:
-    x_petey_id: '1_67'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: utilities
+      suffix: amt
+      grid: p1-G2
+  property_c_utilities_amt:
+    x_petey_id: '1_65'
     type: number
     semantic_type: money
     widget:
@@ -966,10 +1316,15 @@ fields:
       - 533.987060546875
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line17[0].f1_60[0]
-    x_petey_retype:
-    - money
-  depreciation_expense_or_depletion_a_amt:
-    x_petey_id: '1_68'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: utilities
+      suffix: amt
+      grid: p1-G2
+  property_a_depreciation_or_depletion_amt:
+    x_petey_id: '1_66'
     type: number
     semantic_type: money
     widget:
@@ -981,10 +1336,15 @@ fields:
       - 545.9860229492188
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line18[0].f1_61[0]
-    x_petey_retype:
-    - money
-  depreciation_expense_or_depletion_b_amt:
-    x_petey_id: '1_69'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: depreciation_or_depletion
+      suffix: amt
+      grid: p1-G2
+  property_b_depreciation_or_depletion_amt:
+    x_petey_id: '1_67'
     type: number
     semantic_type: money
     widget:
@@ -996,10 +1356,15 @@ fields:
       - 545.9860229492188
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line18[0].f1_62[0]
-    x_petey_retype:
-    - money
-  depreciation_expense_or_depletion_c_amt:
-    x_petey_id: '1_70'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: depreciation_or_depletion
+      suffix: amt
+      grid: p1-G2
+  property_c_depreciation_or_depletion_amt:
+    x_petey_id: '1_68'
     type: number
     semantic_type: money
     widget:
@@ -1011,10 +1376,15 @@ fields:
       - 545.9860229492188
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line18[0].f1_63[0]
-    x_petey_retype:
-    - money
-  other_expense_19_description_txt:
-    x_petey_id: '1_71'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: depreciation_or_depletion
+      suffix: amt
+      grid: p1-G2
+  other_expenses_desc_txt:
+    x_petey_id: '1_69'
     type: string
     semantic_type: description
     widget:
@@ -1026,8 +1396,28 @@ fields:
       - 557.9849853515625
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line19[0].f1_64[0]
-  other_expense_a_amt:
-    x_petey_id: '1_72'
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:52'
+      from:
+        name: other_expenses_desc
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: other_expenses_desc_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: desc -> desc_txt'
+    x_petey_identifiers:
+      subject: other_expenses_desc
+      suffix: txt
+  property_a_other_expenses_amt:
+    x_petey_id: '1_70'
     type: number
     semantic_type: money
     widget:
@@ -1039,10 +1429,15 @@ fields:
       - 557.9849853515625
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line19[0].f1_65[0]
-    x_petey_retype:
-    - money
-  other_expense_b_amt:
-    x_petey_id: '1_73'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: other_expenses
+      suffix: amt
+      grid: p1-G2
+  property_b_other_expenses_amt:
+    x_petey_id: '1_71'
     type: number
     semantic_type: money
     widget:
@@ -1054,10 +1449,15 @@ fields:
       - 557.9849853515625
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line19[0].f1_66[0]
-    x_petey_retype:
-    - money
-  other_expense_c_amt:
-    x_petey_id: '1_74'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: other_expenses
+      suffix: amt
+      grid: p1-G2
+  property_c_other_expenses_amt:
+    x_petey_id: '1_72'
     type: number
     semantic_type: money
     widget:
@@ -1069,10 +1469,15 @@ fields:
       - 557.9849853515625
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line19[0].f1_67[0]
-    x_petey_retype:
-    - money
-  total_expenses_a_amt:
-    x_petey_id: '1_75'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: other_expenses
+      suffix: amt
+      grid: p1-G2
+  property_a_total_expenses_amt:
+    x_petey_id: '1_73'
     type: number
     semantic_type: money
     widget:
@@ -1084,10 +1489,15 @@ fields:
       - 569.9840087890625
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line20[0].f1_68[0]
-    x_petey_retype:
-    - money
-  total_expenses_b_amt:
-    x_petey_id: '1_76'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: total_expenses
+      suffix: amt
+      grid: p1-G2
+  property_b_total_expenses_amt:
+    x_petey_id: '1_74'
     type: number
     semantic_type: money
     widget:
@@ -1099,10 +1509,15 @@ fields:
       - 569.9840087890625
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line20[0].f1_69[0]
-    x_petey_retype:
-    - money
-  total_expenses_c_amt:
-    x_petey_id: '1_77'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: total_expenses
+      suffix: amt
+      grid: p1-G2
+  property_c_total_expenses_amt:
+    x_petey_id: '1_75'
     type: number
     semantic_type: money
     widget:
@@ -1114,10 +1529,15 @@ fields:
       - 569.9840087890625
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line20[0].f1_70[0]
-    x_petey_retype:
-    - money
-  net_income_loss_a_amt:
-    x_petey_id: '1_78'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: total_expenses
+      suffix: amt
+      grid: p1-G2
+  property_a_net_rental_income_or_loss_amt:
+    x_petey_id: '1_76'
     type: number
     semantic_type: money
     widget:
@@ -1129,10 +1549,14 @@ fields:
       - 605.9840087890625
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line21[0].f1_71[0]
-    x_petey_retype:
-    - money
-  net_income_loss_b_amt:
-    x_petey_id: '1_79'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: net_rental_income_or_loss
+      suffix: amt
+  property_b_net_rental_income_or_loss_amt:
+    x_petey_id: '1_77'
     type: number
     semantic_type: money
     widget:
@@ -1144,10 +1568,14 @@ fields:
       - 605.9840087890625
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line21[0].f1_72[0]
-    x_petey_retype:
-    - money
-  net_income_loss_c_amt:
-    x_petey_id: '1_80'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: net_rental_income_or_loss
+      suffix: amt
+  property_c_net_rental_income_or_loss_amt:
+    x_petey_id: '1_78'
     type: number
     semantic_type: money
     widget:
@@ -1159,10 +1587,14 @@ fields:
       - 605.9840087890625
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line21[0].f1_73[0]
-    x_petey_retype:
-    - money
-  deductible_rental_real_estate_loss_a_amt:
-    x_petey_id: '1_81'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: net_rental_income_or_loss
+      suffix: amt
+  property_a_deductible_rental_loss_amt:
+    x_petey_id: '1_79'
     type: number
     semantic_type: money
     widget:
@@ -1174,10 +1606,14 @@ fields:
       - 629.9849853515625
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line22[0].f1_74[0]
-    x_petey_retype:
-    - money
-  deductible_rental_real_estate_loss_b_amt:
-    x_petey_id: '1_82'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: a
+      subject: deductible_rental_loss
+      suffix: amt
+  property_b_deductible_rental_loss_amt:
+    x_petey_id: '1_80'
     type: number
     semantic_type: money
     widget:
@@ -1189,10 +1625,14 @@ fields:
       - 629.9849853515625
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line22[0].f1_75[0]
-    x_petey_retype:
-    - money
-  deductible_rental_real_estate_loss_c_amt:
-    x_petey_id: '1_83'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: b
+      subject: deductible_rental_loss
+      suffix: amt
+  property_c_deductible_rental_loss_amt:
+    x_petey_id: '1_81'
     type: number
     semantic_type: money
     widget:
@@ -1204,10 +1644,14 @@ fields:
       - 629.9849853515625
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Expenses[0].Line22[0].f1_76[0]
-    x_petey_retype:
-    - money
-  total_rents_received_23a_amt:
-    x_petey_id: '1_84'
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: c
+      subject: deductible_rental_loss
+      suffix: amt
+  total_rents_received_amt:
+    x_petey_id: '1_82'
     type: number
     semantic_type: money
     widget:
@@ -1219,10 +1663,12 @@ fields:
       - 641.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_77[0]
-    x_petey_retype:
-    - money
-  total_royalties_received_23b_amt:
-    x_petey_id: '1_85'
+    label_source: llm
+    x_petey_identifiers:
+      subject: total_rents_received
+      suffix: amt
+  total_royalties_received_amt:
+    x_petey_id: '1_83'
     type: number
     semantic_type: money
     widget:
@@ -1234,10 +1680,12 @@ fields:
       - 653.998046875
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_78[0]
-    x_petey_retype:
-    - money
-  total_mortgage_interest_23c_amt:
-    x_petey_id: '1_86'
+    label_source: llm
+    x_petey_identifiers:
+      subject: total_royalties_received
+      suffix: amt
+  total_mortgage_interest_amt:
+    x_petey_id: '1_84'
     type: number
     semantic_type: money
     widget:
@@ -1249,10 +1697,12 @@ fields:
       - 666.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_79[0]
-    x_petey_retype:
-    - money
-  total_depreciation_23d_amt:
-    x_petey_id: '1_87'
+    label_source: llm
+    x_petey_identifiers:
+      subject: total_mortgage_interest
+      suffix: amt
+  total_depreciation_or_depletion_amt:
+    x_petey_id: '1_85'
     type: number
     semantic_type: money
     widget:
@@ -1264,10 +1714,12 @@ fields:
       - 677.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_80[0]
-    x_petey_retype:
-    - money
-  total_expenses_23e_amt:
-    x_petey_id: '1_88'
+    label_source: llm
+    x_petey_identifiers:
+      subject: total_depreciation_or_depletion
+      suffix: amt
+  total_expenses_amt:
+    x_petey_id: '1_86'
     type: number
     semantic_type: money
     widget:
@@ -1279,10 +1731,12 @@ fields:
       - 689.998046875
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_81[0]
-    x_petey_retype:
-    - money
-  income_24_amt:
-    x_petey_id: '1_89'
+    label_source: llm
+    x_petey_identifiers:
+      subject: total_expenses
+      suffix: amt
+  total_positive_income_amt:
+    x_petey_id: '1_87'
     type: number
     semantic_type: money
     widget:
@@ -1294,10 +1748,12 @@ fields:
       - 702.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_82[0]
-    x_petey_retype:
-    - money
-  losses_25_amt:
-    x_petey_id: '1_90'
+    label_source: llm
+    x_petey_identifiers:
+      subject: total_positive_income
+      suffix: amt
+  total_losses_amt:
+    x_petey_id: '1_88'
     type: number
     semantic_type: money
     widget:
@@ -1309,10 +1765,12 @@ fields:
       - 713.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_83[0]
-    x_petey_retype:
-    - money
-  total_rental_royalty_income_loss_26_amt:
-    x_petey_id: '1_91'
+    label_source: llm
+    x_petey_identifiers:
+      subject: total_losses
+      suffix: amt
+  total_rental_and_royalty_income_or_loss_amt:
+    x_petey_id: '1_89'
     type: number
     semantic_type: money
     widget:
@@ -1324,12 +1782,13 @@ fields:
       - 749.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_84[0]
-    x_petey_retype:
-    - money
+    label_source: llm
+    x_petey_identifiers:
+      subject: total_rental_and_royalty_income_or_loss
+      suffix: amt
   taxpayer_nm_2:
     x_petey_id: '2_1'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -1339,6 +1798,27 @@ fields:
       - 72.0
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_1[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:52'
+      from:
+        name: taxpayer_name_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: taxpayer_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: taxpayer
+      suffix: nm
+      iteration: '2'
   taxpayer_ssn_2:
     x_petey_id: '2_2'
     type: string
@@ -1353,36 +1833,30 @@ fields:
       - 72.0
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_2[0]
-  prior_year_loss_yes_ind:
-    x_petey_id: '2_3'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 511.20001220703125
-      - 152.0
-      - 519.2000122070312
-      - 160.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].c2_1[0]
-  prior_year_loss_no_ind:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:52'
+      from:
+        name: taxpayer_ssn_2
+        type: string
+        semantic_type: ssn
+        pattern: ^\d{3}-\d{2}-\d{4}$
+      to:
+        name: taxpayer_2_ssn
+        type: string
+        semantic_type: ssn
+        pattern: ^\d{3}-\d{2}-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: taxpayer
+      suffix: ssn
+      iteration: '2'
+  line_28a_partnership_or_s_corp_nm:
     x_petey_id: '2_4'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 547.2000122070312
-      - 152.0
-      - 555.2000122070312
-      - 160.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].c2_1[1]
-  line28a_entity_nm:
-    x_petey_id: '2_5'
     type: string
-    semantic_type: entity_name
     widget:
       page: 2
       rect:
@@ -1392,8 +1866,29 @@ fields:
       - 198.0
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowA[0].f2_3[0]
-  line28b_entity_type_cd:
-    x_petey_id: '2_6'
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:52'
+      from:
+        name: line_28a_partnership_or_s_corp_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: line_28a_partnership_or_s_corp_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: line_28a_partnership_or_s_corp
+      suffix: nm
+      grid: p2-G1
+  line_28a_entity_type_cd:
+    x_petey_id: '2_5'
     type: string
     widget:
       page: 2
@@ -1404,21 +1899,68 @@ fields:
       - 198.0
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowA[0].f2_4[0]
-  line28c_foreign_partnership_ind:
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28a_entity_type
+      suffix: cd
+      grid: p2-G1
+  line_28_row_a_checkbox:
+    x_petey_id: '2_94'
+    type: category
+    values:
+    - line_28a_foreign_partnership_ind
+    - line_28a_basis_computation_required_ind
+    - line_28a_any_amount_not_at_risk_ind
+    widgets:
+      line_28a_foreign_partnership_ind:
+        page: 2
+        rect:
+        - 345.20001220703125
+        - 188.0
+        - 353.20001220703125
+        - 196.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowA[0].c2_2[0]
+        on_state: '1'
+        caption: Check if foreign partnership
+        x_petey_caption_source: page_choice
+      line_28a_basis_computation_required_ind:
+        page: 2
+        rect:
+        - 489.20001220703125
+        - 188.0
+        - 497.20001220703125
+        - 196.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowA[0].c2_3[0]
+        on_state: '1'
+        caption: Check if basis computation is required
+        x_petey_caption_source: page_choice
+      line_28a_any_amount_not_at_risk_ind:
+        page: 2
+        rect:
+        - 546.7999877929688
+        - 188.0
+        - 554.7999877929688
+        - 196.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowA[0].c2_4[0]
+        on_state: '1'
+        caption: Check if any amount is not at risk
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-15 18:22:46'
+      from:
+      - line_28a::line_28a_foreign_partnership_ind
+      - line_28a::line_28a_basis_computation_required_ind
+      - line_28a::line_28a_any_amount_not_at_risk_ind
+      renamed_from: line_28a
+    x_petey_identifiers:
+      subject: line_28_row_a_checkbox
+      grid: p2-G1
+  line_28a_ein:
     x_petey_id: '2_7'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 345.20001220703125
-      - 188.0
-      - 353.20001220703125
-      - 196.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowA[0].c2_2[0]
-  line28d_employer_ein:
-    x_petey_id: '2_8'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -1431,36 +1973,14 @@ fields:
       - 198.0
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowA[0].f2_5[0]
-  line28e_basis_computation_required_ind:
-    x_petey_id: '2_9'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 489.20001220703125
-      - 188.0
-      - 497.20001220703125
-      - 196.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowA[0].c2_3[0]
-  line28f_not_at_risk_ind:
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28a
+      suffix: ein
+      grid: p2-G1
+  line_28b_partnership_or_s_corp_nm:
     x_petey_id: '2_10'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 546.7999877929688
-      - 188.0
-      - 554.7999877929688
-      - 196.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowA[0].c2_4[0]
-  line28b_entity_nm:
-    x_petey_id: '2_11'
     type: string
-    semantic_type: entity_name
     widget:
       page: 2
       rect:
@@ -1470,8 +1990,29 @@ fields:
       - 209.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowB[0].f2_6[0]
-  line28b_entity_type_cd_2:
-    x_petey_id: '2_12'
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:52'
+      from:
+        name: line_28b_partnership_or_s_corp_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: line_28b_partnership_or_s_corp_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: line_28b_partnership_or_s_corp
+      suffix: nm
+      grid: p2-G1
+  line_28b_entity_type_cd:
+    x_petey_id: '2_11'
     type: string
     widget:
       page: 2
@@ -1482,21 +2023,70 @@ fields:
       - 209.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowB[0].f2_7[0]
-  line28b_foreign_partnership_ind:
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28b_entity_type
+      suffix: cd
+      grid: p2-G1
+  line_28_row_b_checkbox:
+    x_petey_id: '2_95'
+    type: category
+    values:
+    - line_28b_foreign_partnership_ind
+    - line_28b_basis_computation_required_ind
+    - line_28b_any_amount_not_at_risk_ind
+    widgets:
+      line_28b_foreign_partnership_ind:
+        page: 2
+        rect:
+        - 345.20001220703125
+        - 199.9990234375
+        - 353.20001220703125
+        - 207.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowB[0].c2_5[0]
+        on_state: '1'
+        caption: Check if foreign partnership
+        x_petey_caption_source: page_choice
+      line_28b_basis_computation_required_ind:
+        page: 2
+        rect:
+        - 489.20001220703125
+        - 199.9990234375
+        - 497.20001220703125
+        - 207.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowB[0].c2_6[0]
+        on_state: '1'
+        caption: Check if basis computation is required
+        x_petey_caption_source: page_choice
+      line_28b_any_amount_not_at_risk_ind:
+        page: 2
+        rect:
+        - 546.7999877929688
+        - 199.9990234375
+        - 554.7999877929688
+        - 207.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowB[0].c2_7[0]
+        on_state: '1'
+        caption: Check if any amount is not at risk
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-15 18:22:46'
+      from:
+      - line_28b::line_28b_foreign_partnership_ind
+      - line_28b::line_28b_basis_computation_required_ind
+      - line_28b::line_28b_any_amount_not_at_risk_ind
+      renamed_from: line_28b
+      name_from: labeler
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28_row_b_checkbox
+      grid: p2-G1
+  line_28b_ein:
     x_petey_id: '2_13'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 345.20001220703125
-      - 199.9990234375
-      - 353.20001220703125
-      - 207.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowB[0].c2_5[0]
-  line28b_employer_ein:
-    x_petey_id: '2_14'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -1509,36 +2099,14 @@ fields:
       - 209.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowB[0].f2_8[0]
-  line28b_basis_computation_required_ind:
-    x_petey_id: '2_15'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 489.20001220703125
-      - 199.9990234375
-      - 497.20001220703125
-      - 207.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowB[0].c2_6[0]
-  line28b_not_at_risk_ind:
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28b
+      suffix: ein
+      grid: p2-G1
+  line_28c_partnership_or_s_corp_nm:
     x_petey_id: '2_16'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 546.7999877929688
-      - 199.9990234375
-      - 554.7999877929688
-      - 207.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowB[0].c2_7[0]
-  line28c_entity_nm:
-    x_petey_id: '2_17'
     type: string
-    semantic_type: entity_name
     widget:
       page: 2
       rect:
@@ -1548,8 +2116,29 @@ fields:
       - 221.998046875
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowC[0].f2_9[0]
-  line28c_entity_type_cd:
-    x_petey_id: '2_18'
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:52'
+      from:
+        name: line_28c_partnership_or_s_corp_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: line_28c_partnership_or_s_corp_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: line_28c_partnership_or_s_corp
+      suffix: nm
+      grid: p2-G1
+  line_28c_entity_type_cd:
+    x_petey_id: '2_17'
     type: string
     widget:
       page: 2
@@ -1560,21 +2149,68 @@ fields:
       - 221.998046875
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowC[0].f2_10[0]
-  line28c_foreign_partnership_ind_2:
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28c_entity_type
+      suffix: cd
+      grid: p2-G1
+  line_28_row_c_checkbox:
+    x_petey_id: '2_96'
+    type: category
+    values:
+    - line_28c_foreign_partnership_ind
+    - line_28c_basis_computation_required_ind
+    - line_28c_any_amount_not_at_risk_ind
+    widgets:
+      line_28c_foreign_partnership_ind:
+        page: 2
+        rect:
+        - 345.20001220703125
+        - 211.998046875
+        - 353.20001220703125
+        - 219.998046875
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowC[0].c2_8[0]
+        on_state: '1'
+        caption: Check if foreign partnership
+        x_petey_caption_source: page_choice
+      line_28c_basis_computation_required_ind:
+        page: 2
+        rect:
+        - 489.20001220703125
+        - 211.998046875
+        - 497.20001220703125
+        - 219.998046875
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowC[0].c2_9[0]
+        on_state: '1'
+        caption: Check if basis computation is required
+        x_petey_caption_source: page_choice
+      line_28c_any_amount_not_at_risk_ind:
+        page: 2
+        rect:
+        - 546.7999877929688
+        - 211.998046875
+        - 554.7999877929688
+        - 219.998046875
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowC[0].c2_10[0]
+        on_state: '1'
+        caption: Check if any amount is not at risk
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-15 18:22:46'
+      from:
+      - line_28c::line_28c_foreign_partnership_ind
+      - line_28c::line_28c_basis_computation_required_ind
+      - line_28c::line_28c_any_amount_not_at_risk_ind
+      renamed_from: line_28c
+    x_petey_identifiers:
+      subject: line_28_row_c_checkbox
+      grid: p2-G1
+  line_28c_ein:
     x_petey_id: '2_19'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 345.20001220703125
-      - 211.998046875
-      - 353.20001220703125
-      - 219.998046875
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowC[0].c2_8[0]
-  line28c_employer_ein:
-    x_petey_id: '2_20'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -1587,36 +2223,14 @@ fields:
       - 221.998046875
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowC[0].f2_11[0]
-  line28c_basis_computation_required_ind:
-    x_petey_id: '2_21'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 489.20001220703125
-      - 211.998046875
-      - 497.20001220703125
-      - 219.998046875
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowC[0].c2_9[0]
-  line28c_not_at_risk_ind:
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28c
+      suffix: ein
+      grid: p2-G1
+  line_28d_partnership_or_s_corp_nm:
     x_petey_id: '2_22'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 546.7999877929688
-      - 211.998046875
-      - 554.7999877929688
-      - 219.998046875
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowC[0].c2_10[0]
-  line28d_entity_nm:
-    x_petey_id: '2_23'
     type: string
-    semantic_type: entity_name
     widget:
       page: 2
       rect:
@@ -1626,8 +2240,29 @@ fields:
       - 233.99700927734375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowD[0].f2_12[0]
-  line28d_entity_type_cd:
-    x_petey_id: '2_24'
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:52'
+      from:
+        name: line_28d_partnership_or_s_corp_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: line_28d_partnership_or_s_corp_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: line_28d_partnership_or_s_corp
+      suffix: nm
+      grid: p2-G1
+  line_28d_entity_type_cd:
+    x_petey_id: '2_23'
     type: string
     widget:
       page: 2
@@ -1638,21 +2273,68 @@ fields:
       - 233.99700927734375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowD[0].f2_13[0]
-  line28d_foreign_partnership_ind:
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28d_entity_type
+      suffix: cd
+      grid: p2-G1
+  line_28_row_d_checkbox:
+    x_petey_id: '2_97'
+    type: category
+    values:
+    - line_28d_foreign_partnership_ind
+    - line_28d_basis_computation_required_ind
+    - line_28d_any_amount_not_at_risk_ind
+    widgets:
+      line_28d_foreign_partnership_ind:
+        page: 2
+        rect:
+        - 345.20001220703125
+        - 223.99700927734375
+        - 353.20001220703125
+        - 231.99700927734375
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowD[0].c2_11[0]
+        on_state: '1'
+        caption: Check if foreign partnership
+        x_petey_caption_source: page_choice
+      line_28d_basis_computation_required_ind:
+        page: 2
+        rect:
+        - 489.20001220703125
+        - 223.99700927734375
+        - 497.20001220703125
+        - 231.99700927734375
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowD[0].c2_12[0]
+        on_state: '1'
+        caption: Check if basis computation is required
+        x_petey_caption_source: page_choice
+      line_28d_any_amount_not_at_risk_ind:
+        page: 2
+        rect:
+        - 546.7999877929688
+        - 223.99700927734375
+        - 554.7999877929688
+        - 231.99700927734375
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowD[0].c2_13[0]
+        on_state: '1'
+        caption: Check if any amount is not at risk
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-15 18:22:46'
+      from:
+      - line_28d::line_28d_foreign_partnership_ind
+      - line_28d::line_28d_basis_computation_required_ind
+      - line_28d::line_28d_any_amount_not_at_risk_ind
+      renamed_from: line_28d
+    x_petey_identifiers:
+      subject: line_28_row_d_checkbox
+      grid: p2-G1
+  line_28d_ein:
     x_petey_id: '2_25'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 345.20001220703125
-      - 223.99700927734375
-      - 353.20001220703125
-      - 231.99700927734375
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowD[0].c2_11[0]
-  line28d_employer_ein_2:
-    x_petey_id: '2_26'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -1665,34 +2347,13 @@ fields:
       - 233.99700927734375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowD[0].f2_14[0]
-  line28d_basis_computation_required_ind:
-    x_petey_id: '2_27'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 489.20001220703125
-      - 223.99700927734375
-      - 497.20001220703125
-      - 231.99700927734375
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowD[0].c2_12[0]
-  line28d_not_at_risk_ind:
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28d
+      suffix: ein
+      grid: p2-G1
+  line_28a_passive_loss_allowed_amt:
     x_petey_id: '2_28'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 546.7999877929688
-      - 223.99700927734375
-      - 554.7999877929688
-      - 231.99700927734375
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].Table_Line28a-f[0].RowD[0].c2_13[0]
-  line28a_passive_loss_allowed_amt:
-    x_petey_id: '2_29'
     type: number
     semantic_type: money
     widget:
@@ -1704,10 +2365,13 @@ fields:
       - 275.998046875
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowA[0].f2_15[0]
-    x_petey_retype:
-    - money
-  line28a_passive_income_amt:
-    x_petey_id: '2_30'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28a_passive_loss_allowed
+      suffix: amt
+      grid: p2-G2
+  line_28a_passive_income_amt:
+    x_petey_id: '2_29'
     type: number
     semantic_type: money
     widget:
@@ -1719,10 +2383,13 @@ fields:
       - 275.998046875
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowA[0].f2_16[0]
-    x_petey_retype:
-    - money
-  line28a_nonpassive_loss_allowed_amt:
-    x_petey_id: '2_31'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28a_passive_income
+      suffix: amt
+      grid: p2-G2
+  line_28a_nonpassive_loss_allowed_amt:
+    x_petey_id: '2_30'
     type: number
     semantic_type: money
     widget:
@@ -1734,10 +2401,13 @@ fields:
       - 275.998046875
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowA[0].f2_17[0]
-    x_petey_retype:
-    - money
-  line28a_section179_expense_amt:
-    x_petey_id: '2_32'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28a_nonpassive_loss_allowed
+      suffix: amt
+      grid: p2-G2
+  line_28a_sec_179_expense_deduction_amt:
+    x_petey_id: '2_31'
     type: number
     semantic_type: money
     widget:
@@ -1749,10 +2419,13 @@ fields:
       - 275.998046875
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowA[0].f2_18[0]
-    x_petey_retype:
-    - money
-  line28a_nonpassive_income_amt:
-    x_petey_id: '2_33'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28a_sec_179_expense_deduction
+      suffix: amt
+      grid: p2-G2
+  line_28a_nonpassive_income_amt:
+    x_petey_id: '2_32'
     type: number
     semantic_type: money
     widget:
@@ -1764,10 +2437,13 @@ fields:
       - 275.998046875
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowA[0].f2_19[0]
-    x_petey_retype:
-    - money
-  line28b_passive_loss_allowed_amt:
-    x_petey_id: '2_34'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28a_nonpassive_income
+      suffix: amt
+      grid: p2-G2
+  line_28b_passive_loss_allowed_amt:
+    x_petey_id: '2_33'
     type: number
     semantic_type: money
     widget:
@@ -1779,10 +2455,13 @@ fields:
       - 287.99700927734375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowB[0].f2_20[0]
-    x_petey_retype:
-    - money
-  line28b_passive_income_amt:
-    x_petey_id: '2_35'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28b_passive_loss_allowed
+      suffix: amt
+      grid: p2-G2
+  line_28b_passive_income_amt:
+    x_petey_id: '2_34'
     type: number
     semantic_type: money
     widget:
@@ -1794,10 +2473,13 @@ fields:
       - 287.99700927734375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowB[0].f2_21[0]
-    x_petey_retype:
-    - money
-  line28b_nonpassive_loss_allowed_amt:
-    x_petey_id: '2_36'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28b_passive_income
+      suffix: amt
+      grid: p2-G2
+  line_28b_nonpassive_loss_allowed_amt:
+    x_petey_id: '2_35'
     type: number
     semantic_type: money
     widget:
@@ -1809,10 +2491,13 @@ fields:
       - 287.99700927734375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowB[0].f2_22[0]
-    x_petey_retype:
-    - money
-  line28b_section179_expense_amt:
-    x_petey_id: '2_37'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28b_nonpassive_loss_allowed
+      suffix: amt
+      grid: p2-G2
+  line_28b_sec_179_expense_deduction_amt:
+    x_petey_id: '2_36'
     type: number
     semantic_type: money
     widget:
@@ -1824,10 +2509,13 @@ fields:
       - 287.99700927734375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowB[0].f2_23[0]
-    x_petey_retype:
-    - money
-  line28b_nonpassive_income_amt:
-    x_petey_id: '2_38'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28b_sec_179_expense_deduction
+      suffix: amt
+      grid: p2-G2
+  line_28b_nonpassive_income_amt:
+    x_petey_id: '2_37'
     type: number
     semantic_type: money
     widget:
@@ -1839,10 +2527,13 @@ fields:
       - 287.99700927734375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowB[0].f2_24[0]
-    x_petey_retype:
-    - money
-  line28c_passive_loss_allowed_amt:
-    x_petey_id: '2_39'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28b_nonpassive_income
+      suffix: amt
+      grid: p2-G2
+  line_28c_passive_loss_allowed_amt:
+    x_petey_id: '2_38'
     type: number
     semantic_type: money
     widget:
@@ -1854,10 +2545,13 @@ fields:
       - 299.99603271484375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowC[0].f2_25[0]
-    x_petey_retype:
-    - money
-  line28c_passive_income_amt:
-    x_petey_id: '2_40'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28c_passive_loss_allowed
+      suffix: amt
+      grid: p2-G2
+  line_28c_passive_income_amt:
+    x_petey_id: '2_39'
     type: number
     semantic_type: money
     widget:
@@ -1869,10 +2563,13 @@ fields:
       - 299.99603271484375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowC[0].f2_26[0]
-    x_petey_retype:
-    - money
-  line28c_nonpassive_loss_allowed_amt:
-    x_petey_id: '2_41'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28c_passive_income
+      suffix: amt
+      grid: p2-G2
+  line_28c_nonpassive_loss_allowed_amt:
+    x_petey_id: '2_40'
     type: number
     semantic_type: money
     widget:
@@ -1884,10 +2581,13 @@ fields:
       - 299.99603271484375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowC[0].f2_27[0]
-    x_petey_retype:
-    - money
-  line28c_section179_expense_amt:
-    x_petey_id: '2_42'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28c_nonpassive_loss_allowed
+      suffix: amt
+      grid: p2-G2
+  line_28c_sec_179_expense_deduction_amt:
+    x_petey_id: '2_41'
     type: number
     semantic_type: money
     widget:
@@ -1899,10 +2599,13 @@ fields:
       - 299.99603271484375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowC[0].f2_28[0]
-    x_petey_retype:
-    - money
-  line28c_nonpassive_income_amt:
-    x_petey_id: '2_43'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28c_sec_179_expense_deduction
+      suffix: amt
+      grid: p2-G2
+  line_28c_nonpassive_income_amt:
+    x_petey_id: '2_42'
     type: number
     semantic_type: money
     widget:
@@ -1914,10 +2617,13 @@ fields:
       - 299.99603271484375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowC[0].f2_29[0]
-    x_petey_retype:
-    - money
-  line28d_passive_loss_allowed_amt:
-    x_petey_id: '2_44'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28c_nonpassive_income
+      suffix: amt
+      grid: p2-G2
+  line_28d_passive_loss_allowed_amt:
+    x_petey_id: '2_43'
     type: number
     semantic_type: money
     widget:
@@ -1929,10 +2635,13 @@ fields:
       - 311.9950256347656
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowD[0].f2_30[0]
-    x_petey_retype:
-    - money
-  line28d_passive_income_amt:
-    x_petey_id: '2_45'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28d_passive_loss_allowed
+      suffix: amt
+      grid: p2-G2
+  line_28d_passive_income_amt:
+    x_petey_id: '2_44'
     type: number
     semantic_type: money
     widget:
@@ -1944,10 +2653,13 @@ fields:
       - 311.9950256347656
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowD[0].f2_31[0]
-    x_petey_retype:
-    - money
-  line28d_nonpassive_loss_allowed_amt:
-    x_petey_id: '2_46'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28d_passive_income
+      suffix: amt
+      grid: p2-G2
+  line_28d_nonpassive_loss_allowed_amt:
+    x_petey_id: '2_45'
     type: number
     semantic_type: money
     widget:
@@ -1959,10 +2671,13 @@ fields:
       - 311.9950256347656
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowD[0].f2_32[0]
-    x_petey_retype:
-    - money
-  line28d_section179_expense_amt:
-    x_petey_id: '2_47'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28d_nonpassive_loss_allowed
+      suffix: amt
+      grid: p2-G2
+  line_28d_sec_179_expense_deduction_amt:
+    x_petey_id: '2_46'
     type: number
     semantic_type: money
     widget:
@@ -1974,10 +2689,13 @@ fields:
       - 311.9950256347656
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowD[0].f2_33[0]
-    x_petey_retype:
-    - money
-  line28d_nonpassive_income_amt:
-    x_petey_id: '2_48'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28d_sec_179_expense_deduction
+      suffix: amt
+      grid: p2-G2
+  line_28d_nonpassive_income_amt:
+    x_petey_id: '2_47'
     type: number
     semantic_type: money
     widget:
@@ -1989,25 +2707,13 @@ fields:
       - 311.9950256347656
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line28g-k[0].RowD[0].f2_34[0]
-    x_petey_retype:
-    - money
-  line29a_totals_passive_loss_allowed_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_28d_nonpassive_income
+      suffix: amt
+      grid: p2-G2
+  line_29a_total_passive_income_amt:
     x_petey_id: '2_49'
-    type: number
-    semantic_type: money
-    widget:
-      page: 2
-      rect:
-      - 93.5999984741211
-      - 312.0010070800781
-      - 186.4499969482422
-      - 324.0000305175781
-      widget_type: text
-      path: topmostSubform[0].Page2[0].f2_35[0]
-    x_petey_retype:
-    - money
-  line29a_totals_passive_income_amt:
-    x_petey_id: '2_50'
     type: number
     semantic_type: money
     widget:
@@ -2019,40 +2725,13 @@ fields:
       - 324.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_36[0]
-    x_petey_retype:
-    - money
-  line29a_totals_nonpassive_loss_allowed_amt:
-    x_petey_id: '2_51'
-    type: number
-    semantic_type: money
-    widget:
-      page: 2
-      rect:
-      - 288.0
-      - 312.0010070800781
-      - 388.04998779296875
-      - 324.0000305175781
-      widget_type: text
-      path: topmostSubform[0].Page2[0].f2_37[0]
-    x_petey_retype:
-    - money
-  line29a_totals_section179_expense_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_29a_total_passive_income
+      suffix: amt
+      grid: p2-G2
+  line_29a_total_nonpassive_income_amt:
     x_petey_id: '2_52'
-    type: number
-    semantic_type: money
-    widget:
-      page: 2
-      rect:
-      - 388.79998779296875
-      - 312.0010070800781
-      - 488.8500061035156
-      - 324.0000305175781
-      widget_type: text
-      path: topmostSubform[0].Page2[0].f2_38[0]
-    x_petey_retype:
-    - money
-  line29a_totals_nonpassive_income_amt:
-    x_petey_id: '2_53'
     type: number
     semantic_type: money
     widget:
@@ -2064,10 +2743,13 @@ fields:
       - 324.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_39[0]
-    x_petey_retype:
-    - money
-  line29b_totals_passive_loss_allowed_amt:
-    x_petey_id: '2_54'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_29a_total_nonpassive_income
+      suffix: amt
+      grid: p2-G2
+  line_29b_total_passive_loss_allowed_amt:
+    x_petey_id: '2_53'
     type: number
     semantic_type: money
     widget:
@@ -2079,25 +2761,12 @@ fields:
       - 335.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_40[0]
-    x_petey_retype:
-    - money
-  line29b_totals_passive_income_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_29b_total_passive_loss_allowed
+      suffix: amt
+  line_29b_total_nonpassive_loss_allowed_amt:
     x_petey_id: '2_55'
-    type: number
-    semantic_type: money
-    widget:
-      page: 2
-      rect:
-      - 187.1999969482422
-      - 324.0000305175781
-      - 287.0
-      - 335.9990234375
-      widget_type: text
-      path: topmostSubform[0].Page2[0].f2_41[0]
-    x_petey_retype:
-    - money
-  line29b_totals_nonpassive_loss_allowed_amt:
-    x_petey_id: '2_56'
     type: number
     semantic_type: money
     widget:
@@ -2109,10 +2778,12 @@ fields:
       - 335.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_42[0]
-    x_petey_retype:
-    - money
-  line29b_totals_section179_expense_amt:
-    x_petey_id: '2_57'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_29b_total_nonpassive_loss_allowed
+      suffix: amt
+  line_29b_total_sec_179_expense_deduction_amt:
+    x_petey_id: '2_56'
     type: number
     semantic_type: money
     widget:
@@ -2124,25 +2795,12 @@ fields:
       - 335.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_43[0]
-    x_petey_retype:
-    - money
-  line29b_totals_nonpassive_income_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_29b_total_sec_179_expense_deduction
+      suffix: amt
+  line_30_add_cols_h_and_k_amt:
     x_petey_id: '2_58'
-    type: number
-    semantic_type: money
-    widget:
-      page: 2
-      rect:
-      - 489.6000061035156
-      - 324.0000305175781
-      - 576.0
-      - 335.9990234375
-      widget_type: text
-      path: topmostSubform[0].Page2[0].f2_44[0]
-    x_petey_retype:
-    - money
-  line30_partnership_s_corp_passive_income_amt:
-    x_petey_id: '2_59'
     type: number
     semantic_type: money
     widget:
@@ -2154,10 +2812,12 @@ fields:
       - 347.9980163574219
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_45[0]
-    x_petey_retype:
-    - money
-  line31_partnership_s_corp_net_loss_amt:
-    x_petey_id: '2_60'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_30_add_cols_h_and_k
+      suffix: amt
+  line_31_add_cols_g_i_and_j_amt:
+    x_petey_id: '2_59'
     type: number
     semantic_type: money
     widget:
@@ -2169,10 +2829,12 @@ fields:
       - 360.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_46[0]
-    x_petey_retype:
-    - money
-  line32_total_partnership_s_corp_income_loss_amt:
-    x_petey_id: '2_61'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_31_add_cols_g_i_and_j
+      suffix: amt
+  line_32_total_partnership_and_s_corp_income_or_loss_amt:
+    x_petey_id: '2_60'
     type: number
     semantic_type: money
     widget:
@@ -2184,10 +2846,12 @@ fields:
       - 371.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_47[0]
-    x_petey_retype:
-    - money
-  line33a_estate_trust_nm:
-    x_petey_id: '2_62'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_32_total_partnership_and_s_corp_income_or_loss
+      suffix: amt
+  line_33a_estate_or_trust_nm:
+    x_petey_id: '2_61'
     type: string
     semantic_type: entity_name
     widget:
@@ -2199,8 +2863,28 @@ fields:
       - 414.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line33a-b[0].RowA[0].f2_48[0]
-  line33b_estate_trust_ein:
-    x_petey_id: '2_63'
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:52'
+      from:
+        name: line_33a_estate_or_trust_name
+        type: string
+        semantic_type: entity_name
+        pattern: null
+      to:
+        name: line_33a_estate_or_trust_nm
+        type: string
+        semantic_type: entity_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: line_33a_estate_or_trust
+      suffix: nm
+  line_33a_ein:
+    x_petey_id: '2_62'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -2213,8 +2897,12 @@ fields:
       - 414.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line33a-b[0].RowA[0].f2_49[0]
-  line33b_estate_trust_nm:
-    x_petey_id: '2_64'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_33a
+      suffix: ein
+  line_33b_estate_or_trust_nm:
+    x_petey_id: '2_63'
     type: string
     semantic_type: entity_name
     widget:
@@ -2226,8 +2914,28 @@ fields:
       - 425.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line33a-b[0].RowB[0].f2_50[0]
-  line33b_estate_trust_ein_2:
-    x_petey_id: '2_65'
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:52'
+      from:
+        name: line_33b_estate_or_trust_name
+        type: string
+        semantic_type: entity_name
+        pattern: null
+      to:
+        name: line_33b_estate_or_trust_nm
+        type: string
+        semantic_type: entity_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: line_33b_estate_or_trust
+      suffix: nm
+  line_33b_ein:
+    x_petey_id: '2_64'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -2240,8 +2948,12 @@ fields:
       - 425.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line33a-b[0].RowB[0].f2_51[0]
-  line33a_passive_deduction_loss_allowed_amt:
-    x_petey_id: '2_66'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_33b
+      suffix: ein
+  line_33a_passive_deduction_or_loss_allowed_amt:
+    x_petey_id: '2_65'
     type: number
     semantic_type: money
     widget:
@@ -2253,10 +2965,13 @@ fields:
       - 468.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line33c-f[0].RowA[0].f2_52[0]
-    x_petey_retype:
-    - money
-  line33a_passive_income_amt:
-    x_petey_id: '2_67'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_33a_passive_deduction_or_loss_allowed
+      suffix: amt
+      grid: p2-G3
+  line_33a_passive_income_amt:
+    x_petey_id: '2_66'
     type: number
     semantic_type: money
     widget:
@@ -2268,10 +2983,13 @@ fields:
       - 468.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line33c-f[0].RowA[0].f2_53[0]
-    x_petey_retype:
-    - money
-  line33a_deduction_loss_from_k1_amt:
-    x_petey_id: '2_68'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_33a_passive_income
+      suffix: amt
+      grid: p2-G3
+  line_33a_nonpassive_deduction_or_loss_amt:
+    x_petey_id: '2_67'
     type: number
     semantic_type: money
     widget:
@@ -2283,10 +3001,13 @@ fields:
       - 468.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line33c-f[0].RowA[0].f2_54[0]
-    x_petey_retype:
-    - money
-  line33a_other_income_from_k1_amt:
-    x_petey_id: '2_69'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_33a_nonpassive_deduction_or_loss
+      suffix: amt
+      grid: p2-G3
+  line_33a_nonpassive_other_income_amt:
+    x_petey_id: '2_68'
     type: number
     semantic_type: money
     widget:
@@ -2298,10 +3019,13 @@ fields:
       - 468.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line33c-f[0].RowA[0].f2_55[0]
-    x_petey_retype:
-    - money
-  line33b_passive_deduction_loss_allowed_amt:
-    x_petey_id: '2_70'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_33a_nonpassive_other_income
+      suffix: amt
+      grid: p2-G3
+  line_33b_passive_deduction_or_loss_allowed_amt:
+    x_petey_id: '2_69'
     type: number
     semantic_type: money
     widget:
@@ -2313,10 +3037,13 @@ fields:
       - 479.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line33c-f[0].RowB[0].f2_56[0]
-    x_petey_retype:
-    - money
-  line33b_passive_income_amt:
-    x_petey_id: '2_71'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_33b_passive_deduction_or_loss_allowed
+      suffix: amt
+      grid: p2-G3
+  line_33b_passive_income_amt:
+    x_petey_id: '2_70'
     type: number
     semantic_type: money
     widget:
@@ -2328,10 +3055,13 @@ fields:
       - 479.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line33c-f[0].RowB[0].f2_57[0]
-    x_petey_retype:
-    - money
-  line33b_deduction_loss_from_k1_amt:
-    x_petey_id: '2_72'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_33b_passive_income
+      suffix: amt
+      grid: p2-G3
+  line_33b_nonpassive_deduction_or_loss_amt:
+    x_petey_id: '2_71'
     type: number
     semantic_type: money
     widget:
@@ -2343,10 +3073,13 @@ fields:
       - 479.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line33c-f[0].RowB[0].f2_58[0]
-    x_petey_retype:
-    - money
-  line33b_other_income_from_k1_amt:
-    x_petey_id: '2_73'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_33b_nonpassive_deduction_or_loss
+      suffix: amt
+      grid: p2-G3
+  line_33b_nonpassive_other_income_amt:
+    x_petey_id: '2_72'
     type: number
     semantic_type: money
     widget:
@@ -2358,25 +3091,13 @@ fields:
       - 479.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line33c-f[0].RowB[0].f2_59[0]
-    x_petey_retype:
-    - money
-  line34a_totals_passive_deduction_loss_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_33b_nonpassive_other_income
+      suffix: amt
+      grid: p2-G3
+  line_34a_total_passive_income_amt:
     x_petey_id: '2_74'
-    type: number
-    semantic_type: money
-    widget:
-      page: 2
-      rect:
-      - 93.5999984741211
-      - 479.9990234375
-      - 222.4499969482422
-      - 491.9980163574219
-      widget_type: text
-      path: topmostSubform[0].Page2[0].f2_60[0]
-    x_petey_retype:
-    - money
-  line34a_totals_passive_income_amt:
-    x_petey_id: '2_75'
     type: number
     semantic_type: money
     widget:
@@ -2388,25 +3109,13 @@ fields:
       - 491.9980163574219
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_61[0]
-    x_petey_retype:
-    - money
-  line34a_totals_deduction_loss_from_k1_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_34a_total_passive_income
+      suffix: amt
+      grid: p2-G3
+  line_34a_total_nonpassive_other_income_amt:
     x_petey_id: '2_76'
-    type: number
-    semantic_type: money
-    widget:
-      page: 2
-      rect:
-      - 345.6000061035156
-      - 479.9990234375
-      - 467.25
-      - 491.9980163574219
-      widget_type: text
-      path: topmostSubform[0].Page2[0].f2_62[0]
-    x_petey_retype:
-    - money
-  line34a_totals_other_income_from_k1_amt:
-    x_petey_id: '2_77'
     type: number
     semantic_type: money
     widget:
@@ -2418,10 +3127,13 @@ fields:
       - 491.9980163574219
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_63[0]
-    x_petey_retype:
-    - money
-  line34b_totals_passive_deduction_loss_amt:
-    x_petey_id: '2_78'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_34a_total_nonpassive_other_income
+      suffix: amt
+      grid: p2-G3
+  line_34b_total_passive_deduction_or_loss_allowed_amt:
+    x_petey_id: '2_77'
     type: number
     semantic_type: money
     widget:
@@ -2433,25 +3145,12 @@ fields:
       - 504.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_64[0]
-    x_petey_retype:
-    - money
-  line34b_totals_passive_income_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_34b_total_passive_deduction_or_loss_allowed
+      suffix: amt
+  line_34b_total_nonpassive_deduction_or_loss_amt:
     x_petey_id: '2_79'
-    type: number
-    semantic_type: money
-    widget:
-      page: 2
-      rect:
-      - 223.1999969482422
-      - 492.0010070800781
-      - 344.6000061035156
-      - 504.0000305175781
-      widget_type: text
-      path: topmostSubform[0].Page2[0].f2_65[0]
-    x_petey_retype:
-    - money
-  line34b_totals_deduction_loss_from_k1_amt:
-    x_petey_id: '2_80'
     type: number
     semantic_type: money
     widget:
@@ -2463,25 +3162,12 @@ fields:
       - 504.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_66[0]
-    x_petey_retype:
-    - money
-  line34b_totals_other_income_from_k1_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_34b_total_nonpassive_deduction_or_loss
+      suffix: amt
+  line_35_total_estate_and_trust_income_amt:
     x_petey_id: '2_81'
-    type: number
-    semantic_type: money
-    widget:
-      page: 2
-      rect:
-      - 468.0
-      - 492.0010070800781
-      - 576.0
-      - 504.0000305175781
-      widget_type: text
-      path: topmostSubform[0].Page2[0].f2_67[0]
-    x_petey_retype:
-    - money
-  line35_estate_trust_passive_income_amt:
-    x_petey_id: '2_82'
     type: number
     semantic_type: money
     widget:
@@ -2493,10 +3179,12 @@ fields:
       - 515.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_68[0]
-    x_petey_retype:
-    - money
-  line36_estate_trust_net_loss_amt:
-    x_petey_id: '2_83'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_35_total_estate_and_trust_income
+      suffix: amt
+  line_36_total_estate_and_trust_deductions_or_losses_amt:
+    x_petey_id: '2_82'
     type: number
     semantic_type: money
     widget:
@@ -2508,10 +3196,12 @@ fields:
       - 527.998046875
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_69[0]
-    x_petey_retype:
-    - money
-  line37_total_estate_trust_income_loss_amt:
-    x_petey_id: '2_84'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_36_total_estate_and_trust_deductions_or_losses
+      suffix: amt
+  line_37_total_estate_and_trust_income_or_loss_amt:
+    x_petey_id: '2_83'
     type: number
     semantic_type: money
     widget:
@@ -2523,12 +3213,13 @@ fields:
       - 540.0
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_70[0]
-    x_petey_retype:
-    - money
-  line38a_remic_nm:
-    x_petey_id: '2_85'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_37_total_estate_and_trust_income_or_loss
+      suffix: amt
+  line_38_remic_nm:
+    x_petey_id: '2_84'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -2538,8 +3229,28 @@ fields:
       - 587.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line38[0].Row1[0].f2_71[0]
-  line38b_remic_ein:
-    x_petey_id: '2_86'
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:52'
+      from:
+        name: line_38_remic_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: line_38_remic_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: line_38_remic
+      suffix: nm
+  line_38_ein:
+    x_petey_id: '2_85'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -2552,8 +3263,12 @@ fields:
       - 587.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line38[0].Row1[0].f2_72[0]
-  line38c_excess_inclusion_amt:
-    x_petey_id: '2_87'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_38
+      suffix: ein
+  line_38_excess_inclusion_amt:
+    x_petey_id: '2_86'
     type: number
     semantic_type: money
     widget:
@@ -2565,10 +3280,12 @@ fields:
       - 587.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line38[0].Row1[0].f2_73[0]
-    x_petey_retype:
-    - money
-  line38d_taxable_income_net_loss_amt:
-    x_petey_id: '2_88'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_38_excess_inclusion
+      suffix: amt
+  line_38_taxable_income_net_loss_amt:
+    x_petey_id: '2_87'
     type: number
     semantic_type: money
     widget:
@@ -2580,10 +3297,12 @@ fields:
       - 587.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line38[0].Row1[0].f2_74[0]
-    x_petey_retype:
-    - money
-  line38e_income_from_schedules_q_amt:
-    x_petey_id: '2_89'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_38_taxable_income_net_loss
+      suffix: amt
+  line_38_income_amt:
+    x_petey_id: '2_88'
     type: number
     semantic_type: money
     widget:
@@ -2595,10 +3314,12 @@ fields:
       - 587.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Line38[0].Row1[0].f2_75[0]
-    x_petey_retype:
-    - money
-  line39_remic_combined_income_loss_amt:
-    x_petey_id: '2_90'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_38_income
+      suffix: amt
+  line_39_remic_income_or_loss_amt:
+    x_petey_id: '2_89'
     type: number
     semantic_type: money
     widget:
@@ -2610,10 +3331,12 @@ fields:
       - 599.998046875
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_76[0]
-    x_petey_retype:
-    - money
-  line40_net_farm_rental_income_loss_amt:
-    x_petey_id: '2_91'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_39_remic_income_or_loss
+      suffix: amt
+  line_40_net_farm_rental_income_or_loss_amt:
+    x_petey_id: '2_90'
     type: number
     semantic_type: money
     widget:
@@ -2625,10 +3348,12 @@ fields:
       - 623.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_77[0]
-    x_petey_retype:
-    - money
-  line41_total_income_loss_amt:
-    x_petey_id: '2_92'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_40_net_farm_rental_income_or_loss
+      suffix: amt
+  line_41_total_income_or_loss_amt:
+    x_petey_id: '2_91'
     type: number
     semantic_type: money
     widget:
@@ -2640,10 +3365,12 @@ fields:
       - 648.0
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_78[0]
-    x_petey_retype:
-    - money
-  line42_farming_fishing_income_reconciliation_amt:
-    x_petey_id: '2_93'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_41_total_income_or_loss
+      suffix: amt
+  line_42_gross_farming_and_fishing_income_amt:
+    x_petey_id: '2_92'
     type: number
     semantic_type: money
     widget:
@@ -2655,10 +3382,12 @@ fields:
       - 695.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].Line42_ReadOrder[0].f2_79[0]
-    x_petey_retype:
-    - money
-  line43_real_estate_professional_reconciliation_amt:
-    x_petey_id: '2_94'
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_42_gross_farming_and_fishing_income
+      suffix: amt
+  line_43_real_estate_professionals_net_income_or_loss_amt:
+    x_petey_id: '2_93'
     type: number
     semantic_type: money
     widget:
@@ -2670,13 +3399,114 @@ fields:
       - 756.0
       widget_type: text
       path: topmostSubform[0].Page2[0].f2_80[0]
-    x_petey_retype:
-    - money
+    label_source: llm
+    x_petey_identifiers:
+      subject: line_43_real_estate_professionals_net_income_or_loss
+      suffix: amt
+  payments_require_1099_ind:
+    x_petey_id: '1_3'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'yes':
+        page: 1
+        rect:
+        - 504.0
+        - 139.998046875
+        - 512.0
+        - 147.998046875
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_1[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      'no':
+        page: 1
+        rect:
+        - 540.0
+        - 139.998046875
+        - 548.0
+        - 147.998046875
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_1[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: payments_require_1099_ind
+  filed_or_will_file_1099_ind:
+    x_petey_id: '1_4'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'yes':
+        page: 1
+        rect:
+        - 504.0
+        - 151.75
+        - 512.0
+        - 159.75
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_2[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      'no':
+        page: 1
+        rect:
+        - 540.0
+        - 151.75
+        - 548.0
+        - 159.75
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_2[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: filed_or_will_file_1099_ind
+  line_27_prior_year_unallowed_loss_reported_ind:
+    x_petey_id: '2_3'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'yes':
+        page: 2
+        rect:
+        - 511.20001220703125
+        - 152.0
+        - 519.2000122070312
+        - 160.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].c2_1[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      'no':
+        page: 2
+        rect:
+        - 547.2000122070312
+        - 152.0
+        - 555.2000122070312
+        - 160.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].c2_1[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: line_27_prior_year_unallowed_loss_reported_ind
 x_petey_dedup_log:
-  duplicate_labels_reassigned: 6
+  duplicate_labels_reassigned: 2
   collisions:
-  - original_label: taxpayer_nm
-    assigned_label: taxpayer_nm_2
+  - original_label: taxpayer_name
+    assigned_label: taxpayer_name_2
     page: 2
     rect:
     - 36.0
@@ -2691,35 +3521,35 @@ x_petey_dedup_log:
     - 57.9990234375
     - 576.0
     - 72.0
-  - original_label: line28b_entity_type_cd
-    assigned_label: line28b_entity_type_cd_2
-    page: 2
-    rect:
-    - 267.1499938964844
-    - 198.0
-    - 323.25
-    - 209.9990234375
-  - original_label: line28c_foreign_partnership_ind
-    assigned_label: line28c_foreign_partnership_ind_2
-    page: 2
-    rect:
-    - 345.20001220703125
-    - 211.998046875
-    - 353.20001220703125
-    - 219.998046875
-  - original_label: line28d_employer_ein
-    assigned_label: line28d_employer_ein_2
-    page: 2
-    rect:
-    - 374.3999938964844
-    - 221.998046875
-    - 460.79998779296875
-    - 233.99700927734375
-  - original_label: line33b_estate_trust_ein
-    assigned_label: line33b_estate_trust_ein_2
-    page: 2
-    rect:
-    - 468.0
-    - 414.0000305175781
-    - 576.0
-    - 425.9990234375
+x_petey_page_check:
+  when: '2026-10-15 14:35:46'
+  model: claude-opus-5
+  prompt: 2ddd7670
+  pages:
+  - 1
+  - 2
+  fields: 174
+  flagged: 13
+  unanswered: 0
+  record: runs/page_check/f1040se__c2ea7b__89517f2b.json
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: f1040se_20261015_114621
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/f1040se.bpt
+  when: '2026-10-15 11:47:17'
+x_petey_run:
+  record: runs/judge_eval/form_runs/f1040se.json
+  status: converged_with_residue
+  stop: no rule fix and no review edit
+  stable: true
+  rounds: 3
+  review_rounds: 2
+  when: '2026-10-15 11:47:29'

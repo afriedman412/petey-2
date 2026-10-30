@@ -9,12 +9,14 @@ description: ''
 instructions: ''
 authoring:
   method: auto_label
-  model: claude-opus-5
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-14 19:13:39'
 fields:
   completed_by_nm:
     x_petey_id: '1_24'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -27,10 +29,12 @@ fields:
     description: 301 Completed by
     x_petey_description_source: tooltip
     label_source: llm
-  completed_by_title_txt:
+    x_petey_identifiers:
+      subject: completed_by
+      suffix: nm
+  completed_by_title:
     x_petey_id: '1_27'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -41,11 +45,13 @@ fields:
       widget_type: text
       path: 301 Title
     label_source: llm
+    x_petey_identifiers:
+      subject: completed_by_title
   completed_by_phone_num:
     x_petey_id: '1_29'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
@@ -56,7 +62,9 @@ fields:
       widget_type: text
       path: 301 Phone
     label_source: llm
-  completed_dt:
+    x_petey_identifiers:
+      subject: completed_by_phone_num
+  completed_by_dt:
     x_petey_id: '1_30'
     type: date
     semantic_type: iso_date
@@ -70,12 +78,12 @@ fields:
       widget_type: text
       path: 301 Date
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  employee_full_nm:
+    x_petey_identifiers:
+      subject: completed_by
+      suffix: dt
+  employee_nm:
     x_petey_id: '1_2'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -88,6 +96,9 @@ fields:
     description: 301 Full name
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: employee
+      suffix: nm
   employee_address_line_1_txt:
     x_petey_id: '1_4'
     type: string
@@ -104,6 +115,9 @@ fields:
     description: 301 Address Street
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: employee_address_line_1
+      suffix: txt
   employee_city_nm:
     x_petey_id: '1_7'
     type: string
@@ -120,6 +134,9 @@ fields:
     description: 301 Address City
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: employee_city
+      suffix: nm
   employee_state_abbreviation_cd:
     x_petey_id: '1_8'
     type: string
@@ -137,6 +154,9 @@ fields:
     description: 301 Address State
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: employee_state_abbreviation
+      suffix: cd
   employee_zip_cd:
     x_petey_id: '1_9'
     type: string
@@ -154,6 +174,9 @@ fields:
     description: 301 Address Zip
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: employee_zip
+      suffix: cd
   employee_birth_dt:
     x_petey_id: '1_12'
     type: date
@@ -168,9 +191,10 @@ fields:
       widget_type: text
       path: 301 DOB
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  employee_hired_dt:
+    x_petey_identifiers:
+      subject: employee_birth
+      suffix: dt
+  employee_hire_dt:
     x_petey_id: '1_13'
     type: date
     semantic_type: iso_date
@@ -186,19 +210,15 @@ fields:
     description: 301 Date Hired
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  employee_gender_cd:
+    x_petey_identifiers:
+      subject: employee_hire
+      suffix: dt
+  employee_gender:
     x_petey_id: '1_14'
     type: category
     values:
     - Male
     - Female
-    description: Male or Female
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[2]
     widgets:
       Male:
         page: 1
@@ -222,10 +242,15 @@ fields:
         path: 301 Gender
         on_state: Female
         caption: Female
-  physician_or_health_care_professional_nm:
+    description: Male or Female
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: employee_gender
+  physician_nm:
     x_petey_id: '1_16'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -238,7 +263,10 @@ fields:
     description: 301 Name of Doctor
     x_petey_description_source: tooltip
     label_source: llm
-  treatment_facility_business_name:
+    x_petey_identifiers:
+      subject: physician
+      suffix: nm
+  treatment_facility_business_nm:
     x_petey_id: '1_18'
     type: string
     semantic_type: business_name
@@ -254,6 +282,9 @@ fields:
     description: 301 Facility Name
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: treatment_facility_business
+      suffix: nm
   treatment_facility_address_line_1_txt:
     x_petey_id: '1_19'
     type: string
@@ -270,6 +301,9 @@ fields:
     description: 301 Facility Address Street
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: treatment_facility_address_line_1
+      suffix: txt
   treatment_facility_city_nm:
     x_petey_id: '1_21'
     type: string
@@ -286,6 +320,9 @@ fields:
     description: 301 Facility Address City
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: treatment_facility_city
+      suffix: nm
   treatment_facility_state_abbreviation_cd:
     x_petey_id: '1_22'
     type: string
@@ -303,6 +340,9 @@ fields:
     description: 301 Facility Address State
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: treatment_facility_state_abbreviation
+      suffix: cd
   treatment_facility_zip_cd:
     x_petey_id: '1_23'
     type: string
@@ -320,17 +360,15 @@ fields:
     description: 301 Facility Address Zip
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: treatment_facility_zip
+      suffix: cd
   treated_in_emergency_room_ind:
     x_petey_id: '1_25'
     type: category
     values:
     - 'Yes'
     - 'No'
-    description: 301 Emergency Room Required
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[2]
     widgets:
       'Yes':
         page: 1
@@ -354,17 +392,18 @@ fields:
         path: 301 ER
         on_state: 'No'
         caption: 'No'
+    description: 301 Emergency Room Required
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: treated_in_emergency_room_ind
   hospitalized_overnight_ind:
     x_petey_id: '1_31'
     type: category
     values:
     - 'Yes'
     - 'No'
-    description: 301 Hospitalized Overnight
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[2]
     widgets:
       'Yes':
         page: 1
@@ -388,7 +427,13 @@ fields:
         path: 301 Hospitalized
         on_state: 'No'
         caption: 'No'
-  case_num:
+    description: 301 Hospitalized Overnight
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: hospitalized_overnight_ind
+  case_nbr:
     x_petey_id: '1_1'
     type: string
     widget:
@@ -403,6 +448,9 @@ fields:
     description: 301 Case Number
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
   injury_or_illness_dt:
     x_petey_id: '1_3'
     type: date
@@ -419,9 +467,10 @@ fields:
     description: 301 Date of Injury or Illness
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  employee_began_work_time:
+    x_petey_identifiers:
+      subject: injury_or_illness
+      suffix: dt
+  time_employee_began_work:
     x_petey_id: '1_5'
     type: string
     widget:
@@ -436,17 +485,14 @@ fields:
     description: 301 Time employee began work
     x_petey_description_source: tooltip
     label_source: llm
-  employee_began_work_time_meridiem_cd:
+    x_petey_identifiers:
+      subject: time_employee_began_work
+  time_employee_began_work_am_pm:
     x_petey_id: '1_6'
     type: category
     values:
     - AM
     - PM
-    description: 301 Time Employee Began Work AMPM
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[2]
     widgets:
       AM:
         page: 1
@@ -470,7 +516,13 @@ fields:
         path: 301 Time Employee Began Work AMPM
         on_state: PM
         caption: PM
-  event_time:
+    description: 301 Time Employee Began Work AMPM
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: time_employee_began_work_am_pm
+  time_of_event:
     x_petey_id: '1_10'
     type: string
     widget:
@@ -485,18 +537,15 @@ fields:
     description: 301 Time of event
     x_petey_description_source: tooltip
     label_source: llm
-  event_time_meridiem_cd:
+    x_petey_identifiers:
+      subject: time_of_event
+  time_of_event_am_pm:
     x_petey_id: '1_11'
     type: category
     values:
     - AM
     - PM
     - Unsure
-    description: 301 Time of Event AMPM
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[3]
     widgets:
       AM:
         page: 1
@@ -531,10 +580,15 @@ fields:
         path: 301 Time of Event AMPM
         on_state: Unsure
         caption: Unsure
-  activity_prior_to_event_txt:
+    description: 301 Time of Event AMPM
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: time_of_event_am_pm
+  activity_prior_to_event:
     x_petey_id: '1_15'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -547,10 +601,11 @@ fields:
     description: 301 Activity Prior to Event
     x_petey_description_source: tooltip
     label_source: llm
-  what_happened_txt:
+    x_petey_identifiers:
+      subject: activity_prior_to_event
+  what_happened:
     x_petey_id: '1_17'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -563,10 +618,11 @@ fields:
     description: 301 What Happened
     x_petey_description_source: tooltip
     label_source: llm
-  injury_or_illness_description_txt:
+    x_petey_identifiers:
+      subject: what_happened
+  describe_injury_or_illness:
     x_petey_id: '1_20'
     type: string
-    semantic_type: description
     widget:
       page: 1
       rect:
@@ -579,10 +635,11 @@ fields:
     description: 301 Describe Injury or Illness
     x_petey_description_source: tooltip
     label_source: llm
-  object_or_substance_harmed_employee_txt:
+    x_petey_identifiers:
+      subject: describe_injury_or_illness
+  what_harmed_employee:
     x_petey_id: '1_26'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -595,6 +652,8 @@ fields:
     description: 301 What Harmed Employee
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: what_harmed_employee
   death_dt:
     x_petey_id: '1_28'
     type: date
@@ -611,8 +670,9 @@ fields:
     description: 301 Death Date
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
+    x_petey_identifiers:
+      subject: death
+      suffix: dt
 x_petey_dropped_widgets:
   count: 2
   widgets:
@@ -626,3 +686,34 @@ x_petey_dropped_widgets:
     reason: pushbutton
     field_type: Button
     tooltip: 301 Add a Form
+x_petey_emit_fixes:
+  description_from_tooltip: 5
+x_petey_page_check:
+  record: runs/judge_eval/form_runs/osha_301.json
+  model: gemini-3.8-flash (round 0), claude-opus-5 (loop)
+  prompt: 2ddd7670
+  when: '2026-10-14 19:14:16'
+  fields: 31
+  checked: 31
+  flagged: 1
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: osha_301_20261014_191401
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/osha_301.bpt
+  when: '2026-10-14 19:14:10'
+x_petey_run:
+  record: runs/judge_eval/form_runs/osha_301.json
+  status: converged_with_residue
+  stop: no rule fix and no review edit
+  stable: true
+  rounds: 2
+  review_rounds: 1
+  when: '2026-10-14 19:14:16'

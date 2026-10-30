@@ -1,0 +1,837 @@
+bpt_version: '1.1'
+name: gse_1103
+form_version: null
+source_pdf: form-1103.pdf
+source_pdf_hash: 1f66a1f343a9c8c020627f8fbab4801b08852368
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 21:28:35'
+fields:
+  lender_loan_number_or_universal_loan_identifier_txt:
+    x_petey_id: '1_1'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 168.04100036621094
+      - 41.58697509765625
+      - 420.0409851074219
+      - 55.86700439453125
+      widget_type: text
+      path: Lender
+    description: 'Supplemental Consumer Information Form: To be completed by the Lender,
+      Lender Loan Number/Universal Loan Identifier'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:19'
+      from:
+        name: lender_loan_number_or_universal_loan_identifier
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: lender_loan_number_or_universal_loan_identifier_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: lender_loan_number_or_universal_loan_identifier
+      suffix: txt
+  agency_case_nbr:
+    x_petey_id: '1_2'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 471.614013671875
+      - 41.75201416015625
+      - 563.7109985351562
+      - 56.030029296875
+      widget_type: text
+      path: Agency
+    description: 'Supplemental Consumer Information Form: To be completed by the Lender,
+      Agency Case Number'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:19'
+      from:
+        name: agency_case_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: agency_case_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: agency_case
+      suffix: nbr
+  borrower_nm:
+    x_petey_id: '1_3'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 201.8179931640625
+      - 144.094970703125
+      - 579.3599853515625
+      - 158.375
+      widget_type: text
+      path: Borrower Name
+    description: Borrower Name (First, Middle, Last, Suffix)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:19'
+      from:
+        name: borrower_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: borrower_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: borrower
+      suffix: nm
+  completed_homeownership_education_ind:
+    x_petey_id: '1_4'
+    type: category
+    values:
+    - 'No'
+    - 'Yes'
+    widgets:
+      'No':
+        page: 1
+        rect:
+        - 506.7690124511719
+        - 230.02801513671875
+        - 514.3699951171875
+        - 237.718994140625
+        widget_type: radiobutton
+        path: Group1
+        on_state: 'No'
+        caption: 'NO'
+        x_petey_caption_source: page_choice
+      'Yes':
+        page: 1
+        rect:
+        - 533.9509887695312
+        - 230.02801513671875
+        - 541.2739868164062
+        - 237.718994140625
+        widget_type: radiobutton
+        path: Group1
+        on_state: 'Yes'
+        caption: 'YES'
+        x_petey_caption_source: page_choice
+    description: Has the Borrower(s) completed homeownership education (group or web-based
+      classes) within the last 12 months?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:24:57'
+      from:
+      - completed_homeownership_education_ind::No
+      - completed_homeownership_education_ind::Yes
+    x_petey_identifiers:
+      subject: completed_homeownership_education_ind
+  homeownership_education_format:
+    x_petey_id: '1_5'
+    type: category
+    values:
+    - 'Attended Workshop in Person '
+    - Completed Web-Based Workshop
+    widgets:
+      'Attended Workshop in Person ':
+        page: 1
+        rect:
+        - 288.09698486328125
+        - 245.27398681640625
+        - 295.24700927734375
+        - 253.2919921875
+        widget_type: radiobutton
+        path: Group2
+        on_state: 'Attended Workshop in Person '
+        caption: Attended Workshop in Person
+        x_petey_caption_source: page_choice
+      Completed Web-Based Workshop:
+        page: 1
+        rect:
+        - 422.1610107421875
+        - 245.43701171875
+        - 429.3609924316406
+        - 253.12799072265625
+        widget_type: radiobutton
+        path: Group2
+        on_state: Completed Web-Based Workshop
+        caption: Completed Web-Based Workshop
+    description: '(1) What format was it in: (Check the most recent)'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:24:57'
+      from:
+      - 'homeownership_education_format::Attended Workshop in Person '
+      - homeownership_education_format::Completed Web-Based Workshop
+    x_petey_identifiers:
+      subject: homeownership_education_format
+  homeownership_education_hud_agency_nbr:
+    x_petey_id: '1_6'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 364.4670104980469
+      - 267.76898193359375
+      - 539.3350219726562
+      - 282.04901123046875
+      widget_type: text
+      path: HUD
+    description: 'Homeownership Education and Housing Counseling: Homeownership Education,
+      If yes, (2) Who provided it, If a HUD-approved agency, provide Housing Counseling
+      Agency ID number'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:19'
+      from:
+        name: homeownership_education_hud_agency_id
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: homeownership_education_hud_agency_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: id -> nbr'
+    x_petey_identifiers:
+      subject: homeownership_education_hud_agency
+      suffix: nbr
+  homeownership_education_program_nm:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 1
+      rect:
+      - 94.1343994140625
+      - 314.5220031738281
+      - 539.7160034179688
+      - 328.79998779296875
+      widget_type: text
+      path: Education
+    description: 'Homeownership Education and Housing Counseling: Homeownership Education,
+      If yes, (2) Who provided it, If not a HUD-approved agency, or unsure of HUD
+      approval, provide name of Housing Education Program'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption asks for the name of the Housing Education Program, an organization/program
+        name, not a person's name; name and description are correct.
+      before:
+        type: string
+        semantic_type: person_name
+        description: 'Homeownership Education and Housing Counseling: Homeownership
+          Education, If yes, (2) Who provided it, If not a HUD-approved agency, or
+          unsure of HUD approval, provide name of Housing Education Program'
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:19'
+      from:
+        name: homeownership_education_program_name
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      to:
+        name: homeownership_education_program_nm
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: homeownership_education_program
+      suffix: nm
+  homeownership_education_completion_month:
+    x_petey_id: '1_8'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 194.06900024414062
+      - 336.99200439453125
+      - 208.1649932861328
+      - 349.4989929199219
+      widget_type: text
+      path: 1a.Birth 1
+    description: 'Homeownership Education and Housing Counseling: Homeownership Education,
+      If yes, (3) Date of Completion, month, two digits'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: homeownership_education_completion
+      suffix: month
+  homeownership_education_completion_day:
+    x_petey_id: '1_9'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 214.1699981689453
+      - 336.99200439453125
+      - 228.197998046875
+      - 349.4989929199219
+      widget_type: text
+      path: 1a.Birth 2
+    description: Date of Completion, day, two digits
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: homeownership_education_completion
+      suffix: day
+  homeownership_education_completion_yr:
+    x_petey_id: '1_10'
+    type: string
+    semantic_type: year
+    pattern: ^\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 235.31300354003906
+      - 336.99200439453125
+      - 261.43499755859375
+      - 349.4989929199219
+      widget_type: text
+      path: 1a.Birth 3
+    description: Date of Completion, year, four digits
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:19'
+      from:
+        name: homeownership_education_completion_year
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: homeownership_education_completion_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: year -> yr'
+    x_petey_identifiers:
+      subject: homeownership_education_completion
+      suffix: yr
+  completed_housing_counseling_ind:
+    x_petey_id: '1_11'
+    type: category
+    values:
+    - 'No'
+    - 'Yes'
+    widgets:
+      'No':
+        page: 1
+        rect:
+        - 506.40399169921875
+        - 360.7090148925781
+        - 513.656982421875
+        - 368.3999938964844
+        widget_type: radiobutton
+        path: Group3
+        on_state: 'No'
+        caption: 'NO'
+        x_petey_caption_source: page_choice
+      'Yes':
+        page: 1
+        rect:
+        - 533.6339721679688
+        - 360.65399169921875
+        - 540.8889770507812
+        - 368.3450012207031
+        widget_type: radiobutton
+        path: Group3
+        on_state: 'Yes'
+        caption: 'YES'
+        x_petey_caption_source: page_choice
+    description: Has the Borrower(s) completed homeownership education (group or web-based
+      classes) within the last 12 months?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:24:57'
+      from:
+      - completed_housing_counseling_ind::No
+      - completed_housing_counseling_ind::Yes
+    x_petey_identifiers:
+      subject: completed_housing_counseling_ind
+  housing_counseling_format:
+    x_petey_id: '1_12'
+    type: category
+    values:
+    - 'Face-to-Face '
+    - 'Telephone '
+    - 'Internet '
+    - ' Hybrid '
+    widgets:
+      'Face-to-Face ':
+        page: 1
+        rect:
+        - 283.7969970703125
+        - 376.0570068359375
+        - 292.3190002441406
+        - 383.6659851074219
+        widget_type: radiobutton
+        path: Group4
+        on_state: 'Face-to-Face '
+        caption: Face-to-Face
+        x_petey_caption_source: page_choice
+      'Telephone ':
+        page: 1
+        rect:
+        - 351.66400146484375
+        - 376.2749938964844
+        - 360.0639953613281
+        - 383.625
+        widget_type: radiobutton
+        path: Group4
+        on_state: 'Telephone '
+        caption: Telephone
+        x_petey_caption_source: page_choice
+      'Internet ':
+        page: 1
+        rect:
+        - 413.27801513671875
+        - 376.3190002441406
+        - 421.5150146484375
+        - 383.73699951171875
+        widget_type: radiobutton
+        path: Group4
+        on_state: 'Internet '
+        caption: Internet
+        x_petey_caption_source: page_choice
+      ' Hybrid ':
+        page: 1
+        rect:
+        - 465.6419982910156
+        - 376.2099914550781
+        - 474.1510009765625
+        - 383.62799072265625
+        widget_type: radiobutton
+        path: Group4
+        on_state: ' Hybrid '
+        caption: Hybrid
+        x_petey_caption_source: page_choice
+    description: '(1) What format was it in: (Check the most recent)'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:24:57'
+      from:
+      - 'housing_counseling_format::Face-to-Face '
+      - 'housing_counseling_format::Telephone '
+      - 'housing_counseling_format::Internet '
+      - 'housing_counseling_format:: Hybrid '
+    x_petey_identifiers:
+      subject: housing_counseling_format
+  housing_counseling_hud_agency_nbr:
+    x_petey_id: '1_13'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 364.4679870605469
+      - 398.3479919433594
+      - 539.2420043945312
+      - 412.625
+      widget_type: text
+      path: Counseling
+    description: 'Homeownership Education and Housing Counseling: Housing Counseling,
+      If yes, (2) Who provided it, If a HUD-approved agency, provide Housing Counseling
+      Agency ID number'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:19'
+      from:
+        name: housing_counseling_hud_agency_id
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: housing_counseling_hud_agency_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: id -> nbr'
+    x_petey_identifiers:
+      subject: housing_counseling_hud_agency
+      suffix: nbr
+  housing_counseling_agency_nm:
+    x_petey_id: '1_14'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 1
+      rect:
+      - 94.09590148925781
+      - 445.7040100097656
+      - 539.6699829101562
+      - 459.9809875488281
+      widget_type: text
+      path: Approval
+    description: 'Homeownership Education and Housing Counseling: Housing Counseling,
+      If yes, (2) Who provided it, If not a HUD-approved agency, or unsure of HUD
+      approval, provide name of Housing Counseling Agency'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption asks for the name of the Housing Counseling Agency, an organization
+        name, not a person's name; name is correct as proposed by the page check.
+      before:
+        type: string
+        semantic_type: person_name
+        description: 'Homeownership Education and Housing Counseling: Housing Counseling,
+          If yes, (2) Who provided it, If not a HUD-approved agency, or unsure of
+          HUD approval, provide name of Housing Counseling Agency'
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:19'
+      from:
+        name: housing_counseling_agency_name
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      to:
+        name: housing_counseling_agency_nm
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: housing_counseling_agency
+      suffix: nm
+  housing_counseling_completion_month:
+    x_petey_id: '1_15'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 194.08200073242188
+      - 466.4440002441406
+      - 208.2689971923828
+      - 478.33599853515625
+      widget_type: text
+      path: 1b.Birth 1
+    description: 'Homeownership Education and Housing Counseling: Housing Counseling,
+      If yes, (3) Date of Completion, month, two digits'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: housing_counseling_completion
+      suffix: month
+  housing_counseling_completion_day:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 214.13699340820312
+      - 466.4440002441406
+      - 228.25399780273438
+      - 477.95098876953125
+      widget_type: text
+      path: 1b.Birth 2
+    description: 'Homeownership Education and Housing Counseling: Housing Counseling,
+      If yes, (3) Date of Completion, day, two digits'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: housing_counseling_completion
+      suffix: day
+  housing_counseling_completion_yr:
+    x_petey_id: '1_17'
+    type: string
+    semantic_type: year
+    pattern: ^\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 235.29400634765625
+      - 466.4440002441406
+      - 261.4280090332031
+      - 477.95098876953125
+      widget_type: text
+      path: 1b.Birth 3
+    description: 'Homeownership Education and Housing Counseling: Housing Counseling,
+      If yes, (3) Date of Completion, year, four digits'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:19'
+      from:
+        name: housing_counseling_completion_year
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: housing_counseling_completion_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: year -> yr'
+    x_petey_identifiers:
+      subject: housing_counseling_completion
+      suffix: yr
+  language_preference:
+    x_petey_id: '1_19'
+    type: category
+    values:
+    - 'English '
+    - Chineze
+    - Korean
+    - Spanish
+    - Tagalog
+    - Vietnamise
+    - Other
+    - I do not wish to respond
+    widgets:
+      'English ':
+        page: 1
+        rect:
+        - 46.582000732421875
+        - 584.511962890625
+        - 54.27289962768555
+        - 591.385009765625
+        widget_type: radiobutton
+        path: Group5
+        on_state: 'English '
+        caption: English
+        x_petey_caption_source: page_choice
+      Chineze:
+        page: 1
+        rect:
+        - 96.0343017578125
+        - 584.3280029296875
+        - 104.23699951171875
+        - 591.7120361328125
+        widget_type: radiobutton
+        path: Group5
+        on_state: Chineze
+        caption: Chinese (中文)
+        x_petey_caption_source: page_choice
+      Korean:
+        page: 1
+        rect:
+        - 148.52699279785156
+        - 584.375
+        - 156.21800231933594
+        - 591.5479736328125
+        widget_type: radiobutton
+        path: Group5
+        on_state: Korean
+        caption: Korean (한국어)
+        x_petey_caption_source: page_choice
+      Spanish:
+        page: 1
+        rect:
+        - 197.3730010986328
+        - 584.3480224609375
+        - 205.06399536132812
+        - 591.615966796875
+        widget_type: radiobutton
+        path: Group5
+        on_state: Spanish
+        caption: Spanish (Español)
+        x_petey_caption_source: page_choice
+      Tagalog:
+        page: 1
+        rect:
+        - 251.26400756835938
+        - 584.3480224609375
+        - 259.0639953613281
+        - 591.6300048828125
+        widget_type: radiobutton
+        path: Group5
+        on_state: Tagalog
+        caption: Tagalog (Tagalog)
+        x_petey_caption_source: page_choice
+      Vietnamise:
+        page: 1
+        rect:
+        - 304.8280029296875
+        - 584.4030151367188
+        - 312.5190124511719
+        - 591.656982421875
+        widget_type: radiobutton
+        path: Group5
+        on_state: Vietnamise
+        caption: Vietnamese (Tiếng Việt)
+        x_petey_caption_source: page_choice
+      Other:
+        page: 1
+        rect:
+        - 373.2820129394531
+        - 584.5659790039062
+        - 380.9729919433594
+        - 591.6229858398438
+        widget_type: radiobutton
+        path: Group5
+        on_state: Other
+        caption: 'Other:'
+        x_petey_caption_source: page_choice
+      I do not wish to respond:
+        page: 1
+        rect:
+        - 478.718994140625
+        - 584.375
+        - 486.4100036621094
+        - 591.656982421875
+        widget_type: radiobutton
+        path: Group5
+        on_state: I do not wish to respond
+        caption: I do not wish to respond
+    description: Language Preference – Your loan transaction is likely to be conducted
+      in English. This question requests information to see if communications are
+      available to assist you in your preferred language. Please be aware that communications
+      may NOT be available in your preferred language.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:24:57'
+      from:
+      - 'language_preference::English '
+      - language_preference::Chineze
+      - language_preference::Korean
+      - language_preference::Spanish
+      - language_preference::Tagalog
+      - language_preference::Vietnamise
+      - language_preference::Other
+      - language_preference::I do not wish to respond
+    x_petey_identifiers:
+      subject: language_preference
+  language_preference_other_txt:
+    x_petey_id: '1_18'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 410.2659912109375
+      - 578.4019775390625
+      - 473.2510070800781
+      - 592.6799926757812
+      widget_type: text
+      path: Other
+    description: 'Language Preference: Other, Specify other preferred language'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:19'
+      from:
+        name: language_preference_other
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: language_preference_other_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: language_preference_other
+      suffix: txt
+x_petey_emit_fixes:
+  description_from_tooltip: 5
+x_petey_page_check:
+  when: '2026-10-16 13:26:41'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  fields: 19
+  flagged: 1
+  unanswered: 0
+  record: runs/page_check/gse_1103__4f7312__c2cb1566.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: gse_1103_20261006_212940
+  blueprint: /home/user/petey-2/runs/judge_eval/work/gse_1103.bpt
+  when: '2026-10-06 21:29:53'
+x_petey_run:
+  record: runs/judge_eval/form_runs/gse_1103.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 21:29:54'

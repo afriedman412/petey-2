@@ -1,0 +1,5015 @@
+bpt_version: '1.1'
+name: cra_t5013
+form_version: null
+source_pdf: t5013-fill-21e.pdf
+source_pdf_hash: ea7a77459af22e21d3363bff0a7bbcfeba8ba8b5
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-07 00:22:52'
+fields:
+  slip_1_fiscal_period_end_dt:
+    x_petey_id: '1_1'
+    type: string
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 276.99798583984375
+      - 28.0
+      - 358.99700927734375
+      - 41.0009765625
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FiscalDate[0].Slip1FiscalDate[0]
+    description: Slip 1. Fiscal period end. Date. Year 4 digits. Month 2 digits. Day
+      2 digits.
+    x_petey_description_source: tooltip
+    pattern: ^\d{4}\-\d{2}\-\d{2}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{9999-99-99}
+      pictures:
+        format:
+        - text{9999-99-99}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_fiscal_period_end_dt
+        type: string
+        semantic_type: iso_date
+        pattern: ^\d{4}\-\d{2}\-\d{2}$
+      to:
+        name: slip_1_fiscal_period_end_dt
+        type: string
+        semantic_type: iso_date
+        pattern: ^\d{4}\-\d{2}\-\d{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '1'
+      subject: fiscal_period_end
+      suffix: dt
+  slip_1_tax_shelter_id_nbr:
+    x_petey_id: '1_2'
+    type: number
+    widget:
+      page: 1
+      rect:
+      - 479.9989929199219
+      - 56.9990234375
+      - 587.9990234375
+      - 72.0
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].TaxShelter[0].Slip1TaxShelter_RT2[0]
+    description: Slip 1. Tax shelter identification number. See statement on reverse
+      side. 6 digits.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zzzzzzzzzzz9}
+        ui:
+        - num{zzzzzzzzzzz9}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_tax_shelter_id_num
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_tax_shelter_id_nbr
+        type: number
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '1'
+      subject: tax_shelter_id
+      suffix: nbr
+  slip_1_filer_name_and_address_txt:
+    x_petey_id: '1_3'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 21.999000549316406
+      - 66.9990234375
+      - 242.0
+      - 107.0
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FilersName[0].Slip1FilersName[0]
+    description: Slip 1. Filer's name and address.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: The printed caption "Filer's name and address – Nom et adresse du déclarant"
+        and the wide (220pt) box hold a combined name-and-address block, not a bare
+        person name; the person_name semantic_type is wrong and is dropped. The name
+        and description already match the caption.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Slip 1. Filer's name and address.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: slip_1_filer_name_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_filer_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    semantic_type: name_and_address
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '1'
+      subject: filer_name_and_address
+      suffix: txt
+  slip_1_box_002_partner_cd:
+    x_petey_id: '1_4'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 277.4410095214844
+      - 91.44000244140625
+      - 328.5610046386719
+      - 100.55902099609375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].Box002[0].Slip1Box002[0]
+    description: Slip 1. Box 002. Partner code.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_box_002_partner_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_box_002_partner_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '1'
+      subject: box_002_partner
+      suffix: cd
+  slip_1_box_003_country_cd:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: country_code
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 403.4410095214844
+      - 91.44000244140625
+      - 454.5610046386719
+      - 100.55902099609375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].Box003[0].Slip1Box003[0]
+    description: Slip 1. Box 003. Country code.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_box_003_country_cd
+        type: string
+        semantic_type: country_code
+        pattern: ^[A-Z]{2}$
+      to:
+        name: slip_1_box_003_country_cd
+        type: string
+        semantic_type: country_code
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '1'
+      subject: box_003_country
+      suffix: cd
+  slip_1_box_004_recipient_type_txt:
+    x_petey_id: '1_6'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 511.4410095214844
+      - 91.44000244140625
+      - 562.5609741210938
+      - 100.55902099609375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].Box004[0].Slip1Box004[0]
+    description: Slip 1. Box 004. Recipient type.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_box_004_recipient_type
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_box_004_recipient_type_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '1'
+      subject: box_004_recipient_type
+      suffix: txt
+  slip_1_box_001_partnership_account_nbr:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 1
+      rect:
+      - 37.439998626708984
+      - 127.44000244140625
+      - 235.5590057373047
+      - 136.55902099609375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].Box001[0].Slip1Box001[0]
+    description: Slip 1. Box 001. Partnership account number. 15 characters.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_box_001_partnership_account_num
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      to:
+        name: slip_1_box_001_partnership_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '1'
+      subject: box_001_partnership_account
+      suffix: nbr
+  slip_1_box_010_total_limited_partner_business_income_loss_amt:
+    x_petey_id: '1_8'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 337.4389953613281
+      - 127.44000244140625
+      - 418.5580139160156
+      - 136.55902099609375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].Box010[0].Slip1Box010[0]
+    description: Slip 1. Box 010. Total limited partner's business income, loss.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_box_010_total_limited_partner_business_income_loss_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_1_box_010_total_limited_partner_business_income_loss_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '1'
+      subject: box_010_total_limited_partner_business_income_loss
+      suffix: amt
+  slip_1_box_020_total_business_income_loss_amt:
+    x_petey_id: '1_9'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 484.4410095214844
+      - 127.44000244140625
+      - 565.5599975585938
+      - 136.55902099609375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].Box020[0].Slip1Box020[0]
+    description: Slip 1. Box 020. Total business income, loss.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_box_020_total_business_income_loss_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_1_box_020_total_business_income_loss_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '1'
+      subject: box_020_total_business_income_loss
+      suffix: amt
+  slip_1_box_006_partner_id_nbr:
+    x_petey_id: '1_10'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 37.439998626708984
+      - 166.4420166015625
+      - 184.56100463867188
+      - 175.56097412109375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].Box006[0].Slip1Box006[0]
+    description: Slip 1. Box 006. Partner's identification number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_box_006_partner_id_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_box_006_partner_id_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '1'
+      subject: box_006_partner_id
+      suffix: nbr
+  slip_1_box_005_partner_share_pct:
+    x_petey_id: '1_11'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 232.4409942626953
+      - 166.43902587890625
+      - 280.56201171875
+      - 175.5579833984375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].Box005[0].Slip1Box005[0]
+    description: Slip 1. Box 005. Partner's share of partnership. Enter as a percentage.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_box_005_partner_share_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: slip_1_box_005_partner_share_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '1'
+      subject: box_005_partner_share
+      suffix: pct
+  slip_1_box_030_total_capital_gains_losses_amt:
+    x_petey_id: '1_12'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 334.44000244140625
+      - 166.4420166015625
+      - 415.5589904785156
+      - 175.56097412109375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].Box030[0].Slip1Box030[0]
+    description: Slip 1. Box 030. Total capital gains, losses.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_box_030_total_capital_gains_losses_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_1_box_030_total_capital_gains_losses_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '1'
+      subject: box_030_total_capital_gains_losses
+      suffix: amt
+  slip_1_box_040_capital_cost_allowance_amt:
+    x_petey_id: '1_13'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 484.4410095214844
+      - 166.4420166015625
+      - 565.5599975585938
+      - 175.56097412109375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].Box040[0].Slip1Box040[0]
+    description: Slip 1. Box 040. Capital cost allowance.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_box_040_capital_cost_allowance_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_1_box_040_capital_cost_allowance_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '1'
+      subject: box_040_capital_cost_allowance
+      suffix: amt
+  slip_1_partner_nm:
+    x_petey_id: '1_20'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 24.99799919128418
+      - 211.00201416015625
+      - 289.9989929199219
+      - 221.0009765625
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].Employee[0].Name[0].Slip1Name[0]
+    description: Slip 1. Partner's last name, first name and initials.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_partner_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_partner_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '1'
+      subject: partner
+      suffix: nm
+  slip_1_partner_address_txt:
+    x_petey_id: '1_27'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 21.999000549316406
+      - 226.0
+      - 292.99798583984375
+      - 271.9990234375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].Employee[0].Slip1Address[0]
+    description: Slip 1. Partner's address.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_partner_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_partner_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; address -> address_txt'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '1'
+      subject: partner_address
+      suffix: txt
+  slip_1_first_box_1_txt:
+    x_petey_id: '1_14'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 304.4410095214844
+      - 193.4420166015625
+      - 331.55999755859375
+      - 208.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Box1[0].Slip1Box1[0]
+    description: Slip 1. Box. Instance 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_box_1_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_first_box_1_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Box column, table row 1.
+    x_petey_identifiers:
+      subject: slip_1_first_box_1
+      suffix: txt
+      grid: p1-G6
+  slip_1_first_cd_1:
+    x_petey_id: '1_15'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 337.4419860839844
+      - 193.4420166015625
+      - 358.56298828125
+      - 208.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Code1[0].Slip1Code1[0]
+    description: Slip 1. Code. Instance 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_1_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_first_1_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Code column, table row 1.
+    x_petey_identifiers:
+      subject: slip_1_first
+      suffix: cd
+      iteration: '1'
+      grid: p1-G6
+  slip_1_first_amt_1:
+    x_petey_id: '1_16'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 361.44000244140625
+      - 193.4420166015625
+      - 439.55999755859375
+      - 208.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Amount1[0].Slip1Amount1[0]
+    description: Slip 1. Amount. Instance 1.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_1_first_1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Amount column, table row 1.
+    x_petey_identifiers:
+      subject: slip_1_first
+      suffix: amt
+      iteration: '1'
+      grid: p1-G6
+  slip_1_second_box_1_txt:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 451.44000244140625
+      - 193.4420166015625
+      - 478.5589904785156
+      - 208.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Box2[0].Slip1Box2[0]
+    description: Slip 1. Box. Instance 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_box_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_second_box_1_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Box column, table row 1.
+    x_petey_identifiers:
+      subject: slip_1_second_box_1
+      suffix: txt
+      grid: p1-G7
+  slip_1_second_cd_1:
+    x_petey_id: '1_18'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 484.4410095214844
+      - 193.4420166015625
+      - 505.56201171875
+      - 208.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Code2[0].Slip1Code2[0]
+    description: Slip 1. Code. Instance 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_2_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_second_1_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Code column, table row 1.
+    x_petey_identifiers:
+      subject: slip_1_second
+      suffix: cd
+      iteration: '1'
+      grid: p1-G7
+  slip_1_second_amt_1:
+    x_petey_id: '1_19'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 508.4419860839844
+      - 193.4420166015625
+      - 586.56201171875
+      - 208.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Amount2[0].Slip1Amount2[0]
+    description: Slip 1. Amount. Instance 2.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_2_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_1_second_1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Amount column, table row 1.
+    x_petey_identifiers:
+      subject: slip_1_second
+      suffix: amt
+      iteration: '1'
+      grid: p1-G7
+  slip_1_first_box_2_txt:
+    x_petey_id: '1_21'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 304.4410095214844
+      - 223.44097900390625
+      - 331.55999755859375
+      - 238.56097412109375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Box3[0].Slip1Box3[0]
+    description: Slip 1. Box. Instance 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_box_3_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_first_box_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Box column, table row 2.
+    x_petey_identifiers:
+      subject: slip_1_first_box_2
+      suffix: txt
+      grid: p1-G6
+  slip_1_first_cd_2:
+    x_petey_id: '1_22'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 337.4419860839844
+      - 223.44097900390625
+      - 358.56298828125
+      - 238.56097412109375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Code3[0].Slip1Code3[0]
+    description: Slip 1. Code. Instance 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_3_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_first_2_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Code column, table row 2.
+    x_petey_identifiers:
+      subject: slip_1_first
+      suffix: cd
+      iteration: '2'
+      grid: p1-G6
+  slip_1_first_amt_2:
+    x_petey_id: '1_23'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 361.44000244140625
+      - 223.44097900390625
+      - 439.55999755859375
+      - 238.56097412109375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Amount3[0].Slip1Amount3[0]
+    description: Slip 1. Amount. Instance 3.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_3_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_1_first_2_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Amount column, table row 2.
+    x_petey_identifiers:
+      subject: slip_1_first
+      suffix: amt
+      iteration: '2'
+      grid: p1-G6
+  slip_1_second_box_2_txt:
+    x_petey_id: '1_24'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 451.44000244140625
+      - 223.44097900390625
+      - 478.5589904785156
+      - 238.56097412109375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Box4[0].Slip1Box4[0]
+    description: Slip 1. Box. Instance 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_box_4_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_second_box_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Box column, table row 2.
+    x_petey_identifiers:
+      subject: slip_1_second_box_2
+      suffix: txt
+      grid: p1-G7
+  slip_1_second_cd_2:
+    x_petey_id: '1_25'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 484.4410095214844
+      - 223.44097900390625
+      - 505.56201171875
+      - 238.56097412109375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Code4[0].Slip1Code4[0]
+    description: Slip 1. Code. Instance 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_4_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_second_2_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Code column, table row 2.
+    x_petey_identifiers:
+      subject: slip_1_second
+      suffix: cd
+      iteration: '2'
+      grid: p1-G7
+  slip_1_second_amt_2:
+    x_petey_id: '1_26'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 508.4419860839844
+      - 223.44097900390625
+      - 586.56201171875
+      - 238.56097412109375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Amount4[0].Slip1Amount4[0]
+    description: Slip 1. Amount. Instance 4.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_4_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_1_second_2_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Amount column, table row 2.
+    x_petey_identifiers:
+      subject: slip_1_second
+      suffix: amt
+      iteration: '2'
+      grid: p1-G7
+  slip_1_first_box_3_txt:
+    x_petey_id: '1_28'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 304.4410095214844
+      - 253.4429931640625
+      - 331.55999755859375
+      - 268.56298828125
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Box5[0].Slip1Box5[0]
+    description: Slip 1. Box. Instance 5.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_box_5_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_first_box_3_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Box column, table row 3.
+    x_petey_identifiers:
+      subject: slip_1_first_box_3
+      suffix: txt
+      grid: p1-G6
+  slip_1_first_cd_3:
+    x_petey_id: '1_29'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 337.4419860839844
+      - 253.4429931640625
+      - 358.56298828125
+      - 268.56298828125
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Code5[0].Slip1Code5[0]
+    description: Slip 1. Code. Instance 5.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_5_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_first_3_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Code column, table row 3.
+    x_petey_identifiers:
+      subject: slip_1_first
+      suffix: cd
+      iteration: '3'
+      grid: p1-G6
+  slip_1_first_amt_3:
+    x_petey_id: '1_30'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 361.44000244140625
+      - 253.4429931640625
+      - 439.55999755859375
+      - 268.56298828125
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Amount5[0].Slip1Amount5[0]
+    description: Slip 1. Amount. Instance 5.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_5_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_1_first_3_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Amount column, table row 3.
+    x_petey_identifiers:
+      subject: slip_1_first
+      suffix: amt
+      iteration: '3'
+      grid: p1-G6
+  slip_1_second_box_3_txt:
+    x_petey_id: '1_31'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 451.44000244140625
+      - 253.4429931640625
+      - 478.5589904785156
+      - 268.56298828125
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Box6[0].Slip1Box6[0]
+    description: Slip 1. Box. Instance 6.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_box_6_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_second_box_3_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Box column, table row 3.
+    x_petey_identifiers:
+      subject: slip_1_second_box_3
+      suffix: txt
+      grid: p1-G7
+  slip_1_second_cd_3:
+    x_petey_id: '1_32'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 484.4410095214844
+      - 253.4429931640625
+      - 505.56201171875
+      - 268.56298828125
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Code6[0].Slip1Code6[0]
+    description: Slip 1. Code. Instance 6.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_6_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_second_3_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Code column, table row 3.
+    x_petey_identifiers:
+      subject: slip_1_second
+      suffix: cd
+      iteration: '3'
+      grid: p1-G7
+  slip_1_second_amt_3:
+    x_petey_id: '1_33'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 508.4389953613281
+      - 253.4429931640625
+      - 586.5590209960938
+      - 268.56298828125
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Amount6[0].Slip1Amount6[0]
+    description: Slip 1. Amount. Instance 6.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_6_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_1_second_3_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Amount column, table row 3.
+    x_petey_identifiers:
+      subject: slip_1_second
+      suffix: amt
+      iteration: '3'
+      grid: p1-G7
+  slip_1_first_box_4_txt:
+    x_petey_id: '1_34'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 304.4410095214844
+      - 283.4419860839844
+      - 331.55999755859375
+      - 298.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Box7[0].Slip1Box7[0]
+    description: Slip 1. Box. Instance 7.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_box_7_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_first_box_4_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Box column, table row 4.
+    x_petey_identifiers:
+      subject: slip_1_first_box_4
+      suffix: txt
+      grid: p1-G6
+  slip_1_first_cd_4:
+    x_petey_id: '1_35'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 337.4419860839844
+      - 283.4419860839844
+      - 358.56298828125
+      - 298.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Code7[0].Slip1Code7[0]
+    description: Slip 1. Code. Instance 7.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_7_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_first_4_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Code column, table row 4.
+    x_petey_identifiers:
+      subject: slip_1_first
+      suffix: cd
+      iteration: '4'
+      grid: p1-G6
+  slip_1_first_amt_4:
+    x_petey_id: '1_36'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 361.44000244140625
+      - 283.4419860839844
+      - 439.55999755859375
+      - 298.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Amount7[0].Slip1Amount7[0]
+    description: Slip 1. Amount. Instance 7.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_7_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_1_first_4_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Amount column, table row 4.
+    x_petey_identifiers:
+      subject: slip_1_first
+      suffix: amt
+      iteration: '4'
+      grid: p1-G6
+  slip_1_second_box_4_txt:
+    x_petey_id: '1_37'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 451.44000244140625
+      - 283.4419860839844
+      - 478.5589904785156
+      - 298.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Box8[0].Slip1Box8[0]
+    description: Slip 1. Box. Instance 8.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_box_8_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_second_box_4_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Box column, table row 4.
+    x_petey_identifiers:
+      subject: slip_1_second_box_4
+      suffix: txt
+      grid: p1-G7
+  slip_1_second_cd_4:
+    x_petey_id: '1_38'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 484.4410095214844
+      - 283.4419860839844
+      - 505.56201171875
+      - 298.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Code8[0].Slip1Code8[0]
+    description: Slip 1. Code. Instance 8.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_8_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_second_4_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Code column, table row 4.
+    x_petey_identifiers:
+      subject: slip_1_second
+      suffix: cd
+      iteration: '4'
+      grid: p1-G7
+  slip_1_second_amt_4:
+    x_petey_id: '1_39'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 508.4389953613281
+      - 283.4419860839844
+      - 586.5590209960938
+      - 298.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Amount8[0].Slip1Amount8[0]
+    description: Slip 1. Amount. Instance 8.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_8_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_1_second_4_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Amount column, table row 4.
+    x_petey_identifiers:
+      subject: slip_1_second
+      suffix: amt
+      iteration: '4'
+      grid: p1-G7
+  slip_1_first_box_5_txt:
+    x_petey_id: '1_46'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 304.4410095214844
+      - 313.4410095214844
+      - 331.55999755859375
+      - 328.5610046386719
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Box9[0].Slip1Box9[0]
+    description: Slip 1. Box. Instance 9.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_box_9_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_first_box_5_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Box column, table row 5.
+    x_petey_identifiers:
+      subject: slip_1_first_box_5
+      suffix: txt
+      grid: p1-G6
+  slip_1_first_cd_5:
+    x_petey_id: '1_47'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 337.4419860839844
+      - 313.4410095214844
+      - 358.56298828125
+      - 328.5610046386719
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Code9[0].Slip1Code9[0]
+    description: Slip 1. Code. Instance 9.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_9_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_first_5_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Code column, table row 5.
+    x_petey_identifiers:
+      subject: slip_1_first
+      suffix: cd
+      iteration: '5'
+      grid: p1-G6
+  slip_1_first_amt_5:
+    x_petey_id: '1_48'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 361.44000244140625
+      - 313.4410095214844
+      - 439.55999755859375
+      - 328.5610046386719
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Amount9[0].Slip1Amount9[0]
+    description: Slip 1. Amount. Instance 9.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_9_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_1_first_5_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Amount column, table row 5.
+    x_petey_identifiers:
+      subject: slip_1_first
+      suffix: amt
+      iteration: '5'
+      grid: p1-G6
+  slip_1_second_box_5_txt:
+    x_petey_id: '1_49'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 451.44000244140625
+      - 313.4410095214844
+      - 478.5589904785156
+      - 328.5610046386719
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Box10[0].Slip1Box10[0]
+    description: Slip 1. Box. Instance 10.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_box_10_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_second_box_5_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Box column, table row 5.
+    x_petey_identifiers:
+      subject: slip_1_second_box_5
+      suffix: txt
+      grid: p1-G7
+  slip_1_second_cd_5:
+    x_petey_id: '1_50'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 484.4410095214844
+      - 313.4410095214844
+      - 505.56201171875
+      - 328.5610046386719
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Code10[0].Slip1Code10[0]
+    description: Slip 1. Code. Instance 10.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_10_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_second_5_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Code column, table row 5.
+    x_petey_identifiers:
+      subject: slip_1_second
+      suffix: cd
+      iteration: '5'
+      grid: p1-G7
+  slip_1_second_amt_5:
+    x_petey_id: '1_51'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 508.4389953613281
+      - 313.4410095214844
+      - 586.5590209960938
+      - 328.5610046386719
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Amount10[0].Slip1Amount10[0]
+    description: Slip 1. Amount. Instance 10.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_10_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_1_second_5_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Amount column, table row 5.
+    x_petey_identifiers:
+      subject: slip_1_second
+      suffix: amt
+      iteration: '5'
+      grid: p1-G7
+  slip_1_first_box_6_txt:
+    x_petey_id: '1_55'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 304.4410095214844
+      - 343.4429931640625
+      - 331.55999755859375
+      - 358.56298828125
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Box11[0].Slip1Box11[0]
+    description: Slip 1. Box. Instance 11.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_box_11_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_first_box_6_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Box column, table row 6.
+    x_petey_identifiers:
+      subject: slip_1_first_box_6
+      suffix: txt
+      grid: p1-G6
+  slip_1_first_cd_6:
+    x_petey_id: '1_56'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 337.4419860839844
+      - 343.4429931640625
+      - 358.56298828125
+      - 358.56298828125
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Code11[0].Slip1Code11[0]
+    description: Slip 1. Code. Instance 11.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_11_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_first_6_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Code column, table row 6.
+    x_petey_identifiers:
+      subject: slip_1_first
+      suffix: cd
+      iteration: '6'
+      grid: p1-G6
+  slip_1_first_amt_6:
+    x_petey_id: '1_57'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 361.44000244140625
+      - 343.4429931640625
+      - 439.55999755859375
+      - 358.56298828125
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Amount11[0].Slip1Amount11[0]
+    description: Slip 1. Amount. Instance 11.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_11_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_1_first_6_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Amount column, table row 6.
+    x_petey_identifiers:
+      subject: slip_1_first
+      suffix: amt
+      iteration: '6'
+      grid: p1-G6
+  slip_1_second_box_6_txt:
+    x_petey_id: '1_58'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 451.44000244140625
+      - 343.4429931640625
+      - 478.5589904785156
+      - 358.56298828125
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Box12[0].Slip1Box12[0]
+    description: Slip 1. Box. Instance 12.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_box_12_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_second_box_6_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Box column, table row 6.
+    x_petey_identifiers:
+      subject: slip_1_second_box_6
+      suffix: txt
+      grid: p1-G7
+  slip_1_second_cd_6:
+    x_petey_id: '1_59'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 484.4410095214844
+      - 343.4429931640625
+      - 505.56201171875
+      - 358.56298828125
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Code12[0].Slip1Code12[0]
+    description: Slip 1. Code. Instance 12.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_12_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_second_6_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Code column, table row 6.
+    x_petey_identifiers:
+      subject: slip_1_second
+      suffix: cd
+      iteration: '6'
+      grid: p1-G7
+  slip_1_second_amt_6:
+    x_petey_id: '1_60'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 508.4389953613281
+      - 343.4429931640625
+      - 586.5590209960938
+      - 358.56298828125
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].FinancialInformation[0].Amount12[0].Slip1Amount12[0]
+    description: Slip 1. Amount. Instance 12.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_1_12_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_1_second_6_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Amount column, table row 6.
+    x_petey_identifiers:
+      subject: slip_1_second
+      suffix: amt
+      iteration: '6'
+      grid: p1-G7
+  slip_1_other_information_box_1_txt:
+    x_petey_id: '1_40'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 22.43899917602539
+      - 289.44000244140625
+      - 55.558998107910156
+      - 304.55999755859375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].TextInformation[0].Row1[0].Slip1Box13[0]
+    description: Slip 1. Other information. Box. Instance 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_other_information_box_1
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_other_information_box_1_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type); number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: slip_1_other_information_box_1
+      suffix: txt
+      grid: p1-G3
+  slip_1_other_information_cd_1:
+    x_petey_id: '1_41'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 61.4379997253418
+      - 289.44000244140625
+      - 82.55899810791016
+      - 304.55999755859375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].TextInformation[0].Row1[0].Slip1Code13[0]
+    description: Slip 1. Other information. Code. Instance 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_other_information_cd_1
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_other_information_1_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number moved before the suffix'
+    x_petey_identifiers:
+      subject: slip_1_other_information
+      suffix: cd
+      iteration: '1'
+      grid: p1-G3
+  slip_1_other_information_txt_1:
+    x_petey_id: '1_42'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 88.43800354003906
+      - 289.44000244140625
+      - 292.5580139160156
+      - 304.55999755859375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].TextInformation[0].Row1[0].Slip1Other13[0]
+    description: Slip 1. Other information. Instance 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_other_information_1
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_other_information_1_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type); number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: slip_1_other_information
+      suffix: txt
+      iteration: '1'
+      grid: p1-G3
+  slip_1_other_information_box_2_txt:
+    x_petey_id: '1_43'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 22.43899917602539
+      - 310.4389953613281
+      - 55.558998107910156
+      - 325.5589904785156
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].TextInformation[0].Row2[0].Slip1Box14[0]
+    description: Slip 1. Other information. Box. Instance 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_other_information_box_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_other_information_box_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type); number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: slip_1_other_information_box_2
+      suffix: txt
+      grid: p1-G3
+  slip_1_other_information_cd_2:
+    x_petey_id: '1_44'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 61.4379997253418
+      - 310.4389953613281
+      - 82.55899810791016
+      - 325.5589904785156
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].TextInformation[0].Row2[0].Slip1Code14[0]
+    description: Slip 1. Other information. Code. Instance 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_other_information_cd_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_other_information_2_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number moved before the suffix'
+    x_petey_identifiers:
+      subject: slip_1_other_information
+      suffix: cd
+      iteration: '2'
+      grid: p1-G3
+  slip_1_other_information_txt_2:
+    x_petey_id: '1_45'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 88.43800354003906
+      - 310.4389953613281
+      - 292.5580139160156
+      - 325.5589904785156
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].TextInformation[0].Row2[0].Slip1Other14[0]
+    description: Slip 1. Other information. Instance 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_other_information_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_other_information_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type); number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: slip_1_other_information
+      suffix: txt
+      iteration: '2'
+      grid: p1-G3
+  slip_1_other_information_box_3_txt:
+    x_petey_id: '1_52'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 22.43899917602539
+      - 331.4410095214844
+      - 55.558998107910156
+      - 346.5610046386719
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].TextInformation[0].Row3[0].Slip1Box15[0]
+    description: Slip 1. Other information. Box. Instance 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_other_information_box_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_other_information_box_3_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type); number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: slip_1_other_information_box_3
+      suffix: txt
+      grid: p1-G3
+  slip_1_other_information_cd_3:
+    x_petey_id: '1_53'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 61.4379997253418
+      - 331.4410095214844
+      - 82.55899810791016
+      - 346.5610046386719
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].TextInformation[0].Row3[0].Slip1Code15[0]
+    description: Slip 1. Other information. Code. Instance 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_other_information_cd_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_other_information_3_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number moved before the suffix'
+    x_petey_identifiers:
+      subject: slip_1_other_information
+      suffix: cd
+      iteration: '3'
+      grid: p1-G3
+  slip_1_other_information_txt_3:
+    x_petey_id: '1_54'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 88.43800354003906
+      - 331.4410095214844
+      - 292.5580139160156
+      - 346.5610046386719
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].TextInformation[0].Row3[0].Slip1Other15[0]
+    description: Slip 1. Other information. Instance 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_other_information_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_other_information_3_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type); number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: slip_1_other_information
+      suffix: txt
+      iteration: '3'
+      grid: p1-G3
+  slip_1_other_information_box_4_txt:
+    x_petey_id: '1_61'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 22.43899917602539
+      - 352.44000244140625
+      - 55.558998107910156
+      - 367.55999755859375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].TextInformation[0].Row4[0].Slip1Box16[0]
+    description: Slip 1. Other information. Box. Instance 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_other_information_box_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_other_information_box_4_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type); number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: slip_1_other_information_box_4
+      suffix: txt
+      grid: p1-G3
+  slip_1_other_information_cd_4:
+    x_petey_id: '1_62'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 61.4379997253418
+      - 352.44000244140625
+      - 82.55899810791016
+      - 367.55999755859375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].TextInformation[0].Row4[0].Slip1Code16[0]
+    description: Slip 1. Other information. Code. Instance 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_other_information_cd_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_other_information_4_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number moved before the suffix'
+    x_petey_identifiers:
+      subject: slip_1_other_information
+      suffix: cd
+      iteration: '4'
+      grid: p1-G3
+  slip_1_other_information_txt_4:
+    x_petey_id: '1_63'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 88.43800354003906
+      - 352.44000244140625
+      - 292.5580139160156
+      - 367.55999755859375
+      widget_type: text
+      path: form1[0].Page1[0].Slip1[0].TextInformation[0].Row4[0].Slip1Other16[0]
+    description: Slip 1. Other information. Instance 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip1_other_information_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_1_other_information_4_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type); number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: slip_1_other_information
+      suffix: txt
+      iteration: '4'
+      grid: p1-G3
+  slip_2_fiscal_period_end_dt:
+    x_petey_id: '1_64'
+    type: string
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 277.0010070800781
+      - 412.0010070800781
+      - 359.0
+      - 425.00201416015625
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FiscalDate[0].Slip1FiscalDate[0]
+    description: Slip 2. Fiscal period end. Date. Year 4 digits. Month 2 digits. Day
+      2 digits.
+    x_petey_description_source: tooltip
+    pattern: ^\d{4}\-\d{2}\-\d{2}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{9999-99-99}
+      pictures:
+        format:
+        - text{9999-99-99}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_fiscal_period_end_dt
+        type: string
+        semantic_type: iso_date
+        pattern: ^\d{4}\-\d{2}\-\d{2}$
+      to:
+        name: slip_2_fiscal_period_end_dt
+        type: string
+        semantic_type: iso_date
+        pattern: ^\d{4}\-\d{2}\-\d{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '2'
+      subject: fiscal_period_end
+      suffix: dt
+  slip_2_tax_shelter_id_nbr:
+    x_petey_id: '1_65'
+    type: number
+    widget:
+      page: 1
+      rect:
+      - 479.9989929199219
+      - 438.0010070800781
+      - 587.9990234375
+      - 453.00201416015625
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].TaxShelter[0].Slip1TaxShelter_RT2[0]
+    description: Slip 2. Tax shelter identification number. See statement on reverse
+      side. 6 digits.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zzzzzzzzzzz9}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_tax_shelter_id_num
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_tax_shelter_id_nbr
+        type: number
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '2'
+      subject: tax_shelter_id
+      suffix: nbr
+  slip_2_filer_name_and_address_txt:
+    x_petey_id: '1_66'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 21.999000549316406
+      - 451.0
+      - 244.99899291992188
+      - 491.0010070800781
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FilersName[0].Slip1FilersName[0]
+    description: Slip 2. Filer's name and address.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: 'Same as slip 1: the caption "Filer''s name and address" and the 223pt
+        box hold a name-and-address block, so the person_name semantic_type is incorrect
+        and removed; name and description stay.'
+      before:
+        type: string
+        semantic_type: person_name
+        description: Slip 2. Filer's name and address.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: slip_2_filer_name_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_filer_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    semantic_type: name_and_address
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '2'
+      subject: filer_name_and_address
+      suffix: txt
+  slip_2_box_002_partner_cd:
+    x_petey_id: '1_67'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 292.4419860839844
+      - 475.4410095214844
+      - 343.56201171875
+      - 484.55999755859375
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].Box002[0].Slip1Box002[0]
+    description: Slip 2. Box 002. Partner code.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_box_002_partner_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_box_002_partner_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '2'
+      subject: box_002_partner
+      suffix: cd
+  slip_2_box_003_country_cd:
+    x_petey_id: '1_68'
+    type: string
+    semantic_type: country_code
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 403.4410095214844
+      - 475.4410095214844
+      - 454.5610046386719
+      - 484.55999755859375
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].Box003[0].Slip1Box003[0]
+    description: Slip 2. Box 003. Country code.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_box_003_country_cd
+        type: string
+        semantic_type: country_code
+        pattern: ^[A-Z]{2}$
+      to:
+        name: slip_2_box_003_country_cd
+        type: string
+        semantic_type: country_code
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '2'
+      subject: box_003_country
+      suffix: cd
+  slip_2_box_004_recipient_type_txt:
+    x_petey_id: '1_69'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 511.4410095214844
+      - 475.4410095214844
+      - 562.5609741210938
+      - 484.55999755859375
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].Box004[0].Slip1Box004[0]
+    description: Slip 2. Box 004. Recipient type.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_box_004_recipient_type
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_box_004_recipient_type_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '2'
+      subject: box_004_recipient_type
+      suffix: txt
+  slip_2_box_001_partnership_account_nbr:
+    x_petey_id: '1_70'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 1
+      rect:
+      - 37.439998626708984
+      - 511.4410095214844
+      - 235.5590057373047
+      - 520.5599975585938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].Box001[0].Slip1Box001[0]
+    description: Slip 2. Box 001. Partnership account number (15 characters).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_box_001_partnership_account_num
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      to:
+        name: slip_2_box_001_partnership_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '2'
+      subject: box_001_partnership_account
+      suffix: nbr
+  slip_2_box_010_total_limited_partner_business_income_loss_amt:
+    x_petey_id: '1_71'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 337.4389953613281
+      - 511.4410095214844
+      - 418.5580139160156
+      - 520.5599975585938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].Box010[0].Slip1Box010[0]
+    description: Slip 2. Box 010. Total limited partner's business income, loss.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_box_010_total_limited_partner_business_income_loss_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_2_box_010_total_limited_partner_business_income_loss_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '2'
+      subject: box_010_total_limited_partner_business_income_loss
+      suffix: amt
+  slip_2_box_020_total_business_income_loss_amt:
+    x_petey_id: '1_72'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 490.4419860839844
+      - 511.4410095214844
+      - 571.5609741210938
+      - 520.5599975585938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].Box020[0].Slip1Box020[0]
+    description: Slip 2. Box 020. Total business income, loss.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_box_020_total_business_income_loss_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_2_box_020_total_business_income_loss_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '2'
+      subject: box_020_total_business_income_loss
+      suffix: amt
+  slip_2_box_006_partner_id_nbr:
+    x_petey_id: '1_73'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 37.439998626708984
+      - 553.4420166015625
+      - 184.56100463867188
+      - 562.56103515625
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].Box006[0].Slip1Box006[0]
+    description: Slip 2. Box 006. Partner's identification number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_box_006_partner_id_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_box_006_partner_id_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '2'
+      subject: box_006_partner_id
+      suffix: nbr
+  slip_2_box_005_partner_share_pct:
+    x_petey_id: '1_74'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 241.65899658203125
+      - 553.5809936523438
+      - 289.7799987792969
+      - 562.7000122070312
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].Box005[0].Slip1Box005[0]
+    description: Slip 2. Box 005. Partner's share of partnership. Enter as a percentage.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_box_005_partner_share_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: slip_2_box_005_partner_share_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '2'
+      subject: box_005_partner_share
+      suffix: pct
+  slip_2_box_030_total_capital_gains_losses_amt:
+    x_petey_id: '1_75'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 346.4419860839844
+      - 553.4420166015625
+      - 427.5610046386719
+      - 562.56103515625
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].Box030[0].Slip1Box030[0]
+    description: Slip 2. Box 030. Total capital gains, losses.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_box_030_total_capital_gains_losses_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_2_box_030_total_capital_gains_losses_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '2'
+      subject: box_030_total_capital_gains_losses
+      suffix: amt
+  slip_2_box_040_capital_cost_allowance_amt:
+    x_petey_id: '1_76'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 490.4419860839844
+      - 553.4420166015625
+      - 571.5609741210938
+      - 562.56103515625
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].Box040[0].Slip1Box040[0]
+    description: Slip 2. Box 040. Capital cost allowance.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_box_040_capital_cost_allowance_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_2_box_040_capital_cost_allowance_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '2'
+      subject: box_040_capital_cost_allowance
+      suffix: amt
+  slip_2_partner_nm:
+    x_petey_id: '1_83'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 25.437999725341797
+      - 601.4409790039062
+      - 289.5589904785156
+      - 610.5599975585938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].Employee[0].Name[0].Slip1Name[0]
+    description: Slip 2. Partner's last name, first name and initials.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_partner_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_partner_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '2'
+      subject: partner
+      suffix: nm
+  slip_2_partner_address_txt:
+    x_petey_id: '1_90'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 21.999000549316406
+      - 615.9990234375
+      - 292.99798583984375
+      - 661.9979858398438
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].Employee[0].Slip1Address[0]
+    description: Slip 2. Partner's address.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_partner_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_partner_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; address -> address_txt'
+    x_petey_identifiers:
+      block_prefix: slip
+      block_iteration: '2'
+      subject: partner_address
+      suffix: txt
+  slip_2_first_box_1_txt:
+    x_petey_id: '1_77'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 304.4410095214844
+      - 583.4409790039062
+      - 331.55999755859375
+      - 598.56103515625
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Box1[0].Slip1Box1[0]
+    description: Slip 2. Box. Instance 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_box_1_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_first_box_1_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Box column, table row 1.
+    x_petey_identifiers:
+      subject: slip_2_first_box_1
+      suffix: txt
+      grid: p1-G8
+  slip_2_first_cd_1:
+    x_petey_id: '1_78'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 337.4419860839844
+      - 583.4409790039062
+      - 358.56298828125
+      - 598.56103515625
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Code1[0].Slip1Code1[0]
+    description: Slip 2. Code. Instance 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_1_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_first_1_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Code column, table row 1.
+    x_petey_identifiers:
+      subject: slip_2_first
+      suffix: cd
+      iteration: '1'
+      grid: p1-G8
+  slip_2_first_amt_1:
+    x_petey_id: '1_79'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 361.44000244140625
+      - 583.4409790039062
+      - 439.55999755859375
+      - 598.56103515625
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Amount1[0].Slip1Amount1[0]
+    description: Slip 2. Amount. Instance 1.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_2_first_1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Amount column, table row 1.
+    x_petey_identifiers:
+      subject: slip_2_first
+      suffix: amt
+      iteration: '1'
+      grid: p1-G8
+  slip_2_second_box_1_txt:
+    x_petey_id: '1_80'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 451.44000244140625
+      - 583.4409790039062
+      - 478.5589904785156
+      - 598.56103515625
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Box2[0].Slip1Box2[0]
+    description: Slip 2. Box. Instance 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_box_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_second_box_1_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Box column, table row 1.
+    x_petey_identifiers:
+      subject: slip_2_second_box_1
+      suffix: txt
+      grid: p1-G9
+  slip_2_second_cd_1:
+    x_petey_id: '1_81'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 484.4410095214844
+      - 583.4409790039062
+      - 505.56201171875
+      - 598.56103515625
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Code2[0].Slip1Code2[0]
+    description: Slip 2. Code. Instance 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_2_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_second_1_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Code column, table row 1.
+    x_petey_identifiers:
+      subject: slip_2_second
+      suffix: cd
+      iteration: '1'
+      grid: p1-G9
+  slip_2_second_amt_1:
+    x_petey_id: '1_82'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 508.4389953613281
+      - 583.4409790039062
+      - 586.5590209960938
+      - 598.56103515625
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Amount2[0].Slip1Amount2[0]
+    description: Slip 2. Amount. Instance 2.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_2_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_2_second_1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Amount column, table row 1.
+    x_petey_identifiers:
+      subject: slip_2_second
+      suffix: amt
+      iteration: '1'
+      grid: p1-G9
+  slip_2_first_box_2_txt:
+    x_petey_id: '1_84'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 304.4410095214844
+      - 613.4400024414062
+      - 331.55999755859375
+      - 628.5599975585938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Box3[0].Slip1Box3[0]
+    description: Slip 2. Box. Instance 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_box_3_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_first_box_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Box column, table row 2.
+    x_petey_identifiers:
+      subject: slip_2_first_box_2
+      suffix: txt
+      grid: p1-G8
+  slip_2_first_cd_2:
+    x_petey_id: '1_85'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 337.4419860839844
+      - 613.4400024414062
+      - 358.56298828125
+      - 628.5599975585938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Code3[0].Slip1Code3[0]
+    description: Slip 2. Code. Instance 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_3_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_first_2_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Code column, table row 2.
+    x_petey_identifiers:
+      subject: slip_2_first
+      suffix: cd
+      iteration: '2'
+      grid: p1-G8
+  slip_2_first_amt_2:
+    x_petey_id: '1_86'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 361.44000244140625
+      - 613.4400024414062
+      - 439.55999755859375
+      - 628.5599975585938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Amount3[0].Slip1Amount3[0]
+    description: Slip 2. Amount. Instance 3.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_3_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_2_first_2_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Amount column, table row 2.
+    x_petey_identifiers:
+      subject: slip_2_first
+      suffix: amt
+      iteration: '2'
+      grid: p1-G8
+  slip_2_second_box_2_txt:
+    x_petey_id: '1_87'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 451.44000244140625
+      - 613.4400024414062
+      - 478.5589904785156
+      - 628.5599975585938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Box4[0].Slip1Box4[0]
+    description: Slip 2. Box. Instance 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_box_4_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_second_box_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Box column, table row 2.
+    x_petey_identifiers:
+      subject: slip_2_second_box_2
+      suffix: txt
+      grid: p1-G9
+  slip_2_second_cd_2:
+    x_petey_id: '1_88'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 484.4410095214844
+      - 613.4400024414062
+      - 505.56201171875
+      - 628.5599975585938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Code4[0].Slip1Code4[0]
+    description: Slip 2. Code. Instance 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_4_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_second_2_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Code column, table row 2.
+    x_petey_identifiers:
+      subject: slip_2_second
+      suffix: cd
+      iteration: '2'
+      grid: p1-G9
+  slip_2_second_amt_2:
+    x_petey_id: '1_89'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 508.4389953613281
+      - 613.4400024414062
+      - 586.5590209960938
+      - 628.5599975585938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Amount4[0].Slip1Amount4[0]
+    description: Slip 2. Amount. Instance 4.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_4_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_2_second_2_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Amount column, table row 2.
+    x_petey_identifiers:
+      subject: slip_2_second
+      suffix: amt
+      iteration: '2'
+      grid: p1-G9
+  slip_2_first_box_3_txt:
+    x_petey_id: '1_91'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 304.4410095214844
+      - 643.4420166015625
+      - 331.55999755859375
+      - 658.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Box5[0].Slip1Box5[0]
+    description: Slip 2. Box. Instance 5.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_box_5_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_first_box_3_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Box column, table row 3.
+    x_petey_identifiers:
+      subject: slip_2_first_box_3
+      suffix: txt
+      grid: p1-G8
+  slip_2_first_cd_3:
+    x_petey_id: '1_92'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 337.4419860839844
+      - 643.4420166015625
+      - 358.56298828125
+      - 658.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Code5[0].Slip1Code5[0]
+    description: Slip 2. Code. Instance 5.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_5_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_first_3_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Code column, table row 3.
+    x_petey_identifiers:
+      subject: slip_2_first
+      suffix: cd
+      iteration: '3'
+      grid: p1-G8
+  slip_2_first_amt_3:
+    x_petey_id: '1_93'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 361.44000244140625
+      - 643.4420166015625
+      - 439.55999755859375
+      - 658.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Amount5[0].Slip1Amount5[0]
+    description: Slip 2. Amount. Instance 5.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_5_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_2_first_3_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Amount column, table row 3.
+    x_petey_identifiers:
+      subject: slip_2_first
+      suffix: amt
+      iteration: '3'
+      grid: p1-G8
+  slip_2_second_box_3_txt:
+    x_petey_id: '1_94'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 451.44000244140625
+      - 643.4420166015625
+      - 478.5589904785156
+      - 658.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Box6[0].Slip1Box6[0]
+    description: Slip 2. Box. Instance 6.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_box_6_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_second_box_3_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Box column, table row 3.
+    x_petey_identifiers:
+      subject: slip_2_second_box_3
+      suffix: txt
+      grid: p1-G9
+  slip_2_second_cd_3:
+    x_petey_id: '1_95'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 484.4410095214844
+      - 643.4420166015625
+      - 505.56201171875
+      - 658.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Code6[0].Slip1Code6[0]
+    description: Slip 2. Code. Instance 6.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_6_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_second_3_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Code column, table row 3.
+    x_petey_identifiers:
+      subject: slip_2_second
+      suffix: cd
+      iteration: '3'
+      grid: p1-G9
+  slip_2_second_amt_3:
+    x_petey_id: '1_96'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 508.4389953613281
+      - 643.4420166015625
+      - 586.5590209960938
+      - 658.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Amount6[0].Slip1Amount6[0]
+    description: Slip 2. Amount. Instance 6.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_6_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_2_second_3_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Amount column, table row 3.
+    x_petey_identifiers:
+      subject: slip_2_second
+      suffix: amt
+      iteration: '3'
+      grid: p1-G9
+  slip_2_first_box_4_txt:
+    x_petey_id: '1_97'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 304.4410095214844
+      - 673.4409790039062
+      - 331.55999755859375
+      - 688.5609741210938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Box7[0].Slip1Box7[0]
+    description: Slip 2. Box. Instance 7.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_box_7_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_first_box_4_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Box column, table row 4.
+    x_petey_identifiers:
+      subject: slip_2_first_box_4
+      suffix: txt
+      grid: p1-G8
+  slip_2_first_cd_4:
+    x_petey_id: '1_98'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 337.4419860839844
+      - 673.4409790039062
+      - 358.56298828125
+      - 688.5609741210938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Code7[0].Slip1Code7[0]
+    description: Slip 2. Code. Instance 7.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_7_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_first_4_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Code column, table row 4.
+    x_petey_identifiers:
+      subject: slip_2_first
+      suffix: cd
+      iteration: '4'
+      grid: p1-G8
+  slip_2_first_amt_4:
+    x_petey_id: '1_99'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 361.44000244140625
+      - 673.4409790039062
+      - 439.55999755859375
+      - 688.5609741210938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Amount7[0].Slip1Amount7[0]
+    description: Slip 2. Amount. Instance 7.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_7_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_2_first_4_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Amount column, table row 4.
+    x_petey_identifiers:
+      subject: slip_2_first
+      suffix: amt
+      iteration: '4'
+      grid: p1-G8
+  slip_2_second_box_4_txt:
+    x_petey_id: '1_100'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 451.44000244140625
+      - 673.4409790039062
+      - 478.5589904785156
+      - 688.5609741210938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Box8[0].Slip1Box8[0]
+    description: Slip 2. Box. Instance 8.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_box_8_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_second_box_4_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Box column, table row 4.
+    x_petey_identifiers:
+      subject: slip_2_second_box_4
+      suffix: txt
+      grid: p1-G9
+  slip_2_second_cd_4:
+    x_petey_id: '1_101'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 484.4410095214844
+      - 673.4409790039062
+      - 505.56201171875
+      - 688.5609741210938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Code8[0].Slip1Code8[0]
+    description: Slip 2. Code. Instance 8.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_8_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_second_4_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Code column, table row 4.
+    x_petey_identifiers:
+      subject: slip_2_second
+      suffix: cd
+      iteration: '4'
+      grid: p1-G9
+  slip_2_second_amt_4:
+    x_petey_id: '1_102'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 508.4389953613281
+      - 673.4409790039062
+      - 586.5590209960938
+      - 688.5609741210938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Amount8[0].Slip1Amount8[0]
+    description: Slip 2. Amount. Instance 8.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_8_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_2_second_4_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Amount column, table row 4.
+    x_petey_identifiers:
+      subject: slip_2_second
+      suffix: amt
+      iteration: '4'
+      grid: p1-G9
+  slip_2_first_box_5_txt:
+    x_petey_id: '1_109'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 304.4410095214844
+      - 703.4400024414062
+      - 331.55999755859375
+      - 718.5599975585938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Box9[0].Slip1Box9[0]
+    description: Slip 2. Box. Instance 9.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_box_9_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_first_box_5_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Box column, table row 5.
+    x_petey_identifiers:
+      subject: slip_2_first_box_5
+      suffix: txt
+      grid: p1-G8
+  slip_2_first_cd_5:
+    x_petey_id: '1_110'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 337.4419860839844
+      - 703.4400024414062
+      - 358.56298828125
+      - 718.5599975585938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Code9[0].Slip1Code9[0]
+    description: Slip 2. Code. Instance 9.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_9_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_first_5_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Code column, table row 5.
+    x_petey_identifiers:
+      subject: slip_2_first
+      suffix: cd
+      iteration: '5'
+      grid: p1-G8
+  slip_2_first_amt_5:
+    x_petey_id: '1_111'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 361.44000244140625
+      - 703.4400024414062
+      - 439.55999755859375
+      - 718.5599975585938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Amount9[0].Slip1Amount9[0]
+    description: Slip 2. Amount. Instance 9.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_9_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_2_first_5_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Amount column, table row 5.
+    x_petey_identifiers:
+      subject: slip_2_first
+      suffix: amt
+      iteration: '5'
+      grid: p1-G8
+  slip_2_second_box_5_txt:
+    x_petey_id: '1_112'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 451.44000244140625
+      - 703.4400024414062
+      - 478.5589904785156
+      - 718.5599975585938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Box10[0].Slip1Box10[0]
+    description: Slip 2. Box. Instance 10.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_box_10_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_second_box_5_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Box column, table row 5.
+    x_petey_identifiers:
+      subject: slip_2_second_box_5
+      suffix: txt
+      grid: p1-G9
+  slip_2_second_cd_5:
+    x_petey_id: '1_113'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 484.4410095214844
+      - 703.4400024414062
+      - 505.56201171875
+      - 718.5599975585938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Code10[0].Slip1Code10[0]
+    description: Slip 2. Code. Instance 10.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_10_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_second_5_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Code column, table row 5.
+    x_petey_identifiers:
+      subject: slip_2_second
+      suffix: cd
+      iteration: '5'
+      grid: p1-G9
+  slip_2_second_amt_5:
+    x_petey_id: '1_114'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 508.4389953613281
+      - 703.4400024414062
+      - 586.5590209960938
+      - 718.5599975585938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Amount10[0].Slip1Amount10[0]
+    description: Slip 2. Amount. Instance 10.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_10_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_2_second_5_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Amount column, table row 5.
+    x_petey_identifiers:
+      subject: slip_2_second
+      suffix: amt
+      iteration: '5'
+      grid: p1-G9
+  slip_2_first_box_6_txt:
+    x_petey_id: '1_118'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 304.4410095214844
+      - 733.4420166015625
+      - 331.55999755859375
+      - 748.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Box11[0].Slip1Box11[0]
+    description: Slip 2. Box. Instance 11.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_box_11_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_first_box_6_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Box column, table row 6.
+    x_petey_identifiers:
+      subject: slip_2_first_box_6
+      suffix: txt
+      grid: p1-G8
+  slip_2_first_cd_6:
+    x_petey_id: '1_119'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 337.4419860839844
+      - 733.4420166015625
+      - 358.56298828125
+      - 748.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Code11[0].Slip1Code11[0]
+    description: Slip 2. Code. Instance 11.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_11_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_first_6_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Code column, table row 6.
+    x_petey_identifiers:
+      subject: slip_2_first
+      suffix: cd
+      iteration: '6'
+      grid: p1-G8
+  slip_2_first_amt_6:
+    x_petey_id: '1_120'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 361.44000244140625
+      - 733.4420166015625
+      - 439.55999755859375
+      - 748.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Amount11[0].Slip1Amount11[0]
+    description: Slip 2. Amount. Instance 11.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_11_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_2_first_6_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Left Amount column, table row 6.
+    x_petey_identifiers:
+      subject: slip_2_first
+      suffix: amt
+      iteration: '6'
+      grid: p1-G8
+  slip_2_second_box_6_txt:
+    x_petey_id: '1_121'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 451.44000244140625
+      - 733.4420166015625
+      - 478.5589904785156
+      - 748.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Box12[0].Slip1Box12[0]
+    description: Slip 2. Box. Instance 12.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_box_12_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_second_box_6_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Box column, table row 6.
+    x_petey_identifiers:
+      subject: slip_2_second_box_6
+      suffix: txt
+      grid: p1-G9
+  slip_2_second_cd_6:
+    x_petey_id: '1_122'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 484.4410095214844
+      - 733.4420166015625
+      - 505.56201171875
+      - 748.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Code12[0].Slip1Code12[0]
+    description: Slip 2. Code. Instance 12.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_12_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_second_6_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Code column, table row 6.
+    x_petey_identifiers:
+      subject: slip_2_second
+      suffix: cd
+      iteration: '6'
+      grid: p1-G9
+  slip_2_second_amt_6:
+    x_petey_id: '1_123'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 508.4389953613281
+      - 733.4420166015625
+      - 586.5590209960938
+      - 748.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].FinancialInformation[0].Amount12[0].Slip1Amount12[0]
+    description: Slip 2. Amount. Instance 12.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-19 16:31:52'
+      from:
+        name: slip_2_12_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: slip_2_second_6_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right Amount column, table row 6.
+    x_petey_identifiers:
+      subject: slip_2_second
+      suffix: amt
+      iteration: '6'
+      grid: p1-G9
+  slip_2_other_information_box_1_txt:
+    x_petey_id: '1_103'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 22.43899917602539
+      - 679.4420166015625
+      - 55.558998107910156
+      - 694.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].TextInformation[0].Row1[0].Slip1Box13[0]
+    description: Slip 2. Other information. Box. Instance 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_other_information_box_1
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_other_information_box_1_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type); number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: slip_2_other_information_box_1
+      suffix: txt
+      grid: p1-G5
+  slip_2_other_information_cd_1:
+    x_petey_id: '1_104'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 61.4379997253418
+      - 679.4420166015625
+      - 82.55899810791016
+      - 694.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].TextInformation[0].Row1[0].Slip1Code13[0]
+    description: Slip 2. Other information. Code. Instance 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_other_information_cd_1
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_other_information_1_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number moved before the suffix'
+    x_petey_identifiers:
+      subject: slip_2_other_information
+      suffix: cd
+      iteration: '1'
+      grid: p1-G5
+  slip_2_other_information_txt_1:
+    x_petey_id: '1_105'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 88.43800354003906
+      - 679.4420166015625
+      - 292.5580139160156
+      - 694.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].TextInformation[0].Row1[0].Slip1Other13[0]
+    description: Slip 2. Other information. Instance 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_other_information_1
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_other_information_1_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type); number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: slip_2_other_information
+      suffix: txt
+      iteration: '1'
+      grid: p1-G5
+  slip_2_other_information_box_2_txt:
+    x_petey_id: '1_106'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 22.43899917602539
+      - 700.4409790039062
+      - 55.558998107910156
+      - 715.5609741210938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].TextInformation[0].Row2[0].Slip1Box14[0]
+    description: Slip 2. Other information. Box. Instance 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_other_information_box_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_other_information_box_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type); number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: slip_2_other_information_box_2
+      suffix: txt
+      grid: p1-G5
+  slip_2_other_information_cd_2:
+    x_petey_id: '1_107'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 61.4379997253418
+      - 700.4409790039062
+      - 82.55899810791016
+      - 715.5609741210938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].TextInformation[0].Row2[0].Slip1Code14[0]
+    description: Slip 2. Other information. Code. Instance 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_other_information_cd_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_other_information_2_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number moved before the suffix'
+    x_petey_identifiers:
+      subject: slip_2_other_information
+      suffix: cd
+      iteration: '2'
+      grid: p1-G5
+  slip_2_other_information_txt_2:
+    x_petey_id: '1_108'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 88.43800354003906
+      - 700.4409790039062
+      - 292.5580139160156
+      - 715.5609741210938
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].TextInformation[0].Row2[0].Slip1Other14[0]
+    description: Slip 2. Other information. Instance 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_other_information_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_other_information_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type); number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: slip_2_other_information
+      suffix: txt
+      iteration: '2'
+      grid: p1-G5
+  slip_2_other_information_box_3_txt:
+    x_petey_id: '1_115'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 22.43899917602539
+      - 721.4429931640625
+      - 55.558998107910156
+      - 736.56298828125
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].TextInformation[0].Row3[0].Slip1Box15[0]
+    description: Slip 2. Other information. Box. Instance 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_other_information_box_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_other_information_box_3_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type); number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: slip_2_other_information_box_3
+      suffix: txt
+      grid: p1-G5
+  slip_2_other_information_cd_3:
+    x_petey_id: '1_116'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 61.4379997253418
+      - 721.4429931640625
+      - 82.55899810791016
+      - 736.56298828125
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].TextInformation[0].Row3[0].Slip1Code15[0]
+    description: Slip 2. Other information. Code. Instance 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_other_information_cd_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_other_information_3_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number moved before the suffix'
+    x_petey_identifiers:
+      subject: slip_2_other_information
+      suffix: cd
+      iteration: '3'
+      grid: p1-G5
+  slip_2_other_information_txt_3:
+    x_petey_id: '1_117'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 88.43800354003906
+      - 721.4429931640625
+      - 292.5580139160156
+      - 736.56298828125
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].TextInformation[0].Row3[0].Slip1Other15[0]
+    description: Slip 2. Other information. Instance 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_other_information_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_other_information_3_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type); number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: slip_2_other_information
+      suffix: txt
+      iteration: '3'
+      grid: p1-G5
+  slip_2_other_information_box_4_txt:
+    x_petey_id: '1_124'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 22.43899917602539
+      - 742.4420166015625
+      - 55.558998107910156
+      - 757.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].TextInformation[0].Row4[0].Slip1Box16[0]
+    description: Slip 2. Other information. Box. Instance 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_other_information_box_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_other_information_box_4_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type); number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: slip_2_other_information_box_4
+      suffix: txt
+      grid: p1-G5
+  slip_2_other_information_cd_4:
+    x_petey_id: '1_125'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 61.4379997253418
+      - 742.4420166015625
+      - 82.55899810791016
+      - 757.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].TextInformation[0].Row4[0].Slip1Code16[0]
+    description: Slip 2. Other information. Code. Instance 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_other_information_cd_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_other_information_4_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number moved before the suffix'
+    x_petey_identifiers:
+      subject: slip_2_other_information
+      suffix: cd
+      iteration: '4'
+      grid: p1-G5
+  slip_2_other_information_txt_4:
+    x_petey_id: '1_126'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 88.43800354003906
+      - 742.4420166015625
+      - 292.5580139160156
+      - 757.56201171875
+      widget_type: text
+      path: form1[0].Page1[0].Slip2[0].TextInformation[0].Row4[0].Slip1Other16[0]
+    description: Slip 2. Other information. Instance 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: slip2_other_information_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: slip_2_other_information_4_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type); number moved before the
+        suffix'
+    x_petey_identifiers:
+      subject: slip_2_other_information
+      suffix: txt
+      iteration: '4'
+      grid: p1-G5
+x_petey_dropped_widgets:
+  count: 6
+  widgets:
+  - path: form1[0].#pageSet[0].Page1[0].ClearData_EN[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear Data
+  - path: form1[0].Page1[0].Slip1[0].TaxShelter[0].Footnote[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Footnote
+  - path: form1[0].Page1[0].Slip1[0].TaxShelter[0].Remarque[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Remarque
+  - path: form1[0].Page1[0].Slip1[0].TaxShelter[0].Slip1TaxShelter_RT1[0]
+    page: 1
+    reason: caption
+    field_type: Text
+    tooltip: Slip1TaxShelter_RT1
+    caption: TS
+  - path: form1[0].Page1[0].Slip2[0].TaxShelter[0].Slip1TaxShelter_RT1[0]
+    page: 1
+    reason: caption
+    field_type: Text
+    tooltip: null
+    caption: TS
+  - path: form1[0].#pageSet[0].Page1[1].ClearData_EN[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear Data
+x_petey_xfa_log:
+  joined: 126
+  type: 4
+  pattern: 2
+x_petey_page_check:
+  when: '2026-10-16 13:23:11'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  fields: 126
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/cra_t5013__a13ee6__3960e05f.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: cra_t5013_20261007_002620
+  blueprint: /home/user/petey-2/runs/judge_eval/work/cra_t5013.bpt
+  when: '2026-10-07 00:27:15'
+x_petey_run:
+  record: runs/judge_eval/form_runs/cra_t5013.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-07 00:27:18'

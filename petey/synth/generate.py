@@ -32,6 +32,8 @@ truth (which would mask labeler bugs).
 """
 from __future__ import annotations
 
+import os
+
 import base64
 import json
 import time
@@ -41,7 +43,9 @@ from typing import Any, Optional
 
 import pymupdf
 
-MODEL = "claude-sonnet-4-6"
+from petey.models import model_for
+
+MODEL = model_for("generator")
 BLIND_PROMPT_VERSION = "rect-1"
 MAX_TOKENS = 32768
 PAGE_DPI = 150
@@ -342,6 +346,9 @@ PROVIDERS = {
     "mistral-": ("https://api.mistral.ai/v1", "MISTRAL_API_KEY"),
     "pixtral-": ("https://api.mistral.ai/v1", "MISTRAL_API_KEY"),
     "accounts/fireworks/": ("https://api.fireworks.ai/inference/v1", "FIREWORKS_API_KEY"),
+    # a model served on this machine by llama.cpp's llama-server (OpenAI-compatible); the id after `local-` is
+    # only a label, the server runs whatever model it was started with (2026-10-12)
+    "local-": (os.environ.get("PETEY_LOCAL_LLM_URL", "http://127.0.0.1:8080/v1"), "PETEY_LOCAL_LLM_KEY"),
 }
 _ENV_FILES = (Path(__file__).resolve().parents[2] / ".env",
               Path(__file__).resolve().parents[3] / "petey-master" / ".env")
@@ -366,6 +373,22 @@ def _load_keys() -> None:
                 os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
 
+def final_message(stream_fn, tag: str = "", tries: int = 3):
+    """`stream_fn()` opens a Messages stream; its final message, the call retried when the connection drops or
+    stalls. The SDK retries only the opening request: a stream that stalls mid-answer raises httpx's own
+    ReadTimeout (2026-10-19: three form runs died of it in round 1, several forms' calls in flight at once)."""
+    import anthropic, httpx2
+    for attempt in range(tries):
+        try:
+            with stream_fn() as s:
+                return s.get_final_message()
+        except (httpx2.TransportError, anthropic.APIConnectionError) as e:
+            if attempt == tries - 1:
+                raise
+            print(f"  [retry] {tag}: {type(e).__name__}, retrying ({attempt + 1} of {tries - 1})", flush=True)
+            time.sleep(10 * (attempt + 1))
+
+
 def make_client(model: str):
     """An SDK client for `model`: Anthropic by default, OpenAI-compatible for
     the vendors in PROVIDERS."""
@@ -379,10 +402,11 @@ def make_client(model: str):
         return anthropic.Anthropic(timeout=300, max_retries=3)
     from openai import OpenAI
     base_url, key_env = cfg
-    key = os.environ.get(key_env)
+    key = os.environ.get(key_env) or ("local" if model.startswith("local-") else None)   # llama-server wants none
     if not key:
         raise RuntimeError(f"{key_env} not set (looked in {', '.join(str(e) for e in _ENV_FILES)})")
-    return OpenAI(api_key=key, base_url=base_url, timeout=600)
+    # a local 27B model reads a 20k-token labeler prompt for many minutes on an M1
+    return OpenAI(api_key=key, base_url=base_url, timeout=7200 if model.startswith("local-") else 600)
 
 
 def _call_openai_compatible_one_page(client, model: str, page_png: bytes, system: str,
@@ -404,6 +428,12 @@ def _call_openai_compatible_one_page(client, model: str, page_png: bytes, system
     else:
         kwargs["max_tokens"] = MAX_TOKENS
         kwargs["temperature"] = 0
+    if model.startswith("local-"):
+        # thinking off, as auto_label does (llama-server's --reasoning-budget 0 did not stop it). With it on,
+        # Underdog's DD 1155 page took a 5,755-token essay, its reply was cut at 16,384 characters (unparsable,
+        # so the retry ran), and the recovered answer was worse: captions matching Sonnet 47 of 87 against 74
+        # without thinking, the essay having narrated the form in reading order instead of the numbered boxes
+        kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
     resp = client.chat.completions.create(**kwargs)
     choice = resp.choices[0]
     text = choice.message.content or ""
@@ -414,6 +444,36 @@ def _call_openai_compatible_one_page(client, model: str, page_png: bytes, system
                            "output_tokens": getattr(u, "completion_tokens", None)} if u else None,
                     elapsed=time.time() - t0)
     return text
+
+
+def chat_compat(client, model: str, *, system: str, content, max_tokens: int,
+                schema: dict | None = None) -> tuple[str, str, dict]:
+    """One call to a model outside Anthropic (`provider_for(model)` is set), for steps written against the Anthropic
+    API (reader, reviewer, adjudicator): Anthropic content blocks (text, base64 image) become chat-completions
+    parts, a JSON schema becomes `response_format`. Returns (text, stop_reason, usage)."""
+    parts = []
+    for b in ([{"type": "text", "text": content}] if isinstance(content, str) else content):
+        if b.get("type") == "image":
+            src = b["source"]
+            parts.append({"type": "image_url", "image_url": {"url": f"data:{src['media_type']};base64,{src['data']}"}})
+        elif b.get("type") == "text":
+            parts.append({"type": "text", "text": b["text"]})
+    kwargs: dict = dict(model=model, messages=[{"role": "system", "content": system},
+                                               {"role": "user", "content": parts}])
+    if model.startswith(("gpt-5", "o1", "o3", "o4")):
+        kwargs["max_completion_tokens"] = max_tokens
+    else:
+        kwargs["max_tokens"] = min(max_tokens, 8192) if model.startswith("local-") else max_tokens
+        kwargs["temperature"] = 0
+    if schema:
+        kwargs["response_format"] = {"type": "json_schema", "json_schema": {"name": "answer", "schema": schema}}
+    if model.startswith("local-"):
+        kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}     # as auto_label
+    resp = client.chat.completions.create(**kwargs)
+    choice, u = resp.choices[0], getattr(resp, "usage", None)
+    usage = {"input_tokens": getattr(u, "prompt_tokens", 0) or 0, "output_tokens": getattr(u, "completion_tokens", 0) or 0,
+             "stop_reason": choice.finish_reason, "model_served": getattr(resp, "model", model)}
+    return choice.message.content or "", choice.finish_reason, usage
 
 
 def call_page(client, model: str, page_png: bytes, system: str, user_text: str,

@@ -1,15 +1,20 @@
 bpt_version: '1.1'
 name: cra-t4
-form_version: cra
+form_version: null
 source_pdf: t4-fill-25e.pdf
 source_pdf_hash: 8112a60a73f81e474e3f6dc6a9ff6ca30a760966
 source_pages:
 - 1
-- 2
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: claude-sonnet-4-6
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 11:36:14'
 fields:
-  employer_nm:
+  slip1_employer_business_nm:
     x_petey_id: '1_1'
     type: string
     semantic_type: business_name
@@ -24,13 +29,13 @@ fields:
       path: form1[0].Page1[0].Slip1[0].EmployersName[0].Slip1EmployersName[0]
     description: Slip 1. Employer's name
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  tax_yr:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip1_employer_business
+      suffix: nm
+  slip1_date_yr:
     x_petey_id: '1_2'
     type: string
-    semantic_type: year
-    pattern: ^\d{4}$
     widget:
       page: 1
       rect:
@@ -40,11 +45,29 @@ fields:
       - 52.55999755859375
       widget_type: text
       path: form1[0].Page1[0].Slip1[0].Year[0].Slip1Year[0]
-    description: Slip 1. Date. Year 4 digits.
+    description: Slip 1. Taxation year (4 digits).
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  employer_account_number:
+    label_source: llm
+    pattern: ^\d{4}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: Caption is only 'Year / Année' and the tooltip says 'Year 4 digits';
+        this box holds a 4-digit year, not a full ISO date. Name already says _yr,
+        so only the type/pattern change.
+      before:
+        type: date
+        semantic_type: iso_date
+        description: Slip 1. Date. Year 4 digits.
+      judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: slip1_date
+      suffix: yr
+  slip1_box54_employer_account_nbr:
     x_petey_id: '1_6'
     type: string
     semantic_type: account_number
@@ -60,9 +83,11 @@ fields:
       path: form1[0].Page1[0].Slip1[0].EmployersAccount[0].Slip1Box54[0]
     description: Slip 1. Box 54. Employer's account number.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  employee_sin:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip1_box54_employer_account
+      suffix: nbr
+  slip1_box12_social_insurance_nbr:
     x_petey_id: '1_10'
     type: string
     widget:
@@ -76,9 +101,21 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Box12[0].Slip1Box12[0]
     description: Slip 1. Box 12. Social insurance number. 9 digits.
     x_petey_description_source: tooltip
+    pattern: ^\d{3}\d{3}\d{3}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999 999 999}
+      pictures:
+        format:
+        - text{999 999 999}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
-  cpp_qpp_exempt_ind:
+    - separators_dropped_by_maxlen:9
+    x_petey_identifiers:
+      subject: slip1_box12_social_insurance
+      suffix: nbr
+  slip1_box28_exempt_cpp_qpp_ind:
     x_petey_id: '1_11'
     type: boolean
     semantic_type: indicator
@@ -93,9 +130,11 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Box28[0].CPP_CheckBox[0].Slip1CPP[0]
     description: Slip 1. Box 28. Exempt. Canada Pension Plan/Quebec Pension Plan.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  ei_exempt_ind:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip1_box28_exempt_cpp_qpp
+      suffix: ind
+  slip1_box28_exempt_ei_ind:
     x_petey_id: '1_12'
     type: boolean
     semantic_type: indicator
@@ -110,9 +149,11 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Box28[0].EI_CheckBox[0].Slip1EI[0]
     description: Slip 1. Box 28. Exempt. Employment Insurance.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  ppip_exempt_ind:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip1_box28_exempt_ei
+      suffix: ind
+  slip1_box28_exempt_ppip_ind:
     x_petey_id: '1_13'
     type: boolean
     semantic_type: indicator
@@ -127,11 +168,13 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Box28[0].PPIP_CheckBox[0].Slip1PPIP[0]
     description: Slip 1. Box 28. Exempt. Provincial Parental Insurance Plan.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  box_45_employer_offered_dental_benefits_cd:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip1_box28_exempt_ppip
+      suffix: ind
+  slip1_box45_employer_offered_dental_benefits_cd:
     x_petey_id: '1_5'
-    type: string
+    type: category
     widget:
       page: 1
       rect:
@@ -141,16 +184,43 @@ fields:
       - 102.75299072265625
       widget_type: combobox
       path: form1[0].Page1[0].Slip1[0].Box45[0].DropDownList[0]
+    description: Slip 1. Box 45. Employer - offered dental benefits.
+    x_petey_description_source: tooltip
     values:
-    - '6'
     - '1'
     - '2'
     - '3'
     - '4'
     - '5'
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      labels:
+        '6': ''
+        '1': '1'
+        '2': '2'
+        '3': '3'
+        '4': '4'
+        '5': '5'
+    label_source: llm
     x_petey_retype:
     - dropdown
-  box_10_province_of_employment_cd:
+    - dropdown_options
+    options:
+      '1':
+        caption: '1'
+      '2':
+        caption: '2'
+      '3':
+        caption: '3'
+      '4':
+        caption: '4'
+      '5':
+        caption: '5'
+    x_petey_identifiers:
+      subject: slip1_box45_employer_offered_dental_benefits
+      suffix: cd
+  slip1_box10_province_of_employment_cd:
     x_petey_id: '1_9'
     type: category
     widget:
@@ -162,6 +232,8 @@ fields:
       - 138.16400146484375
       widget_type: combobox
       path: form1[0].Page1[0].Slip1[0].Box10[0].Slip1Box10[0]
+    description: Slip 1. Box 10. Province of employment.
+    x_petey_description_source: tooltip
     values:
     - AB
     - BC
@@ -178,9 +250,46 @@ fields:
     - YT
     - US
     - ZZ
+    x_petey_validation_source: xfa
+    label_source: llm
     x_petey_retype:
     - dropdown
-  box_29_employment_cd:
+    - dropdown_options
+    options:
+      AB:
+        caption: AB
+      BC:
+        caption: BC
+      MB:
+        caption: MB
+      NB:
+        caption: NB
+      NL:
+        caption: NL
+      NS:
+        caption: NS
+      NT:
+        caption: NT
+      NU:
+        caption: NU
+      'ON':
+        caption: 'ON'
+      PE:
+        caption: PE
+      QC:
+        caption: QC
+      SK:
+        caption: SK
+      YT:
+        caption: YT
+      US:
+        caption: US
+      ZZ:
+        caption: ZZ
+    x_petey_identifiers:
+      subject: slip1_box10_province_of_employment
+      suffix: cd
+  slip1_box29_employment_cd:
     x_petey_id: '1_16'
     type: category
     widget:
@@ -192,8 +301,9 @@ fields:
       - 175.18402099609375
       widget_type: combobox
       path: form1[0].Page1[0].Slip1[0].Box29[0].Slip1Box29[0]
+    description: Slip 1. Box 29. Employment code.
+    x_petey_description_source: tooltip
     values:
-    - '18'
     - '11'
     - '12'
     - '13'
@@ -201,9 +311,41 @@ fields:
     - '15'
     - '16'
     - '17'
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      labels:
+        '18': ''
+        '11': '11'
+        '12': '12'
+        '13': '13'
+        '14': '14'
+        '15': '15'
+        '16': '16'
+        '17': '17'
+    label_source: llm
     x_petey_retype:
     - dropdown
-  box_14_employment_income_amt:
+    - dropdown_options
+    options:
+      '11':
+        caption: '11'
+      '12':
+        caption: '12'
+      '13':
+        caption: '13'
+      '14':
+        caption: '14'
+      '15':
+        caption: '15'
+      '16':
+        caption: '16'
+      '17':
+        caption: '17'
+    x_petey_identifiers:
+      subject: slip1_box29_employment
+      suffix: cd
+  slip1_box14_employment_income_amt:
     x_petey_id: '1_3'
     type: number
     semantic_type: money
@@ -218,10 +360,20 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Box14[0].Slip1Box14[0]
     description: Slip 1. Box 14. Employment income.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_22_income_tax_deducted_amt:
+    x_petey_identifiers:
+      subject: slip1_box14_employment_income
+      suffix: amt
+  slip1_box22_income_tax_deducted_amt:
     x_petey_id: '1_4'
     type: number
     semantic_type: money
@@ -236,10 +388,20 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Box22[0].Slip1Box22[0]
     description: Slip 1. Box 22. Income tax deducted.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_16_employee_cpp_contributions_amt:
+    x_petey_identifiers:
+      subject: slip1_box22_income_tax_deducted
+      suffix: amt
+  slip1_box16_employee_cpp_contributions_amt:
     x_petey_id: '1_7'
     type: number
     semantic_type: money
@@ -255,10 +417,20 @@ fields:
     description: Slip 1. Box 16. Employee's Canada Pension Plan contributions – see
       over.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_17_employee_qpp_contributions_amt:
+    x_petey_identifiers:
+      subject: slip1_box16_employee_cpp_contributions
+      suffix: amt
+  slip1_box17_employee_qpp_contributions_amt:
     x_petey_id: '1_8'
     type: number
     semantic_type: money
@@ -274,10 +446,20 @@ fields:
     description: Slip 1. Box 17. Employee's Quebec Pension Plan contributions – see
       over.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_16a_employee_second_cpp_contributions_amt:
+    x_petey_identifiers:
+      subject: slip1_box17_employee_qpp_contributions
+      suffix: amt
+  slip1_box16a_employee_second_cpp_contributions_amt:
     x_petey_id: '1_14'
     type: number
     semantic_type: money
@@ -293,10 +475,20 @@ fields:
     description: Slip 1. Box 16A. Employee's second Canada Pension Plan contributions
       – see over.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_17a_employee_second_qpp_contributions_amt:
+    x_petey_identifiers:
+      subject: slip1_box16a_employee_second_cpp_contributions
+      suffix: amt
+  slip1_box17a_employee_second_qpp_contributions_amt:
     x_petey_id: '1_15'
     type: number
     semantic_type: money
@@ -312,10 +504,20 @@ fields:
     description: Slip 1. Box 17A. Employee's second Quebec Pension Plan contributions
       – see over.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_24_ei_insurable_earnings_amt:
+    x_petey_identifiers:
+      subject: slip1_box17a_employee_second_qpp_contributions
+      suffix: amt
+  slip1_box24_ei_insurable_earnings_amt:
     x_petey_id: '1_17'
     type: number
     semantic_type: money
@@ -330,10 +532,20 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Box24[0].Slip1Box24[0]
     description: Slip 1. Box 24. Employment Insurance insurable earnings.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_26_cpp_qpp_pensionable_earnings_amt:
+    x_petey_identifiers:
+      subject: slip1_box24_ei_insurable_earnings
+      suffix: amt
+  slip1_box26_cpp_qpp_pensionable_earnings_amt:
     x_petey_id: '1_18'
     type: number
     semantic_type: money
@@ -349,10 +561,20 @@ fields:
     description: Slip 1. Box 26. Canada Pension Plan/Quebec Pension Plan pensionable
       earnings.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_18_employee_ei_premiums_amt:
+    x_petey_identifiers:
+      subject: slip1_box26_cpp_qpp_pensionable_earnings
+      suffix: amt
+  slip1_box18_employee_ei_premiums_amt:
     x_petey_id: '1_22'
     type: number
     semantic_type: money
@@ -367,10 +589,20 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Box18[0].Slip1Box18[0]
     description: Slip 1. Box 18. Employee's Employment Insurance premiums.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_44_union_dues_amt:
+    x_petey_identifiers:
+      subject: slip1_box18_employee_ei_premiums
+      suffix: amt
+  slip1_box44_union_dues_amt:
     x_petey_id: '1_23'
     type: number
     semantic_type: money
@@ -385,10 +617,20 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Box44[0].Slip1Box44[0]
     description: Slip 1. Box 44. Union dues
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_20_rpp_contributions_amt:
+    x_petey_identifiers:
+      subject: slip1_box44_union_dues
+      suffix: amt
+  slip1_box20_rpp_contributions_amt:
     x_petey_id: '1_24'
     type: number
     semantic_type: money
@@ -403,10 +645,20 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Box20[0].Slip1Box20[0]
     description: Slip 1. Box 20. Registered Pension Plan contributions.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_46_charitable_donations_amt:
+    x_petey_identifiers:
+      subject: slip1_box20_rpp_contributions
+      suffix: amt
+  slip1_box46_charitable_donations_amt:
     x_petey_id: '1_25'
     type: number
     semantic_type: money
@@ -421,10 +673,20 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Box46[0].Slip1Box46[0]
     description: Slip 1. Box 46. Charitable donations.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_52_pension_adjustment_amt:
+    x_petey_identifiers:
+      subject: slip1_box46_charitable_donations
+      suffix: amt
+  slip1_box52_pension_adjustment_amt:
     x_petey_id: '1_27'
     type: number
     semantic_type: money
@@ -439,10 +701,20 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Box52[0].Slip1Box52[0]
     description: Slip 1. Box 52. Pension adjustment.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_50_rpp_dpsp_registration_number:
+    x_petey_identifiers:
+      subject: slip1_box52_pension_adjustment
+      suffix: amt
+  slip1_box50_rpp_dpsp_registration_nbr:
     x_petey_id: '1_28'
     type: string
     widget:
@@ -457,9 +729,32 @@ fields:
     description: Slip 1. Box 50. Registered Pension Plan or Deferred Profit Sharing
       Plan registration number.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  box_55_employee_ppip_premiums_amt:
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{9999999}
+        ui:
+        - num{9999999}
+    label_source: llm
+    pattern: ^\d{7}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      reason: The XFA picture num{9999999} shows a fixed 7-digit registration identifier,
+        not a quantity; an ID should be a string with a digit pattern.
+      before:
+        type: number
+        description: Slip 1. Box 50. Registered Pension Plan or Deferred Profit Sharing
+          Plan registration number.
+      judged: 'kept: 1 -> 1'
+    x_petey_identifiers:
+      subject: slip1_box50_rpp_dpsp_registration
+      suffix: nbr
+  slip1_box55_employee_ppip_premiums_amt:
     x_petey_id: '1_29'
     type: number
     semantic_type: money
@@ -475,10 +770,20 @@ fields:
     description: Slip 1. Box 55. Employee's Provincial Parental Insurance Plan premiums
       – see over.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_56_ppip_insurable_earnings_amt:
+    x_petey_identifiers:
+      subject: slip1_box55_employee_ppip_premiums
+      suffix: amt
+  slip1_box56_ppip_insurable_earnings_amt:
     x_petey_id: '1_30'
     type: number
     semantic_type: money
@@ -493,10 +798,20 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Box56[0].Slip1Box56[0]
     description: Slip 1. Box 56. Provincial Parental Insurance Plan insurable earnings.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  employee_last_nm:
+    x_petey_identifiers:
+      subject: slip1_box56_ppip_insurable_earnings
+      suffix: amt
+  slip1_last_nm:
     x_petey_id: '1_19'
     type: string
     semantic_type: last_name
@@ -511,9 +826,11 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Employee[0].LastName[0].Slip1LastName[0]
     description: Slip 1. Last name (in capital letters)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  employee_first_nm:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip1_last
+      suffix: nm
+  slip1_first_nm:
     x_petey_id: '1_20'
     type: string
     semantic_type: first_name
@@ -528,9 +845,11 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Employee[0].FirstName[0].Slip1FirstName[0]
     description: Slip 1. First name
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  employee_initial:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip1_first
+      suffix: nm
+  slip1_initial:
     x_petey_id: '1_21'
     type: string
     widget:
@@ -544,12 +863,13 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Employee[0].Initial[0].Slip1Initial[0]
     description: Slip 1. Initial
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  employee_address_line_1_txt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip1
+      suffix: initial
+  slip1_employee_address:
     x_petey_id: '1_26'
     type: string
-    semantic_type: street_address
     widget:
       page: 1
       rect:
@@ -561,9 +881,10 @@ fields:
       path: form1[0].Page1[0].Slip1[0].Employee[0].Slip1Address[0]
     description: Slip 1. Employee's address
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  other_info_box_1_cd:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip1_employee_address
+  slip1_other_info_box_1:
     x_petey_id: '1_31'
     type: category
     widget:
@@ -575,6 +896,8 @@ fields:
       - 354.427001953125
       widget_type: combobox
       path: form1[0].Page1[0].Slip1[0].OtherInformation[0].Box1[0].Slip1Box1[0]
+    description: Slip 1. Other information. Box. Instance 1.
+    x_petey_description_source: tooltip
     values:
     - '30'
     - '31'
@@ -614,9 +937,99 @@ fields:
     - '92'
     - '94'
     - '95'
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      pictures:
+        format:
+        - num{szzz,zzz,zzz,zz9}
+        ui:
+        - num{szzzzzzzzzzz9}
+    label_source: llm
     x_petey_retype:
     - dropdown
-  other_info_box_1_amt:
+    - dropdown_options
+    options:
+      '30':
+        caption: '30'
+      '31':
+        caption: '31'
+      '32':
+        caption: '32'
+      '33':
+        caption: '33'
+      '34':
+        caption: '34'
+      '36':
+        caption: '36'
+      '38':
+        caption: '38'
+      '39':
+        caption: '39'
+      '40':
+        caption: '40'
+      '41':
+        caption: '41'
+      '42':
+        caption: '42'
+      '43':
+        caption: '43'
+      '57':
+        caption: '57'
+      '58':
+        caption: '58'
+      '59':
+        caption: '59'
+      '60':
+        caption: '60'
+      '66':
+        caption: '66'
+      '67':
+        caption: '67'
+      '69':
+        caption: '69'
+      '71':
+        caption: '71'
+      '74':
+        caption: '74'
+      '75':
+        caption: '75'
+      '77':
+        caption: '77'
+      '78':
+        caption: '78'
+      '79':
+        caption: '79'
+      '80':
+        caption: '80'
+      '81':
+        caption: '81'
+      '82':
+        caption: '82'
+      '83':
+        caption: '83'
+      '85':
+        caption: '85'
+      '86':
+        caption: '86'
+      '87':
+        caption: '87'
+      '88':
+        caption: '88'
+      '90':
+        caption: '90'
+      '91':
+        caption: '91'
+      '92':
+        caption: '92'
+      '94':
+        caption: '94'
+      '95':
+        caption: '95'
+    x_petey_identifiers:
+      subject: slip1_other_info_box_1
+      grid: p1-G1
+  slip1_other_info_amount_amt_1:
     x_petey_id: '1_32'
     type: number
     semantic_type: money
@@ -631,10 +1044,22 @@ fields:
       path: form1[0].Page1[0].Slip1[0].OtherInformation[0].Amount1[0].Slip1Amount1[0]
     description: Slip 1. Other information. Amount. Instance 1.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  other_info_box_2_cd:
+    x_petey_identifiers:
+      subject: slip1_other_info_amount
+      suffix: amt
+      iteration: '1'
+      grid: p1-G1
+  slip1_other_info_box_2:
     x_petey_id: '1_33'
     type: category
     widget:
@@ -646,6 +1071,8 @@ fields:
       - 354.427001953125
       widget_type: combobox
       path: form1[0].Page1[0].Slip1[0].OtherInformation[0].Box2[0].Slip1Box2[0]
+    description: Slip 1. Other information. Box. Instance 2.
+    x_petey_description_source: tooltip
     values:
     - '30'
     - '31'
@@ -685,9 +1112,99 @@ fields:
     - '92'
     - '94'
     - '95'
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      pictures:
+        format:
+        - num{szzz,zzz,zzz,zz9}
+        ui:
+        - num{szzzzzzzzzzz9}
+    label_source: llm
     x_petey_retype:
     - dropdown
-  other_info_box_2_amt:
+    - dropdown_options
+    options:
+      '30':
+        caption: '30'
+      '31':
+        caption: '31'
+      '32':
+        caption: '32'
+      '33':
+        caption: '33'
+      '34':
+        caption: '34'
+      '36':
+        caption: '36'
+      '38':
+        caption: '38'
+      '39':
+        caption: '39'
+      '40':
+        caption: '40'
+      '41':
+        caption: '41'
+      '42':
+        caption: '42'
+      '43':
+        caption: '43'
+      '57':
+        caption: '57'
+      '58':
+        caption: '58'
+      '59':
+        caption: '59'
+      '60':
+        caption: '60'
+      '66':
+        caption: '66'
+      '67':
+        caption: '67'
+      '69':
+        caption: '69'
+      '71':
+        caption: '71'
+      '74':
+        caption: '74'
+      '75':
+        caption: '75'
+      '77':
+        caption: '77'
+      '78':
+        caption: '78'
+      '79':
+        caption: '79'
+      '80':
+        caption: '80'
+      '81':
+        caption: '81'
+      '82':
+        caption: '82'
+      '83':
+        caption: '83'
+      '85':
+        caption: '85'
+      '86':
+        caption: '86'
+      '87':
+        caption: '87'
+      '88':
+        caption: '88'
+      '90':
+        caption: '90'
+      '91':
+        caption: '91'
+      '92':
+        caption: '92'
+      '94':
+        caption: '94'
+      '95':
+        caption: '95'
+    x_petey_identifiers:
+      subject: slip1_other_info_box_2
+      grid: p1-G1
+  slip1_other_info_amount_amt_2:
     x_petey_id: '1_34'
     type: number
     semantic_type: money
@@ -702,10 +1219,22 @@ fields:
       path: form1[0].Page1[0].Slip1[0].OtherInformation[0].Amount2[0].Slip1Amount2[0]
     description: Slip 1. Other information. Amount. Instance 2.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  other_info_box_3_cd:
+    x_petey_identifiers:
+      subject: slip1_other_info_amount
+      suffix: amt
+      iteration: '2'
+      grid: p1-G1
+  slip1_other_info_box_3:
     x_petey_id: '1_35'
     type: category
     widget:
@@ -717,6 +1246,8 @@ fields:
       - 354.427001953125
       widget_type: combobox
       path: form1[0].Page1[0].Slip1[0].OtherInformation[0].Box3[0].Slip1Box3[0]
+    description: Slip 1. Other information. Box. Instance 3.
+    x_petey_description_source: tooltip
     values:
     - '30'
     - '31'
@@ -756,9 +1287,99 @@ fields:
     - '92'
     - '94'
     - '95'
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      pictures:
+        format:
+        - num{szzz,zzz,zzz,zz9}
+        ui:
+        - num{szzzzzzzzzzz9}
+    label_source: llm
     x_petey_retype:
     - dropdown
-  other_info_box_3_amt:
+    - dropdown_options
+    options:
+      '30':
+        caption: '30'
+      '31':
+        caption: '31'
+      '32':
+        caption: '32'
+      '33':
+        caption: '33'
+      '34':
+        caption: '34'
+      '36':
+        caption: '36'
+      '38':
+        caption: '38'
+      '39':
+        caption: '39'
+      '40':
+        caption: '40'
+      '41':
+        caption: '41'
+      '42':
+        caption: '42'
+      '43':
+        caption: '43'
+      '57':
+        caption: '57'
+      '58':
+        caption: '58'
+      '59':
+        caption: '59'
+      '60':
+        caption: '60'
+      '66':
+        caption: '66'
+      '67':
+        caption: '67'
+      '69':
+        caption: '69'
+      '71':
+        caption: '71'
+      '74':
+        caption: '74'
+      '75':
+        caption: '75'
+      '77':
+        caption: '77'
+      '78':
+        caption: '78'
+      '79':
+        caption: '79'
+      '80':
+        caption: '80'
+      '81':
+        caption: '81'
+      '82':
+        caption: '82'
+      '83':
+        caption: '83'
+      '85':
+        caption: '85'
+      '86':
+        caption: '86'
+      '87':
+        caption: '87'
+      '88':
+        caption: '88'
+      '90':
+        caption: '90'
+      '91':
+        caption: '91'
+      '92':
+        caption: '92'
+      '94':
+        caption: '94'
+      '95':
+        caption: '95'
+    x_petey_identifiers:
+      subject: slip1_other_info_box_3
+      grid: p1-G1
+  slip1_other_info_amount_amt_3:
     x_petey_id: '1_36'
     type: number
     semantic_type: money
@@ -773,10 +1394,22 @@ fields:
       path: form1[0].Page1[0].Slip1[0].OtherInformation[0].Amount3[0].Slip1Amount3[0]
     description: Slip 1. Other information. Amount. Instance 3.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  other_info_box_4_cd:
+    x_petey_identifiers:
+      subject: slip1_other_info_amount
+      suffix: amt
+      iteration: '3'
+      grid: p1-G1
+  slip1_other_info_box_4:
     x_petey_id: '1_37'
     type: category
     widget:
@@ -788,6 +1421,8 @@ fields:
       - 381.5830078125
       widget_type: combobox
       path: form1[0].Page1[0].Slip1[0].OtherInformation[0].Box4[0].Slip1Box4[0]
+    description: Slip 1. Other information. Box. Instance 4.
+    x_petey_description_source: tooltip
     values:
     - '30'
     - '31'
@@ -827,9 +1462,99 @@ fields:
     - '92'
     - '94'
     - '95'
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      pictures:
+        format:
+        - num{szzz,zzz,zzz,zz9}
+        ui:
+        - num{szzzzzzzzzzz9}
+    label_source: llm
     x_petey_retype:
     - dropdown
-  other_info_box_4_amt:
+    - dropdown_options
+    options:
+      '30':
+        caption: '30'
+      '31':
+        caption: '31'
+      '32':
+        caption: '32'
+      '33':
+        caption: '33'
+      '34':
+        caption: '34'
+      '36':
+        caption: '36'
+      '38':
+        caption: '38'
+      '39':
+        caption: '39'
+      '40':
+        caption: '40'
+      '41':
+        caption: '41'
+      '42':
+        caption: '42'
+      '43':
+        caption: '43'
+      '57':
+        caption: '57'
+      '58':
+        caption: '58'
+      '59':
+        caption: '59'
+      '60':
+        caption: '60'
+      '66':
+        caption: '66'
+      '67':
+        caption: '67'
+      '69':
+        caption: '69'
+      '71':
+        caption: '71'
+      '74':
+        caption: '74'
+      '75':
+        caption: '75'
+      '77':
+        caption: '77'
+      '78':
+        caption: '78'
+      '79':
+        caption: '79'
+      '80':
+        caption: '80'
+      '81':
+        caption: '81'
+      '82':
+        caption: '82'
+      '83':
+        caption: '83'
+      '85':
+        caption: '85'
+      '86':
+        caption: '86'
+      '87':
+        caption: '87'
+      '88':
+        caption: '88'
+      '90':
+        caption: '90'
+      '91':
+        caption: '91'
+      '92':
+        caption: '92'
+      '94':
+        caption: '94'
+      '95':
+        caption: '95'
+    x_petey_identifiers:
+      subject: slip1_other_info_box_4
+      grid: p1-G1
+  slip1_other_info_amount_amt_4:
     x_petey_id: '1_38'
     type: number
     semantic_type: money
@@ -844,10 +1569,22 @@ fields:
       path: form1[0].Page1[0].Slip1[0].OtherInformation[0].Amount4[0].Slip1Amount4[0]
     description: Slip 1. Other information. Amount. Instance 4.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  other_info_box_5_cd:
+    x_petey_identifiers:
+      subject: slip1_other_info_amount
+      suffix: amt
+      iteration: '4'
+      grid: p1-G1
+  slip1_other_info_box_5:
     x_petey_id: '1_39'
     type: category
     widget:
@@ -859,6 +1596,8 @@ fields:
       - 381.5830078125
       widget_type: combobox
       path: form1[0].Page1[0].Slip1[0].OtherInformation[0].Box5[0].Slip1Box5[0]
+    description: Slip 1. Other information. Box. Instance 5.
+    x_petey_description_source: tooltip
     values:
     - '30'
     - '31'
@@ -898,9 +1637,99 @@ fields:
     - '92'
     - '94'
     - '95'
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      pictures:
+        format:
+        - num{szzz,zzz,zzz,zz9}
+        ui:
+        - num{szzzzzzzzzzz9}
+    label_source: llm
     x_petey_retype:
     - dropdown
-  other_info_box_5_amt:
+    - dropdown_options
+    options:
+      '30':
+        caption: '30'
+      '31':
+        caption: '31'
+      '32':
+        caption: '32'
+      '33':
+        caption: '33'
+      '34':
+        caption: '34'
+      '36':
+        caption: '36'
+      '38':
+        caption: '38'
+      '39':
+        caption: '39'
+      '40':
+        caption: '40'
+      '41':
+        caption: '41'
+      '42':
+        caption: '42'
+      '43':
+        caption: '43'
+      '57':
+        caption: '57'
+      '58':
+        caption: '58'
+      '59':
+        caption: '59'
+      '60':
+        caption: '60'
+      '66':
+        caption: '66'
+      '67':
+        caption: '67'
+      '69':
+        caption: '69'
+      '71':
+        caption: '71'
+      '74':
+        caption: '74'
+      '75':
+        caption: '75'
+      '77':
+        caption: '77'
+      '78':
+        caption: '78'
+      '79':
+        caption: '79'
+      '80':
+        caption: '80'
+      '81':
+        caption: '81'
+      '82':
+        caption: '82'
+      '83':
+        caption: '83'
+      '85':
+        caption: '85'
+      '86':
+        caption: '86'
+      '87':
+        caption: '87'
+      '88':
+        caption: '88'
+      '90':
+        caption: '90'
+      '91':
+        caption: '91'
+      '92':
+        caption: '92'
+      '94':
+        caption: '94'
+      '95':
+        caption: '95'
+    x_petey_identifiers:
+      subject: slip1_other_info_box_5
+      grid: p1-G1
+  slip1_other_info_amount_amt_5:
     x_petey_id: '1_40'
     type: number
     semantic_type: money
@@ -915,12 +1744,24 @@ fields:
       path: form1[0].Page1[0].Slip1[0].OtherInformation[0].Amount5[0].Slip1Amount5[0]
     description: Slip 1. Other information. Amount. Instance 5.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  other_info_box_6_cd:
+    x_petey_identifiers:
+      subject: slip1_other_info_amount
+      suffix: amt
+      iteration: '5'
+      grid: p1-G1
+  slip1_other_info_box_6:
     x_petey_id: '1_41'
-    type: string
+    type: category
     widget:
       page: 1
       rect:
@@ -930,6 +1771,8 @@ fields:
       - 381.5830078125
       widget_type: combobox
       path: form1[0].Page1[0].Slip1[0].OtherInformation[0].Box6[0].Slip1Box6[0]
+    description: Slip 1. Other information. Box. Instance 6.
+    x_petey_description_source: tooltip
     values:
     - '30'
     - '31'
@@ -969,9 +1812,99 @@ fields:
     - '92'
     - '94'
     - '95'
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      pictures:
+        format:
+        - num{szzz,zzz,zzz,zz9}
+        ui:
+        - num{szzzzzzzzzzz9}
+    label_source: llm
     x_petey_retype:
     - dropdown
-  other_info_box_6_amt:
+    - dropdown_options
+    options:
+      '30':
+        caption: '30'
+      '31':
+        caption: '31'
+      '32':
+        caption: '32'
+      '33':
+        caption: '33'
+      '34':
+        caption: '34'
+      '36':
+        caption: '36'
+      '38':
+        caption: '38'
+      '39':
+        caption: '39'
+      '40':
+        caption: '40'
+      '41':
+        caption: '41'
+      '42':
+        caption: '42'
+      '43':
+        caption: '43'
+      '57':
+        caption: '57'
+      '58':
+        caption: '58'
+      '59':
+        caption: '59'
+      '60':
+        caption: '60'
+      '66':
+        caption: '66'
+      '67':
+        caption: '67'
+      '69':
+        caption: '69'
+      '71':
+        caption: '71'
+      '74':
+        caption: '74'
+      '75':
+        caption: '75'
+      '77':
+        caption: '77'
+      '78':
+        caption: '78'
+      '79':
+        caption: '79'
+      '80':
+        caption: '80'
+      '81':
+        caption: '81'
+      '82':
+        caption: '82'
+      '83':
+        caption: '83'
+      '85':
+        caption: '85'
+      '86':
+        caption: '86'
+      '87':
+        caption: '87'
+      '88':
+        caption: '88'
+      '90':
+        caption: '90'
+      '91':
+        caption: '91'
+      '92':
+        caption: '92'
+      '94':
+        caption: '94'
+      '95':
+        caption: '95'
+    x_petey_identifiers:
+      subject: slip1_other_info_box_6
+      grid: p1-G1
+  slip1_other_info_amount_amt_6:
     x_petey_id: '1_42'
     type: number
     semantic_type: money
@@ -986,10 +1919,22 @@ fields:
       path: form1[0].Page1[0].Slip1[0].OtherInformation[0].Amount6[0].Slip1Amount6[0]
     description: Slip 1. Other information. Amount. Instance 6.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  employer_nm_2:
+    x_petey_identifiers:
+      subject: slip1_other_info_amount
+      suffix: amt
+      iteration: '6'
+      grid: p1-G1
+  slip2_employer_business_nm:
     x_petey_id: '1_43'
     type: string
     semantic_type: business_name
@@ -1004,13 +1949,13 @@ fields:
       path: form1[0].Page1[0].Slip2[0].EmployersName[0].Slip1EmployersName[0]
     description: Slip 2. Employer's name
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  tax_yr_2:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip2_employer_business
+      suffix: nm
+  slip2_date_yr:
     x_petey_id: '1_44'
     type: string
-    semantic_type: year
-    pattern: ^\d{4}$
     widget:
       page: 1
       rect:
@@ -1020,11 +1965,28 @@ fields:
       - 439.9200134277344
       widget_type: text
       path: form1[0].Page1[0].Slip2[0].Year[0].Slip1Year[0]
-    description: Slip 2. Date. Year 4 digits.
+    description: Slip 2. Taxation year (4 digits).
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  employer_account_number_2:
+    label_source: llm
+    pattern: ^\d{4}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: Caption 'Year / Année' and tooltip '4 digits' mean a 4-digit year, not
+        an ISO date.
+      before:
+        type: date
+        semantic_type: iso_date
+        description: Slip 2. Date. Year 4 digits.
+      judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: slip2_date
+      suffix: yr
+  slip2_box54_employer_account_nbr:
     x_petey_id: '1_48'
     type: string
     semantic_type: account_number
@@ -1040,9 +2002,11 @@ fields:
       path: form1[0].Page1[0].Slip2[0].EmployersAccount[0].Slip1Box54[0]
     description: Slip 2. Box 54. Employer's account number.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  employee_sin_2:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip2_box54_employer_account
+      suffix: nbr
+  slip2_box12_social_insurance_nbr:
     x_petey_id: '1_52'
     type: string
     widget:
@@ -1056,9 +2020,21 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Box12[0].Slip1Box12[0]
     description: Slip 2. Box 12. Social insurance number. 9 digits.
     x_petey_description_source: tooltip
+    pattern: ^\d{3}\d{3}\d{3}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999 999 999}
+      pictures:
+        format:
+        - text{999 999 999}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
-  cpp_qpp_exempt_ind_2:
+    - separators_dropped_by_maxlen:9
+    x_petey_identifiers:
+      subject: slip2_box12_social_insurance
+      suffix: nbr
+  slip2_box28_exempt_cpp_qpp_ind:
     x_petey_id: '1_53'
     type: boolean
     semantic_type: indicator
@@ -1073,9 +2049,11 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Box28[0].CPP_CheckBox[0].Slip1CPP[0]
     description: Slip 2. Box 28. Exempt. Canada Pension Plan/Quebec Pension Plan.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  ei_exempt_ind_2:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip2_box28_exempt_cpp_qpp
+      suffix: ind
+  slip2_box28_exempt_ei_ind:
     x_petey_id: '1_54'
     type: boolean
     semantic_type: indicator
@@ -1090,9 +2068,11 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Box28[0].EI_CheckBox[0].Slip1EI[0]
     description: Slip 2. Box 28. Exempt. Employment Insurance.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  ppip_exempt_ind_2:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip2_box28_exempt_ei
+      suffix: ind
+  slip2_box28_exempt_ppip_ind:
     x_petey_id: '1_55'
     type: boolean
     semantic_type: indicator
@@ -1107,9 +2087,11 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Box28[0].PPIP_CheckBox[0].Slip1PPIP[0]
     description: Slip 2. Box 28. Exempt. Provincial Parental Insurance Plan.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  employee_last_nm_2:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip2_box28_exempt_ppip
+      suffix: ind
+  slip2_last_nm:
     x_petey_id: '1_61'
     type: string
     semantic_type: last_name
@@ -1124,9 +2106,11 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Employee[0].LastName[0].Slip1LastName[0]
     description: Slip 2. Last name (in capital letters)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  employee_first_nm_2:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip2_last
+      suffix: nm
+  slip2_first_nm:
     x_petey_id: '1_62'
     type: string
     semantic_type: first_name
@@ -1141,9 +2125,11 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Employee[0].FirstName[0].Slip1FirstName[0]
     description: Slip 2. First name
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  employee_initial_2:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip2_first
+      suffix: nm
+  slip2_initial:
     x_petey_id: '1_63'
     type: string
     widget:
@@ -1157,12 +2143,13 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Employee[0].Initial[0].Slip1Initial[0]
     description: Slip 2. Initial
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  employee_address_line_1_txt_2:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip2
+      suffix: initial
+  slip2_employee_address:
     x_petey_id: '1_66'
     type: string
-    semantic_type: street_address
     widget:
       page: 1
       rect:
@@ -1174,11 +2161,12 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Employee[0].Slip1Address[0]
     description: Slip 2. Employee's address
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  box_45_employer_offered_dental_benefits_cd_2:
+    label_source: llm
+    x_petey_identifiers:
+      subject: slip2_employee_address
+  slip2_box45_employer_offered_dental_benefits_cd:
     x_petey_id: '1_47'
-    type: string
+    type: category
     widget:
       page: 1
       rect:
@@ -1188,15 +2176,42 @@ fields:
       - 490.65301513671875
       widget_type: combobox
       path: form1[0].Page1[0].Slip2[0].Box45[0].DropDownList[0]
+    description: Slip 2. Box 45. Employer - offered dental benefits.
+    x_petey_description_source: tooltip
     values:
     - '1'
     - '2'
     - '3'
     - '4'
     - '5'
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      labels:
+        '1': '1'
+        '2': '2'
+        '3': '3'
+        '4': '4'
+        '5': '5'
+    label_source: llm
     x_petey_retype:
     - dropdown
-  box_10_province_of_employment_cd_2:
+    - dropdown_options
+    options:
+      '1':
+        caption: '1'
+      '2':
+        caption: '2'
+      '3':
+        caption: '3'
+      '4':
+        caption: '4'
+      '5':
+        caption: '5'
+    x_petey_identifiers:
+      subject: slip2_box45_employer_offered_dental_benefits
+      suffix: cd
+  slip2_box10_province_of_employment_cd:
     x_petey_id: '1_51'
     type: category
     widget:
@@ -1208,6 +2223,8 @@ fields:
       - 525.7449951171875
       widget_type: combobox
       path: form1[0].Page1[0].Slip2[0].Box10[0].Slip1Box10[0]
+    description: Slip 2. Box 10. Province of employment.
+    x_petey_description_source: tooltip
     values:
     - AB
     - BC
@@ -1224,9 +2241,46 @@ fields:
     - YT
     - US
     - ZZ
+    x_petey_validation_source: xfa
+    label_source: llm
     x_petey_retype:
     - dropdown
-  box_29_employment_cd_2:
+    - dropdown_options
+    options:
+      AB:
+        caption: AB
+      BC:
+        caption: BC
+      MB:
+        caption: MB
+      NB:
+        caption: NB
+      NL:
+        caption: NL
+      NS:
+        caption: NS
+      NT:
+        caption: NT
+      NU:
+        caption: NU
+      'ON':
+        caption: 'ON'
+      PE:
+        caption: PE
+      QC:
+        caption: QC
+      SK:
+        caption: SK
+      YT:
+        caption: YT
+      US:
+        caption: US
+      ZZ:
+        caption: ZZ
+    x_petey_identifiers:
+      subject: slip2_box10_province_of_employment
+      suffix: cd
+  slip2_box29_employment_cd:
     x_petey_id: '1_58'
     type: category
     widget:
@@ -1238,8 +2292,9 @@ fields:
       - 562.761962890625
       widget_type: combobox
       path: form1[0].Page1[0].Slip2[0].Box29[0].Slip1Box29[0]
+    description: Slip 2. Box 29. Employment code.
+    x_petey_description_source: tooltip
     values:
-    - '18'
     - '11'
     - '12'
     - '13'
@@ -1247,9 +2302,41 @@ fields:
     - '15'
     - '16'
     - '17'
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      labels:
+        '18': ''
+        '11': '11'
+        '12': '12'
+        '13': '13'
+        '14': '14'
+        '15': '15'
+        '16': '16'
+        '17': '17'
+    label_source: llm
     x_petey_retype:
     - dropdown
-  box_14_employment_income_amt_2:
+    - dropdown_options
+    options:
+      '11':
+        caption: '11'
+      '12':
+        caption: '12'
+      '13':
+        caption: '13'
+      '14':
+        caption: '14'
+      '15':
+        caption: '15'
+      '16':
+        caption: '16'
+      '17':
+        caption: '17'
+    x_petey_identifiers:
+      subject: slip2_box29_employment
+      suffix: cd
+  slip2_box14_employment_income_amt:
     x_petey_id: '1_45'
     type: number
     semantic_type: money
@@ -1264,10 +2351,20 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Box14[0].Slip1Box14[0]
     description: Slip 2. Box 14. Employment income.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_22_income_tax_deducted_amt_2:
+    x_petey_identifiers:
+      subject: slip2_box14_employment_income
+      suffix: amt
+  slip2_box22_income_tax_deducted_amt:
     x_petey_id: '1_46'
     type: number
     semantic_type: money
@@ -1282,10 +2379,20 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Box22[0].Slip1Box22[0]
     description: Slip 2. Box 22. Income tax deducted.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_16_employee_cpp_contributions_amt_2:
+    x_petey_identifiers:
+      subject: slip2_box22_income_tax_deducted
+      suffix: amt
+  slip2_box16_employee_cpp_contributions_amt:
     x_petey_id: '1_49'
     type: number
     semantic_type: money
@@ -1301,10 +2408,20 @@ fields:
     description: Slip 2. Box 16. Employee's Canada Pension Plan contributions – see
       over.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_17_employee_qpp_contributions_amt_2:
+    x_petey_identifiers:
+      subject: slip2_box16_employee_cpp_contributions
+      suffix: amt
+  slip2_box17_employee_qpp_contributions_amt:
     x_petey_id: '1_50'
     type: number
     semantic_type: money
@@ -1320,10 +2437,20 @@ fields:
     description: Slip 2. Box 17. Employee's Quebec Pension Plan contributions – see
       over.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_16a_employee_second_cpp_contributions_amt_2:
+    x_petey_identifiers:
+      subject: slip2_box17_employee_qpp_contributions
+      suffix: amt
+  slip2_box16a_employee_second_cpp_contributions_amt:
     x_petey_id: '1_56'
     type: number
     semantic_type: money
@@ -1339,10 +2466,20 @@ fields:
     description: Slip 2. Box 16A. Employee's second Canada Pension Plan contributions
       – see over.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_17a_employee_second_qpp_contributions_amt_2:
+    x_petey_identifiers:
+      subject: slip2_box16a_employee_second_cpp_contributions
+      suffix: amt
+  slip2_box17a_employee_second_qpp_contributions_amt:
     x_petey_id: '1_57'
     type: number
     semantic_type: money
@@ -1358,10 +2495,20 @@ fields:
     description: Slip 2. Box 17A. Employee's second Quebec Pension Plan contributions
       – see over.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_24_ei_insurable_earnings_amt_2:
+    x_petey_identifiers:
+      subject: slip2_box17a_employee_second_qpp_contributions
+      suffix: amt
+  slip2_box24_ei_insurable_earnings_amt:
     x_petey_id: '1_59'
     type: number
     semantic_type: money
@@ -1376,10 +2523,20 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Box24[0].Slip1Box24[0]
     description: Slip 2. Box 24. Employment Insurance insurable earnings.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_26_cpp_qpp_pensionable_earnings_amt_2:
+    x_petey_identifiers:
+      subject: slip2_box24_ei_insurable_earnings
+      suffix: amt
+  slip2_box26_cpp_qpp_pensionable_earnings_amt:
     x_petey_id: '1_60'
     type: number
     semantic_type: money
@@ -1395,10 +2552,20 @@ fields:
     description: Slip 2. Box 26. Canada Pension Plan/Quebec Pension Plan pensionable
       earnings.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_18_employee_ei_premiums_amt_2:
+    x_petey_identifiers:
+      subject: slip2_box26_cpp_qpp_pensionable_earnings
+      suffix: amt
+  slip2_box18_employee_ei_premiums_amt:
     x_petey_id: '1_64'
     type: number
     semantic_type: money
@@ -1413,10 +2580,20 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Box18[0].Slip1Box18[0]
     description: Slip 2. Box 18. Employee's Employment Insurance premiums.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_44_union_dues_amt_2:
+    x_petey_identifiers:
+      subject: slip2_box18_employee_ei_premiums
+      suffix: amt
+  slip2_box44_union_dues_amt:
     x_petey_id: '1_65'
     type: number
     semantic_type: money
@@ -1431,10 +2608,20 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Box44[0].Slip1Box44[0]
     description: Slip 2. Box 44. Union dues
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_20_rpp_contributions_amt_2:
+    x_petey_identifiers:
+      subject: slip2_box44_union_dues
+      suffix: amt
+  slip2_box20_rpp_contributions_amt:
     x_petey_id: '1_67'
     type: number
     semantic_type: money
@@ -1449,10 +2636,20 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Box20[0].Slip1Box20[0]
     description: Slip 2. Box 20. Registered Pension Plan contributions.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_46_charitable_donations_amt_2:
+    x_petey_identifiers:
+      subject: slip2_box20_rpp_contributions
+      suffix: amt
+  slip2_box46_charitable_donations_amt:
     x_petey_id: '1_68'
     type: number
     semantic_type: money
@@ -1467,10 +2664,20 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Box46[0].Slip1Box46[0]
     description: Slip 2. Box 46. Charitable donations.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_52_pension_adjustment_amt_2:
+    x_petey_identifiers:
+      subject: slip2_box46_charitable_donations
+      suffix: amt
+  slip2_box52_pension_adjustment_amt:
     x_petey_id: '1_69'
     type: number
     semantic_type: money
@@ -1485,10 +2692,20 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Box52[0].Slip1Box52[0]
     description: Slip 2. Box 52. Pension adjustment.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_50_rpp_dpsp_registration_number_2:
+    x_petey_identifiers:
+      subject: slip2_box52_pension_adjustment
+      suffix: amt
+  slip2_box50_rpp_dpsp_registration_nbr:
     x_petey_id: '1_70'
     type: string
     widget:
@@ -1503,9 +2720,32 @@ fields:
     description: Slip 2. Box 50. Registered Pension Plan or Deferred Profit Sharing
       Plan registration number.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  box_55_employee_ppip_premiums_amt_2:
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{9999999}
+        ui:
+        - num{9999999}
+    label_source: llm
+    pattern: ^\d{7}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      reason: num{9999999} shows a fixed-length 7-digit registration identifier; an
+        ID belongs as a string with a digit pattern, not a number.
+      before:
+        type: number
+        description: Slip 2. Box 50. Registered Pension Plan or Deferred Profit Sharing
+          Plan registration number.
+      judged: 'kept: 1 -> 1'
+    x_petey_identifiers:
+      subject: slip2_box50_rpp_dpsp_registration
+      suffix: nbr
+  slip2_box55_employee_ppip_premiums_amt:
     x_petey_id: '1_71'
     type: number
     semantic_type: money
@@ -1521,10 +2761,20 @@ fields:
     description: Slip 2. Box 55. Employee's Provincial Parental Insurance Plan premiums
       – see over.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  box_56_ppip_insurable_earnings_amt_2:
+    x_petey_identifiers:
+      subject: slip2_box55_employee_ppip_premiums
+      suffix: amt
+  slip2_box56_ppip_insurable_earnings_amt:
     x_petey_id: '1_72'
     type: number
     semantic_type: money
@@ -1539,10 +2789,20 @@ fields:
       path: form1[0].Page1[0].Slip2[0].Box56[0].Slip1Box56[0]
     description: Slip 2. Box 56. Provincial Parental Insurance Plan insurable earnings.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  other_info_box_1_cd_2:
+    x_petey_identifiers:
+      subject: slip2_box56_ppip_insurable_earnings
+      suffix: amt
+  slip2_other_info_box_1:
     x_petey_id: '1_73'
     type: category
     widget:
@@ -1554,6 +2814,8 @@ fields:
       - 741.9459838867188
       widget_type: combobox
       path: form1[0].Page1[0].Slip2[0].OtherInformation[0].Box1[0].Slip1Box1[0]
+    description: Slip 2. Other information. Box. Instance 1.
+    x_petey_description_source: tooltip
     values:
     - '30'
     - '31'
@@ -1590,9 +2852,93 @@ fields:
     - '88'
     - '94'
     - '95'
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      pictures:
+        format:
+        - num{szzz,zzz,zzz,zz9}
+        ui:
+        - num{szzzzzzzzzzz9}
+    label_source: llm
     x_petey_retype:
     - dropdown
-  other_info_box_1_amt_2:
+    - dropdown_options
+    options:
+      '30':
+        caption: '30'
+      '31':
+        caption: '31'
+      '32':
+        caption: '32'
+      '33':
+        caption: '33'
+      '34':
+        caption: '34'
+      '36':
+        caption: '36'
+      '38':
+        caption: '38'
+      '39':
+        caption: '39'
+      '40':
+        caption: '40'
+      '41':
+        caption: '41'
+      '42':
+        caption: '42'
+      '43':
+        caption: '43'
+      '57':
+        caption: '57'
+      '58':
+        caption: '58'
+      '59':
+        caption: '59'
+      '60':
+        caption: '60'
+      '66':
+        caption: '66'
+      '67':
+        caption: '67'
+      '69':
+        caption: '69'
+      '71':
+        caption: '71'
+      '74':
+        caption: '74'
+      '75':
+        caption: '75'
+      '77':
+        caption: '77'
+      '78':
+        caption: '78'
+      '79':
+        caption: '79'
+      '80':
+        caption: '80'
+      '81':
+        caption: '81'
+      '82':
+        caption: '82'
+      '83':
+        caption: '83'
+      '85':
+        caption: '85'
+      '86':
+        caption: '86'
+      '87':
+        caption: '87'
+      '88':
+        caption: '88'
+      '94':
+        caption: '94'
+      '95':
+        caption: '95'
+    x_petey_identifiers:
+      subject: slip2_other_info_box_1
+      grid: p1-G2
+  slip2_other_info_amount_amt_1:
     x_petey_id: '1_74'
     type: number
     semantic_type: money
@@ -1607,10 +2953,22 @@ fields:
       path: form1[0].Page1[0].Slip2[0].OtherInformation[0].Amount1[0].Slip1Amount1[0]
     description: Slip 2. Other information. Amount. Instance 1.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  other_info_box_2_cd_2:
+    x_petey_identifiers:
+      subject: slip2_other_info_amount
+      suffix: amt
+      iteration: '1'
+      grid: p1-G2
+  slip2_other_info_box_2:
     x_petey_id: '1_75'
     type: category
     widget:
@@ -1622,6 +2980,8 @@ fields:
       - 741.9459838867188
       widget_type: combobox
       path: form1[0].Page1[0].Slip2[0].OtherInformation[0].Box2[0].Slip1Box2[0]
+    description: Slip 2. Other information. Box. Instance 2.
+    x_petey_description_source: tooltip
     values:
     - '30'
     - '31'
@@ -1658,9 +3018,93 @@ fields:
     - '88'
     - '94'
     - '95'
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      pictures:
+        format:
+        - num{szzz,zzz,zzz,zz9}
+        ui:
+        - num{szzzzzzzzzzz9}
+    label_source: llm
     x_petey_retype:
     - dropdown
-  other_info_box_2_amt_2:
+    - dropdown_options
+    options:
+      '30':
+        caption: '30'
+      '31':
+        caption: '31'
+      '32':
+        caption: '32'
+      '33':
+        caption: '33'
+      '34':
+        caption: '34'
+      '36':
+        caption: '36'
+      '38':
+        caption: '38'
+      '39':
+        caption: '39'
+      '40':
+        caption: '40'
+      '41':
+        caption: '41'
+      '42':
+        caption: '42'
+      '43':
+        caption: '43'
+      '57':
+        caption: '57'
+      '58':
+        caption: '58'
+      '59':
+        caption: '59'
+      '60':
+        caption: '60'
+      '66':
+        caption: '66'
+      '67':
+        caption: '67'
+      '69':
+        caption: '69'
+      '71':
+        caption: '71'
+      '74':
+        caption: '74'
+      '75':
+        caption: '75'
+      '77':
+        caption: '77'
+      '78':
+        caption: '78'
+      '79':
+        caption: '79'
+      '80':
+        caption: '80'
+      '81':
+        caption: '81'
+      '82':
+        caption: '82'
+      '83':
+        caption: '83'
+      '85':
+        caption: '85'
+      '86':
+        caption: '86'
+      '87':
+        caption: '87'
+      '88':
+        caption: '88'
+      '94':
+        caption: '94'
+      '95':
+        caption: '95'
+    x_petey_identifiers:
+      subject: slip2_other_info_box_2
+      grid: p1-G2
+  slip2_other_info_amount_amt_2:
     x_petey_id: '1_76'
     type: number
     semantic_type: money
@@ -1675,10 +3119,22 @@ fields:
       path: form1[0].Page1[0].Slip2[0].OtherInformation[0].Amount2[0].Slip1Amount2[0]
     description: Slip 2. Other information. Amount. Instance 2.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  other_info_box_3_cd_2:
+    x_petey_identifiers:
+      subject: slip2_other_info_amount
+      suffix: amt
+      iteration: '2'
+      grid: p1-G2
+  slip2_other_info_box_3:
     x_petey_id: '1_77'
     type: category
     widget:
@@ -1690,6 +3146,8 @@ fields:
       - 741.9459838867188
       widget_type: combobox
       path: form1[0].Page1[0].Slip2[0].OtherInformation[0].Box3[0].Slip1Box3[0]
+    description: Slip 2. Other information. Box. Instance 3.
+    x_petey_description_source: tooltip
     values:
     - '30'
     - '31'
@@ -1726,9 +3184,93 @@ fields:
     - '88'
     - '94'
     - '95'
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      pictures:
+        format:
+        - num{szzz,zzz,zzz,zz9}
+        ui:
+        - num{szzzzzzzzzzz9}
+    label_source: llm
     x_petey_retype:
     - dropdown
-  other_info_box_3_amt_2:
+    - dropdown_options
+    options:
+      '30':
+        caption: '30'
+      '31':
+        caption: '31'
+      '32':
+        caption: '32'
+      '33':
+        caption: '33'
+      '34':
+        caption: '34'
+      '36':
+        caption: '36'
+      '38':
+        caption: '38'
+      '39':
+        caption: '39'
+      '40':
+        caption: '40'
+      '41':
+        caption: '41'
+      '42':
+        caption: '42'
+      '43':
+        caption: '43'
+      '57':
+        caption: '57'
+      '58':
+        caption: '58'
+      '59':
+        caption: '59'
+      '60':
+        caption: '60'
+      '66':
+        caption: '66'
+      '67':
+        caption: '67'
+      '69':
+        caption: '69'
+      '71':
+        caption: '71'
+      '74':
+        caption: '74'
+      '75':
+        caption: '75'
+      '77':
+        caption: '77'
+      '78':
+        caption: '78'
+      '79':
+        caption: '79'
+      '80':
+        caption: '80'
+      '81':
+        caption: '81'
+      '82':
+        caption: '82'
+      '83':
+        caption: '83'
+      '85':
+        caption: '85'
+      '86':
+        caption: '86'
+      '87':
+        caption: '87'
+      '88':
+        caption: '88'
+      '94':
+        caption: '94'
+      '95':
+        caption: '95'
+    x_petey_identifiers:
+      subject: slip2_other_info_box_3
+      grid: p1-G2
+  slip2_other_info_amount_amt_3:
     x_petey_id: '1_78'
     type: number
     semantic_type: money
@@ -1743,10 +3285,22 @@ fields:
       path: form1[0].Page1[0].Slip2[0].OtherInformation[0].Amount3[0].Slip1Amount3[0]
     description: Slip 2. Other information. Amount. Instance 3.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  other_info_box_4_cd_2:
+    x_petey_identifiers:
+      subject: slip2_other_info_amount
+      suffix: amt
+      iteration: '3'
+      grid: p1-G2
+  slip2_other_info_box_4:
     x_petey_id: '1_79'
     type: category
     widget:
@@ -1758,6 +3312,8 @@ fields:
       - 769.1019897460938
       widget_type: combobox
       path: form1[0].Page1[0].Slip2[0].OtherInformation[0].Box4[0].Slip1Box4[0]
+    description: Slip 2. Other information. Box. Instance 4.
+    x_petey_description_source: tooltip
     values:
     - '30'
     - '31'
@@ -1794,9 +3350,93 @@ fields:
     - '88'
     - '94'
     - '95'
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      pictures:
+        format:
+        - num{szzz,zzz,zzz,zz9}
+        ui:
+        - num{szzzzzzzzzzz9}
+    label_source: llm
     x_petey_retype:
     - dropdown
-  other_info_box_4_amt_2:
+    - dropdown_options
+    options:
+      '30':
+        caption: '30'
+      '31':
+        caption: '31'
+      '32':
+        caption: '32'
+      '33':
+        caption: '33'
+      '34':
+        caption: '34'
+      '36':
+        caption: '36'
+      '38':
+        caption: '38'
+      '39':
+        caption: '39'
+      '40':
+        caption: '40'
+      '41':
+        caption: '41'
+      '42':
+        caption: '42'
+      '43':
+        caption: '43'
+      '57':
+        caption: '57'
+      '58':
+        caption: '58'
+      '59':
+        caption: '59'
+      '60':
+        caption: '60'
+      '66':
+        caption: '66'
+      '67':
+        caption: '67'
+      '69':
+        caption: '69'
+      '71':
+        caption: '71'
+      '74':
+        caption: '74'
+      '75':
+        caption: '75'
+      '77':
+        caption: '77'
+      '78':
+        caption: '78'
+      '79':
+        caption: '79'
+      '80':
+        caption: '80'
+      '81':
+        caption: '81'
+      '82':
+        caption: '82'
+      '83':
+        caption: '83'
+      '85':
+        caption: '85'
+      '86':
+        caption: '86'
+      '87':
+        caption: '87'
+      '88':
+        caption: '88'
+      '94':
+        caption: '94'
+      '95':
+        caption: '95'
+    x_petey_identifiers:
+      subject: slip2_other_info_box_4
+      grid: p1-G2
+  slip2_other_info_amount_amt_4:
     x_petey_id: '1_80'
     type: number
     semantic_type: money
@@ -1811,10 +3451,22 @@ fields:
       path: form1[0].Page1[0].Slip2[0].OtherInformation[0].Amount4[0].Slip1Amount4[0]
     description: Slip 2. Other information. Amount. Instance 4.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  other_info_box_5_cd_2:
+    x_petey_identifiers:
+      subject: slip2_other_info_amount
+      suffix: amt
+      iteration: '4'
+      grid: p1-G2
+  slip2_other_info_box_5:
     x_petey_id: '1_81'
     type: category
     widget:
@@ -1826,6 +3478,8 @@ fields:
       - 769.1019897460938
       widget_type: combobox
       path: form1[0].Page1[0].Slip2[0].OtherInformation[0].Box5[0].Slip1Box5[0]
+    description: Slip 2. Other information. Box. Instance 5.
+    x_petey_description_source: tooltip
     values:
     - '30'
     - '31'
@@ -1862,9 +3516,93 @@ fields:
     - '88'
     - '94'
     - '95'
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      pictures:
+        format:
+        - num{szzz,zzz,zzz,zz9}
+        ui:
+        - num{szzzzzzzzzzz9}
+    label_source: llm
     x_petey_retype:
     - dropdown
-  other_info_box_5_amt_2:
+    - dropdown_options
+    options:
+      '30':
+        caption: '30'
+      '31':
+        caption: '31'
+      '32':
+        caption: '32'
+      '33':
+        caption: '33'
+      '34':
+        caption: '34'
+      '36':
+        caption: '36'
+      '38':
+        caption: '38'
+      '39':
+        caption: '39'
+      '40':
+        caption: '40'
+      '41':
+        caption: '41'
+      '42':
+        caption: '42'
+      '43':
+        caption: '43'
+      '57':
+        caption: '57'
+      '58':
+        caption: '58'
+      '59':
+        caption: '59'
+      '60':
+        caption: '60'
+      '66':
+        caption: '66'
+      '67':
+        caption: '67'
+      '69':
+        caption: '69'
+      '71':
+        caption: '71'
+      '74':
+        caption: '74'
+      '75':
+        caption: '75'
+      '77':
+        caption: '77'
+      '78':
+        caption: '78'
+      '79':
+        caption: '79'
+      '80':
+        caption: '80'
+      '81':
+        caption: '81'
+      '82':
+        caption: '82'
+      '83':
+        caption: '83'
+      '85':
+        caption: '85'
+      '86':
+        caption: '86'
+      '87':
+        caption: '87'
+      '88':
+        caption: '88'
+      '94':
+        caption: '94'
+      '95':
+        caption: '95'
+    x_petey_identifiers:
+      subject: slip2_other_info_box_5
+      grid: p1-G2
+  slip2_other_info_amount_amt_5:
     x_petey_id: '1_82'
     type: number
     semantic_type: money
@@ -1879,10 +3617,22 @@ fields:
       path: form1[0].Page1[0].Slip2[0].OtherInformation[0].Amount5[0].Slip1Amount5[0]
     description: Slip 2. Other information. Amount. Instance 5.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  other_info_box_6_cd_2:
+    x_petey_identifiers:
+      subject: slip2_other_info_amount
+      suffix: amt
+      iteration: '5'
+      grid: p1-G2
+  slip2_other_info_box_6:
     x_petey_id: '1_83'
     type: category
     widget:
@@ -1894,6 +3644,8 @@ fields:
       - 769.1019897460938
       widget_type: combobox
       path: form1[0].Page1[0].Slip2[0].OtherInformation[0].Box6[0].Slip1Box6[0]
+    description: Slip 2. Other information. Box. Instance 6.
+    x_petey_description_source: tooltip
     values:
     - '30'
     - '31'
@@ -1930,9 +3682,93 @@ fields:
     - '88'
     - '94'
     - '95'
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: choice
+      pictures:
+        format:
+        - num{szzz,zzz,zzz,zz9}
+        ui:
+        - num{szzzzzzzzzzz9}
+    label_source: llm
     x_petey_retype:
     - dropdown
-  other_info_box_6_amt_2:
+    - dropdown_options
+    options:
+      '30':
+        caption: '30'
+      '31':
+        caption: '31'
+      '32':
+        caption: '32'
+      '33':
+        caption: '33'
+      '34':
+        caption: '34'
+      '36':
+        caption: '36'
+      '38':
+        caption: '38'
+      '39':
+        caption: '39'
+      '40':
+        caption: '40'
+      '41':
+        caption: '41'
+      '42':
+        caption: '42'
+      '43':
+        caption: '43'
+      '57':
+        caption: '57'
+      '58':
+        caption: '58'
+      '59':
+        caption: '59'
+      '60':
+        caption: '60'
+      '66':
+        caption: '66'
+      '67':
+        caption: '67'
+      '69':
+        caption: '69'
+      '71':
+        caption: '71'
+      '74':
+        caption: '74'
+      '75':
+        caption: '75'
+      '77':
+        caption: '77'
+      '78':
+        caption: '78'
+      '79':
+        caption: '79'
+      '80':
+        caption: '80'
+      '81':
+        caption: '81'
+      '82':
+        caption: '82'
+      '83':
+        caption: '83'
+      '85':
+        caption: '85'
+      '86':
+        caption: '86'
+      '87':
+        caption: '87'
+      '88':
+        caption: '88'
+      '94':
+        caption: '94'
+      '95':
+        caption: '95'
+    x_petey_identifiers:
+      subject: slip2_other_info_box_6
+      grid: p1-G2
+  slip2_other_info_amount_amt_6:
     x_petey_id: '1_84'
     type: number
     semantic_type: money
@@ -1947,6 +3783,67 @@ fields:
       path: form1[0].Page1[0].Slip2[0].OtherInformation[0].Amount6[0].Slip1Amount6[0]
     description: Slip 2. Other information. Amount. Instance 6.
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{s z,zzz,zzz,zzz,zz9.99}
+        ui:
+        - num{zzzzzzzzzzzz9.99}
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: slip2_other_info_amount
+      suffix: amt
+      iteration: '6'
+      grid: p1-G2
+x_petey_dropped_widgets:
+  count: 2
+  widgets:
+  - path: form1[0].#pageSet[0].Page1[0].ClearData_EN[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear Data
+  - path: form1[0].#pageSet[0].Page1[1].ClearData_EN[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear Data
+x_petey_xfa_log:
+  joined: 84
+  pattern: 2
+  type: 20
+  values: 18
+x_petey_emit_fixes:
+  separators_dropped_by_maxlen: 2
+x_petey_page_check:
+  record: runs/judge_eval/form_runs/cra-t4.json
+  model: claude-opus-5
+  prompt: 216f41cd
+  when: '2026-10-06 11:44:00'
+  fields: 84
+  checked: 84
+  flagged: 0
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: cra-t4_20261006_114219
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/cra-t4.bpt
+  when: '2026-10-06 11:43:57'
+x_petey_run:
+  record: runs/judge_eval/form_runs/cra-t4.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 11:44:00'

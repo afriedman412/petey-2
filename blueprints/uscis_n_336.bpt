@@ -1,0 +1,6029 @@
+bpt_version: '1.1'
+name: uscis_n_336
+form_version: null
+source_pdf: n-336.pdf
+source_pdf_hash: 4b4a431d3a923d6255f66a45fa5554e9ff7f69bd
+source_pages:
+- 1
+- 2
+- 3
+- 4
+- 5
+- 6
+- 7
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-07 02:52:15'
+fields:
+  attorney_state_bar_nbr:
+    x_petey_id: '1_2'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 264.4410095214844
+      - 245.9990234375
+      - 384.4429931640625
+      - 263.9990234375
+      widget_type: text
+      path: form1[0].#subform[0].AttorneyStateBarNumber[0]
+    description: To be completed by an attorney or accredited representative (if any).
+      Enter Attorney or State Bar Number (if applicable).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=120
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: attorney_state_bar_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_state_bar_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: attorney_state_bar
+      suffix: nbr
+  g_28_attached_ind:
+    x_petey_id: '1_1'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 156.9429931640625
+      - 222.99700927734375
+      - 166.9429931640625
+      - 232.99700927734375
+      widget_type: checkbox
+      path: form1[0].#subform[0].CheckBox1[0]
+    description: To be completed by an Attorney or Accredited Representative (if any).
+      Select this box if Form G- 28 is attached.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: g_28_attached
+      suffix: ind
+  alien_registration_nbr_1:
+    x_petey_id: '1_4'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 444.4410095214844
+      - 329.99798583984375
+      - 573.4509887695312
+      - 347.99798583984375
+      widget_type: text
+      path: form1[0].#subform[0].AlienNumber[0]
+    pattern: ^\d{9}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999999999}
+      pictures:
+        format: &id003
+        - text{999999999}
+        ui: &id004
+        - text{999999999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: alien_registration_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{9}$
+      to:
+        name: alien_registration_1_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{9}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: alien_registration
+      suffix: nbr
+      iteration: '1'
+  legal_middle_nm:
+    x_petey_id: '1_7'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 444.4440002441406
+      - 383.99798583984375
+      - 576.4450073242188
+      - 401.99798583984375
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line1_MiddleName[0]
+    description: Part 1. Information About You, the Naturalization Applicant. 1. Your
+      Current Legal Name (do not provide a nickname). Enter Middle Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: legal_middle_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: legal_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: legal_middle
+      suffix: nm
+      grid: p1-G1
+  legal_first_nm:
+    x_petey_id: '1_6'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 1
+      rect:
+      - 270.4419860839844
+      - 384.0010070800781
+      - 438.4429931640625
+      - 402.0010070800781
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line1_GivenName[0]
+    description: Part 1. Information About You, the Naturalization Applicant. 1. Your
+      Current Legal Name (do not provide a nickname). Enter Given Name (first name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: legal_first_name
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: legal_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: legal_first
+      suffix: nm
+      grid: p1-G1
+  legal_last_nm:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 1
+      rect:
+      - 54.44200134277344
+      - 383.99798583984375
+      - 264.4410095214844
+      - 401.99798583984375
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line1_FamilyName[0]
+    description: Part 1. Information About You, the Naturalization Applicant. 1. Your
+      Current Legal Name (do not provide a nickname). Enter Family Name (last name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: legal_last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: legal_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: legal_last
+      suffix: nm
+      grid: p1-G1
+  birth_dt:
+    x_petey_id: '1_14'
+    type: date
+    semantic_type: birth_date
+    widget:
+      page: 1
+      rect:
+      - 54.44200134277344
+      - 522.0059814453125
+      - 186.4429931640625
+      - 540.0059814453125
+      widget_type: text
+      path: form1[0].#subform[0].Line6_DateOfBirth[0]
+    description: Part 1., 3. Date of Birth (m m/ d d/y y y y). Enter date as 2-digit
+      Month, 2-digit Day, and 4-digit Year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format: &id001
+        - date{MM/DD/YYYY}
+        ui: &id002
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
+    label_source: llm
+    x_petey_identifiers:
+      subject: birth
+      suffix: dt
+  uscis_online_account_nbr:
+    x_petey_id: '1_15'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{12}$
+    widget:
+      page: 1
+      rect:
+      - 228.4409942626953
+      - 522.0059814453125
+      - 402.45098876953125
+      - 540.0059814453125
+      widget_type: text
+      path: form1[0].#subform[0].Pt2Pt2Line8_USCISOnlineAcctNumber[0]
+    description: Part 1., 4. Enter U S C I S Online Account Number (if any).
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999999999999}
+      pictures:
+        format:
+        - text{999999999999}
+        ui:
+        - text{999999999999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: uscis_online_account_number
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{12}$
+      to:
+        name: uscis_online_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{12}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: uscis_online_account
+      suffix: nbr
+  physical_address_state_cd:
+    x_petey_id: '1_21'
+    type: category
+    semantic_type: state_abbr
+    widget:
+      page: 1
+      rect:
+      - 408.4410095214844
+      - 612.010986328125
+      - 474.44000244140625
+      - 630.010986328125
+      widget_type: combobox
+      path: form1[0].#subform[0].Pt1Line5_State[0]
+    description: Part 1., 5. Enter the state. You will be making a selection from
+      a drop down box containing 2 letter abbreviations of state names.
+    x_petey_description_source: tooltip
+    values:
+    - AA
+    - AE
+    - AK
+    - AL
+    - AP
+    - AR
+    - AS
+    - AZ
+    - CA
+    - CO
+    - CT
+    - DC
+    - DE
+    - FL
+    - FM
+    - GA
+    - GU
+    - HI
+    - IA
+    - ID
+    - IL
+    - IN
+    - KS
+    - KY
+    - LA
+    - MA
+    - MD
+    - ME
+    - MH
+    - MI
+    - MN
+    - MO
+    - MP
+    - MS
+    - MT
+    - NC
+    - ND
+    - NE
+    - NH
+    - NJ
+    - NM
+    - NV
+    - NY
+    - OH
+    - OK
+    - OR
+    - PA
+    - PR
+    - PW
+    - RI
+    - SC
+    - SD
+    - TN
+    - TX
+    - UT
+    - VA
+    - VI
+    - VT
+    - WA
+    - WI
+    - WV
+    - WY
+    x_petey_validation_source: xfa
+    label_source: llm
+    x_petey_retype:
+    - dropdown
+    - dropdown_options
+    options:
+      AA:
+        caption: AA
+      AE:
+        caption: AE
+      AK:
+        caption: AK
+      AL:
+        caption: AL
+      AP:
+        caption: AP
+      AR:
+        caption: AR
+      AS:
+        caption: AS
+      AZ:
+        caption: AZ
+      CA:
+        caption: CA
+      CO:
+        caption: CO
+      CT:
+        caption: CT
+      DC:
+        caption: DC
+      DE:
+        caption: DE
+      FL:
+        caption: FL
+      FM:
+        caption: FM
+      GA:
+        caption: GA
+      GU:
+        caption: GU
+      HI:
+        caption: HI
+      IA:
+        caption: IA
+      ID:
+        caption: ID
+      IL:
+        caption: IL
+      IN:
+        caption: IN
+      KS:
+        caption: KS
+      KY:
+        caption: KY
+      LA:
+        caption: LA
+      MA:
+        caption: MA
+      MD:
+        caption: MD
+      ME:
+        caption: ME
+      MH:
+        caption: MH
+      MI:
+        caption: MI
+      MN:
+        caption: MN
+      MO:
+        caption: MO
+      MP:
+        caption: MP
+      MS:
+        caption: MS
+      MT:
+        caption: MT
+      NC:
+        caption: NC
+      ND:
+        caption: ND
+      NE:
+        caption: NE
+      NH:
+        caption: NH
+      NJ:
+        caption: NJ
+      NM:
+        caption: NM
+      NV:
+        caption: NV
+      NY:
+        caption: NY
+      OH:
+        caption: OH
+      OK:
+        caption: OK
+      OR:
+        caption: OR
+      PA:
+        caption: PA
+      PR:
+        caption: PR
+      PW:
+        caption: PW
+      RI:
+        caption: RI
+      SC:
+        caption: SC
+      SD:
+        caption: SD
+      TN:
+        caption: TN
+      TX:
+        caption: TX
+      UT:
+        caption: UT
+      VA:
+        caption: VA
+      VI:
+        caption: VI
+      VT:
+        caption: VT
+      WA:
+        caption: WA
+      WI:
+        caption: WI
+      WV:
+        caption: WV
+      WY:
+        caption: WY
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: physical_address_1_state_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      to:
+        name: physical_address_state_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: physical_address
+      suffix: cd
+      subject: state
+  physical_address_street_address_txt:
+    x_petey_id: '1_16'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 54.44200134277344
+      - 576.010986328125
+      - 402.4429931640625
+      - 594.010986328125
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line5_StreetNumberName[0]
+    description: Part 1., 5. Physical Address (do not provide a P O Box in this space
+      unless it is your only address). Enter Street Number and Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: physical_address_1_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: physical_address_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: physical_address
+      suffix: txt
+      subject: street_address
+  physical_address_unit_nbr:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 480.4750061035156
+      - 576.010986328125
+      - 576.4420166015625
+      - 594.010986328125
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line5_AptSteFlrNumber[0]
+    description: Part 1., 5. If you checked the apartment, suite or floor box, enter
+      the number here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: physical_address_1_unit_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: physical_address_unit_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: physical_address
+      suffix: nbr
+      subject: unit
+  physical_address_zip_cd:
+    x_petey_id: '1_22'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}$
+    widget:
+      page: 1
+      rect:
+      - 480.4410095214844
+      - 612.0059814453125
+      - 576.4420166015625
+      - 630.0059814453125
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line5_ZipCode[0]
+    description: Part 1., 5. Enter 5-digit ZIP Code.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999}
+      pictures:
+        format:
+        - text{99999}
+        ui:
+        - text{99999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: physical_address_1_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}$
+      to:
+        name: physical_address_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}$
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: physical_address
+      suffix: cd
+      subject: zip
+  physical_address_province_region_txt:
+    x_petey_id: '1_23'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 54.44499969482422
+      - 648.0
+      - 216.23800659179688
+      - 666.0
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line5_Province[0]
+    description: Part 1., 5. Enter Province or Region (foreign address only).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: physical_address_1_province_region_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: physical_address_province_region_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: physical_address
+      suffix: txt
+      subject: province_region
+  physical_address_country_nm:
+    x_petey_id: '1_25'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 342.4419860839844
+      - 648.0
+      - 576.4420166015625
+      - 666.010986328125
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line5_Country[0]
+    description: Part 1., 5. Enter Country.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=234
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: physical_address_1_country_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: physical_address_country_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: physical_address
+      suffix: nm
+      subject: country
+  physical_address_foreign_postal_cd:
+    x_petey_id: '1_24'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 222.44900512695312
+      - 648.0
+      - 336.64599609375
+      - 666.0
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line5_PostalCode[0]
+    description: Part 1., 5. Enter Postal Code (foreign address only).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: physical_address_1_foreign_postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: physical_address_foreign_postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: physical_address
+      suffix: cd
+      subject: foreign_postal
+  physical_address_city_nm:
+    x_petey_id: '1_19'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 54.44200134277344
+      - 612.0059814453125
+      - 246.4409942626953
+      - 630.0059814453125
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line5_CityOrTown[0]
+    description: Part 1., 5. Enter City or Town.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: physical_address_1_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: physical_address_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: physical_address
+      suffix: nm
+      subject: city
+  physical_address_county_nm:
+    x_petey_id: '1_20'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 252.44200134277344
+      - 612.0059814453125
+      - 402.4429931640625
+      - 630.1019897460938
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line5_County[0]
+    description: Part 1., 5. Enter County.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Caption and tooltip both say 'County'; a county is a geographic subdivision,
+        not a person's name, so the person_name semantic type is wrong. Name and string
+        type are correct.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Part 1., 5. Enter County.
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: physical_address_1_county_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: physical_address_county_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: physical_address
+      suffix: nm
+      subject: county
+  other_name_1_middle_nm:
+    x_petey_id: '1_10'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 444.4440002441406
+      - 467.99700927734375
+      - 576.4450073242188
+      - 485.99700927734375
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line2_MiddleName[0]
+    description: Part 1., 2. Other Names Used (if any). Entry 1. Enter Middle Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: other_name_1_middle_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_name_1_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: other_name_1_middle
+      suffix: nm
+      grid: p1-G1
+  other_name_1_first_nm:
+    x_petey_id: '1_9'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 1
+      rect:
+      - 270.4419860839844
+      - 467.99700927734375
+      - 438.4429931640625
+      - 485.99700927734375
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line2_GivenName[0]
+    description: Part 1., 2. Other Names Used (if any). Entry 1. Enter Given Name
+      (First name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: other_name_1_first_name
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: other_name_1_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: other_name_1_first
+      suffix: nm
+      grid: p1-G1
+  other_name_1_last_nm:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 1
+      rect:
+      - 54.44200134277344
+      - 467.99700927734375
+      - 264.4410095214844
+      - 485.99700927734375
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line2_FamilyName[0]
+    description: Part 1., 2. Other Names Used (if any). Provide all other names you
+      have ever used, including aliases, maiden name, and nicknames. If you need extra
+      space to complete this section, use the space provided in Part 8. Additional
+      Information. Entry 1. Enter Family Name (last name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: other_name_1_last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: other_name_1_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: other_name_1_last
+      suffix: nm
+      grid: p1-G1
+  attorney_uscis_online_account_nbr:
+    x_petey_id: '1_3'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{12}$
+    widget:
+      page: 1
+      rect:
+      - 396.4419860839844
+      - 245.9990234375
+      - 570.4409790039062
+      - 263.9990234375
+      widget_type: text
+      path: form1[0].#subform[0].#area[0].USCISOnlineAcctNumber[0]
+    description: To be completed by an attorney or accredited representative (if any).
+      Enter Attorney or Accredited Representative U S C I S Online Account Number
+      (if any).
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999999999999}
+      pictures:
+        format:
+        - text{999999999999}
+        ui:
+        - text{999999999999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: attorney_uscis_online_account_number
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{12}$
+      to:
+        name: attorney_uscis_online_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{12}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: attorney_uscis_online_account
+      suffix: nbr
+  other_name_2_middle_nm:
+    x_petey_id: '1_13'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 444.4440002441406
+      - 486.0
+      - 576.4450073242188
+      - 504.0
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line2_MiddleName2[0]
+    description: Part 1., 2. Other Names Used (if any). Entry 2. Enter Middle Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: other_name_2_middle_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_name_2_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: other_name_2_middle
+      suffix: nm
+      grid: p1-G1
+  other_name_2_first_nm:
+    x_petey_id: '1_12'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 1
+      rect:
+      - 270.4419860839844
+      - 486.0
+      - 438.4429931640625
+      - 504.0
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line2_GivenName2[0]
+    description: Part 1., 2. Other Names Used (if any). Entry 2. Enter Given Name
+      (First name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: other_name_2_first_name
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: other_name_2_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: other_name_2_first
+      suffix: nm
+      grid: p1-G1
+  other_name_2_last_nm:
+    x_petey_id: '1_11'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 1
+      rect:
+      - 54.44200134277344
+      - 486.0
+      - 264.4410095214844
+      - 504.0
+      widget_type: text
+      path: form1[0].#subform[0].Pt1Line2_FamilyName2[0]
+    description: Part 1., 2. Other Names Used (if any). Entry 2. Enter Family Name
+      (last name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: other_name_2_last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: other_name_2_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: other_name_2_last
+      suffix: nm
+      grid: p1-G1
+  n400_receipt_nbr:
+    x_petey_id: '2_15'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 54.448001861572266
+      - 371.9989929199219
+      - 198.447998046875
+      - 389.9989929199219
+      widget_type: text
+      path: form1[0].#subform[1].Pt2Line1_ExplainEligibility[0]
+    description: Part 2. Information About Form N- 400 Denial On Which You (the Naturalization
+      Applicant) Are Requesting a Hearing. 1. Enter Form N- 400 Receipt Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: n400_receipt_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: n400_receipt_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: n400_receipt
+      suffix: nbr
+  n400_denial_notice_dt:
+    x_petey_id: '2_16'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 228.44700622558594
+      - 371.9989929199219
+      - 360.447998046875
+      - 389.9989929199219
+      widget_type: text
+      path: form1[0].#subform[1].Line6_DateOfBirth[1]
+    description: Part 2., 2. Date of Form N- 400 Denial Notice (m m/ d d/y y y y).
+      Enter date as 2-digit Month, 2-digit Day, and 4-digit Year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      join: shape
+      pictures:
+        format: *id001
+        ui: *id002
+    label_source: llm
+    x_petey_identifiers:
+      subject: n400_denial_notice
+      suffix: dt
+  denial_notice_uscis_office_nm:
+    x_petey_id: '2_17'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 2
+      rect:
+      - 390.4469909667969
+      - 371.9989929199219
+      - 576.447998046875
+      - 389.9989929199219
+      widget_type: text
+      path: form1[0].#subform[1].Pt2Line1_ExplainEligibility[1]
+    description: Part 2., 3. Enter U S C I S Office That Issued Form N- 400 Denial
+      Notice.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption 'USCIS Office That Issued Form N-400 Denial Notice' is an agency/office
+        name, not a person's name; the name already matches the caption so only the
+        semantic type changes.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Part 2., 3. Enter U S C I S Office That Issued Form N- 400 Denial
+          Notice.
+      judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: denial_notice_uscis_office
+      suffix: nm
+  alien_registration_nbr:
+    x_petey_id: '2_1'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 447.4119873046875
+      - 36.0
+      - 576.4219970703125
+      - 54.0
+      widget_type: text
+      path: form1[0].#subform[1].AlienNumber[1]
+    description: Your 9 Digit A-Number pre-populated from page 1. No entry.
+    x_petey_description_source: tooltip
+    pattern: ^\d{9}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      join: shape
+      picture: text{999999999}
+      pictures:
+        format: *id003
+        ui: *id004
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: alien_registration_num
+        type: string
+        semantic_type: null
+        pattern: ^\d{9}$
+      to:
+        name: alien_registration_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{9}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: alien_registration
+      suffix: nbr
+  height_feet:
+    x_petey_id: '2_21'
+    type: category
+    widget:
+      page: 2
+      rect:
+      - 120.44400024414062
+      - 533.9990234375
+      - 150.4429931640625
+      - 551.9990234375
+      widget_type: combobox
+      path: form1[0].#subform[1].P3_Line18_HeightFeet[0]
+    description: Part 3., 3. Height. Select Feet from the list.
+    x_petey_description_source: tooltip
+    values:
+    - '2'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    x_petey_validation_source: xfa
+    label_source: llm
+    x_petey_retype:
+    - dropdown
+    - dropdown_options
+    options:
+      '2':
+        caption: '2'
+      '3':
+        caption: '3'
+      '4':
+        caption: '4'
+      '5':
+        caption: '5'
+      '6':
+        caption: '6'
+      '7':
+        caption: '7'
+      '8':
+        caption: '8'
+    x_petey_identifiers:
+      subject: height_feet
+  height_inches:
+    x_petey_id: '2_22'
+    type: category
+    widget:
+      page: 2
+      rect:
+      - 186.4459991455078
+      - 533.9990234375
+      - 216.44500732421875
+      - 551.9990234375
+      widget_type: combobox
+      path: form1[0].#subform[1].P3_Line18_HeightInches[0]
+    description: Part 3., 3. Height. Select Inches from the list.
+    x_petey_description_source: tooltip
+    values:
+    - '0'
+    - '1'
+    - '2'
+    - '3'
+    - '4'
+    - '5'
+    - '6'
+    - '7'
+    - '8'
+    - '9'
+    - '10'
+    - '11'
+    x_petey_validation_source: xfa
+    label_source: llm
+    x_petey_retype:
+    - dropdown
+    - dropdown_options
+    options:
+      '0':
+        caption: '0'
+      '1':
+        caption: '1'
+      '2':
+        caption: '2'
+      '3':
+        caption: '3'
+      '4':
+        caption: '4'
+      '5':
+        caption: '5'
+      '6':
+        caption: '6'
+      '7':
+        caption: '7'
+      '8':
+        caption: '8'
+      '9':
+        caption: '9'
+      '10':
+        caption: '10'
+      '11':
+        caption: '11'
+    x_petey_identifiers:
+      subject: height_inches
+  weight_lbs_txt_1:
+    x_petey_id: '2_23'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 132.43699645996094
+      - 557.9970092773438
+      - 144.43600463867188
+      - 575.9970092773438
+      widget_type: text
+      path: form1[0].#subform[1].P3_Line19_Pounds1[0]
+    description: Part 3., 4. Weight. Enter first number for Pounds in this field.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: weight_lbs
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: weight_lbs_1_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type); first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: weight_lbs
+      suffix: txt
+      iteration: '1'
+  weight_lbs_txt_2:
+    x_petey_id: '2_24'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.43699645996094
+      - 557.9970092773438
+      - 162.43600463867188
+      - 575.9970092773438
+      widget_type: text
+      path: form1[0].#subform[1].P3_Line19_Pounds2[0]
+    description: Part 3., 4. Weight. Enter second number for Pounds in this field.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: weight_lbs_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: weight_lbs_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type); number moved before the suffix'
+    x_petey_identifiers:
+      subject: weight_lbs
+      suffix: txt
+      iteration: '2'
+  weight_lbs_txt_3:
+    x_petey_id: '2_25'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 168.43699645996094
+      - 557.9970092773438
+      - 180.43600463867188
+      - 575.9970092773438
+      widget_type: text
+      path: form1[0].#subform[1].P3_Line19_Pounds3[0]
+    description: Part 3., 4. Weight. Enter third number for Pounds in this field.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: weight_lbs_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: weight_lbs_3_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type); number moved before the suffix'
+    x_petey_identifiers:
+      subject: weight_lbs
+      suffix: txt
+      iteration: '3'
+  address_state_cd:
+    x_petey_id: '2_8'
+    type: category
+    semantic_type: state_abbr
+    widget:
+      page: 2
+      rect:
+      - 408.4410095214844
+      - 180.00299072265625
+      - 474.44000244140625
+      - 198.00299072265625
+      widget_type: combobox
+      path: form1[0].#subform[1].Pt1Line6_State[0]
+    description: Part 1. (continued)., 6. Enter the state. You will be making a selection
+      from a drop down box containing 2 letter abbreviations of state names.
+    x_petey_description_source: tooltip
+    values:
+    - AA
+    - AE
+    - AK
+    - AL
+    - AP
+    - AR
+    - AS
+    - AZ
+    - CA
+    - CO
+    - CT
+    - DC
+    - DE
+    - FL
+    - FM
+    - GA
+    - GU
+    - HI
+    - IA
+    - ID
+    - IL
+    - IN
+    - KS
+    - KY
+    - LA
+    - MA
+    - MD
+    - ME
+    - MH
+    - MI
+    - MN
+    - MO
+    - MP
+    - MS
+    - MT
+    - NC
+    - ND
+    - NE
+    - NH
+    - NJ
+    - NM
+    - NV
+    - NY
+    - OH
+    - OK
+    - OR
+    - PA
+    - PR
+    - PW
+    - RI
+    - SC
+    - SD
+    - TN
+    - TX
+    - UT
+    - VA
+    - VI
+    - VT
+    - WA
+    - WI
+    - WV
+    - WY
+    x_petey_validation_source: xfa
+    label_source: llm
+    x_petey_retype:
+    - dropdown
+    - dropdown_options
+    options:
+      AA:
+        caption: AA
+      AE:
+        caption: AE
+      AK:
+        caption: AK
+      AL:
+        caption: AL
+      AP:
+        caption: AP
+      AR:
+        caption: AR
+      AS:
+        caption: AS
+      AZ:
+        caption: AZ
+      CA:
+        caption: CA
+      CO:
+        caption: CO
+      CT:
+        caption: CT
+      DC:
+        caption: DC
+      DE:
+        caption: DE
+      FL:
+        caption: FL
+      FM:
+        caption: FM
+      GA:
+        caption: GA
+      GU:
+        caption: GU
+      HI:
+        caption: HI
+      IA:
+        caption: IA
+      ID:
+        caption: ID
+      IL:
+        caption: IL
+      IN:
+        caption: IN
+      KS:
+        caption: KS
+      KY:
+        caption: KY
+      LA:
+        caption: LA
+      MA:
+        caption: MA
+      MD:
+        caption: MD
+      ME:
+        caption: ME
+      MH:
+        caption: MH
+      MI:
+        caption: MI
+      MN:
+        caption: MN
+      MO:
+        caption: MO
+      MP:
+        caption: MP
+      MS:
+        caption: MS
+      MT:
+        caption: MT
+      NC:
+        caption: NC
+      ND:
+        caption: ND
+      NE:
+        caption: NE
+      NH:
+        caption: NH
+      NJ:
+        caption: NJ
+      NM:
+        caption: NM
+      NV:
+        caption: NV
+      NY:
+        caption: NY
+      OH:
+        caption: OH
+      OK:
+        caption: OK
+      OR:
+        caption: OR
+      PA:
+        caption: PA
+      PR:
+        caption: PR
+      PW:
+        caption: PW
+      RI:
+        caption: RI
+      SC:
+        caption: SC
+      SD:
+        caption: SD
+      TN:
+        caption: TN
+      TX:
+        caption: TX
+      UT:
+        caption: UT
+      VA:
+        caption: VA
+      VI:
+        caption: VI
+      VT:
+        caption: VT
+      WA:
+        caption: WA
+      WI:
+        caption: WI
+      WV:
+        caption: WV
+      WY:
+        caption: WY
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: address_1_state_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      to:
+        name: address_state_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: address
+      suffix: cd
+      subject: state
+  address_street_address_txt:
+    x_petey_id: '2_3'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 54.44200134277344
+      - 144.00299072265625
+      - 402.4429931640625
+      - 162.00299072265625
+      widget_type: text
+      path: form1[0].#subform[1].Pt1Line6_StreetNumberName[0]
+    description: Part 1. (continued)., 6. Enter the Street Number and Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: address_1_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: address_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: address
+      suffix: txt
+      subject: street_address
+  address_unit_nbr:
+    x_petey_id: '2_4'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 480.4750061035156
+      - 144.00299072265625
+      - 576.4420166015625
+      - 162.00299072265625
+      widget_type: text
+      path: form1[0].#subform[1].Pt1Line6_AptSteFlrNumber[0]
+    description: Part 1. (continued)., 6. If you checked the apartment, suite or floor
+      box, enter the number here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: address_1_unit_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: address_unit_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: address
+      suffix: nbr
+      subject: unit
+  in_care_of_nm:
+    x_petey_id: '2_2'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 54.44200134277344
+      - 108.0
+      - 576.4420166015625
+      - 126.0
+      widget_type: text
+      path: form1[0].#subform[1].Pt1Line6_InCareofName[0]
+    description: Part 1. (continued)., 6. Mailing Address. Enter In Care of Name (if
+      any).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:17'
+      from:
+        name: in_care_of_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: in_care_of_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: in_care_of
+      suffix: nm
+  address_zip_cd:
+    x_petey_id: '2_9'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}$
+    widget:
+      page: 2
+      rect:
+      - 480.4410095214844
+      - 179.99700927734375
+      - 576.4420166015625
+      - 197.99700927734375
+      widget_type: text
+      path: form1[0].#subform[1].Pt1Line6_ZipCode[0]
+    description: Part 1. (continued)., 6. Enter 5-digit ZIP Code.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999}
+      pictures:
+        format:
+        - text{99999}
+        ui:
+        - text{99999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: address_1_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}$
+      to:
+        name: address_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}$
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: address
+      suffix: cd
+      subject: zip
+  address_city_nm:
+    x_petey_id: '2_6'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 54.44200134277344
+      - 179.99700927734375
+      - 246.4409942626953
+      - 197.99700927734375
+      widget_type: text
+      path: form1[0].#subform[1].Pt1Line6_CityOrTown[0]
+    description: Part 1. (continued)., 6. Enter City or Town.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: address_1_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: address_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: address
+      suffix: nm
+      subject: city
+  address_county_nm:
+    x_petey_id: '2_7'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 252.44200134277344
+      - 180.0
+      - 402.4429931640625
+      - 198.09600830078125
+      widget_type: text
+      path: form1[0].#subform[1].Pt1Line6_County[0]
+    description: Part 1. (continued)., 6. Enter County.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Caption 'County' (Part 1 continued, item 6) is a place, not a person;
+        person_name semantic type must be dropped. Name and string type stay.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Part 1. (continued)., 6. Enter County.
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: address_1_county_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: address_county_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: address
+      suffix: nm
+      subject: county
+  address_province_region_txt:
+    x_petey_id: '2_10'
+    type: string
+    semantic_type: text
+    widget:
+      page: 2
+      rect:
+      - 54.44200134277344
+      - 216.0
+      - 216.23500061035156
+      - 234.0
+      widget_type: text
+      path: form1[0].#subform[1].Pt1Line6_Province[0]
+    description: Part 1. (continued)., 6. Enter Province or Region (foreign address
+      only).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: address_1_province_region_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: address_province_region_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: address
+      suffix: txt
+      subject: province_region
+  address_country_nm:
+    x_petey_id: '2_12'
+    type: string
+    semantic_type: country
+    widget:
+      page: 2
+      rect:
+      - 342.4389953613281
+      - 216.0
+      - 576.4390258789062
+      - 234.010986328125
+      widget_type: text
+      path: form1[0].#subform[1].Pt1Line6_Country[0]
+    description: Part 1. (continued)., 6. Enter Country.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: address_1_country_nm
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: address_country_nm
+        type: string
+        semantic_type: country
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: address
+      suffix: nm
+      subject: country
+  address_foreign_postal_cd:
+    x_petey_id: '2_11'
+    type: string
+    semantic_type: postal_code
+    pattern: ^[A-Za-z0-9 -]{1,9}$
+    widget:
+      page: 2
+      rect:
+      - 222.4459991455078
+      - 216.0
+      - 336.64300537109375
+      - 234.0
+      widget_type: text
+      path: form1[0].#subform[1].Pt1Line6_PostalCode[0]
+    description: Part 1. (continued)., 6. Enter Postal Code (foreign address only).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - pattern
+      reason: Foreign postal codes are not US ZIPs; the US zip semantic_type and 5-or-9-digit
+        pattern are wrong for this box. Name and description already match the caption.
+      before:
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        description: Part 1. (continued)., 6. Enter Postal Code (foreign address only).
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: address_1_foreign_postal_cd
+        type: string
+        semantic_type: postal_code
+        pattern: ^[A-Za-z0-9 -]{1,9}$
+      to:
+        name: address_foreign_postal_cd
+        type: string
+        semantic_type: postal_code
+        pattern: ^[A-Za-z0-9 -]{1,9}$
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: address
+      suffix: cd
+      subject: foreign_postal
+  work_telephone_nbr:
+    x_petey_id: '2_13'
+    type: string
+    semantic_type: phone
+    pattern: ^\d{10}$
+    widget:
+      page: 2
+      rect:
+      - 72.44200134277344
+      - 270.00299072265625
+      - 312.4429931640625
+      - 288.00299072265625
+      widget_type: text
+      path: form1[0].#subform[1].P4_Line1_Telephone[0]
+    description: Part 1. (continued)., 7. Contact Information. A. Enter Work Telephone
+      Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:10
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - pattern
+      reason: Caption 'Work Telephone Number' and maxlen 10 indicate a 10-digit phone
+        number, not a generic id part.
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,10}$
+        description: Part 1. (continued)., 7. Contact Information. A. Enter Work Telephone
+          Number.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: work_telephone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      to:
+        name: work_telephone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: work_telephone
+      suffix: nbr
+  evening_telephone_nbr:
+    x_petey_id: '2_14'
+    type: string
+    semantic_type: phone
+    pattern: ^\d{10}$
+    widget:
+      page: 2
+      rect:
+      - 342.4419860839844
+      - 270.00299072265625
+      - 576.4420166015625
+      - 288.00299072265625
+      widget_type: text
+      path: form1[0].#subform[1].P4_Line2_Telephone[0]
+    description: Part 1. (continued)., 7. Contact Information. B. Enter Evening Telephone
+      Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:10
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - pattern
+      reason: Caption 'Evening Telephone Number' with a 10-character box is a phone
+        number; id_part is wrong.
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,10}$
+        description: Part 1. (continued)., 7. Contact Information. B. Enter Evening
+          Telephone Number.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: evening_telephone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      to:
+        name: evening_telephone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: evening_telephone
+      suffix: nbr
+  part_4_reason_requesting_hearing_txt:
+    x_petey_id: '3_2'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 36.44200134277344
+      - 83.9990234375
+      - 576.4420166015625
+      - 695.9990234375
+      widget_type: text
+      path: form1[0].#subform[2].Pt3Line6_Email[0]
+    description: Part 4. Reason You Are Requesting a Hearing. Enter the reasons you
+      are requesting a hearing on your denied Form N- 400. If you need extra space
+      to complete this section, use the space provided in Part 8. Additional Information.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=540
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: part4_reason_requesting_hearing
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: part_4_reason_requesting_hearing_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: part_4_reason_requesting_hearing
+      suffix: txt
+  alien_registration_num_2:
+    x_petey_id: '3_1'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 447.3890075683594
+      - 36.0
+      - 576.3989868164062
+      - 54.0
+      widget_type: text
+      path: form1[0].#subform[2].AlienNumber[2]
+    description: Your 9 Digit A-Number pre-populated from page 1. No entry.
+    x_petey_description_source: tooltip
+    pattern: ^\d{9}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      join: shape
+      picture: text{999999999}
+      pictures:
+        format: *id003
+        ui: *id004
+    label_source: llm
+    x_petey_identifiers:
+      subject: alien_registration_num
+      iteration: '2'
+  alien_registration_nbr_2:
+    x_petey_id: '4_1'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 447.3890075683594
+      - 36.0
+      - 576.3989868164062
+      - 54.0
+      widget_type: text
+      path: form1[0].#subform[3].AlienNumber[3]
+    description: Your 9 Digit A-Number pre-populated from page 1. No entry.
+    x_petey_description_source: tooltip
+    pattern: ^\d{9}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      join: shape
+      picture: text{999999999}
+      pictures:
+        format: *id003
+        ui: *id004
+    label_source: llm
+    x_petey_identifiers:
+      subject: alien_registration
+      iteration: '2'
+      suffix: nbr
+  preparer_prepared_request_ind:
+    x_petey_id: '4_5'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 4
+      rect:
+      - 55.4379997253418
+      - 256.00299072265625
+      - 65.43800354003906
+      - 266.00299072265625
+      widget_type: checkbox
+      path: form1[0].#subform[3].Part10Line2_Checkbox[0]
+    description: 'Part 5., Naturalization Applicant''s Statement. 2. Naturalization
+      Applicant''s Statement Regarding the Preparer. Select this box for: At my request,
+      the preparer named in Part 7., prepared this request for me based only upon
+      information I provided or authorized.'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: preparer_prepared_request
+      suffix: ind
+  preparer_nm:
+    x_petey_id: '4_4'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 258.4429931640625
+      - 252.00299072265625
+      - 558.4390258789062
+      - 270.00299072265625
+      widget_type: text
+      path: form1[0].#subform[3].Pt10Line2_NameofRepresentative[0]
+    description: Part 5., Naturalization Applicant's Statement. 2. Naturalization
+      Applicant's Statement Regarding the Preparer. Enter the Preparer Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: preparer_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: preparer_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: preparer
+      suffix: nm
+  interpreter_language_txt:
+    x_petey_id: '4_3'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 165.4409942626953
+      - 198.0
+      - 366.4429931640625
+      - 216.0
+      widget_type: text
+      path: form1[0].#subform[3].Pt10Line1b_language[0]
+    description: 'Part 5., Naturalization Applicant''s Statement. 1. Naturalization
+      Applicant''s Statement Regarding the Interpreter. If selected box for: 1. B.
+      Enter language.'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: interpreter_language
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: interpreter_language_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: interpreter_language
+      suffix: txt
+  applicant_email_address_txt:
+    x_petey_id: '4_8'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 4
+      rect:
+      - 54.44200134277344
+      - 371.9989929199219
+      - 300.4410095214844
+      - 389.9989929199219
+      widget_type: text
+      path: form1[0].#subform[3].Pt5Line5_Email[0]
+    description: Part 5., Naturalization Applicant's Contact Information. 5. Enter
+      Naturalization Applicant E-mail Address (if any).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: applicant_email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: applicant_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: applicant_email_address
+      suffix: txt
+  applicant_daytime_phone_nbr:
+    x_petey_id: '4_6'
+    type: string
+    semantic_type: phone
+    pattern: ^\d{10}$
+    widget:
+      page: 4
+      rect:
+      - 54.44200134277344
+      - 336.00201416015625
+      - 300.4410095214844
+      - 354.00201416015625
+      widget_type: text
+      path: form1[0].#subform[3].Pt5Line3_DaytimeTelephoneNumber3[0]
+    description: Part 5., Naturalization Applicant's Contact Information. 3. Enter
+      Naturalization Applicant's Daytime Telephone Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:10
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - pattern
+      reason: Caption "Naturalization Applicant's Daytime Telephone Number" and maxlen
+        10 make this a phone field.
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,10}$
+        description: Part 5., Naturalization Applicant's Contact Information. 3. Enter
+          Naturalization Applicant's Daytime Telephone Number.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: applicant_daytime_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      to:
+        name: applicant_daytime_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: applicant_daytime_phone
+      suffix: nbr
+  applicant_mobile_phone_nbr:
+    x_petey_id: '4_7'
+    type: string
+    semantic_type: phone
+    pattern: ^\d{10}$
+    widget:
+      page: 4
+      rect:
+      - 330.44000244140625
+      - 336.00201416015625
+      - 576.4390258789062
+      - 354.00201416015625
+      widget_type: text
+      path: form1[0].#subform[3].Pt5Line4_MobileTelephoneNumber3[0]
+    description: Part 5., Naturalization Applicant's Contact Information. 4. Enter
+      Naturalization Applicant's Mobile Telephone Number (if any).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:10
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - pattern
+      reason: Caption "Naturalization Applicant's Mobile Telephone Number" and maxlen
+        10 make this a phone field, not an id part.
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,10}$
+        description: Part 5., Naturalization Applicant's Contact Information. 4. Enter
+          Naturalization Applicant's Mobile Telephone Number (if any).
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: applicant_mobile_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      to:
+        name: applicant_mobile_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: applicant_mobile_phone
+      suffix: nbr
+  applicant_signature:
+    x_petey_id: '4_9'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 54.448001861572266
+      - 659.9990234375
+      - 438.4490051269531
+      - 677.9990234375
+      widget_type: text
+      path: form1[0].#subform[3].P5Line6_SignatureApplicant[0]
+    description: Part 5., Naturalization Applicant's Signature. 6. Naturalization
+      Applicant's Signature. This signature field can not be signed with a digital
+      signature and the signee's name can not be typewritten into this space. This
+      is a protected field. Print and sign in ink.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: applicant
+      suffix: signature
+  applicant_signature_dt:
+    x_petey_id: '4_10'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 4
+      rect:
+      - 444.45001220703125
+      - 659.9990234375
+      - 576.4509887695312
+      - 677.9990234375
+      widget_type: text
+      path: form1[0].#subform[3].P5Line6_DateofSignature[0]
+    description: Part 5., Naturalization Applicant's Signature. 6. Date of Signature
+      (m m/d d/y y y y). Enter the date as 2 digit month, 2 digit day and 4 digit
+      year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/DD/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
+    label_source: llm
+    x_petey_identifiers:
+      subject: applicant_signature
+      suffix: dt
+  alien_registration_num_3:
+    x_petey_id: '5_1'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 447.3890075683594
+      - 36.0
+      - 576.3989868164062
+      - 54.0
+      widget_type: text
+      path: form1[0].#subform[4].AlienNumber[4]
+    description: Your 9 Digit A-Number pre-populated from page 1. No entry.
+    x_petey_description_source: tooltip
+    pattern: ^\d{9}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      join: shape
+      picture: text{999999999}
+      pictures:
+        format: *id003
+        ui: *id004
+    label_source: llm
+    x_petey_identifiers:
+      subject: alien_registration_num
+      iteration: '3'
+  interpreter_first_nm:
+    x_petey_id: '5_3'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 5
+      rect:
+      - 318.4410095214844
+      - 119.9990234375
+      - 576.4420166015625
+      - 137.9990234375
+      widget_type: text
+      path: form1[0].#subform[4].Pt6Line1_InterpreterGivenName[0]
+    description: Part 6., Interpreter's Full Name. 6. Enter Interpreter's Given Name
+      (First Name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: interpreter_first_name
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: interpreter_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: interpreter_first
+      suffix: nm
+  interpreter_last_nm:
+    x_petey_id: '5_2'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 5
+      rect:
+      - 54.44200134277344
+      - 119.9990234375
+      - 312.4429931640625
+      - 137.9990234375
+      widget_type: text
+      path: form1[0].#subform[4].Pt6Line1_InterpreterFamilyName[0]
+    description: Part 6. Interpreter's Contact Information, Certification, and Signature.
+      Provide the following information about the interpreter. Interpreter's Full
+      Name. Enter Interpreter's Family Name (Last Name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: interpreter_last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: interpreter_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: interpreter_last
+      suffix: nm
+  interpreter_business_nm:
+    x_petey_id: '5_4'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 5
+      rect:
+      - 54.44200134277344
+      - 155.9990234375
+      - 312.4429931640625
+      - 173.9990234375
+      widget_type: text
+      path: form1[0].#subform[4].Pt4Line2_NameofBusinessorOrgName[0]
+    description: Part 6., 2. Enter Interpreter's Business or Organization Name (if
+      any).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: interpreter_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: interpreter_business_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: interpreter_business
+      suffix: nm
+  interpreter_city_nm:
+    x_petey_id: '5_8'
+    type: string
+    semantic_type: city
+    widget:
+      page: 5
+      rect:
+      - 54.44200134277344
+      - 258.0040283203125
+      - 402.4429931640625
+      - 276.0040283203125
+      widget_type: text
+      path: form1[0].#subform[4].Pt6Line3_CityOrTown[0]
+    description: Part 6., Interpreter's Mailing Address. 3. Enter City or Town
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: interpreter_city
+      suffix: nm
+  interpreter_address_province_region_txt:
+    x_petey_id: '5_11'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 54.44200134277344
+      - 294.0039978027344
+      - 240.4429931640625
+      - 312.0039978027344
+      widget_type: text
+      path: form1[0].#subform[4].Pt6Line3_Province[0]
+    description: Part 6., Interpreter's Mailing Address. 3. Enter Province or Region.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Caption 'Province or Region' is a place name, so person_name is wrong;
+        the field name and string type already describe the box correctly.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Part 6., Interpreter's Mailing Address. 3. Enter Province or
+          Region.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:10'
+      from:
+        name: interpreter_address_3_province_region_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: interpreter_address_province_region_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: interpreter_address
+      suffix: txt
+      subject: province_region
+  interpreter_postal_cd:
+    x_petey_id: '5_12'
+    type: string
+    pattern: ^[A-Za-z0-9][A-Za-z0-9 -]{0,8}$
+    widget:
+      page: 5
+      rect:
+      - 246.4409942626953
+      - 294.0039978027344
+      - 330.44000244140625
+      - 312.0039978027344
+      widget_type: text
+      path: form1[0].#subform[4].Pt6Line3_PostalCode[0]
+    description: Part 6., Interpreter's Mailing Address. 3. Enter Postal Code.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      - -semantic_type
+      reason: This is the foreign-address Postal Code box (separate from the US ZIP
+        box on the same line); a US zip semantic type and 5-digit pattern are wrong
+        and collide with interpreter_zip_cd.
+      before:
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        description: Part 6., Interpreter's Mailing Address. 3. Enter Postal Code.
+      judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: interpreter_postal
+      suffix: cd
+  interpreter_address_state_cd:
+    x_petey_id: '5_9'
+    type: category
+    semantic_type: state_abbr
+    widget:
+      page: 5
+      rect:
+      - 408.4410095214844
+      - 258.0040283203125
+      - 474.44000244140625
+      - 276.0040283203125
+      widget_type: combobox
+      path: form1[0].#subform[4].Pt6Line3_State[0]
+    description: Part 6., Interpreter's Mailing Address. 3. State. Select State from
+      a drop down menu containing 2 letter abbreviations. of state names.
+    x_petey_description_source: tooltip
+    values:
+    - AA
+    - AE
+    - AK
+    - AL
+    - AP
+    - AR
+    - AS
+    - AZ
+    - CA
+    - CO
+    - CT
+    - DC
+    - DE
+    - FL
+    - FM
+    - GA
+    - GU
+    - HI
+    - IA
+    - ID
+    - IL
+    - IN
+    - KS
+    - KY
+    - LA
+    - MA
+    - MD
+    - ME
+    - MH
+    - MI
+    - MN
+    - MO
+    - MP
+    - MS
+    - MT
+    - NC
+    - ND
+    - NE
+    - NH
+    - NJ
+    - NM
+    - NV
+    - NY
+    - OH
+    - OK
+    - OR
+    - PA
+    - PR
+    - PW
+    - RI
+    - SC
+    - SD
+    - TN
+    - TX
+    - UT
+    - VA
+    - VI
+    - VT
+    - WA
+    - WI
+    - WV
+    - WY
+    x_petey_validation_source: xfa
+    label_source: llm
+    x_petey_retype:
+    - dropdown
+    - dropdown_options
+    options:
+      AA:
+        caption: AA
+      AE:
+        caption: AE
+      AK:
+        caption: AK
+      AL:
+        caption: AL
+      AP:
+        caption: AP
+      AR:
+        caption: AR
+      AS:
+        caption: AS
+      AZ:
+        caption: AZ
+      CA:
+        caption: CA
+      CO:
+        caption: CO
+      CT:
+        caption: CT
+      DC:
+        caption: DC
+      DE:
+        caption: DE
+      FL:
+        caption: FL
+      FM:
+        caption: FM
+      GA:
+        caption: GA
+      GU:
+        caption: GU
+      HI:
+        caption: HI
+      IA:
+        caption: IA
+      ID:
+        caption: ID
+      IL:
+        caption: IL
+      IN:
+        caption: IN
+      KS:
+        caption: KS
+      KY:
+        caption: KY
+      LA:
+        caption: LA
+      MA:
+        caption: MA
+      MD:
+        caption: MD
+      ME:
+        caption: ME
+      MH:
+        caption: MH
+      MI:
+        caption: MI
+      MN:
+        caption: MN
+      MO:
+        caption: MO
+      MP:
+        caption: MP
+      MS:
+        caption: MS
+      MT:
+        caption: MT
+      NC:
+        caption: NC
+      ND:
+        caption: ND
+      NE:
+        caption: NE
+      NH:
+        caption: NH
+      NJ:
+        caption: NJ
+      NM:
+        caption: NM
+      NV:
+        caption: NV
+      NY:
+        caption: NY
+      OH:
+        caption: OH
+      OK:
+        caption: OK
+      OR:
+        caption: OR
+      PA:
+        caption: PA
+      PR:
+        caption: PR
+      PW:
+        caption: PW
+      RI:
+        caption: RI
+      SC:
+        caption: SC
+      SD:
+        caption: SD
+      TN:
+        caption: TN
+      TX:
+        caption: TX
+      UT:
+        caption: UT
+      VA:
+        caption: VA
+      VI:
+        caption: VI
+      VT:
+        caption: VT
+      WA:
+        caption: WA
+      WI:
+        caption: WI
+      WV:
+        caption: WV
+      WY:
+        caption: WY
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:10'
+      from:
+        name: interpreter_address_3_state_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      to:
+        name: interpreter_address_state_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: interpreter_address
+      suffix: cd
+      subject: state
+  interpreter_address_street_address_txt:
+    x_petey_id: '5_5'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 5
+      rect:
+      - 54.44200134277344
+      - 221.99798583984375
+      - 402.4429931640625
+      - 239.99798583984375
+      widget_type: text
+      path: form1[0].#subform[4].Pt6Line3_StreetNumberName[0]
+    description: Part 6., Interpreter's Mailing Address. 3. Enter the Street Number
+      and Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:10'
+      from:
+        name: interpreter_address_3_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: interpreter_address_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: interpreter_address
+      suffix: txt
+      subject: street_address
+  interpreter_address_unit_nbr:
+    x_petey_id: '5_6'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 480.4750061035156
+      - 221.99798583984375
+      - 576.4420166015625
+      - 239.99798583984375
+      widget_type: text
+      path: form1[0].#subform[4].Pt6Line3_AptSteFlrNumber[0]
+    description: Part 6., Interpreter's Mailing Address. 3. Number. If you checked
+      the apartment, suite or floor box, enter the number here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:10'
+      from:
+        name: interpreter_address_3_unit_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: interpreter_address_unit_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: interpreter_address
+      suffix: nbr
+      subject: unit
+  interpreter_address_country_nm:
+    x_petey_id: '5_13'
+    type: string
+    semantic_type: country
+    widget:
+      page: 5
+      rect:
+      - 336.4410095214844
+      - 294.0039978027344
+      - 576.4420166015625
+      - 312.0039978027344
+      widget_type: text
+      path: form1[0].#subform[4].Pt6Line3_Country[0]
+    description: Part 6., Interpreter's Mailing Address. 3. Enter Country.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:10'
+      from:
+        name: interpreter_address_3_country_nm
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: interpreter_address_country_nm
+        type: string
+        semantic_type: country
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: interpreter_address
+      suffix: nm
+      subject: country
+  interpreter_address_zip_cd:
+    x_petey_id: '5_10'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}$
+    widget:
+      page: 5
+      rect:
+      - 480.4410095214844
+      - 257.99798583984375
+      - 576.4420166015625
+      - 275.99798583984375
+      widget_type: text
+      path: form1[0].#subform[4].Pt6Line3_ZipCode[0]
+    description: Part 6., Interpreter's Mailing Address. 3. Enter 5-digit ZIP Code.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999}
+      pictures:
+        format:
+        - text{99999}
+        ui:
+        - text{99999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:10'
+      from:
+        name: interpreter_address_3_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}$
+      to:
+        name: interpreter_address_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}$
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: interpreter_address
+      suffix: cd
+      subject: zip
+  interpreter_signature:
+    x_petey_id: '5_18'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 54.45100021362305
+      - 576.0029907226562
+      - 438.4519958496094
+      - 594.0029907226562
+      widget_type: text
+      path: form1[0].#subform[4].Pt4Line6b_Signature[0]
+    description: Part 6., Interpreter's Signature. 7. Enter Interpreter's Signature.
+      This signature field can not be signed with a digital signature and the signee's
+      name can not be typewritten into this space. This is a protected field. Print
+      and sign in ink.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: interpreter
+      suffix: signature
+  interpreter_signature_dt:
+    x_petey_id: '5_19'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 5
+      rect:
+      - 444.45001220703125
+      - 576.0029907226562
+      - 576.4509887695312
+      - 594.0029907226562
+      widget_type: text
+      path: form1[0].#subform[4].Pt4Line6b_DateofSignature[0]
+    description: Part 6., Interpreter's Signature. 7. Date of Signature (m m/d d/
+      y y y y). Enter date as 2 digit month, 2 digit day and 4 digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/DD/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
+    label_source: llm
+    x_petey_identifiers:
+      subject: interpreter_signature
+      suffix: dt
+  interpreter_email_address_txt:
+    x_petey_id: '5_16'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 5
+      rect:
+      - 54.448001861572266
+      - 396.0
+      - 300.4469909667969
+      - 414.0
+      widget_type: text
+      path: form1[0].#subform[4].Pt4Line5_EmailAddress[0]
+    description: Part 6., Interpreter's Contact Information. 6. Enter Interpreter's
+      E mail address (if any).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: interpreter_email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: interpreter_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: interpreter_email_address
+      suffix: txt
+  interpreter_daytime_phone_nbr:
+    x_petey_id: '5_14'
+    type: string
+    semantic_type: phone
+    pattern: ^\d{10}$
+    widget:
+      page: 5
+      rect:
+      - 54.448001861572266
+      - 360.0
+      - 300.4469909667969
+      - 378.0
+      widget_type: text
+      path: form1[0].#subform[4].Pt4Line4_DaytimeTelephoneNumber3[0]
+    description: Part 6., Interpreter's Contact Information. 4. Enter Interpreter's
+      Daytime Telephone Number. Enter the daytime number with country or area code.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:10
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - pattern
+      reason: Caption "Interpreter's Daytime Telephone Number" with a 10-character
+        box is a phone number.
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,10}$
+        description: Part 6., Interpreter's Contact Information. 4. Enter Interpreter's
+          Daytime Telephone Number. Enter the daytime number with country or area
+          code.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: interpreter_daytime_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      to:
+        name: interpreter_daytime_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: interpreter_daytime_phone
+      suffix: nbr
+  interpreter_fluent_language_txt:
+    x_petey_id: '5_17'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 144.447998046875
+      - 461.9989929199219
+      - 360.447998046875
+      - 479.9989929199219
+      widget_type: text
+      path: form1[0].#subform[4].Pt4Line6a_NameOfLanguage[0]
+    description: Part 6., Interpreter's Certification. I am fluent in English and
+      the language which is the same language specified in Part 5. Enter language.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: interpreter_fluent_language
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: interpreter_fluent_language_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: interpreter_fluent_language
+      suffix: txt
+  interpreter_mobile_phone_nbr:
+    x_petey_id: '5_15'
+    type: string
+    semantic_type: phone
+    pattern: ^\d{10}$
+    widget:
+      page: 5
+      rect:
+      - 330.4460144042969
+      - 360.0
+      - 576.4450073242188
+      - 378.0
+      widget_type: text
+      path: form1[0].#subform[4].Pt3Line5_MobileTelephoneNumber3[0]
+    description: Part 6., Interpreter's Contact Information. 5. Interpreter's Mobile
+      Telephone Number. Enter mobile number with country or area code.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:10
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - pattern
+      reason: Caption "Interpreter's Mobile Telephone Number" with a 10-character
+        box is a phone number, not an id part.
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,10}$
+        description: Part 6., Interpreter's Contact Information. 5. Interpreter's
+          Mobile Telephone Number. Enter mobile number with country or area code.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: interpreter_mobile_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      to:
+        name: interpreter_mobile_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{10}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: interpreter_mobile_phone
+      suffix: nbr
+  alien_registration_nbr_3:
+    x_petey_id: '6_1'
+    type: string
+    widget:
+      page: 6
+      rect:
+      - 447.3890075683594
+      - 36.0
+      - 576.3989868164062
+      - 54.0
+      widget_type: text
+      path: form1[0].#subform[5].AlienNumber[5]
+    description: Your 9 Digit A-Number pre-populated from page 1. No entry.
+    x_petey_description_source: tooltip
+    pattern: ^\d{9}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      join: shape
+      picture: text{999999999}
+      pictures:
+        format: *id003
+        ui: *id004
+    label_source: llm
+    x_petey_identifiers:
+      subject: alien_registration
+      iteration: '3'
+      suffix: nbr
+  preparer_given_nm:
+    x_petey_id: '6_3'
+    type: string
+    widget:
+      page: 6
+      rect:
+      - 318.4410095214844
+      - 138.0050048828125
+      - 576.4420166015625
+      - 156.0050048828125
+      widget_type: text
+      path: form1[0].#subform[5].Pt5Line1_PreparerGivenName[0]
+    description: Part 7., Preparer's Full Name. 1. Enter Preparer's Given Name (First
+      Name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:17'
+      from:
+        name: preparer_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: preparer_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: preparer_given
+      suffix: nm
+  preparer_family_nm:
+    x_petey_id: '6_2'
+    type: string
+    widget:
+      page: 6
+      rect:
+      - 54.44200134277344
+      - 138.00201416015625
+      - 312.4429931640625
+      - 156.00201416015625
+      widget_type: text
+      path: form1[0].#subform[5].Pt5Line1_PreparerFamilyName[0]
+    description: Part 7. Contact Information, Declaration, and Signature of the Person
+      Preparing this Request, if Other Than the Naturalization Applicant. Preparer's
+      Full Name. 1. Enter Preparer's Family Name (Last Name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:17'
+      from:
+        name: preparer_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: preparer_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: preparer_family
+      suffix: nm
+  preparer_business_nm:
+    x_petey_id: '6_4'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 6
+      rect:
+      - 54.44200134277344
+      - 174.0050048828125
+      - 312.4429931640625
+      - 192.0050048828125
+      widget_type: text
+      path: form1[0].#subform[5].Pt5Line2_NameofBusinessorOrgName[0]
+    description: Part 7., 2. Enter Preparer's Business or Organization Name (if any).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: preparer_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: preparer_business_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: preparer_business
+      suffix: nm
+  preparer_city_nm:
+    x_petey_id: '6_8'
+    type: string
+    semantic_type: city
+    widget:
+      page: 6
+      rect:
+      - 54.44200134277344
+      - 276.00701904296875
+      - 402.4429931640625
+      - 294.0069885253906
+      widget_type: text
+      path: form1[0].#subform[5].Pt7Line3_CityOrTown[0]
+    description: Part 7., Preparer's Mailing Address. 3. Enter the City or Town
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: preparer_city
+      suffix: nm
+  preparer_address_province_region_txt:
+    x_petey_id: '6_11'
+    type: string
+    widget:
+      page: 6
+      rect:
+      - 54.44200134277344
+      - 312.0069885253906
+      - 240.4429931640625
+      - 330.0069885253906
+      widget_type: text
+      path: form1[0].#subform[5].Pt7Line3_Province[0]
+    description: Part 7., Preparer's Mailing Address. 3. Enter Province or Region.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Caption 'Province or Region' is a geographic name; person_name is wrong.
+        Name and string type remain accurate.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Part 7., Preparer's Mailing Address. 3. Enter Province or Region.
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:10'
+      from:
+        name: preparer_address_3_province_region_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: preparer_address_province_region_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: preparer_address
+      suffix: txt
+      subject: province_region
+  preparer_postal_cd:
+    x_petey_id: '6_12'
+    type: string
+    pattern: ^[A-Za-z0-9][A-Za-z0-9 -]{0,8}$
+    widget:
+      page: 6
+      rect:
+      - 246.4409942626953
+      - 312.0069885253906
+      - 330.44000244140625
+      - 330.0069885253906
+      widget_type: text
+      path: form1[0].#subform[5].Pt7Line3_PostalCode[0]
+    description: Part 7., Preparer's Mailing Address. 3. Enter Postal Code.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      - -semantic_type
+      reason: This box is the foreign Postal Code, distinct from the preparer ZIP
+        box; the zip semantic type and 5-digit pattern are wrong and caused the mutex
+        clash.
+      before:
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        description: Part 7., Preparer's Mailing Address. 3. Enter Postal Code.
+      judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: preparer_postal
+      suffix: cd
+  preparer_address_state_cd:
+    x_petey_id: '6_9'
+    type: category
+    semantic_type: state_abbr
+    widget:
+      page: 6
+      rect:
+      - 408.4410095214844
+      - 276.00701904296875
+      - 474.44000244140625
+      - 294.0069885253906
+      widget_type: combobox
+      path: form1[0].#subform[5].Pt7Line3_State[0]
+    description: Part 7., Preparer's Mailing Address. 3. Select the state. You will
+      be making a selection from a drop down box containing 2 letter abbreviations
+      of state names.
+    x_petey_description_source: tooltip
+    values:
+    - AA
+    - AE
+    - AK
+    - AL
+    - AP
+    - AR
+    - AS
+    - AZ
+    - CA
+    - CO
+    - CT
+    - DC
+    - DE
+    - FL
+    - FM
+    - GA
+    - GU
+    - HI
+    - IA
+    - ID
+    - IL
+    - IN
+    - KS
+    - KY
+    - LA
+    - MA
+    - MD
+    - ME
+    - MH
+    - MI
+    - MN
+    - MO
+    - MP
+    - MS
+    - MT
+    - NC
+    - ND
+    - NE
+    - NH
+    - NJ
+    - NM
+    - NV
+    - NY
+    - OH
+    - OK
+    - OR
+    - PA
+    - PR
+    - PW
+    - RI
+    - SC
+    - SD
+    - TN
+    - TX
+    - UT
+    - VA
+    - VI
+    - VT
+    - WA
+    - WI
+    - WV
+    - WY
+    x_petey_validation_source: xfa
+    label_source: llm
+    x_petey_retype:
+    - dropdown
+    - dropdown_options
+    options:
+      AA:
+        caption: AA
+      AE:
+        caption: AE
+      AK:
+        caption: AK
+      AL:
+        caption: AL
+      AP:
+        caption: AP
+      AR:
+        caption: AR
+      AS:
+        caption: AS
+      AZ:
+        caption: AZ
+      CA:
+        caption: CA
+      CO:
+        caption: CO
+      CT:
+        caption: CT
+      DC:
+        caption: DC
+      DE:
+        caption: DE
+      FL:
+        caption: FL
+      FM:
+        caption: FM
+      GA:
+        caption: GA
+      GU:
+        caption: GU
+      HI:
+        caption: HI
+      IA:
+        caption: IA
+      ID:
+        caption: ID
+      IL:
+        caption: IL
+      IN:
+        caption: IN
+      KS:
+        caption: KS
+      KY:
+        caption: KY
+      LA:
+        caption: LA
+      MA:
+        caption: MA
+      MD:
+        caption: MD
+      ME:
+        caption: ME
+      MH:
+        caption: MH
+      MI:
+        caption: MI
+      MN:
+        caption: MN
+      MO:
+        caption: MO
+      MP:
+        caption: MP
+      MS:
+        caption: MS
+      MT:
+        caption: MT
+      NC:
+        caption: NC
+      ND:
+        caption: ND
+      NE:
+        caption: NE
+      NH:
+        caption: NH
+      NJ:
+        caption: NJ
+      NM:
+        caption: NM
+      NV:
+        caption: NV
+      NY:
+        caption: NY
+      OH:
+        caption: OH
+      OK:
+        caption: OK
+      OR:
+        caption: OR
+      PA:
+        caption: PA
+      PR:
+        caption: PR
+      PW:
+        caption: PW
+      RI:
+        caption: RI
+      SC:
+        caption: SC
+      SD:
+        caption: SD
+      TN:
+        caption: TN
+      TX:
+        caption: TX
+      UT:
+        caption: UT
+      VA:
+        caption: VA
+      VI:
+        caption: VI
+      VT:
+        caption: VT
+      WA:
+        caption: WA
+      WI:
+        caption: WI
+      WV:
+        caption: WV
+      WY:
+        caption: WY
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:10'
+      from:
+        name: preparer_address_3_state_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      to:
+        name: preparer_address_state_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: preparer_address
+      suffix: cd
+      subject: state
+  preparer_address_street_address_txt:
+    x_petey_id: '6_5'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 6
+      rect:
+      - 54.44200134277344
+      - 240.0009765625
+      - 402.4429931640625
+      - 258.0009765625
+      widget_type: text
+      path: form1[0].#subform[5].Pt7Line3_StreetNumberName[0]
+    description: Part 7., Preparer's Mailing Address. 3. Enter the Street Number and
+      Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:10'
+      from:
+        name: preparer_address_3_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: preparer_address_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: preparer_address
+      suffix: txt
+      subject: street_address
+  preparer_address_unit_nbr:
+    x_petey_id: '6_6'
+    type: string
+    widget:
+      page: 6
+      rect:
+      - 480.4750061035156
+      - 240.0009765625
+      - 576.4420166015625
+      - 258.0009765625
+      widget_type: text
+      path: form1[0].#subform[5].Pt7Line3_AptSteFlrNumber[0]
+    description: Part 7., Preparer's Mailing Address. 3. Number. If you checked the
+      apartment, suite or floor box, enter the number here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:10'
+      from:
+        name: preparer_address_3_unit_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: preparer_address_unit_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: preparer_address
+      suffix: nbr
+      subject: unit
+  preparer_address_country_nm:
+    x_petey_id: '6_13'
+    type: string
+    semantic_type: country
+    widget:
+      page: 6
+      rect:
+      - 336.4410095214844
+      - 312.0069885253906
+      - 576.4420166015625
+      - 330.0069885253906
+      widget_type: text
+      path: form1[0].#subform[5].Pt7Line3_Country[0]
+    description: Part 7., Preparer's Mailing Address. 3. Enter Country.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:10'
+      from:
+        name: preparer_address_3_country_nm
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: preparer_address_country_nm
+        type: string
+        semantic_type: country
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: preparer_address
+      suffix: nm
+      subject: country
+  preparer_address_zip_cd:
+    x_petey_id: '6_10'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}$
+    widget:
+      page: 6
+      rect:
+      - 480.4410095214844
+      - 276.0009765625
+      - 576.4420166015625
+      - 294.0010070800781
+      widget_type: text
+      path: form1[0].#subform[5].Pt7Line3_ZipCode[0]
+    description: Part 7., Preparer's Mailing Address. 3. Enter 5-digit ZIP Code.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999}
+      pictures:
+        format:
+        - text{99999}
+        ui:
+        - text{99999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:10'
+      from:
+        name: preparer_address_3_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}$
+      to:
+        name: preparer_address_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}$
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: preparer_address
+      suffix: cd
+      subject: zip
+  preparer_email_address_txt:
+    x_petey_id: '6_16'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 6
+      rect:
+      - 54.45100021362305
+      - 414.0
+      - 300.45001220703125
+      - 432.0
+      widget_type: text
+      path: form1[0].#subform[5].Pt7Line6_EmailAddress[0]
+    description: Part 7., Preparer's Contact Information. 6. Enter Preparer's Email
+      Address (if any).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: preparer_email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: preparer_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: preparer_email_address
+      suffix: txt
+  preparer_daytime_phone_nbr:
+    x_petey_id: '6_14'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 6
+      rect:
+      - 54.45100021362305
+      - 378.0
+      - 300.45001220703125
+      - 396.0
+      widget_type: text
+      path: form1[0].#subform[5].Pt7Line4_PrepDaytimeTelePhoneNumber[0]
+    description: Part 7., Preparer's Contact Information. 4. Enter Preparer's Daytime
+      Telephone Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: preparer_daytime_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: preparer_daytime_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: preparer_daytime_phone
+      suffix: nbr
+  preparer_mobile_phone_nbr:
+    x_petey_id: '6_15'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 6
+      rect:
+      - 330.45098876953125
+      - 378.0
+      - 576.4500122070312
+      - 396.0
+      widget_type: text
+      path: form1[0].#subform[5].Pt7Line5_PrepMobileTelePhoneNumber[0]
+    description: Part 7., Preparer's Contact Information. 5. Enter Preparer's Mobile
+      Number (if any.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: preparer_mobile_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: preparer_mobile_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: preparer_mobile_phone
+      suffix: nbr
+  preparer_signature:
+    x_petey_id: '6_19'
+    type: string
+    widget:
+      page: 6
+      rect:
+      - 54.45100021362305
+      - 696.0020141601562
+      - 438.4490051269531
+      - 714.0020141601562
+      widget_type: text
+      path: form1[0].#subform[5].Pt5Line8_Signature[0]
+    description: Part 7., Preparer's Signature. 8. Enter Preparer's Signature. This
+      signature field can not be signed with a digital signature and the signee's
+      name can not be typewritten into this space. This is a protected field. Print
+      and sign in ink.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: preparer
+      suffix: signature
+  preparer_signature_dt:
+    x_petey_id: '6_20'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 6
+      rect:
+      - 444.45001220703125
+      - 696.0050048828125
+      - 576.4509887695312
+      - 714.0050048828125
+      widget_type: text
+      path: form1[0].#subform[5].Pt5Line8_DateofSignature[0]
+    description: Part 7., 8. Date of Signature (m m/d d/ y y y y). Enter date as 2
+      digit month, 2 digit day and 4 digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/DD/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{MMDDYY}|date{MM/DD/YY}
+    label_source: llm
+    x_petey_identifiers:
+      subject: preparer_signature
+      suffix: dt
+  addn_info_3_additional_information_2_txt:
+    x_petey_id: '7_16'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 72.49299621582031
+      - 455.7860107421875
+      - 576.447998046875
+      - 528.0009765625
+      widget_type: text
+      path: form1[0].#subform[6].Pt7Line4d_AdditionalInfo[0]
+    description: Part 8., 5. D. Enter Additional information.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:17:53'
+      from:
+        name: 2_additional_information_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: addn_info_3_additional_information_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT5: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: addn_info
+      block_iteration: '3'
+      subject: additional_information_2
+      suffix: txt
+  addn_info_1_page_1_nbr:
+    x_petey_id: '7_5'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 72.49299621582031
+      - 191.7860107421875
+      - 132.49400329589844
+      - 209.7860107421875
+      widget_type: text
+      path: form1[0].#subform[6].Pt7Line3a_PageNumber[0]
+    description: Part 8., 3. A. Enter Page Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:17:53'
+      from:
+        name: 1_1_page_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: addn_info_1_page_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT5: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: addn_info
+      block_iteration: '1'
+      subject: page_1
+      suffix: nbr
+  addn_info_1_part_1_nbr:
+    x_petey_id: '7_6'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 180.4929962158203
+      - 191.7860107421875
+      - 234.4929962158203
+      - 209.7860107421875
+      widget_type: text
+      path: form1[0].#subform[6].Pt7Line3b_PartNumber[0]
+    description: Part 8., 3. B. Enter Part Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:17:53'
+      from:
+        name: 1_1_part_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: addn_info_1_part_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT5: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: addn_info
+      block_iteration: '1'
+      subject: part_1
+      suffix: nbr
+  addn_info_1_item_1_nbr:
+    x_petey_id: '7_7'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 288.4930114746094
+      - 191.7860107421875
+      - 348.4939880371094
+      - 209.7860107421875
+      widget_type: text
+      path: form1[0].#subform[6].Pt7Line3c_ItemNumber[0]
+    description: Part 8., 3. C. Enter Item Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:17:53'
+      from:
+        name: 1_1_item_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: addn_info_1_item_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT5: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: addn_info
+      block_iteration: '1'
+      subject: item_1
+      suffix: nbr
+  addn_info_1_additional_information_2_txt:
+    x_petey_id: '7_8'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 72.49299621582031
+      - 215.78497314453125
+      - 576.35400390625
+      - 287.7850036621094
+      widget_type: text
+      path: form1[0].#subform[6].Pt7Line3d_AdditionalInfo[0]
+    description: Part 8., 3. D. Enter Additional information.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:17:53'
+      from:
+        name: 1_1_additional_information_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: addn_info_1_additional_information_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT5: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: addn_info
+      block_iteration: '1'
+      subject: additional_information_2
+      suffix: txt
+  addn_info_2_page_1_nbr:
+    x_petey_id: '7_17'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 72.49299621582031
+      - 552.0020141601562
+      - 131.77099609375
+      - 570.0020141601562
+      widget_type: text
+      path: form1[0].#subform[6].Pt7Line4a_PageNumber[0]
+    description: Part 8., 6. A. Enter Page Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:17:53'
+      from:
+        name: 1_page_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: addn_info_2_page_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT5: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: addn_info
+      block_iteration: '2'
+      subject: page_1
+      suffix: nbr
+  addn_info_2_part_1_nbr:
+    x_petey_id: '7_18'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 180.4929962158203
+      - 552.0020141601562
+      - 239.77099609375
+      - 570.0020141601562
+      widget_type: text
+      path: form1[0].#subform[6].Pt7Line4b_PartNumber[0]
+    description: Part 8., 6. B. Enter Part Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:17:53'
+      from:
+        name: 1_part_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: addn_info_2_part_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT5: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: addn_info
+      block_iteration: '2'
+      subject: part_1
+      suffix: nbr
+  addn_info_2_item_1_nbr:
+    x_petey_id: '7_19'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 288.26300048828125
+      - 552.0020141601562
+      - 347.5409851074219
+      - 570.0020141601562
+      widget_type: text
+      path: form1[0].#subform[6].Pt7Line4c_ItemNumber[0]
+    description: Part 8., 6. C. Enter Item Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:17:53'
+      from:
+        name: 1_item_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: addn_info_2_item_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT5: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: addn_info
+      block_iteration: '2'
+      subject: item_1
+      suffix: nbr
+  addn_info_2_additional_information_2_txt:
+    x_petey_id: '7_20'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 72.49299621582031
+      - 575.7869873046875
+      - 576.35400390625
+      - 648.0020141601562
+      widget_type: text
+      path: form1[0].#subform[6].Pt7Line4d_AdditionalInfo[1]
+    description: Part 8., 6. D. Enter Additional information.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:17:53'
+      from:
+        name: 1_additional_information_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: addn_info_2_additional_information_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT5: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: addn_info
+      block_iteration: '2'
+      subject: additional_information_2
+      suffix: txt
+  addn_info_3_item_1_nbr:
+    x_petey_id: '7_15'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 288.4930114746094
+      - 432.0
+      - 347.77099609375
+      - 450.0
+      widget_type: text
+      path: form1[0].#subform[6].Pt7Line4c_ItemNumber[1]
+    description: Part 8., 5. C. Enter Item Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:17:53'
+      from:
+        name: 2_item_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: addn_info_3_item_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT5: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: addn_info
+      block_iteration: '3'
+      subject: item_1
+      suffix: nbr
+  addn_info_3_part_1_nbr:
+    x_petey_id: '7_14'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 180.4929962158203
+      - 432.0
+      - 239.77099609375
+      - 450.0
+      widget_type: text
+      path: form1[0].#subform[6].Pt7Line4b_PartNumber[1]
+    description: Part 8., 5. B. Enter Part Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:17:53'
+      from:
+        name: 2_part_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: addn_info_3_part_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT5: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: addn_info
+      block_iteration: '3'
+      subject: part_1
+      suffix: nbr
+  addn_info_3_page_1_nbr:
+    x_petey_id: '7_13'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 72.49299621582031
+      - 432.0
+      - 131.77099609375
+      - 450.0
+      widget_type: text
+      path: form1[0].#subform[6].Pt7Line4a_PageNumber[1]
+    description: Part 8., 5. A. Enter Page Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:17:53'
+      from:
+        name: 2_page_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: addn_info_3_page_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT5: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: addn_info
+      block_iteration: '3'
+      subject: page_1
+      suffix: nbr
+  addn_info_4_page_1_nbr:
+    x_petey_id: '7_9'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 72.49299621582031
+      - 311.7860107421875
+      - 131.77099609375
+      - 329.7860107421875
+      widget_type: text
+      path: form1[0].#subform[6].Pt7Line4a_PageNumber[2]
+    description: Part 8., 4. A. Enter Page Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:17:53'
+      from:
+        name: 3_page_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: addn_info_4_page_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT5: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: addn_info
+      block_iteration: '4'
+      subject: page_1
+      suffix: nbr
+  addn_info_4_part_1_nbr:
+    x_petey_id: '7_10'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 180.27499389648438
+      - 311.7860107421875
+      - 239.55299377441406
+      - 329.7860107421875
+      widget_type: text
+      path: form1[0].#subform[6].Pt7Line4b_PartNumber[2]
+    description: Part 8., 4. B. Enter Part Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:17:53'
+      from:
+        name: 3_part_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: addn_info_4_part_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT5: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: addn_info
+      block_iteration: '4'
+      subject: part_1
+      suffix: nbr
+  addn_info_4_item_1_nbr:
+    x_petey_id: '7_11'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 288.4930114746094
+      - 311.7860107421875
+      - 347.77099609375
+      - 329.7860107421875
+      widget_type: text
+      path: form1[0].#subform[6].Pt7Line4c_ItemNumber[2]
+    description: Part 8., 4. C. Enter Item Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:17:53'
+      from:
+        name: 3_item_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: addn_info_4_item_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT5: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: addn_info
+      block_iteration: '4'
+      subject: item_1
+      suffix: nbr
+  addn_info_4_additional_information_2_txt:
+    x_petey_id: '7_12'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 72.49299621582031
+      - 335.7860107421875
+      - 576.35400390625
+      - 407.7860107421875
+      widget_type: text
+      path: form1[0].#subform[6].Pt7Line4d_AdditionalInfo[2]
+    description: Part 8., 4. D. Enter Additional information.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-21 23:17:53'
+      from:
+        name: 3_additional_information_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: addn_info_4_additional_information_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT5: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: addn_info
+      block_iteration: '4'
+      subject: additional_information_2
+      suffix: txt
+  family_nm:
+    x_petey_id: '7_1'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 54.49300003051758
+      - 126.125
+      - 240.49400329589844
+      - 144.125
+      widget_type: text
+      path: form1[0].#subform[6].Pt1Line1_FamilyName[1]
+    description: Part 8. Additional Information. 1. Family Name (Last Name). No Entry.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: family_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: family
+      suffix: nm
+  given_nm:
+    x_petey_id: '7_2'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 246.49200439453125
+      - 126.125
+      - 420.4939880371094
+      - 144.125
+      widget_type: text
+      path: form1[0].#subform[6].Pt1Line1_GivenName[1]
+    description: Part 8., 1. Given Name (First Name). No entry.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: given_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: given
+      suffix: nm
+  middle_nm:
+    x_petey_id: '7_3'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 426.49200439453125
+      - 126.125
+      - 576.489990234375
+      - 144.125
+      widget_type: text
+      path: form1[0].#subform[6].Pt1Line1_MiddleName[1]
+    description: Part 8., 1. Middle Name. No entry.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: middle_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: middle
+      suffix: nm
+  alien_registration_nbr_4:
+    x_petey_id: '7_4'
+    type: string
+    widget:
+      page: 7
+      rect:
+      - 168.49400329589844
+      - 150.0009765625
+      - 300.4410095214844
+      - 168.1259765625
+      widget_type: text
+      path: form1[0].#subform[6].AlienNumber[6]
+    description: Part 8., 2. Alien Registration Number (A Number). No Entry. Pre-populated
+      from page 1.
+    x_petey_description_source: tooltip
+    pattern: ^\d{9}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      join: shape
+      picture: text{999999999}
+      pictures:
+        format: *id003
+        ui: *id004
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:16:45'
+      from:
+        name: alien_registration_number_4
+        type: string
+        semantic_type: null
+        pattern: ^\d{9}$
+      to:
+        name: alien_registration_4_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{9}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; number moved before the suffix'
+    x_petey_identifiers:
+      subject: alien_registration
+      suffix: nbr
+      iteration: '4'
+  physical_address_unit_type:
+    x_petey_id: '1_18'
+    type: category
+    values:
+    - ste
+    - flr
+    - apt
+    widgets:
+      ste:
+        page: 1
+        rect:
+        - 436.47601318359375
+        - 580.010986328125
+        - 446.47601318359375
+        - 590.010986328125
+        widget_type: checkbox
+        path: form1[0].#subform[0].Pt1Line5_Unit[0]
+        on_state: ' STE '
+        caption: Ste.
+        x_petey_caption_source: page_choice
+      flr:
+        page: 1
+        rect:
+        - 460.47698974609375
+        - 580.010986328125
+        - 470.47698974609375
+        - 590.010986328125
+        widget_type: checkbox
+        path: form1[0].#subform[0].Pt1Line5_Unit[1]
+        on_state: ' FLR '
+        caption: Flr.
+        x_petey_caption_source: page_choice
+      apt:
+        page: 1
+        rect:
+        - 412.4750061035156
+        - 580.010986328125
+        - 422.4750061035156
+        - 590.010986328125
+        widget_type: checkbox
+        path: form1[0].#subform[0].Pt1Line5_Unit[2]
+        on_state: ' APT '
+        caption: Apt.
+        x_petey_caption_source: page_choice
+    description: Part 1., 5. Check this box for suite.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:17:43'
+      from:
+      - physical_address_unit_type::ste
+      - physical_address_unit_type::flr
+      - physical_address_unit_type::apt
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: physical_address_1_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: physical_address_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: physical_address
+      subject: unit_type
+  ethnicity:
+    x_petey_id: '2_19'
+    type: category
+    values:
+    - hispanic_or_latino
+    - not_hispanic_or_latino
+    widgets:
+      hispanic_or_latino:
+        page: 2
+        rect:
+        - 55.441001892089844
+        - 468.9989929199219
+        - 65.44100189208984
+        - 478.9989929199219
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3Line22[0]
+        on_state: H
+        caption: Hispanic or Latino
+        x_petey_caption_source: page_choice
+      not_hispanic_or_latino:
+        page: 2
+        rect:
+        - 164.45199584960938
+        - 468.9989929199219
+        - 174.45199584960938
+        - 478.9989929199219
+        widget_type: checkbox
+        path: form1[0].#subform[1].P3Line22[1]
+        on_state: NH
+        caption: Not Hispanic or Latino
+        x_petey_caption_source: page_choice
+    description: 'Part 3. Biographic Information, 1. Ethnicity (Select only one box).
+      Select this box for: Hispanic or Latino.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:17:43'
+      from:
+      - ethnicity::hispanic_or_latino
+      - ethnicity::not_hispanic_or_latino
+    x_petey_identifiers:
+      subject: ethnicity
+  race:
+    x_petey_id: '2_20'
+    type: category
+    values:
+    - american_indian_or_alaska_native
+    - asian
+    - black_or_african_american
+    - native_hawaiian_or_other_pacific_islander
+    - white
+    widgets:
+      american_indian_or_alaska_native:
+        page: 2
+        rect:
+        - 55.441001892089844
+        - 505.00201416015625
+        - 65.44100189208984
+        - 515.0020141601562
+        widget_type: checkbox
+        path: form1[0].#subform[1].Line5_Race1[0]
+        on_state: I
+        caption: American Indian or Alaska Native
+        x_petey_caption_source: page_choice
+      asian:
+        page: 2
+        rect:
+        - 169.44200134277344
+        - 504.9989929199219
+        - 179.44200134277344
+        - 514.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[1].Line5_Race2[0]
+        on_state: A
+        caption: Asian
+        x_petey_caption_source: page_choice
+      black_or_african_american:
+        page: 2
+        rect:
+        - 223.44200134277344
+        - 504.9989929199219
+        - 233.44200134277344
+        - 514.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[1].Line5_Race3[0]
+        on_state: B
+        caption: Black or African American
+        x_petey_caption_source: page_choice
+      native_hawaiian_or_other_pacific_islander:
+        page: 2
+        rect:
+        - 325.4410095214844
+        - 504.9989929199219
+        - 335.4410095214844
+        - 514.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[1].Line5_Race4[0]
+        on_state: A
+        caption: Native Hawaiian or Other Pacific Islander
+        x_petey_caption_source: page_choice
+      white:
+        page: 2
+        rect:
+        - 445.4429931640625
+        - 505.00201416015625
+        - 455.4429931640625
+        - 515.0020141601562
+        widget_type: checkbox
+        path: form1[0].#subform[1].Line5_Race5[0]
+        on_state: W
+        caption: White
+        x_petey_caption_source: page_choice
+    description: 'Part 3., 2. Race (Select all applicable boxes). Check this box for:
+      American Indian or Alaska Native.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:17:43'
+      from:
+      - race::american_indian_or_alaska_native
+      - race::asian
+      - race::black_or_african_american
+      - race::native_hawaiian_or_other_pacific_islander
+      - race::white
+    x_petey_identifiers:
+      subject: race
+  eye_color:
+    x_petey_id: '2_26'
+    type: category
+    values:
+    - blue
+    - brown
+    - gray
+    - green
+    - hazel
+    - maroon
+    - pink
+    - unknown_other
+    - black
+    widgets:
+      blue:
+        page: 2
+        rect:
+        - 120.99800109863281
+        - 601.0
+        - 130.9980010986328
+        - 611.0
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line5_EyeColor[0]
+        on_state: Blue
+        caption: Blue
+      brown:
+        page: 2
+        rect:
+        - 175.9980010986328
+        - 601.0
+        - 185.9980010986328
+        - 611.0
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line5_EyeColor[1]
+        on_state: Brown
+        caption: Brown
+      gray:
+        page: 2
+        rect:
+        - 235.99600219726562
+        - 601.0
+        - 245.99600219726562
+        - 611.0
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line5_EyeColor[2]
+        on_state: Gray
+        caption: Gray
+      green:
+        page: 2
+        rect:
+        - 296.0
+        - 601.0
+        - 306.0
+        - 611.0
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line5_EyeColor[3]
+        on_state: Green
+        caption: Green
+      hazel:
+        page: 2
+        rect:
+        - 350.0
+        - 601.0
+        - 360.0
+        - 611.0
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line5_EyeColor[4]
+        on_state: Hazel
+        caption: Hazel
+      maroon:
+        page: 2
+        rect:
+        - 397.9960021972656
+        - 601.0
+        - 407.9960021972656
+        - 611.0
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line5_EyeColor[5]
+        on_state: Maroon
+        caption: Maroon
+      pink:
+        page: 2
+        rect:
+        - 457.99700927734375
+        - 601.0
+        - 467.99700927734375
+        - 611.0
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line5_EyeColor[6]
+        on_state: Pink
+        caption: Pink
+      unknown_other:
+        page: 2
+        rect:
+        - 505.9989929199219
+        - 601.0
+        - 515.9990234375
+        - 611.0
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line5_EyeColor[7]
+        on_state: Other
+        caption: Unknown/Other
+        x_petey_caption_source: page_choice
+      black:
+        page: 2
+        rect:
+        - 55.441001892089844
+        - 600.9970092773438
+        - 65.44100189208984
+        - 610.9970092773438
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line5_EyeColor[8]
+        on_state: Black
+        caption: Black
+    description: 'Part 3., 5. Eye Color (select only one box). Select this box for:
+      Blue'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:17:43'
+      from:
+      - eye_color::blue
+      - eye_color::brown
+      - eye_color::gray
+      - eye_color::green
+      - eye_color::hazel
+      - eye_color::maroon
+      - eye_color::pink
+      - eye_color::unknown_other
+      - eye_color::black
+    x_petey_identifiers:
+      subject: eye_color
+  hair_color:
+    x_petey_id: '2_27'
+    type: category
+    values:
+    - bald
+    - black
+    - blond
+    - brown
+    - gray
+    - red
+    - sandy
+    - unknown_other
+    - white
+    widgets:
+      bald:
+        page: 2
+        rect:
+        - 55.441001892089844
+        - 643.0040283203125
+        - 65.44100189208984
+        - 653.0040283203125
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line6_HairColor[0]
+        on_state: Bald
+        caption: Bald (No hair)
+        x_petey_caption_source: page_choice
+      black:
+        page: 2
+        rect:
+        - 121.99800109863281
+        - 643.0009765625
+        - 131.9980010986328
+        - 653.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line6_HairColor[1]
+        on_state: Black
+        caption: Black
+      blond:
+        page: 2
+        rect:
+        - 175.9980010986328
+        - 643.0009765625
+        - 185.9980010986328
+        - 653.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line6_HairColor[2]
+        on_state: Blond
+        caption: Blond
+      brown:
+        page: 2
+        rect:
+        - 235.99899291992188
+        - 643.0009765625
+        - 245.99899291992188
+        - 653.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line6_HairColor[3]
+        on_state: Brown
+        caption: Brown
+      gray:
+        page: 2
+        rect:
+        - 296.0
+        - 643.0009765625
+        - 306.0
+        - 653.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line6_HairColor[4]
+        on_state: Gray
+        caption: Gray
+      red:
+        page: 2
+        rect:
+        - 350.0
+        - 643.0009765625
+        - 360.0
+        - 653.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line6_HairColor[5]
+        on_state: Red
+        caption: Red
+      sandy:
+        page: 2
+        rect:
+        - 397.9989929199219
+        - 643.0009765625
+        - 407.9989929199219
+        - 653.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line6_HairColor[6]
+        on_state: Sandy
+        caption: Sandy
+      unknown_other:
+        page: 2
+        rect:
+        - 504.9989929199219
+        - 643.0009765625
+        - 514.9990234375
+        - 653.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line6_HairColor[7]
+        on_state: Other
+        caption: Unknown/Other
+        x_petey_caption_source: page_choice
+      white:
+        page: 2
+        rect:
+        - 458.0
+        - 643.0009765625
+        - 468.0
+        - 653.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt3Line6_HairColor[8]
+        on_state: White
+        caption: White
+    description: 'Part 3., 6. Hair Color (Select only one box). Check this box for:
+      Bald (No Hair)'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:17:43'
+      from:
+      - hair_color::bald
+      - hair_color::black
+      - hair_color::blond
+      - hair_color::brown
+      - hair_color::gray
+      - hair_color::red
+      - hair_color::sandy
+      - hair_color::unknown_other
+      - hair_color::white
+    x_petey_identifiers:
+      subject: hair_color
+  address_unit_type:
+    x_petey_id: '2_5'
+    type: category
+    values:
+    - ste
+    - flr
+    - apt
+    widgets:
+      ste:
+        page: 2
+        rect:
+        - 436.47601318359375
+        - 148.00299072265625
+        - 446.47601318359375
+        - 158.00299072265625
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt1Line6_Unit[0]
+        on_state: ' STE '
+        caption: Ste.
+        x_petey_caption_source: page_choice
+      flr:
+        page: 2
+        rect:
+        - 460.47698974609375
+        - 148.00299072265625
+        - 470.47698974609375
+        - 158.00299072265625
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt1Line6_Unit[1]
+        on_state: ' FLR '
+        caption: Flr.
+        x_petey_caption_source: page_choice
+      apt:
+        page: 2
+        rect:
+        - 412.4750061035156
+        - 148.00299072265625
+        - 422.4750061035156
+        - 158.00299072265625
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt1Line6_Unit[2]
+        on_state: ' APT '
+        caption: Apt.
+        x_petey_caption_source: page_choice
+    description: Part 1. (continued)., 6. Check this box for a suite.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:17:43'
+      from:
+      - unit_type::ste
+      - unit_type::flr
+      - unit_type::apt
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:09'
+      from:
+        name: address_1_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: address_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: address
+      subject: unit_type
+  military_service_basis:
+    x_petey_id: '2_18'
+    type: category
+    values:
+    - 'yes'
+    - 'no'
+    widgets:
+      'yes':
+        page: 2
+        rect:
+        - 499.44000244140625
+        - 396.9989929199219
+        - 509.44000244140625
+        - 406.9989929199219
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt2Line4_Yes[0]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+      'no':
+        page: 2
+        rect:
+        - 541.4409790039062
+        - 396.9989929199219
+        - 551.4409790039062
+        - 406.9989929199219
+        widget_type: checkbox
+        path: form1[0].#subform[1].Pt2Line4_No[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_choice
+    description: Part 2., 4. Did you file your Form N- 400 on the basis of qualifying
+      military service? Checked Yes.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:17:43'
+      from:
+      - military_service_basis::yes
+      - military_service_basis::no
+    x_petey_identifiers:
+      subject: military_service_basis
+  applicant_statement:
+    x_petey_id: '4_2'
+    type: category
+    values:
+    - can_read_english
+    - used_interpreter
+    widgets:
+      can_read_english:
+        page: 4
+        rect:
+        - 73.4469985961914
+        - 157.0009765625
+        - 83.4469985961914
+        - 167.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[3].Pt10Line1a_Checkbox[0]
+        on_state: Y
+        caption: I can read and understand English, and I have read and understand
+          every question and instruction on this request and my answer to every question.
+        x_petey_caption_source: page_choice
+      used_interpreter:
+        page: 4
+        rect:
+        - 73.43199920654297
+        - 187.0
+        - 83.43199920654297
+        - 197.0
+        widget_type: checkbox
+        path: form1[0].#subform[3].Pt10Line1b_Checkbox[0]
+        on_state: N
+        caption: The interpreter named in Part 6. read to me every question and instruction
+          on this request and my answer to every question in , a language in which
+          I am fluent, and I understood everything.
+        x_petey_caption_source: page_choice
+    description: 'Part 5. Naturalization Applicant''s Statement, Contact Information
+      Certification, and Signature. Naturalization Applicant''s Statement. NOTE Select
+      the box for either Item A or B in Item Number 1. If applicable, select the box
+      for Item Number 2. 1. Naturalization Applicant''s Statement Regarding the Interpreter.
+      Select this box for: A. I can read and understand English, and I have read and
+      understand every question and instruction on this request and my answer to every
+      question.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:17:43'
+      from:
+      - applicant_statement::can_read_english
+      - applicant_statement::used_interpreter
+    x_petey_identifiers:
+      subject: applicant_statement
+  interpreter_address_unit_type:
+    x_petey_id: '5_7'
+    type: category
+    values:
+    - ste
+    - flr
+    - apt
+    widgets:
+      ste:
+        page: 5
+        rect:
+        - 436.47601318359375
+        - 225.99798583984375
+        - 446.47601318359375
+        - 235.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[4].Pt6Line3_Unit[0]
+        on_state: ' STE '
+        caption: Ste.
+        x_petey_caption_source: page_choice
+      flr:
+        page: 5
+        rect:
+        - 460.47698974609375
+        - 225.99798583984375
+        - 470.47698974609375
+        - 235.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[4].Pt6Line3_Unit[1]
+        on_state: ' FLR '
+        caption: Flr.
+        x_petey_caption_source: page_choice
+      apt:
+        page: 5
+        rect:
+        - 412.4750061035156
+        - 225.99798583984375
+        - 422.4750061035156
+        - 235.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[4].Pt6Line3_Unit[2]
+        on_state: ' APT '
+        caption: Apt.
+        x_petey_caption_source: page_choice
+    description: 'Part 6., Interpreter''s Mailing Address. 3. Check this box for:
+      suite.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:17:43'
+      from:
+      - interpreter_unit_type::ste
+      - interpreter_unit_type::flr
+      - interpreter_unit_type::apt
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:10'
+      from:
+        name: interpreter_address_3_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: interpreter_address_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: interpreter_address
+      subject: unit_type
+  preparer_address_unit_type:
+    x_petey_id: '6_7'
+    type: category
+    values:
+    - ste
+    - flr
+    - apt
+    widgets:
+      ste:
+        page: 6
+        rect:
+        - 436.47601318359375
+        - 244.0009765625
+        - 446.47601318359375
+        - 254.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[5].Pt7Line3_Unit[0]
+        on_state: ' STE '
+        caption: Ste.
+        x_petey_caption_source: page_choice
+      flr:
+        page: 6
+        rect:
+        - 460.47698974609375
+        - 244.0009765625
+        - 470.47698974609375
+        - 254.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[5].Pt7Line3_Unit[1]
+        on_state: ' FLR '
+        caption: Flr.
+        x_petey_caption_source: page_choice
+      apt:
+        page: 6
+        rect:
+        - 412.4750061035156
+        - 244.0009765625
+        - 422.4750061035156
+        - 254.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[5].Pt7Line3_Unit[2]
+        on_state: ' APT '
+        caption: Apt.
+        x_petey_caption_source: page_choice
+    description: Part 7., Preparer's Mailing Address. 3. Check this box for a suite.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:17:43'
+      from:
+      - preparer_unit_type::ste
+      - preparer_unit_type::flr
+      - preparer_unit_type::apt
+    x_petey_hand_edit:
+      when: '2026-10-22 00:32:10'
+      from:
+        name: preparer_address_3_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: preparer_address_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s wording'
+    x_petey_identifiers:
+      block_prefix: preparer_address
+      subject: unit_type
+  preparer_statement:
+    x_petey_id: '6_17'
+    type: category
+    values:
+    - not_attorney
+    - attorney
+    widgets:
+      not_attorney:
+        page: 6
+        rect:
+        - 73.44999694824219
+        - 468.9960021972656
+        - 83.44999694824219
+        - 478.9960021972656
+        widget_type: checkbox
+        path: form1[0].#subform[5].Pt5LineCheckbox7[0]
+        on_state: A
+        caption: I am not an attorney or accredited representative but have prepared
+          this request on behalf of the naturalization applicant and with the naturalization
+          applicant's consent.
+        x_petey_caption_source: page_choice
+      attorney:
+        page: 6
+        rect:
+        - 73.44999694824219
+        - 498.9949951171875
+        - 83.44999694824219
+        - 508.9949951171875
+        widget_type: checkbox
+        path: form1[0].#subform[5].Pt5LineCheckbox7[1]
+        on_state: B
+        caption: I am an attorney or accredited representative and my representation
+          of the naturalization applicant in this case
+        x_petey_caption_source: page_choice
+    description: Part 7., Preparer's Statement. 7. A. I am not an attorney or accredited
+      representative but have prepared this request on behalf of the naturalization
+      applicant and with the naturalization applicant's consent.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:17:43'
+      from:
+      - preparer_statement::not_attorney
+      - preparer_statement::attorney
+    x_petey_identifiers:
+      subject: preparer_statement
+  preparer_representation:
+    x_petey_id: '6_18'
+    type: category
+    values:
+    - does_not_extend
+    - extends
+    widgets:
+      does_not_extend:
+        page: 6
+        rect:
+        - 145.2949981689453
+        - 510.99700927734375
+        - 155.2949981689453
+        - 520.9970092773438
+        widget_type: checkbox
+        path: form1[0].#subform[5].Pt5Checkbox7b_notextends[0]
+        on_state: '1'
+        caption: does not extend beyond the preparation of this request.
+        x_petey_caption_source: page_choice
+      extends:
+        page: 6
+        rect:
+        - 91.29499816894531
+        - 510.99700927734375
+        - 101.29499816894531
+        - 520.9970092773438
+        widget_type: checkbox
+        path: form1[0].#subform[5].Pt5Checkbox7b_extends[0]
+        on_state: '1'
+        caption: extends
+        x_petey_caption_source: page_choice
+    description: Part 7., Preparer's Statement. 7. B. I am an attorney or accredited
+      representative and my representation of the naturalization applicant in this
+      case does not extend beyond the preparation of this request.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:17:43'
+      from:
+      - preparer_representation::does_not_extend
+      - preparer_representation::extends
+    x_petey_identifiers:
+      subject: preparer_representation
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 19
+  collisions:
+  - original_label: weight_lbs
+    assigned_label: weight_lbs_2
+    page: 2
+    rect:
+    - 150.43699645996094
+    - 557.9970092773438
+    - 162.43600463867188
+    - 575.9970092773438
+  - original_label: weight_lbs
+    assigned_label: weight_lbs_3
+    page: 2
+    rect:
+    - 168.43699645996094
+    - 557.9970092773438
+    - 180.43600463867188
+    - 575.9970092773438
+  - original_label: alien_registration_num
+    assigned_label: alien_registration_num_2
+    page: 3
+    rect:
+    - 447.3890075683594
+    - 36.0
+    - 576.3989868164062
+    - 54.0
+  - original_label: alien_registration_number
+    assigned_label: alien_registration_number_2
+    page: 4
+    rect:
+    - 447.3890075683594
+    - 36.0
+    - 576.3989868164062
+    - 54.0
+  - original_label: alien_registration_num
+    assigned_label: alien_registration_num_3
+    page: 5
+    rect:
+    - 447.3890075683594
+    - 36.0
+    - 576.3989868164062
+    - 54.0
+  - original_label: alien_registration_number
+    assigned_label: alien_registration_number_3
+    page: 6
+    rect:
+    - 447.3890075683594
+    - 36.0
+    - 576.3989868164062
+    - 54.0
+  - original_label: additional_information
+    assigned_label: additional_information_2
+    page: 7
+    rect:
+    - 72.49299621582031
+    - 215.78497314453125
+    - 576.35400390625
+    - 287.7850036621094
+  - original_label: page_number
+    assigned_label: page_number_2
+    page: 7
+    rect:
+    - 72.49299621582031
+    - 552.0020141601562
+    - 131.77099609375
+    - 570.0020141601562
+  - original_label: part_number
+    assigned_label: part_number_2
+    page: 7
+    rect:
+    - 180.4929962158203
+    - 552.0020141601562
+    - 239.77099609375
+    - 570.0020141601562
+  - original_label: item_number
+    assigned_label: item_number_2
+    page: 7
+    rect:
+    - 288.26300048828125
+    - 552.0020141601562
+    - 347.5409851074219
+    - 570.0020141601562
+  - original_label: additional_information
+    assigned_label: additional_information_3
+    page: 7
+    rect:
+    - 72.49299621582031
+    - 575.7869873046875
+    - 576.35400390625
+    - 648.0020141601562
+  - original_label: item_number
+    assigned_label: item_number_3
+    page: 7
+    rect:
+    - 288.4930114746094
+    - 432.0
+    - 347.77099609375
+    - 450.0
+  - original_label: part_number
+    assigned_label: part_number_3
+    page: 7
+    rect:
+    - 180.4929962158203
+    - 432.0
+    - 239.77099609375
+    - 450.0
+  - original_label: page_number
+    assigned_label: page_number_3
+    page: 7
+    rect:
+    - 72.49299621582031
+    - 432.0
+    - 131.77099609375
+    - 450.0
+  - original_label: page_number
+    assigned_label: page_number_4
+    page: 7
+    rect:
+    - 72.49299621582031
+    - 311.7860107421875
+    - 131.77099609375
+    - 329.7860107421875
+  - original_label: part_number
+    assigned_label: part_number_4
+    page: 7
+    rect:
+    - 180.27499389648438
+    - 311.7860107421875
+    - 239.55299377441406
+    - 329.7860107421875
+  - original_label: item_number
+    assigned_label: item_number_4
+    page: 7
+    rect:
+    - 288.4930114746094
+    - 311.7860107421875
+    - 347.77099609375
+    - 329.7860107421875
+  - original_label: additional_information
+    assigned_label: additional_information_4
+    page: 7
+    rect:
+    - 72.49299621582031
+    - 335.7860107421875
+    - 576.35400390625
+    - 407.7860107421875
+  - original_label: alien_registration_number
+    assigned_label: alien_registration_number_4
+    page: 7
+    rect:
+    - 168.49400329589844
+    - 150.0009765625
+    - 300.4410095214844
+    - 168.1259765625
+x_petey_dropped_widgets:
+  count: 7
+  widgets:
+  - path: form1[0].#pageSet[0].Page1[0].PDF417BarCode1[0]
+    page: 1
+    reason: caption
+    field_type: Text
+    tooltip: PDF417BarCode1
+    caption: N-336|04/01/24|1
+  - path: form1[0].#pageSet[0].Page1[1].PDF417BarCode1[0]
+    page: 2
+    reason: caption
+    field_type: Text
+    tooltip: PDF417BarCode1
+    caption: N-336|04/01/24|2
+  - path: form1[0].#pageSet[0].Page1[2].PDF417BarCode1[0]
+    page: 3
+    reason: caption
+    field_type: Text
+    tooltip: PDF417BarCode1
+    caption: N-336|04/01/24|3
+  - path: form1[0].#pageSet[0].Page1[3].PDF417BarCode1[0]
+    page: 4
+    reason: caption
+    field_type: Text
+    tooltip: PDF417BarCode1
+    caption: N-336|04/01/24|4
+  - path: form1[0].#pageSet[0].Page1[4].PDF417BarCode1[0]
+    page: 5
+    reason: caption
+    field_type: Text
+    tooltip: PDF417BarCode1
+    caption: N-336|04/01/24|5
+  - path: form1[0].#pageSet[0].Page1[5].PDF417BarCode1[0]
+    page: 6
+    reason: caption
+    field_type: Text
+    tooltip: PDF417BarCode1
+    caption: N-336|04/01/24|6
+  - path: form1[0].#pageSet[0].Page1[6].PDF417BarCode1[0]
+    page: 7
+    reason: caption
+    field_type: Text
+    tooltip: PDF417BarCode1
+    caption: N-336|04/01/24|7
+x_petey_xfa_log:
+  joined: 111
+  pattern: 13
+  type: 6
+  values: 6
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 3
+  part_by_maxlen: 6
+  description_from_tooltip: 12
+x_petey_rules:
+- mutex:
+  - interpreter_postal_cd
+  - interpreter_zip_cd
+  source: xfa_script
+- mutex:
+  - interpreter_province_nm
+  - interpreter_zip_cd
+  source: xfa_script
+- mutex:
+  - preparer_postal_cd
+  - preparer_zip_cd
+  source: xfa_script
+- mutex:
+  - preparer_province_nm
+  - preparer_zip_cd
+  source: xfa_script
+x_petey_page_check:
+  when: '2026-10-16 13:23:38'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  fields: 123
+  flagged: 3
+  unanswered: 0
+  record: runs/page_check/uscis_n_336__183892__78921800.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: uscis_n_336_20261007_025851
+  blueprint: /home/user/petey-2/runs/judge_eval/work/uscis_n_336.bpt
+  when: '2026-10-07 02:59:36'
+x_petey_run:
+  record: runs/judge_eval/form_runs/uscis_n_336.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 4
+  review_rounds: 2
+  when: '2026-10-07 02:59:40'
