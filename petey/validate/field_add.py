@@ -22,6 +22,11 @@ Suggestions (outlined on the page, stepped through with n / p): widgets no field
 covers that the classifier did not call `none`. A suggestion can be dismissed as not a field; the dismissal is
 recorded with the rest, a fixture for the "not a field" question the witnesses cannot answer.
 
+Lines (2026-10-28, highlighted apart from the suggestions, not stepped through): the band above every underline no
+field or suggestion covers (`finder_addons.underline_rects`, read off the page when the form opens); a click on one,
+or just above an underline that no printed box encloses, proposes a text field over the band, named from the caption
+left of it or printed under the line.
+
     PYTHONPATH=. venv/bin/python -m petey.validate.field_add [--port 5007]     # then open http://127.0.0.1:5007/
     PYTHONPATH=. venv/bin/python -m petey.validate.field_add --summary
     PYTHONPATH=. venv/bin/python -m petey.validate.field_add --plan <id>       # what --apply would add
@@ -90,6 +95,8 @@ def _area(r) -> float:
 ENCLOSE_ZOOM = 4                # px per pt the page is read at for a clicked box
 ENCLOSE_REACH = 150             # pt above and below the click searched; a box taller than twice this is not proposed
 INK = 200                       # gray level under which a pixel is a printed mark
+UNDER_GAP = 4.0                 # pt under an underline its own caption starts within
+LINE_REACH = 6.0                # pt above an underline's band a click still takes the line (a click that finds no box)
 ENCLOSE_PAD = 1.0               # pt the white inside is grown by, out to the printed outline (a checkbox widget covers
                                 # its square's outline: the inside alone was 56% of the widget's area on 109 corpus boxes)
 
@@ -238,6 +245,8 @@ class Context:
         self.boxes: Optional[list[dict]] = None
         self.cmap: Optional[dict] = None
         self._words: dict[int, list] = {}
+        self._bands: Optional[list[tuple[int, list[float]]]] = None
+        self._lines: Optional[list[dict]] = None
         if not self.blank or not self.blank.exists():
             return
         self.pages = page_sizes(self.bp, self.blank)
@@ -310,6 +319,35 @@ class Context:
                         "group": c.get("group"), "entity": c.get("entity"),
                         "claimed_by": self._claimed(b["page"], b["rect"])})
         self.boxes = out
+        self._lines = None                               # the lines leave out what the suggestions now show
+
+    def bands(self) -> list[tuple[int, list[float]]]:
+        """(page, rect) of the band above every line to write on (`finder_addons.underline_rects`: drawn rules and
+        typed underscore runs), read off the page now (~0.03 s a page), nothing cached on disk."""
+        if self._bands is None:
+            from petey.synth.finder_addons import underline_rects
+            self._bands = []
+            if self.blank and self.blank.exists():
+                doc = pymupdf.open(str(self.blank))
+                try:
+                    for i, pg in enumerate(doc, 1):
+                        self._bands += [(i, [round(v, 2) for v in r]) for r in underline_rects(pg)]
+                finally:
+                    doc.close()
+        return self._bands
+
+    def lines(self) -> list[dict]:
+        """The underlines no field covers, highlighted on the page to click (Andrew, 2026-10-28: "the underlines are
+        highlighted and you can click on one to create a field above it"; "there are other fields to find besides
+        signatures"), less those a suggestion already shows. Kept apart from the suggestions, so n / p skip them."""
+        if self._lines is None:
+            sugg = self.suggestions()
+            self._lines = [{"sid": f"u{pg}_{round(r[0])}_{round(r[3])}", "source": "underline", "page": pg, "rect": r,
+                            "kind": "text", "what": "an underline no field covers"}
+                           for pg, r in self.bands()
+                           if not self._claimed(pg, r)
+                           and not any(s["page"] == pg and overlap(s["rect"], r) >= CLAIM for s in sugg)]
+        return self._lines
 
     def words(self, page: int) -> list[tuple]:
         if page not in self._words:
@@ -346,9 +384,11 @@ class Context:
 
 # ---------------------------------------------------------------- proposals: an area -> field(s)
 
-def _text_caption(words: list[tuple], r, sel) -> tuple[Optional[str], Optional[str]]:
+def _text_caption(words: list[tuple], r, sel, under: bool = False) -> tuple[Optional[str], Optional[str]]:
     """Printed words that name a text box at `r`: words the drawn area takes in outside the box; the box's own
-    words (a cell's printed label); words just left on its line; the line just above it."""
+    words (a cell's printed label); words just left on its line; for the band above an underline (`under`), the row
+    printed right under the line (UNDER_GAP: "Signature of Applicant" under a signature line, where the row above is
+    the line before's); the line just above it."""
     def txt(ws):
         return clean_caption(" ".join(w[4] for w in ws))
     inbox = lambda w: _center_in(w[:4], r, pad=1)
@@ -369,6 +409,14 @@ def _text_caption(words: list[tuple], r, sel) -> tuple[Optional[str], Optional[s
         edge = w[0]
     if left and txt(left):
         return txt(left), "page text (left of the box)"
+    if under:
+        below = [w for w in words if r[3] - 1 <= w[1] <= r[3] + UNDER_GAP
+                 and min(w[2], r[2]) - max(w[0], r[0]) > 0.5 * (w[2] - w[0])]
+        if below:
+            y = min(w[1] for w in below)
+            row = sorted((w for w in below if abs(w[1] - y) < 3), key=lambda w: w[0])
+            if txt(row):
+                return txt(row), "page text (under the line)"
     above = [w for w in words if r[1] - 16 <= w[3] <= r[1] + 3 and min(w[2], r[2]) - max(w[0], r[0]) > 0.3 * (w[2] - w[0])]
     if above:
         y = max(w[3] for w in above)
@@ -516,13 +564,15 @@ def _text_proposal(ctx: Context, c: dict, src: str, sel, taken: set[str]) -> dic
             evidence.append(f"max length {c['maxlen']}")
     elif src == "finder":
         evidence.append(f"finder {c.get('kind')} box (confidence {c.get('conf')})")
+    elif src == "underline":
+        evidence.append("an underline on the page: the band above it is the field's box")
     else:
         evidence.append("no widget or finder box here: the drawn box is the field's box")
     cls_cap = (box or {}).get("label")
     if box and box.get("class"):
         evidence.append(f"classifier: {box['class']}" + (f" for {box['entity']}" if box.get("entity") else "")
                         + (f", caption {cls_cap!r}" if cls_cap else ""))
-    cap, cap_src = _text_caption(ctx.words(page), rect, sel)
+    cap, cap_src = _text_caption(ctx.words(page), rect, sel, under=src == "underline")
     if cap:
         evidence.append(f"{cap_src}: {cap!r}")
     tip = c.get("tooltip")
@@ -635,6 +685,18 @@ def _options_proposal(ctx: Context, cands: list[tuple[dict, str]], sel, taken: s
     return p
 
 
+def line_at(ctx: Context, page: int, x: float, y: float) -> Optional[list[float]]:
+    """The band above the underline a click is on, inside the band or up to LINE_REACH pt above it; the nearest when
+    lines are stacked."""
+    best = None
+    for pg, r in ctx.bands():
+        if pg == page and r[0] - 2 <= x <= r[2] + 2 and r[1] - LINE_REACH <= y <= r[3] + 2:
+            d = 0.0 if r[1] <= y <= r[3] else min(abs(y - r[1]), abs(y - r[3]))
+            if best is None or d < best[0]:
+                best = (d, r)
+    return list(best[1]) if best else None
+
+
 def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Optional[str] = None,
             taken_extra: set[str] = frozenset()) -> dict:
     """Proposed field(s) for a drawn area (`rect`) or a suggestion (`sid`), with notes on what the area holds
@@ -643,10 +705,11 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
     notes: list[str] = []
     sel = None
     if sid:
-        c = next((w for w in ctx.widgets if w["sid"] == sid), None) or next((b for b in ctx.boxes or [] if b["sid"] == sid), None)
+        c = next((w for w in ctx.widgets if w["sid"] == sid), None) or next((b for b in ctx.boxes or [] if b["sid"] == sid), None) \
+            or next((u for u in ctx.lines() if u["sid"] == sid), None)
         if c is None:
             return {"proposals": [], "notes": [f"no suggestion {sid}"]}
-        cands = [(c, "widget" if sid.startswith("w") else "finder")]
+        cands = [(c, "widget" if sid.startswith("w") else "underline" if sid.startswith("u") else "finder")]
         page = c["page"]
     else:
         sel = [float(v) for v in rect]
@@ -679,17 +742,25 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
             if ws or bs:
                 return {"proposals": [], "notes": notes}
             w_, h_ = sel[2] - sel[0], sel[3] - sel[1]
+            geom = "selection"
             if point and ctx.blank:                        # a click on nothing known: the printed box around it
-                box = enclosed_box(ctx.blank, page, (sel[0] + sel[2]) / 2, (sel[1] + sel[3]) / 2)
+                x, y = (sel[0] + sel[2]) / 2, (sel[1] + sel[3]) / 2
+                box = enclosed_box(ctx.blank, page, x, y)
+                if box is not None:
+                    notes.append("the printed box around the click")
+                elif (box := line_at(ctx, page, x, y)) is not None:
+                    if ctx._claimed(page, box):
+                        return {"proposals": [], "notes": [f"the underline here is already field {ctx._claimed(page, box)}"]}
+                    geom = "underline"                     # or the line the click is on or just above
+                    notes.append("the band above the underline at the click")
                 if box is not None:
                     sel = box
                     w_, h_ = sel[2] - sel[0], sel[3] - sel[1]
-                    notes.append("the printed box around the click")
             if w_ < 3 or h_ < 3:
                 return {"proposals": [], "notes": ["nothing here; drag a box over the area to make a field of it"]}
             small_square = w_ <= 16 and h_ <= 16 and abs(w_ - h_) <= 4
             c = {"page": page, "rect": [round(v, 2) for v in sel], "kind": "checkbox" if small_square else "text"}
-            cands = [(c, "selection")]
+            cands = [(c, geom)]
             if ctx.widgets:
                 notes.append("this blank has a form layer but no widget here: a filler cannot type into this box")
     # a radio kid brings its unclaimed siblings (one AcroForm field, one group)
@@ -948,7 +1019,7 @@ class State:
         rec = load_record(bid)
         sugg = with_removed(c.suggestions(), c.fields, rec)
         return {"id": bid, "path": str(self.paths[bid]), "blank": str(c.blank) if c.blank else None, "sha": c.sha,
-                "pages": c.pages, "fields": c.fields, "suggestions": sugg,
+                "pages": c.pages, "fields": c.fields, "suggestions": sugg, "lines": c.lines(),
                 "field_specs": {k: {x: v.get(x) for x in ("type", "semantic_type", "description", "x_petey_id") if v.get(x)}
                                 for k, v in (c.bp.get("fields") or {}).items() if isinstance(v, dict)},
                 "finder": "cached" if c.boxes is not None else "not run",

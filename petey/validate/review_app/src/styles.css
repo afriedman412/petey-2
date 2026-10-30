@@ -10,7 +10,7 @@
   --ok:var(--green); --bad:var(--red);
   /* on the page image */
   --sel:#1a73e8; --accept:#1e8e3e; --flag:#c5221f; --none:#8a8a8a; --orphan:#9a9a9a; --over:rgba(26,115,232,.18);
-  --field:#8e24aa; --sug:#e37400; --added:#188038; --txt:#00838f;
+  --field:#8e24aa; --sug:#e37400; --added:#188038; --txt:#00838f; --uline:#00b8d4;
 }
 * { box-sizing:border-box; }
 html { background:var(--bg); }
@@ -358,6 +358,9 @@ details.raw { font-size:12px; } details.raw summary { cursor:pointer; color:var(
 .ov.field:hover { background:color-mix(in srgb, var(--field) 25%, transparent); }
 .ov.sug { border:2px solid var(--sug); background:color-mix(in srgb, var(--sug) 10%, transparent); cursor:pointer; }
 .ov.sug.finder { border-style:dashed; } .ov.sug.copy { opacity:.35; } .ov.sug.cur { box-shadow:0 0 0 2px var(--sel); }
+/* an underline no field covers: the band above it, its line drawn heavier (Add / remove, 2026-10-28) */
+.ov.line { border:1px dashed color-mix(in srgb, var(--uline) 70%, transparent); border-bottom:2.5px solid var(--uline); background:color-mix(in srgb, var(--uline) 12%, transparent); cursor:pointer; }
+.ov.line:hover { background:color-mix(in srgb, var(--uline) 28%, transparent); } .ov.line.cur { box-shadow:0 0 0 2px var(--sel); }
 .ov.added { border:2px solid var(--added); background:color-mix(in srgb, var(--added) 12%, transparent); cursor:pointer; }
 .ov.added .tag { position:absolute; left:0; top:-14px; font-size:10px; line-height:12px; background:#fff; color:var(--added); padding:0 3px; white-space:nowrap; pointer-events:none; }
 .ov.prop { border:2px solid var(--sel); background:color-mix(in srgb, var(--sel) 12%, transparent); pointer-events:none; }
@@ -378,6 +381,7 @@ details.raw { font-size:12px; } details.raw summary { cursor:pointer; color:var(
 .alist div:hover { background:var(--surface); } .alist .x { color:var(--text-dim); }
 
 .gi.text { border-width:1.5px; background:color-mix(in srgb, var(--c) 8%, transparent); }
+.gi.text:not(.loose) { border-width:2px; background:color-mix(in srgb, var(--c) 18%, transparent); }   /* an entity's fields, as a group's */
 .gi.text.loose { opacity:.85; }
 .gh.text { border-style:solid; border-width:2px; }
 

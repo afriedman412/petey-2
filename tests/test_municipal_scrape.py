@@ -90,3 +90,13 @@ def test_bynder_pdfs_in_page_data():
     page = _Page('<script>{"src":"https:\\/\\/bynder.schwab.com\\/m\\/b2b1da5f520702d#toolbar=1"}</script>')
     assert "https://bynder.schwab.com/m/b2b1da5f520702d" in [u for u, _ in M.links(page)]
     assert M.PDF_HREF.search("https://bynder.schwab.com/m/b2b1da5f520702d")
+
+
+def test_publisher_pages_picked_by_category():
+    import publisher_scrape as P
+    seeds = [{"category": "finance", "index_url": "a", "pdf_links": "direct"},
+             {"category": "finance", "index_url": "b", "pdf_links": "js or blocked"},
+             {"category": "dmv", "index_url": "c", "pdf_links": "direct"},
+             {"category": "finance", "index_url": "d", "pdf_links": "one level down"}]
+    assert [s["index_url"] for s in P.pick(seeds, {"d"}, {"finance"})] == ["a"]
+    assert [s["index_url"] for s in P.pick(seeds, set(), set())] == ["a", "c", "d"]

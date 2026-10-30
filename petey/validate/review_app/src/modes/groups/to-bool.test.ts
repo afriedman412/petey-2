@@ -1,4 +1,4 @@
-// a text field in an option unit is being made a checkbox; one loose or in a combined text field is still text
+// a text field in an option unit is being made a checkbox; one loose or in an entity is still text
 // (Andrew, 2026-10-27: "convert fields from text to bool/ind in groups")
 import { describe, expect, it } from 'vitest';
 import { textIn, type Item, type Unit } from './store';
@@ -13,7 +13,7 @@ const units: Unit[] = [
 
 describe('textIn', () => {
   it('a text field in an option unit is no longer text', () => expect(textIn('day_txt', units, items)).toBe(false));
-  it('a text field loose or combined is text', () => {
+  it('a text field loose or in an entity is text', () => {
     expect(textIn('day_txt', [], items)).toBe(true);
     expect(textIn('evening', units, items)).toBe(true);
   });

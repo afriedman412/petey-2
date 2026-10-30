@@ -2,7 +2,7 @@
 // remove), the notes, and the lists of what is to be added, removed, or is not a field; and its bar.
 import type { KeyboardEvent } from 'react';
 import {
-  addAll, addProps, askLabeler, cancel, closePicked, dropOption, goto, isRemoved, keepRemoved, NAME_RE, pickName, pickRemoved,
+  addAll, addProps, askLabeler, cancel, closePicked, dropOption, goto, isRemoved, keepRemoved, linesLeft, NAME_RE, pickName, pickRemoved,
   remaining, runFinder, save, setOptField, setPropField, setShow, skipProp, switchKind, toggleRemove, toggleRmPick, removeAll, unAdd, unDismiss, useAdd,
   gotoSuggestion, nameClash, type Proposal,
 } from './store';
@@ -145,6 +145,7 @@ export function Panel() {
         {BP.finder !== 'cached' && <> <button className="btn" id="runFinder" title="step2flat on this blank, local CPU, cached afterwards" disabled={finderRunning} onClick={runFinder}>{finderRunning ? 'running (local CPU)…' : 'run it'}</button></>} · classifier map: {BP.classifier}</div>
       <div><b>{left.length}</b> suggestion{left.length === 1 ? '' : 's'} left <span className="help">({left.filter(s => s.source === 'widget').length} widgets, {left.filter(s => s.source === 'finder').length} finder boxes{BP.suggestions.some(s => s.copy) && !copies ? '; repeated copies hidden' : ''})</span>{' '}
         <button className="btn" id="nextSug" onClick={() => gotoSuggestion(1)}>next suggestion</button></div>
+      <div className="help" id="linesLeft"><b>{linesLeft().length}</b> underline{linesLeft().length === 1 ? '' : 's'} no field covers (cyan; click one to add a field over it)</div>
       {picked && <Picked name={picked} />}
       {props.length + rmPicks.length ? <>
         {/* several proposals or fields to remove: the buttons above them too, not only after the last card (Andrew,
@@ -154,7 +155,7 @@ export function Panel() {
         {props.map((p, i) => <Card key={p._k} p={p} i={i} />)}
         {rmPicks.map(n => <RmCard key={'r' + n} name={n} />)}
         <AllButtons />
-      </> : !picked && <p className="help">Drag a box over an area of the page, click a box, or go to the next suggestion. Orange: suggestions (solid: an unclaimed widget; dashed: a finder box). Purple: fields the blueprint has (hover for the name; click to collect them for removal). Green: fields you have added; red dashed: fields to remove.</p>}
+      </> : !picked && <p className="help">Drag a box over an area of the page, click a box, or go to the next suggestion. Orange: suggestions (solid: an unclaimed widget; dashed: a finder box). Cyan: underlines no field covers. Purple: fields the blueprint has (hover for the name; click to collect them for removal). Green: fields you have added; red dashed: fields to remove.</p>}
       {notes.length > 0 && <div className="notes">{notes.map((n, k) => <div key={k}>{n}</div>)}</div>}
       <div><h4>To add ({added.length})</h4><div className="alist">{added.length ? added.map((x, i) => (
         <div key={i} onClick={() => goto(x.page)}><span>p{x.page} · {x.name} <span className="help">{x.kind === 'group' ? 'group' : x.type}</span></span>
@@ -172,12 +173,13 @@ export function Panel() {
 }
 
 export function Bar() {
-  const { BP, added, removed, dismissed, showFields, showSug, copies } = useAdd();
+  const { BP, added, removed, dismissed, showFields, showSug, showLines, copies } = useAdd();
   return (
     <>
       <span className="progress" id="progress">{BP && <><b>{added.length}</b> to add · <b>{removed.length}</b> to remove · <b>{dismissed.length}</b> not fields · <b>{remaining().length}</b> suggestions left</>}</span>{' '}
       <label className="help"><input type="checkbox" id="aFields" checked={showFields} onChange={e => setShow({ showFields: e.target.checked })} /> fields</label>{' '}
       <label className="help"><input type="checkbox" id="aSug" checked={showSug} onChange={e => setShow({ showSug: e.target.checked })} /> suggestions</label>{' '}
+      <label className="help"><input type="checkbox" id="aLines" checked={showLines} onChange={e => setShow({ showLines: e.target.checked })} /> underlines</label>{' '}
       <label className="help"><input type="checkbox" id="aCopies" checked={copies} onChange={e => setShow({ copies: e.target.checked })} /> repeated copies</label>
     </>
   );

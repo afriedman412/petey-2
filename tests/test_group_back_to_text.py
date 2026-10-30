@@ -71,3 +71,49 @@ def test_the_record_keeps_it_out_of_its_unit_until_applied(tmp_path, monkeypatch
     assert [u["items"] for u in cur] == [["other_ind"]] and items["day_ind"]["converted"]
     pl = gr.plan(bp, cur, page_captions=False)
     assert pl["fields"]["day_ind"]["type"] == "string"
+
+
+def _state(tmp_path, monkeypatch, p):
+    monkeypatch.setattr(gr, "OUT", tmp_path / "rec")
+    st = gr.State.__new__(gr.State)
+    st.paths, st._index = {"x": p}, {}
+    monkeypatch.setattr(st, "path", lambda bid: p, raising=False)
+    monkeypatch.setattr(st, "_entry", lambda bid: None, raising=False)
+    return st
+
+
+def _box(x, kind="checkbox"):
+    return {"page": 1, "rect": [x, 100, x + 12, 110], "widget_type": kind, "path": None}
+
+
+def test_a_text_field_drawn_over_a_removed_checkbox_stays_text(tmp_path, monkeypatch):
+    """Add removes a checkbox and puts a text field on its box; the Groups record, lined up by box on leaving the tab,
+    made it a checkbox again (2026-10-29, fin__pb_d830b423f63f number_account)."""
+    import yaml
+    chk = {"type": "boolean", "semantic_type": "indicator"}
+    v1 = {"fields": {"p1_f41": {**chk, "widget": _box(100)}, "p1_f42": {**chk, "widget": _box(150)}}}
+    p = tmp_path / "f.bpt"
+    p.write_text(yaml.safe_dump(v1), encoding="utf-8")
+    st = _state(tmp_path, monkeypatch, p)
+    st.put_units("x", {"units": [{"name": "pick", "type": "category", "items": ["p1_f41", "p1_f42"], "origin": None}]})
+    v2 = {"fields": {"number_account": {"type": "string", "widget": _box(100, "text")}, "p1_f42": v1["fields"]["p1_f42"]}}
+    p.write_text(yaml.safe_dump(v2), encoding="utf-8")
+    _, units, info = gr.current_units("x", v2, gr._sha(p))
+    assert info["stale"] and not any("number_account" in u["items"] for u in units)
+    pl = gr.plan(v2, units, page_captions=False)
+    assert not pl["errors"] and pl["fields"]["number_account"]["type"] == "string"
+    assert not any("made a checkbox" in c for c in pl["changes"])
+
+
+def test_a_checkbox_renamed_still_follows_its_box(tmp_path, monkeypatch):
+    import yaml
+    chk = {"type": "boolean", "semantic_type": "indicator"}
+    v1 = {"fields": {"p1_f41": {**chk, "widget": _box(100)}, "p1_f42": {**chk, "widget": _box(150)}}}
+    p = tmp_path / "f.bpt"
+    p.write_text(yaml.safe_dump(v1), encoding="utf-8")
+    st = _state(tmp_path, monkeypatch, p)
+    st.put_units("x", {"units": [{"name": "pick", "type": "category", "items": ["p1_f41", "p1_f42"], "origin": None}]})
+    v2 = {"fields": {"yes_ind": v1["fields"]["p1_f41"], "p1_f42": v1["fields"]["p1_f42"]}}
+    p.write_text(yaml.safe_dump(v2), encoding="utf-8")
+    _, units, _ = gr.current_units("x", v2, gr._sha(p))
+    assert [u["items"] for u in units if u["name"] == "pick"] == [["yes_ind", "p1_f42"]]

@@ -128,6 +128,12 @@ SOURCES = {"lib": BLUEPRINTS, "je": RUNS / "judge_eval" / "blueprints", "rl": RU
            # the flat-structure benchmark's forms (Andrew, 2026-10-27: "can you load the benchmark pdfs under a new
            # section in the review app?"): the business-like corpus set, runs/acquisition/safedocs/business_set.json
            "bm": RUNS / "benchmark" / "blueprints",
+           # forms Andrew downloaded by hand for the benchmark (source_pdfs/manual_grabs), their own section (Andrew,
+           # 2026-10-28: "if so, can you put them in their own section?")
+           "mg": RUNS / "manual_grabs" / "blueprints",
+           # the finance forms scraped 2026-10-29 from banks', brokerages' and insurers' forms pages, their own section
+           # (Andrew, 2026-10-29: "can you put the new downloads in their own section" ... "just today's batch")
+           "fin": RUNS / "finance" / "blueprints",
            # the library before the naming standard's renames, kept to check against (Andrew, 2026-10-24: "let's keep
            # the old copies around so I can do a little more validation against old versions before we let them slide")
            "old": RUNS / "naming_2026-10-24" / "before"}

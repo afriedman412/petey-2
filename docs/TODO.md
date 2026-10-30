@@ -630,7 +630,12 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields (1,508) b
   names, on copies only), and the Groups tab's combined text field (teal boxes dragged together by hand: one field
   over the boxes, the filler splitting the text). Open: detection from the page (same width, stacked, no caption
   between) rather than the names, and whether the result is a combined field or an association that keeps the
-  boxes.
+  boxes. **2026-10-28, decided (Andrew):** nothing merges any more: the Groups tab's teal fields make an ENTITY, each
+  field kept as it is and tagged (`group_review.ENTITY_KEY`, with an entity type: date, address line 1 / 2,
+  signature complex, phone, ID number, money, name, other), "lets keep everything separate. (we want them to be as
+  auditable as possible!)". An entity is "sequential fields on a single line that can be combined logically", so
+  lines of one answer are not one ("that can be something else"); this item stays open for them. Branch
+  `compound-values`, `petey/validate/compound_values.py`.
 
 - **Tables as block types** (parked 2026-10-22, Andrew: "lets park these ideas and see how SIA does in production").
   What the Grids tab is for: "here are the row labels, here are the column labels" and r x c names at once. A block

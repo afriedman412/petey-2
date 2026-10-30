@@ -50,10 +50,10 @@ def test_text_fields_made_checkboxes_and_grouped_with_a_checkbox():
     assert "notes_txt" in pl["fields"] and "evening" not in pl["fields"]
 
 
-def test_a_text_field_in_a_combined_field_is_not_converted():
+def test_a_text_field_in_an_entity_is_not_converted():
     units = [{"name": "other_ind", "type": "boolean", "items": ["other_ind"], "origin": "other_ind"},
-             {"kind": "text", "name": "day_evening_txt", "type": "string", "items": ["day_txt", "evening"]}]
+             {"kind": "text", "name": "day_evening", "type": "string", "items": ["day_txt", "evening"]}]
     pl = gr.plan(_bp(), units, page_captions=False)
     assert not pl["errors"]
-    assert pl["fields"]["day_evening_txt"]["type"] == "string"
+    assert pl["fields"]["day_txt"]["type"] == "string" and pl["fields"]["evening"][gr.ENTITY_KEY]["name"] == "day_evening"
     assert not any("made a checkbox" in c for c in pl["changes"])

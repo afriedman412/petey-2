@@ -21,7 +21,7 @@ const dropOnto = (f: RField, opt: string | null) => dropProps(['rvbox', 'rvgroup
 });
 
 function Layer() {
-  const page = useApp(s => s.page), showGroups = useApp(s => s.show.groups);
+  const page = useApp(s => s.page), showGroups = useApp(s => s.show.groups), overlay = useApp(s => s.overlay);
   const { BP, selected, selOpt, clashOn, removed, picks } = useReview();
   if (!BP) return null;
   const cl = clashOn ? clashGroups(BP, removed) : {};
@@ -39,6 +39,15 @@ function Layer() {
       {...dragProps('rvgroup', f.name)} {...dropOnto(f, f.options[0].on_state)} />);
     out.push(<GroupTab key={'t' + f.name} at={[h[0], h[1]]} color={c} title={`drag ${f.name} onto another group or a checkbox to combine them`}
       {...dragProps('rvgroup', f.name)} {...dropOnto(f, f.options[0].on_state)} />);
+  }
+  // entities (Groups' tagged text fields) in a hull of their own colour, as groups (Andrew, 2026-10-28: "lets make the
+  // entities visible everywhere the groups are"); a click on the hull selects its first field
+  for (const e of (showGroups && overlay?.entities) || []) {
+    const c = GROUP_COLORS[gi++ % GROUP_COLORS.length], rs = e.rects.filter(r => r.page === page).map(r => r.rect);
+    if (!rs.length) continue;
+    out.push(<Box key={'e' + e.name} className={'gh rvg entity' + (e.fields.includes(selected || '') ? ' sel' : '')} rect={hull(rs, 4)} color={c}
+      title={`${e.name} (entity${e.entity_type ? ': ' + e.entity_type.replace(/_/g, ' ') : ''}, ${e.fields.length} fields)`}
+      onClick={() => select(e.fields[0], false)} />);
   }
   for (const f of BP.fields) f.rects.forEach((r, i) => {
     if (r.page !== page) return;

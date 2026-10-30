@@ -41,6 +41,8 @@ export interface Overlay {
   fields: { name: string; accepted?: boolean; group?: boolean; rects: { page: number; rect: Rect }[] }[];
   grids: { id: string; page: number; bbox: Rect; validated?: boolean }[];
   blocks: { id: string; page: number; bbox: Rect; validated?: boolean; label?: string }[];
+  /** Groups' entities (tagged text fields), drawn wherever groups are */
+  entities?: { name: string; entity_type?: string | null; page: number; fields: string[]; rects: { page: number; rect: Rect }[] }[];
 }
 
 export type PageLabel = string | { text: string; done: boolean } | null;

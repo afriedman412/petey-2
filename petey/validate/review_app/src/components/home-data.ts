@@ -3,12 +3,12 @@ import type { Entry } from '../lib/types';
 
 // the benchmark forms first (Andrew, 2026-10-27: "promote the 'passed the business cut' forms to their own section, at the top")
 export const SECTIONS: Record<string, string> = {
-  bm: 'flat-structure benchmark (passed the business cut)', focus: 'name-check follow-up (flags to confirm)', t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4',
+  bm: 'flat-structure benchmark (passed the business cut)', mg: 'hand-picked forms (source_pdfs/manual_grabs)', fin: 'finance forms (scraped 2026-10-29)', focus: 'name-check follow-up (flags to confirm)', t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4',
   rerun: 'fresh runs of library forms (new code)', lib: 'library', je: 'judge-eval side copies', rl: 'relabels', fl: 'flat forms',
 };
 export const SECTION_SHORT: Record<string, string> = {
   focus: 'review queue', t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4', rerun: 'fresh run',
-  lib: 'library', je: 'side copy', rl: 'relabel', fl: 'flat', bm: 'benchmark',
+  lib: 'library', je: 'side copy', rl: 'relabel', fl: 'flat', bm: 'benchmark', mg: 'hand-picked', fin: 'finance',
 };
 export const sectionOf = (x: Entry): string => x.focus != null ? 'focus' : x.launch ? 't' + x.launch : x.rerun ? 'rerun' : (x.source || '');
 export const SECTION_ORDER: Record<string, number> = Object.fromEntries(Object.keys(SECTIONS).map((k, i) => [k, i]));

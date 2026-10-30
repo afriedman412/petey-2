@@ -29,7 +29,10 @@ export interface Removal { name: string; page: number; rect: Rect; when: string;
 export interface Plan { errors: string[]; skipped?: string[]; changes: string[]; applied?: string[]; apply_error?: string | null; entry?: Entry }
 export interface AddData {
   path: string; stale?: boolean; has_widgets?: boolean; finder: string; classifier: string; label_model: string;
-  pages: PageInfo[]; suggestions: Suggestion[]; fields: { name: string; page: number; rect: Rect }[];
+  pages: PageInfo[]; suggestions: Suggestion[];
+  /** underlines no field or suggestion covers (field_add.Context.lines): highlighted to click, not stepped through */
+  lines?: Suggestion[];
+  fields: { name: string; page: number; rect: Rect }[];
   field_specs?: Record<string, { x_petey_id?: string; type?: string; semantic_type?: string; description?: string }>;
   semantic_types: string[]; added: Added[]; dismissed: Dismissed[]; removed?: Removal[]; plan?: Plan | null;
 }
@@ -41,14 +44,14 @@ export interface State {
   picked: string | null; PLAN: Plan | null;
   /** the blueprint's fields clicked to remove, collected as the additions are, until "remove all" */
   rmPicks: string[];
-  showFields: boolean; showSug: boolean; copies: boolean;
+  showFields: boolean; showSug: boolean; showLines: boolean; copies: boolean;
   /** the proposals whose "ask the labeler" is waiting (by _k), and the finder running */
   asking: Record<number, boolean>; finderRunning: boolean;
 }
 
 export const useAdd = create<State>(() => ({
   BP: null, props: [], notes: [], curSid: null, added: [], dismissed: [], removed: [], picked: null, PLAN: null, rmPicks: [],
-  showFields: true, showSug: true, copies: false, asking: {}, finderRunning: false,
+  showFields: true, showSug: true, showLines: true, copies: false, asking: {}, finderRunning: false,
 }));
 const S = useAdd.getState, put = useAdd.setState;
 
@@ -86,6 +89,9 @@ export function remaining(): Suggestion[] {
   const gone = new Set(dismissed.map(d => d.sid));
   return BP.suggestions.filter(s => !gone.has(s.sid) && (!s.copy || copies) && !covered(s));
 }
+/** the underlines still to click: those a field just added covers are gone (Andrew, 2026-10-28: "the underlines are
+ *  highlighted and you can click on one to create a field above it") */
+export const linesLeft = (): Suggestion[] => (S().BP?.lines || []).filter(s => !covered(s));
 export const NAME_RE = /^[a-z0-9][a-z0-9_]*$/;
 const sameBoxes = (p: Proposal, q: Proposal) =>
   boxesOf(p).some(b => boxesOf(q).some(c => c.page === b.page && overlap(b.rect, c.rect) >= 0.5));
@@ -151,7 +157,7 @@ export function dragEnd(rect: Rect | null, s: [number, number], target: EventTar
   const hit = pickedAt(S().props, page, s);
   if (hit) { if (S().props[hit.i].kind === 'group') dropOption(hit.i, hit.o); else skipProp(hit.i); put({ notes: [] }); return; }
   const d = target instanceof HTMLElement ? target.dataset : undefined;
-  if (d && d.sid) { const sg = S().BP!.suggestions.find(x => x.sid === d.sid); if (sg) { proposeSid(sg); return; } }
+  if (d && d.sid) { const sg = [...S().BP!.suggestions, ...(S().BP!.lines || [])].find(x => x.sid === d.sid); if (sg) { proposeSid(sg); return; } }
   // a field of the blueprint: collected to remove, or dropped from the collection; one already recorded for removal
   // opens on its own, to keep it (Andrew, 2026-10-28: "let's collect fields to remove the same way we collect fields
   // to add (with the same buttons)")
@@ -222,7 +228,9 @@ export function addProps(idx: number[]) {
   const now = localNow();
   const left = props.filter((_, i) => !idx.includes(i));
   put({ added: [...S().added, ...idx.map(i => ({ ...bare(props[i]), when: now }))], props: left });
-  if (!left.length) { put({ notes: [] }); save().then(() => { if (S().curSid && remaining().length) gotoSuggestion(1); else put({ curSid: null }); }); }
+  // the page stays where it is after an add (Andrew, 2026-10-28: "make it so adding a field doesn't automatically move to
+  // the next suggested field"); n / "next suggestion" go on from it (`curAt`)
+  if (!left.length) { put({ notes: [], curSid: null }); save(); }
   else save();
 }
 export const cancel = () => put({ props: [], notes: [], picked: null, rmPicks: [] });
@@ -289,9 +297,9 @@ export async function runFinder() {
 }
 
 // ---------------------------------------------------------------------------------------------------------- keys
-export const setShow = (p: Partial<Pick<State, 'showFields' | 'showSug' | 'copies'>>) => put(p);
+export const setShow = (p: Partial<Pick<State, 'showFields' | 'showSug' | 'showLines' | 'copies'>>) => put(p);
 export function key(e: KeyboardEvent): boolean {
-  const { props, picked, showFields, showSug } = S();
+  const { props, picked, showFields, showSug, showLines } = S();
   if (e.key === 'n') gotoSuggestion(1);
   else if (e.key === 'p') gotoSuggestion(-1);
   else if ((e.key === 'Enter' || e.key === 'a') && props.length) addAll();   // a: as Review's accept
@@ -300,6 +308,7 @@ export function key(e: KeyboardEvent): boolean {
   else if (e.key === 'd' && picked) toggleRemove();
   else if (e.key === 'f') put({ showFields: !showFields });
   else if (e.key === 's') put({ showSug: !showSug });
+  else if (e.key === 'l') put({ showLines: !showLines });
   else return false;
   return true;
 }

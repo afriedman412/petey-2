@@ -462,7 +462,18 @@ def overlay(bp: dict, bid: str, verdicts: dict) -> dict:
                 blocks.append({"id": f"{y['id']}-{i}", "label": y.get("label") or "", "page": bs[0]["page"],
                                "bbox": bbox([x["rect"] for x in bs]),
                                "validated": all(name.get(c) in acc for c in b if c)})
-    return {"fields": fields, "grids": grids, "blocks": blocks}
+    # entities (Groups' tagged text fields, group_review.ENTITY_KEY), drawn wherever groups are (Andrew, 2026-10-28:
+    # "lets make the entities visible everywhere the groups are")
+    from petey.validate import group_review
+    specs = bp.get("fields") or {}
+    entities = []
+    for u in group_review.entity_units(bp):
+        rs = [{"page": specs[m]["widget"]["page"], "rect": specs[m]["widget"]["rect"]} for m in u["items"]
+              if (specs[m].get("widget") or {}).get("rect")]
+        if rs:
+            entities.append({"name": u["name"], "entity_type": u.get("entity_type"), "page": rs[0]["page"],
+                             "fields": u["items"], "rects": rs})
+    return {"fields": fields, "grids": grids, "blocks": blocks, "entities": entities}
 
 
 class App:
@@ -518,7 +529,8 @@ class App:
     def overlay(self, bid: str) -> dict:
         """What every tab can draw over the page besides its own (Andrew, 2026-10-22: "add block and grid overlays and
         validated fields to all views, so it's clear what is and isn't already accounted for"): {fields: [{name, id,
-        page, rects, accepted, group}], grids: [{id, page, bbox, validated}], blocks: [{id, page, bbox, validated}]}.
+        page, rects, accepted, group}], grids: [{id, page, bbox, validated}], blocks: [{id, page, bbox, validated}],
+        entities: [{name, entity_type, page, fields, rects}]}.
         Boxes only, nothing checked: cheap enough to read again after every change."""
         return overlay(hand_review._load(self.working(bid)), bid,
                        hand_review.load_verdicts(bid).get("verdicts") or {})

@@ -1,21 +1,23 @@
 // Add / remove on the page: the blueprint's fields (purple; red dashed when to be removed), the suggestions left
-// (orange: solid an unclaimed widget, dashed a finder box), the fields added (green, with their name), and what is
-// proposed; and the tab's definition for the frame.
+// (orange: solid an unclaimed widget, dashed a finder box), the underlines no field covers (cyan, to click), the fields
+// added (green, with their name), and what is proposed; and the tab's definition for the frame.
 import { Box } from '../../components/Box';
 import { useApp } from '../../state/app';
 import type { ModeDef } from '../types';
 import { Bar, Panel } from './Panel';
-import { boxesOf, dragEnd, isRemoved, key, load, remaining, useAdd } from './store';
+import { boxesOf, dragEnd, isRemoved, key, linesLeft, load, remaining, useAdd } from './store';
 
 function Layer() {
   const page = useApp(s => s.page);
-  const { BP, picked, rmPicks, curSid, added, props, showFields, showSug } = useAdd();
+  const { BP, picked, rmPicks, curSid, added, props, showFields, showSug, showLines } = useAdd();
   if (!BP) return null;
   const out: React.ReactNode[] = [];
   if (showFields) BP.fields.forEach((f, i) => f.page === page && out.push(
     <Box key={`f${i}`} className={'ov field' + (isRemoved(f.name) ? ' removed' : '') + (picked === f.name || rmPicks.includes(f.name) ? ' picked' : '')} rect={f.rect} title={f.name} data-field={f.name} />));
   if (showSug) for (const s of remaining()) if (s.page === page) out.push(
     <Box key={`s${s.sid}`} className={`ov sug ${s.source}${s.copy ? ' copy' : ''}${s.sid === curSid ? ' cur' : ''}`} rect={s.rect} title={s.what} data-sid={s.sid} />);
+  if (showLines) for (const s of linesLeft()) if (s.page === page) out.push(
+    <Box key={`l${s.sid}`} className={`ov line${s.sid === curSid ? ' cur' : ''}`} rect={s.rect} title="an underline: click to add a field over it" data-sid={s.sid} />);
   added.forEach((a, i) => boxesOf(a).filter(b => b.page === page).forEach((b, k) => out.push(
     <Box key={`a${i}-${k}`} className="ov added" rect={b.rect} title={a.name} data-added={i}>{k === 0 && <span className="tag">{a.name}</span>}</Box>)));
   props.forEach((p, i) => boxesOf(p).forEach((b, k) => b.page === page && out.push(<Box key={`p${i}-${k}`} className="ov prop" rect={b.rect} />)));
@@ -29,9 +31,10 @@ export const add: ModeDef = {
   drawable: true,
   help: {
     keys: [['n', 'next suggestion'], ['p', 'previous suggestion'], ['a / Enter', 'add what is proposed'], ['click a picked box', 'drop it'],
-      ['click a field', 'collect it to remove (again: drop it)'], ['d', 'remove the collected fields (a red one clicked: keep it)'], ['Esc', 'cancel all (additions and removals)'], ['f', 'fields on / off'], ['s', 'suggestions on / off']],
+      ['click a field', 'collect it to remove (again: drop it)'], ['d', 'remove the collected fields (a red one clicked: keep it)'], ['Esc', 'cancel all (additions and removals)'], ['f', 'fields on / off'], ['s', 'suggestions on / off'], ['l', 'underlines on / off']],
     tips: ['Drag over an area of the page, or click a box, to propose a field; each one you pick stays until you add it or cancel it ("cancel" on its card, Esc for all).',
-      'Click a purple field (one the blueprint has) to remove it.'],
+      'Click a purple field (one the blueprint has) to remove it.',
+      'Cyan bands are underlines no field covers: click one (or just above a line) to propose a text field over it.'],
   },
   load,
   pages: () => useAdd.getState().BP?.pages || [],

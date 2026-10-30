@@ -1,5 +1,5 @@
-// Groups on the page: each group's hull in its color and its boxes, loose boxes dashed, text fields in teal (combined
-// ones in a hull); a click selects (a loose text field: picked, for "convert to bool"), Shift- / Cmd-click picks a box
+// Groups on the page: each group's hull in its color and its boxes, loose boxes dashed, text fields in teal (an
+// entity's in a hull); a click selects (a loose text field: picked, for "convert to bool"), Shift- / Cmd-click picks a box
 // for "group selected", and boxes and hulls drag
 // onto each other (a group by the tab on its corner, 2026-10-27: its boxes cover the rest of it). And the tab's
 // definition for the frame (an area dragged across the page picks the boxes in it).
@@ -44,7 +44,7 @@ function Layer() {
       const h = hull(its.map(i => i.rect)), pad = text ? 3 : 6;
       out.push(<Box key={'h' + u.uid} data-unit={u.name} className={'gh' + (text ? ' text' : '') + (sel ? ' sel' : '') + (u.confirmed ? ' ok' : '')}
         rect={h} pad={pad} min={6} color={c}
-        title={text ? `${u.name} (combined text, ${u.items.length} boxes)` : `${u.name} (${u.items.length} options)`}
+        title={text ? `${u.name} (entity, ${u.items.length} fields)` : `${u.name} (${u.items.length} options)`}
         onClick={() => select(u.uid, false)}
         {...dragProps('unit', u.uid, !u.locked)} {...(u.locked ? {} : dropOn({ unit: u.uid }))} />);
       if (!u.locked && !text) out.push(<GroupTab key={'t' + u.uid} at={[h[0] - pad, h[1] - pad]} color={c}
@@ -65,11 +65,11 @@ export const groups: ModeDef = {
   name: 'Groups',
   own: ['groups'],
   help: {
-    keys: [['g', 'group the selected boxes'], ['Esc', 'clear the selection'], ['a', 'confirm the group'], ['n / →', 'next group'], ['p / ←', 'previous group'], ['z', 'undo'],
+    keys: [['g', 'group the selected boxes (text fields: one entity)'], ['Esc', 'clear the selection'], ['a', 'confirm the group'], ['n / →', 'next group'], ['p / ←', 'previous group'], ['z', 'undo'],
       ['u', 'ungroup the selected group'], ['Shift+U', 'unconfirmed only on / off'], ['Shift+T', 'text fields on / off']],
     tips: ['Select boxes with Shift-click (or Cmd-click), or drag across an area of the page (Shift+drag adds an area); g or "group selected" makes them one group; Esc clears the selection.',
       'Click a teal text box (Shift-click for more, or drag across an area holding only text boxes): "convert to bool" makes them checkboxes named _ind; g then groups them.',
-      'Drag a box onto a group, onto another loose box, or onto the tray.', 'Drag a group by the tab on its corner onto another group or a loose box to combine them.', 'Teal text boxes combine the same way.'],
+      'Drag a box onto a group, onto another loose box, or onto the tray.', 'Drag a group by the tab on its corner onto another group or a loose box to combine them.', 'Teal text fields make entities the same way (the fields stay as they are).'],
   },
   load,
   pages: () => useGroups.getState().BP?.pages || [],
