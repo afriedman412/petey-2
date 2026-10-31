@@ -55,10 +55,10 @@ def test_home_counts_fold_away_and_structure_validated_can_be_hidden():
 
 
 def test_text_and_printed_fields_are_filled_on_review():
-    assert "(f.printed ? ' printed' : f.printed === false ? ' txt' : '')" in (SRC / "modes" / "review" / "index.tsx").read_text()
+    assert "(f.printed ? ' printed' : f.printed === false ? ' txt' : ' choice')" in (SRC / "modes" / "review" / "index.tsx").read_text()
     css = (SRC / "styles.css").read_text()
-    assert ".rv.printed:not(.flag):not(.removed), .ovl.kind.printed { background:var(--fill-printed); }" in css
-    assert ".rv.txt:not(.flag):not(.removed), .ovl.kind.txt { background:var(--fill-text); }" in css
+    for k, v in (("txt", "text"), ("printed", "printed"), ("choice", "choice")):
+        assert f".rv.{k}, .ovl.kind.{k} {{ background:var(--fill-{v}); }}" in css
 
 
 def test_the_two_whole_form_accepts_save_after_and_a_field_accept_does_not():
@@ -76,4 +76,4 @@ def test_kind_fills_on_every_tab_but_add_remove():
     canvas = (SRC / "components" / "Canvas.tsx").read_text()
     assert "mode !== 'review' && mode !== 'add'" in canvas and "'ovl kind '" in canvas
     css = (SRC / "styles.css").read_text()
-    assert ".ovl.kind.txt { background:var(--fill-text); }" in css and "--fill-printed:" in css
+    assert "--fill-printed:" in css and "--fill-choice:" in css

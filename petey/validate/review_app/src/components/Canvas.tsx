@@ -15,8 +15,8 @@ function ShowLayer() {
   const out: React.ReactNode[] = [];
   // every field filled by its kind, as on Review, on every tab but Add / remove (Andrew, 2026-10-31: "can you
   // standardize that across all the tabs (except add/remove)"); Review fills its own boxes
-  if (mode !== 'review' && mode !== 'add') o.fields.forEach((f, i) => (f.kind === 'text' || f.kind === 'printed') && f.rects.forEach((r, k) =>
-    r.page === page && out.push(<Box key={`k${i}-${k}`} className={'ovl kind ' + (f.kind === 'printed' ? 'printed' : 'txt')} rect={r.rect} />)));
+  if (mode !== 'review' && mode !== 'add') o.fields.forEach((f, i) => f.kind && f.rects.forEach((r, k) =>
+    r.page === page && out.push(<Box key={`k${i}-${k}`} className={'ovl kind ' + (f.kind === 'text' ? 'txt' : f.kind)} rect={r.rect} />)));
   if (on('valid')) o.fields.forEach((f, i) => f.accepted && f.rects.forEach((r, k) => r.page === page && out.push(<Box key={`v${i}-${k}`} className="ovl valid" rect={r.rect} />)));
   if (on('groups')) {
     let gi = 0;
