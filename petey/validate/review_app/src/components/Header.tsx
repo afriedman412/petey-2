@@ -98,12 +98,12 @@ export function Header() {
           validation' together") */}
       <span className="btngroup" id="verdictBtns">
         <button className="btn" id="bulk" disabled={!bid || (inReview && !counts.settledLeft)}
-          title="accept every unreviewed field that two or more witnesses back and none disputes (opens Review)"
+          title="accept every unreviewed field that two or more witnesses back and none disputes, then save the working copy into the blueprint (opens Review)"
           onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.bulkAccept(); }}>
           {inReview ? `accept settled (${counts.settledLeft})` : 'accept settled'}
         </button>
         <button className="btn" id="acceptStructure" disabled={!bid}
-          title="the form's structure is right (its fields, their kinds, groups, grids and blocks): STRUCTURE VALIDATED, names left to review; accepting every name makes it VALIDATED (opens Review)"
+          title="the form's structure is right (its fields, their kinds, groups, grids and blocks): STRUCTURE VALIDATED, names left to review; accepting every name makes it VALIDATED. Saves the working copy into the blueprint after (opens Review)"
           onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.acceptStructure(); }}>accept structure</button>
         <button className="btn" id="resetV" disabled={!bid}
           title="clear every verdict on this form (accepted, flagged, notes), to check it again from scratch; the old record is kept aside (opens Review)"

@@ -4,7 +4,7 @@ import { create } from 'zustand';
 import { j, mapi, send } from '../../lib/api';
 import type { Checked, PageInfo, Structure } from '../../lib/types';
 import { fileStem, localNow, PART_KEYS, scrollToSel, stdPrint, store, type PartKey, type Parts, type Rect } from '../../lib/util';
-import { loadMode, syncSha, toast, updateEntry } from '../../state/actions';
+import { loadMode, saveDraft, syncSha, toast, updateEntry } from '../../state/actions';
 import { entryOf, get as app, set as setApp, useApp } from '../../state/app';
 import { groupFromReview, ungroupFromReview } from '../groups/store';
 
@@ -428,12 +428,17 @@ async function resetValidation() {
   updateEntry(out.entry); await loadMode();
   toast(`Validation reset: ${out.cleared} verdicts cleared (kept in ${String(out.backup).split('/').pop()}).`);
 }
+// the header's two whole-form accepts save the working copy into the blueprint after (Andrew, 2026-10-31: "just the
+// accept settled and accept structure buttons should save everything. not the individual accept buttons")
+const saveAfter = async () => { if (entryOf(app().bid)?.draft) await saveDraft(); };
 async function bulkAccept() {
   const BP = S().BP; if (!BP) return;
   const todo = BP.fields.filter(f => f.tier === 'settled' && !verdictOf(f.name));
-  if (!todo.length) { alert('No unreviewed settled fields.'); return; }
-  if (!confirm(`Accept ${todo.length} settled field(s) without looking at them? Each is saved with the note "bulk: settled".`)) return;
-  await putV(Object.fromEntries(todo.map(f => [f.name, { verdict: 'accept' as const, note: 'bulk: settled' }])));
+  if (todo.length) {
+    if (!confirm(`Accept ${todo.length} settled field(s) without looking at them? Each is saved with the note "bulk: settled".`)) return;
+    await putV(Object.fromEntries(todo.map(f => [f.name, { verdict: 'accept' as const, note: 'bulk: settled' }])));
+  } else if (!entryOf(app().bid)?.draft) { alert('No unreviewed settled fields.'); return; }
+  await saveAfter();
 }
 
 // "accept structure" (Andrew, 2026-10-31: "since we are currently only looking at structure, in the service of building
@@ -447,6 +452,7 @@ async function acceptStructure() {
   catch (e) { alert((e as Error).message); return; }
   updateEntry(out.entry); await loadMode();
   toast('Structure validated. Accept every name to make it VALIDATED.');
+  await saveAfter();
 }
 
 // names two or more fields would have once saved corrections are applied (Andrew, 2026-10-13); each set gets its own

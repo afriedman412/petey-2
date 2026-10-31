@@ -58,3 +58,14 @@ def test_printed_fields_are_hatched_on_review():
     assert "(f.printed ? ' printed' : '')" in (SRC / "modes" / "review" / "index.tsx").read_text()
     css = (SRC / "styles.css").read_text()
     assert ".rv.printed:not(.flag):not(.removed) { background:repeating-linear-gradient(" in css
+
+
+def test_the_two_whole_form_accepts_save_after_and_a_field_accept_does_not():
+    """Andrew, 2026-10-31: "just the accept settled and accept structure buttons should save everything. not the
+    individual accept buttons"."""
+    store = (SRC / "modes" / "review" / "store.ts").read_text()
+    for fn in ("async function bulkAccept", "async function acceptStructure"):
+        body = store[store.index(fn):store.index("\n}\n", store.index(fn))]
+        assert "await saveAfter();" in body, fn
+    sv = store.index("export async function setVerdict") if "export async function setVerdict" in store else store.index("function setVerdict")
+    assert "saveAfter" not in store[sv:store.index("\n}\n", sv)]
