@@ -13,16 +13,18 @@ authoring:
   model: gemini-3.8-flash
   geometry: acroform
   labels: llm
-  when: '2026-10-06 21:56:36'
+  when: '2026-10-26 14:52:24'
+x_petey_emit_fixes:
+  separators_dropped_by_maxlen: 5
 fields:
-  amends_prior_report:
+  check_appropriate_box:
     x_petey_id: '1_66'
     type: category
     values:
-    - amends_prior_report_ind
-    - suspicious_transaction_ind
+    - amends_prior_report
+    - suspicious_transaction
     widgets:
-      amends_prior_report_ind:
+      amends_prior_report:
         page: 1
         rect:
         - 223.1999969482422
@@ -32,9 +34,9 @@ fields:
         widget_type: checkbox
         path: topmostSubform[0].Page1[0].c1_1[0]
         on_state: '1'
-        caption: Amends prior report;
-        x_petey_caption_source: page_choice
-      suspicious_transaction_ind:
+        caption: Amends prior report
+        x_petey_caption_source: page_text
+      suspicious_transaction:
         page: 1
         rect:
         - 410.3999938964844
@@ -44,20 +46,21 @@ fields:
         widget_type: checkbox
         path: topmostSubform[0].Page1[0].c1_2[0]
         on_state: '1'
-        caption: Suspicious transaction.
-        x_petey_caption_source: page_choice
+        caption: Suspicious transaction
+        x_petey_caption_source: page_text
+    label_source: llm
     x_petey_grouping:
       source: group_review
-      when: '2026-10-16 11:59:17'
+      when: '2026-10-26 18:57:51'
       from:
-      - amends_prior_report::amends_prior_report_ind
-      - amends_prior_report::suspicious_transaction_ind
+      - amends_prior_report
+      - suspicious_transaction
+      name_from: labeler
     x_petey_identifiers:
-      subject: amends_prior_report
-  multiple_individuals_involved_ind:
+      subject: check_appropriate_box
+  multiple_individuals_involved:
     x_petey_id: '1_3'
     type: boolean
-    semantic_type: indicator
     widget:
       page: 1
       rect:
@@ -68,13 +71,10 @@ fields:
       widget_type: checkbox
       path: topmostSubform[0].Page1[0].c1_3[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: multiple_individuals_involved
-      suffix: ind
-  individual_last_nm:
+  last_name:
     x_petey_id: '1_4'
     type: string
-    semantic_type: last_name
+    semantic_type: name
     widget:
       page: 1
       rect:
@@ -85,29 +85,10 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_01[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: individual_last_name
-        type: string
-        semantic_type: last_name
-        pattern: null
-      to:
-        name: individual_last_nm
-        type: string
-        semantic_type: last_name
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: name -> nm'
-    x_petey_identifiers:
-      subject: individual_last
-      suffix: nm
-  individual_first_nm:
+  first_name:
     x_petey_id: '1_5'
     type: string
-    semantic_type: first_name
+    semantic_type: name
     widget:
       page: 1
       rect:
@@ -118,28 +99,10 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_02[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: individual_first_name
-        type: string
-        semantic_type: first_name
-        pattern: null
-      to:
-        name: individual_first_nm
-        type: string
-        semantic_type: first_name
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: name -> nm'
-    x_petey_identifiers:
-      subject: individual_first
-      suffix: nm
-  individual_middle_initial:
+  middle_initial:
     x_petey_id: '1_6'
     type: string
+    semantic_type: name
     widget:
       page: 1
       rect:
@@ -150,14 +113,11 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_03[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: individual_middle
-      suffix: initial
-  individual_tin:
+  tin:
     x_petey_id: '1_7'
     type: string
     semantic_type: tin
-    pattern: ^\d{9}$
+    pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
     widget:
       page: 1
       rect:
@@ -168,21 +128,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].Line6_CombField[0].f1_04[0]
     label_source: llm
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - pattern
-      reason: Comb box of 9 cells takes 9 bare digits; the hyphenated pattern cannot
-        be typed here.
-      before:
-        type: string
-        semantic_type: tin
-        pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
-      judged: 'kept: 1 -> 0'
-    x_petey_identifiers:
-      subject: individual
-      suffix: tin
-  individual_address_line_1_txt:
+  street_address:
     x_petey_id: '1_8'
     type: string
     semantic_type: street_address
@@ -196,13 +142,10 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_05[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: individual_address_line_1
-      suffix: txt
-  individual_birth_dt:
+  date_of_birth:
     x_petey_id: '1_9'
     type: date
-    semantic_type: birth_date
+    semantic_type: iso_date
     widget:
       page: 1
       rect:
@@ -213,10 +156,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].Line8_CombField[0].f1_06[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: individual_birth
-      suffix: dt
-  individual_city_nm:
+  city_1:
     x_petey_id: '1_10'
     type: string
     semantic_type: city
@@ -230,10 +170,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_07[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: individual_city
-      suffix: nm
-  individual_state_cd:
+  state_1:
     x_petey_id: '1_11'
     type: string
     semantic_type: state_abbr
@@ -248,26 +185,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].Line10_CombField[0].f1_08[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: individual_state_abbreviation_cd
-        type: string
-        semantic_type: state_abbr
-        pattern: ^[A-Z]{2}$
-      to:
-        name: individual_state_cd
-        type: string
-        semantic_type: state_abbr
-        pattern: ^[A-Z]{2}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: state_abbreviation_cd -> state_cd'
-    x_petey_identifiers:
-      subject: individual_state
-      suffix: cd
-  individual_zip_cd:
+  zip_cd_1:
     x_petey_id: '1_12'
     type: string
     semantic_type: zip
@@ -283,9 +201,27 @@ fields:
       path: topmostSubform[0].Page1[0].f1_09[0]
     label_source: llm
     x_petey_identifiers:
-      subject: individual_zip
+      subject: zip
       suffix: cd
-  individual_country_nm:
+      iteration: '1'
+    x_petey_hand_edit:
+      when: '2026-10-26 18:56:49'
+      from:
+        name: zip_code_1
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        identifiers: null
+      to:
+        name: zip_cd_1
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT3: the type''s parts'
+  country:
     x_petey_id: '1_13'
     type: string
     semantic_type: country
@@ -299,24 +235,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_10[0]
     label_source: llm
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - -pattern
-      - name
-      reason: Item 12 'Country (if not U.S.)' is a free-text 114pt box with no length
-        limit; filers write the country name, not a two-letter code.
-      before:
-        type: string
-        semantic_type: country_code
-        pattern: ^[A-Z]{2}$
-      old_name: individual_country_cd
-      judged: 'kept: 1 -> 0'
-    x_petey_identifiers:
-      subject: individual_country
-      suffix: nm
-  individual_occupation_txt:
+  occupation:
     x_petey_id: '1_14'
     type: string
     semantic_type: text
@@ -330,13 +249,10 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_11[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: individual_occupation
-      suffix: txt
-  identifying_doc_description_txt:
+  id_description:
     x_petey_id: '1_15'
     type: string
-    semantic_type: description
+    semantic_type: text
     widget:
       page: 1
       rect:
@@ -347,26 +263,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_12[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: identifying_doc_description
-        type: string
-        semantic_type: description
-        pattern: null
-      to:
-        name: identifying_doc_description_txt
-        type: string
-        semantic_type: description
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: description -> description_txt'
-    x_petey_identifiers:
-      subject: identifying_doc_description
-      suffix: txt
-  identifying_doc_issued_by_txt:
+  id_issued_by:
     x_petey_id: '1_16'
     type: string
     semantic_type: text
@@ -380,10 +277,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_13[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: identifying_doc_issued_by
-      suffix: txt
-  identifying_doc_nbr:
+  id_number:
     x_petey_id: '1_17'
     type: string
     widget:
@@ -396,29 +290,9 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_14[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: identifying_doc_num
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: identifying_doc_nbr
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: num -> nbr'
-    x_petey_identifiers:
-      subject: identifying_doc
-      suffix: nbr
-  multiple_persons_involved_ind:
+  behalf_of_multiple_persons:
     x_petey_id: '1_18'
     type: boolean
-    semantic_type: indicator
     widget:
       page: 1
       rect:
@@ -429,13 +303,10 @@ fields:
       widget_type: checkbox
       path: topmostSubform[0].Page1[0].c1_4[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: multiple_persons_involved
-      suffix: ind
-  behalf_of_last_or_organization_nm:
+  behalf_of_last_name_or_organization_nm:
     x_petey_id: '1_19'
     type: string
-    semantic_type: entity_name
+    semantic_type: name
     widget:
       page: 1
       rect:
@@ -446,29 +317,31 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_15[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: behalf_of_last_or_organization_name
-        type: string
-        semantic_type: entity_name
-        pattern: null
-      to:
-        name: behalf_of_last_or_organization_nm
-        type: string
-        semantic_type: entity_name
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: name -> nm'
     x_petey_identifiers:
-      subject: behalf_of_last_or_organization
+      block_prefix: behalf_of
+      subject: last_name_or_organization
       suffix: nm
+    x_petey_hand_edit:
+      when: '2026-10-26 18:57:01'
+      from:
+        name: behalf_of_last_name_or_organization_name
+        type: string
+        semantic_type: name
+        pattern: null
+        identifiers: null
+      to:
+        name: behalf_of_last_name_or_organization_nm
+        type: string
+        semantic_type: name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
   behalf_of_first_nm:
     x_petey_id: '1_20'
     type: string
-    semantic_type: first_name
+    semantic_type: name
     widget:
       page: 1
       rect:
@@ -479,28 +352,31 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_16[0]
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: behalf_of
+      subject: first
+      suffix: nm
     x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
+      when: '2026-10-26 18:57:01'
       from:
         name: behalf_of_first_name
         type: string
-        semantic_type: first_name
+        semantic_type: name
         pattern: null
+        identifiers: null
       to:
         name: behalf_of_first_nm
         type: string
-        semantic_type: first_name
+        semantic_type: name
         pattern: null
-      record: eval/standardize_names.py
+      record: petey/validate/form_chat.py
       by: claude
-      kind: name
-      why: 'naming standard: name -> nm'
-    x_petey_identifiers:
-      subject: behalf_of_first
-      suffix: nm
+      kind: chat
+      why: 'block type BT1: the type''s parts'
   behalf_of_middle_initial:
     x_petey_id: '1_21'
     type: string
+    semantic_type: name
     widget:
       page: 1
       rect:
@@ -511,9 +387,6 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_17[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: behalf_of_middle
-      suffix: initial
   behalf_of_tin:
     x_petey_id: '1_22'
     type: string
@@ -533,19 +406,17 @@ fields:
       model: claude-opus-5
       changed:
       - pattern
-      reason: Nine-cell comb takes bare digits; hyphenated pattern is unenterable.
+      reason: Comb box of 9 cells takes nine bare digits with no separators, so the
+        hyphenated TIN pattern cannot match; tighten the pattern to nine digits.
       before:
         type: string
         semantic_type: tin
         pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
       judged: 'kept: 1 -> 0'
-    x_petey_identifiers:
-      subject: behalf_of
-      suffix: tin
   behalf_of_dba_nm:
     x_petey_id: '1_23'
     type: string
-    semantic_type: business_name
+    semantic_type: name
     widget:
       page: 1
       rect:
@@ -556,36 +427,27 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_19[0]
     label_source: llm
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      reason: Item 20 'Doing business as (DBA) name' holds a business name, not a
-        person name; name already correct.
-      before:
-        type: string
-        semantic_type: person_name
-      judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      block_prefix: behalf_of
+      subject: dba
+      suffix: nm
     x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
+      when: '2026-10-26 18:57:01'
       from:
         name: behalf_of_dba_name
         type: string
-        semantic_type: business_name
+        semantic_type: name
         pattern: null
+        identifiers: null
       to:
         name: behalf_of_dba_nm
         type: string
-        semantic_type: business_name
+        semantic_type: name
         pattern: null
-      record: eval/standardize_names.py
+      record: petey/validate/form_chat.py
       by: claude
-      kind: name
-      why: 'naming standard: name -> nm'
-    x_petey_identifiers:
-      block_prefix: behalf_of
-      suffix: nm
-      subject: dba
+      kind: chat
+      why: 'block type BT1: the type''s parts'
   behalf_of_ein:
     x_petey_id: '1_24'
     type: string
@@ -603,10 +465,7 @@ fields:
     label_source: llm
     x_petey_retype:
     - separators_dropped_by_maxlen:9
-    x_petey_identifiers:
-      block_prefix: behalf_of
-      suffix: ein
-  behalf_of_address_line_1_txt:
+  behalf_of_address:
     x_petey_id: '1_25'
     type: string
     semantic_type: street_address
@@ -621,9 +480,26 @@ fields:
       path: topmostSubform[0].Page1[0].f1_21[0]
     label_source: llm
     x_petey_identifiers:
-      subject: behalf_of_address_line_1
-      suffix: txt
-  behalf_of_occupation_txt:
+      block_prefix: behalf_of
+      subject: address
+    x_petey_hand_edit:
+      when: '2026-10-26 18:57:01'
+      from:
+        name: behalf_of_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+        identifiers: null
+      to:
+        name: behalf_of_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  behalf_of_occupation_profession_or_business:
     x_petey_id: '1_26'
     type: string
     semantic_type: text
@@ -638,9 +514,26 @@ fields:
       path: topmostSubform[0].Page1[0].f1_22[0]
     label_source: llm
     x_petey_identifiers:
-      subject: behalf_of_occupation
-      suffix: txt
-  behalf_of_city_nm:
+      block_prefix: behalf_of
+      subject: occupation_profession_or_business
+    x_petey_hand_edit:
+      when: '2026-10-26 18:57:01'
+      from:
+        name: behalf_of_occupation
+        type: string
+        semantic_type: text
+        pattern: null
+        identifiers: null
+      to:
+        name: behalf_of_occupation_profession_or_business
+        type: string
+        semantic_type: text
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  behalf_of_city:
     x_petey_id: '1_27'
     type: string
     semantic_type: city
@@ -654,11 +547,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_23[0]
     label_source: llm
-    x_petey_identifiers:
-      block_prefix: behalf_of
-      suffix: nm
-      subject: city
-  behalf_of_state_cd:
+  behalf_of_state:
     x_petey_id: '1_28'
     type: string
     semantic_type: state_abbr
@@ -673,26 +562,6 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].Line24_CombField[0].f1_24[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: behalf_of_state_abbreviation_cd
-        type: string
-        semantic_type: state_abbr
-        pattern: ^[A-Z]{2}$
-      to:
-        name: behalf_of_state_cd
-        type: string
-        semantic_type: state_abbr
-        pattern: ^[A-Z]{2}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: state_abbreviation_cd -> state_cd'
-    x_petey_identifiers:
-      block_prefix: behalf_of
-      suffix: cd
-      subject: state
   behalf_of_zip_cd:
     x_petey_id: '1_29'
     type: string
@@ -710,11 +579,29 @@ fields:
     label_source: llm
     x_petey_identifiers:
       block_prefix: behalf_of
-      suffix: cd
       subject: zip
-  behalf_of_country_cd:
+      suffix: cd
+    x_petey_hand_edit:
+      when: '2026-10-26 18:57:01'
+      from:
+        name: behalf_of_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        identifiers: null
+      to:
+        name: behalf_of_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  behalf_of_country:
     x_petey_id: '1_30'
     type: string
+    semantic_type: country
     widget:
       page: 1
       rect:
@@ -725,16 +612,10 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_26[0]
     label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=237
-    x_petey_identifiers:
-      block_prefix: behalf_of
-      suffix: cd
-      subject: country
-  behalf_of_alien_id_description_txt:
+  behalf_of_alien_identifying_document_description:
     x_petey_id: '1_31'
     type: string
-    semantic_type: description
+    semantic_type: text
     widget:
       page: 1
       rect:
@@ -745,26 +626,27 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_27[0]
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: behalf_of
+      subject: alien_identifying_document_description
     x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
+      when: '2026-10-26 18:57:01'
       from:
         name: behalf_of_alien_id_description
         type: string
-        semantic_type: description
+        semantic_type: text
         pattern: null
+        identifiers: null
       to:
-        name: behalf_of_alien_id_description_txt
+        name: behalf_of_alien_identifying_document_description
         type: string
-        semantic_type: description
+        semantic_type: text
         pattern: null
-      record: eval/standardize_names.py
+      record: petey/validate/form_chat.py
       by: claude
-      kind: name
-      why: 'naming standard: description -> description_txt'
-    x_petey_identifiers:
-      subject: behalf_of_alien_id_description
-      suffix: txt
-  behalf_of_alien_id_issued_by_txt:
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  behalf_of_alien_identifying_document_issued_by:
     x_petey_id: '1_32'
     type: string
     semantic_type: text
@@ -779,9 +661,26 @@ fields:
       path: topmostSubform[0].Page1[0].f1_28[0]
     label_source: llm
     x_petey_identifiers:
-      subject: behalf_of_alien_id_issued_by
-      suffix: txt
-  behalf_of_alien_id_nbr:
+      block_prefix: behalf_of
+      subject: alien_identifying_document_issued_by
+    x_petey_hand_edit:
+      when: '2026-10-26 18:57:01'
+      from:
+        name: behalf_of_alien_id_issued_by
+        type: string
+        semantic_type: text
+        pattern: null
+        identifiers: null
+      to:
+        name: behalf_of_alien_identifying_document_issued_by
+        type: string
+        semantic_type: text
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  behalf_of_alien_identifying_document_nbr:
     x_petey_id: '1_33'
     type: string
     widget:
@@ -794,26 +693,28 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_29[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: behalf_of_alien_id_num
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: behalf_of_alien_id_nbr
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: num -> nbr'
     x_petey_identifiers:
-      subject: behalf_of_alien_id
+      block_prefix: behalf_of
+      subject: alien_identifying_document
       suffix: nbr
-  cash_received_dt:
+    x_petey_hand_edit:
+      when: '2026-10-26 18:57:01'
+      from:
+        name: behalf_of_alien_id_number
+        type: string
+        semantic_type: null
+        pattern: null
+        identifiers: null
+      to:
+        name: behalf_of_alien_identifying_document_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  date_cash_received:
     x_petey_id: '1_34'
     type: date
     semantic_type: iso_date
@@ -827,13 +728,9 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].Line28_ReadOrder[0].Line28_CombField[0].f1_30[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: cash_received
-      suffix: dt
-  total_cash_received_amt:
+  total_cash_received:
     x_petey_id: '1_35'
     type: number
-    semantic_type: money
     widget:
       page: 1
       rect:
@@ -844,15 +741,45 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].Line29_ReadOrder[0].f1_31[0]
     label_source: llm
-    x_petey_retype:
-    - money
-    x_petey_identifiers:
-      subject: total_cash_received
-      suffix: amt
-  multiple_payments_ind:
+    x_petey_adjudication:
+      verdict: current
+      proposed: cash_received_dt
+      reason: The red-outlined box sits under caption '29 Total cash received' with
+        a dollar sign and .00 suffix, so a filer writes a monetary amount; 'total_cash_received'
+        matches this, not a date field.
+      model: claude-sonnet-4-6
+      contested: no caption could be verified at the widget
+    description: Date the cash was received (item 28).
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - semantic_type
+      - description
+      reason: Both the page reading ('28 Date cash received') and the name reader
+        (which located the total cash amount in another box) show this box holds the
+        date, not the money amount; name and type must follow the caption.
+      before:
+        type: number
+        semantic_type: money
+      judged: 'kept: 4 -> 2'
+    x_petey_hand_edit:
+      when: '2026-10-26 18:58:27'
+      from:
+        name: total_cash_received
+        type: integer
+        semantic_type: null
+        pattern: null
+      to:
+        name: total_cash_received
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/hand_review/je__form_8300.json
+    semantic_type: money
+  multiple_payments:
     x_petey_id: '1_36'
     type: boolean
-    semantic_type: indicator
     widget:
       page: 1
       rect:
@@ -863,10 +790,7 @@ fields:
       widget_type: checkbox
       path: topmostSubform[0].Page1[0].Line30_ReadOrder[0].c1_5[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: multiple_payments
-      suffix: ind
-  total_price_amt:
+  total_price:
     x_petey_id: '1_37'
     type: number
     semantic_type: money
@@ -880,12 +804,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_32[0]
     label_source: llm
-    x_petey_retype:
-    - money
-    x_petey_identifiers:
-      subject: total_price
-      suffix: amt
-  us_currency_amt:
+  us_currency_amount:
     x_petey_id: '1_38'
     type: number
     semantic_type: money
@@ -899,12 +818,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_33[0]
     label_source: llm
-    x_petey_retype:
-    - money
-    x_petey_identifiers:
-      subject: us_currency
-      suffix: amt
-  us_currency_100_bills_or_higher_amt:
+  bills_100_or_higher_amount:
     x_petey_id: '1_39'
     type: number
     semantic_type: money
@@ -918,12 +832,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_34[0]
     label_source: llm
-    x_petey_retype:
-    - money
-    x_petey_identifiers:
-      subject: us_currency_100_bills_or_higher
-      suffix: amt
-  foreign_currency_amt:
+  foreign_currency_amount:
     x_petey_id: '1_40'
     type: number
     semantic_type: money
@@ -937,12 +846,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_35[0]
     label_source: llm
-    x_petey_retype:
-    - money
-    x_petey_identifiers:
-      subject: foreign_currency
-      suffix: amt
-  foreign_currency_country_nm:
+  foreign_currency_country:
     x_petey_id: '1_41'
     type: string
     semantic_type: country
@@ -956,10 +860,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_36[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: foreign_currency_country
-      suffix: nm
-  cashiers_checks_amt:
+  cashiers_check_amount:
     x_petey_id: '1_42'
     type: number
     semantic_type: money
@@ -973,12 +874,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].Lines32c-f_ReadOrder[0].f1_37[0]
     label_source: llm
-    x_petey_retype:
-    - money
-    x_petey_identifiers:
-      subject: cashiers_checks
-      suffix: amt
-  money_orders_amt:
+  money_order_amount:
     x_petey_id: '1_43'
     type: number
     semantic_type: money
@@ -992,12 +888,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].Lines32c-f_ReadOrder[0].f1_38[0]
     label_source: llm
-    x_petey_retype:
-    - money
-    x_petey_identifiers:
-      subject: money_orders
-      suffix: amt
-  bank_drafts_amt:
+  bank_draft_amount:
     x_petey_id: '1_45'
     type: number
     semantic_type: money
@@ -1011,12 +902,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].Lines32c-f_ReadOrder[0].f1_39[0]
     label_source: llm
-    x_petey_retype:
-    - money
-    x_petey_identifiers:
-      subject: bank_drafts
-      suffix: amt
-  travelers_checks_amt:
+  travelers_check_amount:
     x_petey_id: '1_47'
     type: number
     semantic_type: money
@@ -1030,12 +916,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].Lines32c-f_ReadOrder[0].f1_40[0]
     label_source: llm
-    x_petey_retype:
-    - money
-    x_petey_identifiers:
-      subject: travelers_checks
-      suffix: amt
-  monetary_instruments_issuer_and_serial_line_1_txt:
+  monetary_instrument_issuer_and_serial_number_1:
     x_petey_id: '1_44'
     type: string
     semantic_type: text
@@ -1049,10 +930,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_41[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: monetary_instruments_issuer_and_serial_line_1
-      suffix: txt
-  monetary_instruments_issuer_and_serial_line_2_txt:
+  monetary_instrument_issuer_and_serial_number_2:
     x_petey_id: '1_46'
     type: string
     semantic_type: text
@@ -1066,10 +944,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_42[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: monetary_instruments_issuer_and_serial_line_2
-      suffix: txt
-  monetary_instruments_issuer_and_serial_line_3_txt:
+  monetary_instrument_issuer_and_serial_number_3:
     x_petey_id: '1_48'
     type: string
     semantic_type: text
@@ -1083,13 +958,10 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_43[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: monetary_instruments_issuer_and_serial_line_3
-      suffix: txt
-  property_or_service_description_line_1_txt:
+  property_or_service_description_1:
     x_petey_id: '1_50'
     type: string
-    semantic_type: description
+    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1100,13 +972,10 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_44[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: property_or_service_description_line_1
-      suffix: txt
-  property_or_service_description_line_2_txt:
+  property_or_service_description_2:
     x_petey_id: '1_51'
     type: string
-    semantic_type: description
+    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1117,13 +986,10 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_45[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: property_or_service_description_line_2
-      suffix: txt
-  property_or_service_description_line_3_txt:
+  property_or_service_description_3:
     x_petey_id: '1_52'
     type: string
-    semantic_type: description
+    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1134,13 +1000,10 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_46[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: property_or_service_description_line_3
-      suffix: txt
-  property_or_service_description_line_4_txt:
+  property_or_service_description_4:
     x_petey_id: '1_53'
     type: string
-    semantic_type: description
+    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1151,13 +1014,10 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_47[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: property_or_service_description_line_4
-      suffix: txt
-  recipient_business_nm:
+  business_name:
     x_petey_id: '1_54'
     type: string
-    semantic_type: business_name
+    semantic_type: name
     widget:
       page: 1
       rect:
@@ -1168,27 +1028,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_48[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: recipient_business_name
-        type: string
-        semantic_type: business_name
-        pattern: null
-      to:
-        name: recipient_business_nm
-        type: string
-        semantic_type: business_name
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: name -> nm'
-    x_petey_identifiers:
-      block_prefix: recipient
-      suffix: nm
-      subject: business
-  recipient_ein:
+  business_ein:
     x_petey_id: '1_55'
     type: string
     semantic_type: ein
@@ -1205,10 +1045,7 @@ fields:
     label_source: llm
     x_petey_retype:
     - separators_dropped_by_maxlen:9
-    x_petey_identifiers:
-      block_prefix: recipient
-      suffix: ein
-  recipient_address_line_1_txt:
+  business_street_address:
     x_petey_id: '1_56'
     type: string
     semantic_type: street_address
@@ -1222,10 +1059,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_50[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: recipient_address_line_1
-      suffix: txt
-  recipient_ssn:
+  business_ssn:
     x_petey_id: '1_57'
     type: string
     semantic_type: ssn
@@ -1242,10 +1076,7 @@ fields:
     label_source: llm
     x_petey_retype:
     - separators_dropped_by_maxlen:9
-    x_petey_identifiers:
-      subject: recipient
-      suffix: ssn
-  recipient_city_nm:
+  city_2:
     x_petey_id: '1_58'
     type: string
     semantic_type: city
@@ -1259,11 +1090,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_52[0]
     label_source: llm
-    x_petey_identifiers:
-      block_prefix: recipient
-      suffix: nm
-      subject: city
-  recipient_state_cd:
+  state_2:
     x_petey_id: '1_59'
     type: string
     semantic_type: state_abbr
@@ -1278,27 +1105,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].Line39_CombField[0].f1_53[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: recipient_state_abbreviation_cd
-        type: string
-        semantic_type: state_abbr
-        pattern: ^[A-Z]{2}$
-      to:
-        name: recipient_state_cd
-        type: string
-        semantic_type: state_abbr
-        pattern: ^[A-Z]{2}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: state_abbreviation_cd -> state_cd'
-    x_petey_identifiers:
-      block_prefix: recipient
-      suffix: cd
-      subject: state
-  recipient_zip_cd:
+  zip_cd_2:
     x_petey_id: '1_60'
     type: string
     semantic_type: zip
@@ -1314,10 +1121,27 @@ fields:
       path: topmostSubform[0].Page1[0].f1_54[0]
     label_source: llm
     x_petey_identifiers:
-      block_prefix: recipient
-      suffix: cd
       subject: zip
-  recipient_business_nature_txt:
+      suffix: cd
+      iteration: '2'
+    x_petey_hand_edit:
+      when: '2026-10-26 18:56:49'
+      from:
+        name: zip_code_2
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        identifiers: null
+      to:
+        name: zip_cd_2
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT3: the type''s parts'
+  nature_of_business:
     x_petey_id: '1_61'
     type: string
     semantic_type: text
@@ -1331,13 +1155,10 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_55[0]
     label_source: llm
-    x_petey_identifiers:
-      block_prefix: recipient
-      suffix: txt
-      subject: business_nature
-  authorized_official_title_txt:
+  authorized_official_title:
     x_petey_id: '1_62'
     type: string
+    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1348,26 +1169,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_56[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: authorized_official_title
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: authorized_official_title_txt
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: +_txt (type)'
-    x_petey_identifiers:
-      subject: authorized_official_title
-      suffix: txt
-  signature_dt:
+  signature_date:
     x_petey_id: '1_63'
     type: date
     semantic_type: iso_date
@@ -1381,12 +1183,10 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].Line43_CombField[0].f1_57[0]
     label_source: llm
-    x_petey_identifiers:
-      subject: signature
-      suffix: dt
-  contact_person_nm:
+  contact_person_name:
     x_petey_id: '1_64'
     type: string
+    semantic_type: name
     widget:
       page: 1
       rect:
@@ -1397,26 +1197,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_58[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: contact_person_name
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: contact_person_nm
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: name -> nm'
-    x_petey_identifiers:
-      subject: contact_person
-      suffix: nm
-  contact_telephone_nbr:
+  contact_telephone_number:
     x_petey_id: '1_65'
     type: string
     semantic_type: phone
@@ -1431,28 +1212,10 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_59[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: contact_telephone_num
-        type: string
-        semantic_type: phone
-        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
-      to:
-        name: contact_telephone_nbr
-        type: string
-        semantic_type: phone
-        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: num -> nbr'
-    x_petey_identifiers:
-      subject: contact_telephone
-      suffix: nbr
-  part_1_last_nm:
+  part_i_individual_1_last_nm:
     x_petey_id: '2_1'
     type: string
+    semantic_type: name
     widget:
       page: 2
       rect:
@@ -1462,33 +1225,15 @@ fields:
       - 120.00201416015625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_01[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=252
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_last_name
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_1_last_nm
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; name -> nm'
     x_petey_identifiers:
-      block_prefix: part
-      suffix: nm
-      subject: 1_last
-  part_1_first_nm:
+      block_prefix: part_i_individual
+      block_iteration: '1'
+      subject: last_name
+    label_source: llm
+  part_i_individual_1_first_nm:
     x_petey_id: '2_2'
     type: string
-    semantic_type: first_name
+    semantic_type: name
     widget:
       page: 2
       rect:
@@ -1498,43 +1243,15 @@ fields:
       - 120.00201416015625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_02[0]
-    label_source: llm
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - -pattern
-      reason: Caption '4 First name' on the page 2 continuation; the id_part type
-        and digit pattern are copy-paste errors.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_first_name
-        type: string
-        semantic_type: first_name
-        pattern: null
-      to:
-        name: part_1_first_nm
-        type: string
-        semantic_type: first_name
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; name -> nm'
     x_petey_identifiers:
-      subject: part_1_first
-      suffix: nm
-  part_1_middle_initial:
+      block_prefix: part_i_individual
+      block_iteration: '1'
+      subject: first_name
+    label_source: llm
+  part_i_individual_1_middle_initial:
     x_petey_id: '2_3'
     type: string
-    semantic_type: middle_initial
-    pattern: ^[A-Za-z]$
+    semantic_type: name
     widget:
       page: 2
       rect:
@@ -1544,38 +1261,13 @@ fields:
       - 120.00201416015625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_03[0]
-    label_source: llm
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      reason: Maxlen-1 box under '5 M.I.'; a single letter, not a numeric id part.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_middle_initial
-        type: string
-        semantic_type: middle_initial
-        pattern: ^[A-Za-z]$
-      to:
-        name: part_1_middle_initial
-        type: string
-        semantic_type: middle_initial
-        pattern: ^[A-Za-z]$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off'
     x_petey_identifiers:
-      subject: part_1_middle
+      block_prefix: part_i_individual
+      block_iteration: '1'
+      subject: middle
       suffix: initial
-  part_1_tin:
+    label_source: llm
+  part_i_individual_1_tin:
     x_petey_id: '2_4'
     type: string
     semantic_type: tin
@@ -1589,41 +1281,26 @@ fields:
       - 120.00201416015625
       widget_type: text
       path: topmostSubform[0].Page2[0].Line6_CombField_1[0].f1_04[0]
+    x_petey_identifiers:
+      block_prefix: part_i_individual
+      block_iteration: '1'
+      subject: tin
     label_source: llm
     x_petey_review:
       model: claude-opus-5
       changed:
-      - semantic_type
       - pattern
-      reason: Nine-cell comb under '6 Taxpayer identification number'; holds a full
-        TIN, not a 1-5 digit fragment.
+      reason: 9-cell comb box takes bare digits; the hyphenated pattern cannot be
+        satisfied.
       before:
         type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
+        semantic_type: tin
+        pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
       judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_tin
-        type: string
-        semantic_type: tin
-        pattern: ^\d{9}$
-      to:
-        name: part_1_tin
-        type: string
-        semantic_type: tin
-        pattern: ^\d{9}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off'
-    x_petey_identifiers:
-      subject: part_1
-      suffix: tin
-  part_1_address_line_1_txt:
+  part_i_individual_1_address:
     x_petey_id: '2_5'
     type: string
+    semantic_type: street_address
     widget:
       page: 2
       rect:
@@ -1633,33 +1310,15 @@ fields:
       - 144.0
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_05[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=346
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_address_line_1_txt
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_1_address_line_1_txt
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off'
     x_petey_identifiers:
-      block_prefix: part
-      suffix: txt
-      subject: 1_address_line_1
-  part_1_birth_dt:
+      block_prefix: part_i_individual
+      block_iteration: '1'
+      subject: address
+    label_source: llm
+  part_i_individual_1_date_of_birth:
     x_petey_id: '2_6'
-    type: string
-    semantic_type: id_part
+    type: date
+    semantic_type: iso_date
     widget:
       page: 2
       rect:
@@ -1669,46 +1328,15 @@ fields:
       - 144.0
       widget_type: text
       path: topmostSubform[0].Page2[0].Line8_CombField_1[0].f1_06[0]
-    label_source: llm
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - type
-      - semantic_type
-      - -pattern
-      reason: 8-cell comb under 'Date of birth M M D D Y Y Y Y' holds the whole date,
-        as the page check reads.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 1'
-    pattern: ^\d{1,5}$
-    x_petey_retype:
-    - part_by_name:id_part
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_birth_dt
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      to:
-        name: part_1_birth_dt
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off'
     x_petey_identifiers:
-      block_prefix: part
-      suffix: dt
-      subject: 1_birth
-  part_1_city_nm:
+      block_prefix: part_i_individual
+      block_iteration: '1'
+      subject: date_of_birth
+    label_source: llm
+  part_i_individual_1_city:
     x_petey_id: '2_7'
     type: string
+    semantic_type: city
     widget:
       page: 2
       rect:
@@ -1718,32 +1346,15 @@ fields:
       - 168.00103759765625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_07[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=158
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_city_nm
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_1_city_nm
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off'
     x_petey_identifiers:
-      subject: part_1_city
-      suffix: nm
-  part_1_state_cd:
+      block_prefix: part_i_individual
+      block_iteration: '1'
+      subject: city
+    label_source: llm
+  part_i_individual_1_state:
     x_petey_id: '2_8'
     type: string
-    semantic_type: state_code
+    semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
     widget:
       page: 2
@@ -1754,41 +1365,15 @@ fields:
       - 168.00103759765625
       widget_type: text
       path: topmostSubform[0].Page2[0].Line10_CombField_1[0].f1_08[0]
-    label_source: llm
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      reason: Two-cell comb under '10 State' takes a state abbreviation, not digits.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_state_abbreviation_cd
-        type: string
-        semantic_type: state_code
-        pattern: ^[A-Z]{2}$
-      to:
-        name: part_1_state_cd
-        type: string
-        semantic_type: state_code
-        pattern: ^[A-Z]{2}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; state_abbreviation_cd -> state_cd'
     x_petey_identifiers:
-      subject: part_1_state
-      suffix: cd
-  part_1_zip_cd:
+      block_prefix: part_i_individual
+      block_iteration: '1'
+      subject: state
+    label_source: llm
+  part_i_individual_1_zip_cd:
     x_petey_id: '2_9'
     type: string
-    semantic_type: zip_code
+    semantic_type: zip
     pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 2
@@ -1799,43 +1384,15 @@ fields:
       - 168.00103759765625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_09[0]
-    label_source: llm
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      reason: Caption '11 ZIP code' with maxlen 10 allows ZIP or ZIP+4; id_part digits
-        pattern is wrong.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_zip_cd
-        type: string
-        semantic_type: zip_code
-        pattern: ^\d{5}(-\d{4})?$
-      to:
-        name: part_1_zip_cd
-        type: string
-        semantic_type: zip_code
-        pattern: ^\d{5}(-\d{4})?$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off'
     x_petey_identifiers:
-      subject: part_1_zip
-      suffix: cd
-  part_1_country_cd:
+      block_prefix: part_i_individual
+      block_iteration: '1'
+      subject: zip_code
+    label_source: llm
+  part_i_individual_1_country:
     x_petey_id: '2_10'
     type: string
     semantic_type: country
-    pattern: ^.{1,40}$
     widget:
       page: 2
       rect:
@@ -1845,44 +1402,15 @@ fields:
       - 168.00103759765625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_10[0]
-    label_source: llm
-    description: Line 12 country (if not U.S.) of the individual from whom the cash
-      was received.
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      - description
-      reason: Caption '12 Country (if not U.S.)' holds a country name; the id_part
-        semantic type and 1-5 digit pattern contradict it. Name is correct.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_country_cd
-        type: string
-        semantic_type: country
-        pattern: ^.{1,40}$
-      to:
-        name: part_1_country_cd
-        type: string
-        semantic_type: country
-        pattern: ^.{1,40}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off'
     x_petey_identifiers:
-      subject: part_1_country
-      suffix: cd
-  part_1_occupation_txt:
+      block_prefix: part_i_individual
+      block_iteration: '1'
+      subject: country
+    label_source: llm
+  part_i_individual_1_occupation_profession_or_business:
     x_petey_id: '2_11'
     type: string
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -1892,31 +1420,15 @@ fields:
       - 168.00103759765625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_11[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=172
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_occupation
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_1_occupation_txt
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; +_txt (type)'
     x_petey_identifiers:
-      subject: part_1_occupation
-      suffix: txt
-  part_1_id_description_txt:
+      block_prefix: part_i_individual
+      block_iteration: '1'
+      subject: occupation_profession_or_business
+    label_source: llm
+  part_i_individual_1_identifying_document_description:
     x_petey_id: '2_12'
     type: string
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -1926,34 +1438,15 @@ fields:
       - 180.0
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_12[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=210
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_id_description
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_1_id_description_txt
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; description -> description_txt'
     x_petey_identifiers:
-      block_prefix: part
-      suffix: txt
-      subject: 1_id_description
-  part_1_id_issued_by_txt:
+      block_prefix: part_i_individual
+      block_iteration: '1'
+      subject: identifying_document_description
+    label_source: llm
+  part_i_individual_1_identifying_document_issued_by:
     x_petey_id: '2_13'
     type: string
-    semantic_type: id_part
-    pattern: ^\d{1,5}$
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -1963,28 +1456,12 @@ fields:
       - 180.0
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_13[0]
-    label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_id_issued_by
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      to:
-        name: part_1_id_issued_by_txt
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; +_txt (type)'
     x_petey_identifiers:
-      block_prefix: part
-      suffix: txt
-      subject: 1_id_issued_by
-  part_1_id_nbr:
+      block_prefix: part_i_individual
+      block_iteration: '1'
+      subject: identifying_document_issued_by
+    label_source: llm
+  part_i_individual_1_identifying_document_nbr:
     x_petey_id: '2_14'
     type: string
     widget:
@@ -1996,32 +1473,15 @@ fields:
       - 191.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_14[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=224
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_id_number
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_1_id_nbr
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number -> nbr'
     x_petey_identifiers:
-      block_prefix: part
-      suffix: nbr
-      subject: 1_id
-  part_1_last_2_nm:
+      block_prefix: part_i_individual
+      block_iteration: '1'
+      subject: identifying_document_number
+    label_source: llm
+  part_i_individual_2_last_nm:
     x_petey_id: '2_15'
     type: string
+    semantic_type: name
     widget:
       page: 2
       rect:
@@ -2031,35 +1491,15 @@ fields:
       - 228.00201416015625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_15[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=252
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_last_name_2
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_1_last_2_nm
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; name -> nm; number moved before the
-        suffix'
     x_petey_identifiers:
-      block_prefix: part_1
-      suffix: nm
-      subject: last_2
-  part_1_first_2_nm:
+      block_prefix: part_i_individual
+      block_iteration: '2'
+      subject: last_name
+    label_source: llm
+  part_i_individual_2_first_nm:
     x_petey_id: '2_16'
     type: string
-    semantic_type: first_name
-    pattern: ^[A-Za-z' .-]{1,30}$
+    semantic_type: name
     widget:
       page: 2
       rect:
@@ -2069,47 +1509,15 @@ fields:
       - 228.00201416015625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_16[0]
-    label_source: llm
-    description: Line 4 first name of the second individual from whom the cash was
-      received.
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      - description
-      reason: Caption '4 First name'; digit pattern and id_part semantic type are
-        wrong for a name.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_first_name_2
-        type: string
-        semantic_type: first_name
-        pattern: ^[A-Za-z' .-]{1,30}$
-      to:
-        name: part_1_first_2_nm
-        type: string
-        semantic_type: first_name
-        pattern: ^[A-Za-z' .-]{1,30}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; name -> nm; number moved before the
-        suffix'
     x_petey_identifiers:
-      subject: part_1_first_2
-      suffix: nm
-  part_1_middle_2_initial:
+      block_prefix: part_i_individual
+      block_iteration: '2'
+      subject: first_name
+    label_source: llm
+  part_i_individual_2_middle_initial:
     x_petey_id: '2_17'
     type: string
-    semantic_type: middle_initial
-    pattern: ^[A-Za-z]$
+    semantic_type: name
     widget:
       page: 2
       rect:
@@ -2119,40 +1527,13 @@ fields:
       - 228.00201416015625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_17[0]
-    label_source: llm
-    description: Line 5 middle initial of the second individual in Part I.
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      - description
-      reason: One-character box captioned '5 M.I.'; digit pattern wrong.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_middle_initial_2
-        type: string
-        semantic_type: middle_initial
-        pattern: ^[A-Za-z]$
-      to:
-        name: part_1_middle_2_initial
-        type: string
-        semantic_type: middle_initial
-        pattern: ^[A-Za-z]$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number moved before the suffix'
     x_petey_identifiers:
-      subject: part_1_middle_2
+      block_prefix: part_i_individual
+      block_iteration: '2'
+      subject: middle
       suffix: initial
-  part_1_2_tin:
+    label_source: llm
+  part_i_individual_2_tin:
     x_petey_id: '2_18'
     type: string
     semantic_type: tin
@@ -2166,44 +1547,25 @@ fields:
       - 228.00201416015625
       widget_type: text
       path: topmostSubform[0].Page2[0].Line6_CombField_2[0].f1_18[0]
+    x_petey_identifiers:
+      block_prefix: part_i_individual
+      block_iteration: '2'
+      subject: tin
     label_source: llm
-    description: Line 6 taxpayer identification number of the second individual in
-      Part I.
     x_petey_review:
       model: claude-opus-5
       changed:
-      - semantic_type
       - pattern
-      - description
-      reason: 9-digit comb box captioned '6 Taxpayer identification number'; 1-5 digit
-        id_part pattern wrong.
+      reason: 9-cell comb box takes nine bare digits with no separators.
       before:
         type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
+        semantic_type: tin
+        pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
       judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_tin_2
-        type: string
-        semantic_type: tin
-        pattern: ^\d{9}$
-      to:
-        name: part_1_2_tin
-        type: string
-        semantic_type: tin
-        pattern: ^\d{9}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number moved before the suffix'
-    x_petey_identifiers:
-      subject: part_1_2
-      suffix: tin
-  part_1_address_line_1_2_txt:
+  part_i_individual_2_address:
     x_petey_id: '2_19'
     type: string
+    semantic_type: street_address
     widget:
       page: 2
       rect:
@@ -2213,34 +1575,15 @@ fields:
       - 252.0
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_19[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=346
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_address_line_1_txt_2
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_1_address_line_1_2_txt
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number moved before the suffix'
     x_petey_identifiers:
-      block_prefix: part_1
-      suffix: txt
-      subject: address_line_1_2
-  part_1_birth_2_dt:
+      block_prefix: part_i_individual
+      block_iteration: '2'
+      subject: address
+    label_source: llm
+  part_i_individual_2_date_of_birth:
     x_petey_id: '2_20'
-    type: string
-    semantic_type: date
-    pattern: ^\d{8}$
+    type: date
+    semantic_type: iso_date
     widget:
       page: 2
       rect:
@@ -2250,46 +1593,15 @@ fields:
       - 252.0
       widget_type: text
       path: topmostSubform[0].Page2[0].Line8_CombField_2[0].f1_20[0]
-    label_source: llm
-    description: Line 8 date of birth (MMDDYYYY) of the second individual in Part
-      I.
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      - description
-      reason: 8-character comb box under 'Date of birth M M D D Y Y Y Y'; the whole
-        date goes in this one box, so it stays a string with an 8-digit pattern, not
-        an id_part.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 1'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_birth_dt_2
-        type: string
-        semantic_type: date
-        pattern: ^\d{8}$
-      to:
-        name: part_1_birth_2_dt
-        type: string
-        semantic_type: date
-        pattern: ^\d{8}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number moved before the suffix'
     x_petey_identifiers:
-      block_prefix: part_1
-      suffix: dt
-      subject: birth_2
-  part_1_city_2_nm:
+      block_prefix: part_i_individual
+      block_iteration: '2'
+      subject: date_of_birth
+    label_source: llm
+  part_i_individual_2_city:
     x_petey_id: '2_21'
     type: string
+    semantic_type: city
     widget:
       page: 2
       rect:
@@ -2299,32 +1611,15 @@ fields:
       - 276.00103759765625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_21[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=158
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_city_nm_2
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_1_city_2_nm
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number moved before the suffix'
     x_petey_identifiers:
-      subject: part_1_city_2
-      suffix: nm
-  part_1_state_2_cd:
+      block_prefix: part_i_individual
+      block_iteration: '2'
+      subject: city
+    label_source: llm
+  part_i_individual_2_state:
     x_petey_id: '2_22'
     type: string
-    semantic_type: state
+    semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
     widget:
       page: 2
@@ -2335,46 +1630,16 @@ fields:
       - 276.00103759765625
       widget_type: text
       path: topmostSubform[0].Page2[0].Line10_CombField_2[0].f1_22[0]
-    label_source: llm
-    description: Line 10 two-letter state abbreviation for the second individual in
-      Part I.
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      - description
-      reason: Two-character comb box captioned '10 State'; digit pattern wrong.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_state_abbreviation_cd_2
-        type: string
-        semantic_type: state
-        pattern: ^[A-Z]{2}$
-      to:
-        name: part_1_state_2_cd
-        type: string
-        semantic_type: state
-        pattern: ^[A-Z]{2}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; state_abbreviation_cd -> state_cd;
-        number moved before the suffix'
     x_petey_identifiers:
-      subject: part_1_state_2
-      suffix: cd
-  part_1_zip_2_cd:
+      block_prefix: part_i_individual
+      block_iteration: '2'
+      subject: state
+    label_source: llm
+  part_i_individual_2_zip_cd:
     x_petey_id: '2_23'
     type: string
     semantic_type: zip
-    pattern: ^\d{5}(-?\d{4})?$
+    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 2
       rect:
@@ -2384,45 +1649,15 @@ fields:
       - 276.00103759765625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_23[0]
-    label_source: llm
-    description: Line 11 ZIP code for the second individual in Part I.
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      - description
-      reason: Caption '11 ZIP code', maxlen 10 allows ZIP+4; 1-5 digit id_part pattern
-        too narrow.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_zip_cd_2
-        type: string
-        semantic_type: zip
-        pattern: ^\d{5}(-?\d{4})?$
-      to:
-        name: part_1_zip_2_cd
-        type: string
-        semantic_type: zip
-        pattern: ^\d{5}(-?\d{4})?$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number moved before the suffix'
     x_petey_identifiers:
-      subject: part_1_zip_2
-      suffix: cd
-  part_1_country_2_cd:
+      block_prefix: part_i_individual
+      block_iteration: '2'
+      subject: zip_code
+    label_source: llm
+  part_i_individual_2_country:
     x_petey_id: '2_24'
     type: string
     semantic_type: country
-    pattern: ^.{1,40}$
     widget:
       page: 2
       rect:
@@ -2432,43 +1667,15 @@ fields:
       - 276.00103759765625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_24[0]
-    label_source: llm
-    description: Line 12 country (if not U.S.) for the second individual in Part I.
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      - description
-      reason: Caption '12 Country (if not U.S.)' holds a country name, not a numeric
-        id part.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_country_cd_2
-        type: string
-        semantic_type: country
-        pattern: ^.{1,40}$
-      to:
-        name: part_1_country_2_cd
-        type: string
-        semantic_type: country
-        pattern: ^.{1,40}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number moved before the suffix'
     x_petey_identifiers:
-      subject: part_1_country_2
-      suffix: cd
-  part_1_occupation_2_txt:
+      block_prefix: part_i_individual
+      block_iteration: '2'
+      subject: country
+    label_source: llm
+  part_i_individual_2_occupation_profession_or_business:
     x_petey_id: '2_25'
     type: string
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -2478,32 +1685,15 @@ fields:
       - 276.00103759765625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_25[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=172
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_occupation_2
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_1_occupation_2_txt
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; +_txt (type); number moved before the
-        suffix'
     x_petey_identifiers:
-      subject: part_1_occupation_2
-      suffix: txt
-  part_1_id_description_2_txt:
+      block_prefix: part_i_individual
+      block_iteration: '2'
+      subject: occupation_profession_or_business
+    label_source: llm
+  part_i_individual_2_identifying_document_description:
     x_petey_id: '2_26'
     type: string
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -2513,35 +1703,15 @@ fields:
       - 288.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_26[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=210
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_id_description_2
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_1_id_description_2_txt
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; description -> description_txt; number
-        moved before the suffix'
     x_petey_identifiers:
-      block_prefix: part_1
-      suffix: txt
-      subject: id_description_2
-  part_1_id_issued_by_2_txt:
+      block_prefix: part_i_individual
+      block_iteration: '2'
+      subject: identifying_document_description
+    label_source: llm
+  part_i_individual_2_identifying_document_issued_by:
     x_petey_id: '2_27'
     type: string
-    semantic_type: id_part
-    pattern: ^\d{1,5}$
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -2551,29 +1721,12 @@ fields:
       - 288.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_27[0]
-    label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_id_issued_by_2
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      to:
-        name: part_1_id_issued_by_2_txt
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; +_txt (type); number moved before the
-        suffix'
     x_petey_identifiers:
-      block_prefix: part_1
-      suffix: txt
-      subject: id_issued_by_2
-  part_1_id_2_nbr:
+      block_prefix: part_i_individual
+      block_iteration: '2'
+      subject: identifying_document_issued_by
+    label_source: llm
+  part_i_individual_2_identifying_document_nbr:
     x_petey_id: '2_28'
     type: string
     widget:
@@ -2585,33 +1738,15 @@ fields:
       - 299.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_28[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=224
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part1_id_number_2
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_1_id_2_nbr
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number -> nbr; number moved before
-        the suffix'
     x_petey_identifiers:
-      block_prefix: part_1
-      suffix: nbr
-      subject: id_2
-  part_2_individual_last_name_or_organization_nm:
+      block_prefix: part_i_individual
+      block_iteration: '2'
+      subject: identifying_document_number
+    label_source: llm
+  part_ii_person_1_last_name_or_organization_nm:
     x_petey_id: '2_29'
     type: string
+    semantic_type: name
     widget:
       page: 2
       rect:
@@ -2621,32 +1756,15 @@ fields:
       - 348.0010070800781
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_29[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=245
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_individual_last_name_or_organization_name
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_individual_last_name_or_organization_nm
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; name -> nm'
     x_petey_identifiers:
-      block_prefix: part
-      suffix: nm
-      subject: 2_individual_last_name_or_organization
-  part_2_first_nm:
+      block_prefix: part_ii_person
+      block_iteration: '1'
+      subject: last_name_or_organization_name
+    label_source: llm
+  part_ii_person_1_first_nm:
     x_petey_id: '2_30'
     type: string
+    semantic_type: name
     widget:
       page: 2
       rect:
@@ -2656,33 +1774,15 @@ fields:
       - 348.0010070800781
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_30[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=121
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_first_name
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_first_nm
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; name -> nm'
     x_petey_identifiers:
-      subject: part_2_first
-      suffix: nm
-  part_2_middle_initial:
+      block_prefix: part_ii_person
+      block_iteration: '1'
+      subject: first_name
+    label_source: llm
+  part_ii_person_1_middle_initial:
     x_petey_id: '2_31'
     type: string
-    semantic_type: middle_initial
-    pattern: ^[A-Za-z]$
+    semantic_type: name
     widget:
       page: 2
       rect:
@@ -2692,41 +1792,13 @@ fields:
       - 348.0010070800781
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_31[0]
-    label_source: llm
-    description: Line 18 middle initial of the person on whose behalf the transaction
-      was conducted.
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      - description
-      reason: One-character box captioned '18 M.I.'; digit pattern wrong.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_middle_initial
-        type: string
-        semantic_type: middle_initial
-        pattern: ^[A-Za-z]$
-      to:
-        name: part_2_middle_initial
-        type: string
-        semantic_type: middle_initial
-        pattern: ^[A-Za-z]$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off'
     x_petey_identifiers:
-      subject: part_2_middle
+      block_prefix: part_ii_person
+      block_iteration: '1'
+      subject: middle
       suffix: initial
-  part_2_tin:
+    label_source: llm
+  part_ii_person_1_tin:
     x_petey_id: '2_32'
     type: string
     semantic_type: tin
@@ -2740,42 +1812,25 @@ fields:
       - 348.0010070800781
       widget_type: text
       path: topmostSubform[0].Page2[0].Line19_CombField_1[0].f1_32[0]
+    x_petey_identifiers:
+      block_prefix: part_ii_person
+      block_iteration: '1'
+      subject: tin
     label_source: llm
-    description: Line 19 taxpayer identification number in Part II.
     x_petey_review:
       model: claude-opus-5
       changed:
-      - semantic_type
       - pattern
-      - description
-      reason: 9-digit comb box captioned '19 Taxpayer identification number'.
+      reason: 9-cell comb box holds nine bare digits; hyphenated pattern is unmatchable.
       before:
         type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
+        semantic_type: tin
+        pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
       judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_tin
-        type: string
-        semantic_type: tin
-        pattern: ^\d{9}$
-      to:
-        name: part_2_tin
-        type: string
-        semantic_type: tin
-        pattern: ^\d{9}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off'
-    x_petey_identifiers:
-      subject: part_2
-      suffix: tin
-  part_2_dba_nm:
+  part_ii_person_1_dba_nm:
     x_petey_id: '2_33'
     type: string
+    semantic_type: name
     widget:
       page: 2
       rect:
@@ -2785,34 +1840,16 @@ fields:
       - 372.00201416015625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_33[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=410
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_dba_name
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_dba_nm
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; name -> nm'
     x_petey_identifiers:
-      block_prefix: part
-      suffix: nm
-      subject: 2_dba
-  part_2_ein:
+      block_prefix: part_ii_person
+      block_iteration: '1'
+      subject: dba_name
+    label_source: llm
+  part_ii_person_1_ein:
     x_petey_id: '2_34'
     type: string
     semantic_type: ein
-    pattern: ^\d{9}$
+    pattern: ^\d{2}\d{7}$
     widget:
       page: 2
       rect:
@@ -2822,45 +1859,17 @@ fields:
       - 372.00201416015625
       widget_type: text
       path: topmostSubform[0].Page2[0].EIN_CombField_1[0].f1_34[0]
-    label_source: llm
-    description: Employer identification number in Part II.
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      - description
-      reason: Caption 'Employer identification number' matches the name; only the
-        id_part semantic type and digit-length pattern are wrong. The witness pointing
-        at part1_id_number is not supported by this box's caption.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_ein
-        type: string
-        semantic_type: ein
-        pattern: ^\d{9}$
-      to:
-        name: part_2_ein
-        type: string
-        semantic_type: ein
-        pattern: ^\d{9}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off'
     x_petey_identifiers:
-      block_prefix: part
-      suffix: ein
-      subject: '2'
-  part_2_address_line_1_txt:
+      block_prefix: part_ii_person
+      block_iteration: '1'
+      subject: ein
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:9
+  part_ii_person_1_address:
     x_petey_id: '2_35'
     type: string
+    semantic_type: street_address
     widget:
       page: 2
       rect:
@@ -2870,31 +1879,15 @@ fields:
       - 396.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_35[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=367
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_address_line_1_txt
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_address_line_1_txt
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off'
     x_petey_identifiers:
-      subject: part_2_address_line_1
-      suffix: txt
-  part_2_occupation_txt:
+      block_prefix: part_ii_person
+      block_iteration: '1'
+      subject: address
+    label_source: llm
+  part_ii_person_1_occupation_profession_or_business:
     x_petey_id: '2_36'
     type: string
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -2904,31 +1897,15 @@ fields:
       - 396.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_36[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=172
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_occupation
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_occupation_txt
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; +_txt (type)'
     x_petey_identifiers:
-      subject: part_2_occupation
-      suffix: txt
-  part_2_city_nm:
+      block_prefix: part_ii_person
+      block_iteration: '1'
+      subject: occupation_profession_or_business
+    label_source: llm
+  part_ii_person_1_city:
     x_petey_id: '2_37'
     type: string
+    semantic_type: city
     widget:
       page: 2
       rect:
@@ -2938,32 +1915,15 @@ fields:
       - 420.0010070800781
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_37[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=194
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_city_nm
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_city_nm
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off'
     x_petey_identifiers:
-      subject: part_2_city
-      suffix: nm
-  part_2_state_cd:
+      block_prefix: part_ii_person
+      block_iteration: '1'
+      subject: city
+    label_source: llm
+  part_ii_person_1_state:
     x_petey_id: '2_38'
     type: string
-    semantic_type: state
+    semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
     widget:
       page: 2
@@ -2974,44 +1934,16 @@ fields:
       - 420.0010070800781
       widget_type: text
       path: topmostSubform[0].Page2[0].Line24_CombField_1[0].f1_38[0]
-    label_source: llm
-    description: Line 24 two-letter state abbreviation in Part II.
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      - description
-      reason: Two-character comb box captioned '24 State'.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_state_abbreviation_cd
-        type: string
-        semantic_type: state
-        pattern: ^[A-Z]{2}$
-      to:
-        name: part_2_state_cd
-        type: string
-        semantic_type: state
-        pattern: ^[A-Z]{2}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; state_abbreviation_cd -> state_cd'
     x_petey_identifiers:
-      subject: part_2_state
-      suffix: cd
-  part_2_zip_cd:
+      block_prefix: part_ii_person
+      block_iteration: '1'
+      subject: state
+    label_source: llm
+  part_ii_person_1_zip_cd:
     x_petey_id: '2_39'
     type: string
     semantic_type: zip
-    pattern: ^\d{5}(-?\d{4})?$
+    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 2
       rect:
@@ -3021,42 +1953,15 @@ fields:
       - 420.0010070800781
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_39[0]
-    label_source: llm
-    description: Line 25 ZIP code in Part II.
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      - description
-      reason: Caption '25 ZIP code', maxlen 10 allows ZIP+4.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_zip_cd
-        type: string
-        semantic_type: zip
-        pattern: ^\d{5}(-?\d{4})?$
-      to:
-        name: part_2_zip_cd
-        type: string
-        semantic_type: zip
-        pattern: ^\d{5}(-?\d{4})?$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off'
     x_petey_identifiers:
-      subject: part_2_zip
-      suffix: cd
-  part_2_country_cd:
+      block_prefix: part_ii_person
+      block_iteration: '1'
+      subject: zip_code
+    label_source: llm
+  part_ii_person_1_country:
     x_petey_id: '2_40'
     type: string
+    semantic_type: country
     widget:
       page: 2
       rect:
@@ -3066,31 +1971,15 @@ fields:
       - 420.0010070800781
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_40[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=237
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_country_cd
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_country_cd
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off'
     x_petey_identifiers:
-      subject: part_2_country
-      suffix: cd
-  part_2_alien_id_description_txt:
+      block_prefix: part_ii_person
+      block_iteration: '1'
+      subject: country
+    label_source: llm
+  part_ii_person_1_alien_identifying_document_description:
     x_petey_id: '2_41'
     type: string
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -3100,34 +1989,15 @@ fields:
       - 432.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_41[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=217
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_alien_id_description
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_alien_id_description_txt
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; description -> description_txt'
     x_petey_identifiers:
-      block_prefix: part
-      suffix: txt
-      subject: 2_alien_id_description
-  part_2_alien_id_issued_by_txt:
+      block_prefix: part_ii_person
+      block_iteration: '1'
+      subject: alien_identifying_document_description
+    label_source: llm
+  part_ii_person_1_alien_identifying_document_issued_by:
     x_petey_id: '2_42'
     type: string
-    semantic_type: id_part
-    pattern: ^\d{1,5}$
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -3137,28 +2007,12 @@ fields:
       - 432.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_42[0]
-    label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_alien_id_issued_by
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      to:
-        name: part_2_alien_id_issued_by_txt
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; +_txt (type)'
     x_petey_identifiers:
-      block_prefix: part
-      suffix: txt
-      subject: 2_alien_id_issued_by
-  part_2_alien_id_nbr:
+      block_prefix: part_ii_person
+      block_iteration: '1'
+      subject: alien_identifying_document_issued_by
+    label_source: llm
+  part_ii_person_1_alien_identifying_document_nbr:
     x_petey_id: '2_43'
     type: string
     widget:
@@ -3170,32 +2024,15 @@ fields:
       - 443.9990234375
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_43[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=231
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_alien_id_number
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_alien_id_nbr
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number -> nbr'
     x_petey_identifiers:
-      block_prefix: part
-      suffix: nbr
-      subject: 2_alien_id
-  part_2_individual_last_name_or_organization_2_nm:
+      block_prefix: part_ii_person
+      block_iteration: '1'
+      subject: alien_identifying_document_number
+    label_source: llm
+  part_ii_person_2_last_name_or_organization_nm:
     x_petey_id: '2_44'
     type: string
+    semantic_type: name
     widget:
       page: 2
       rect:
@@ -3205,33 +2042,15 @@ fields:
       - 480.00201416015625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_44[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=245
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_individual_last_name_or_organization_name_2
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_individual_last_name_or_organization_2_nm
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; name -> nm; number moved before the
-        suffix'
     x_petey_identifiers:
-      block_prefix: part_2
-      suffix: nm
-      subject: individual_last_name_or_organization_2
-  part_2_first_nm_2:
+      block_prefix: part_ii_person
+      block_iteration: '2'
+      subject: last_name_or_organization_name
+    label_source: llm
+  part_ii_person_2_first_nm:
     x_petey_id: '2_45'
     type: string
+    semantic_type: name
     widget:
       page: 2
       rect:
@@ -3241,36 +2060,15 @@ fields:
       - 480.00201416015625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_45[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=121
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_first_name_2
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_first_2_nm
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; name -> nm; number moved before the
-        suffix'
     x_petey_identifiers:
-      block_prefix: part_2
-      suffix: nm
-      subject: first
-      iteration: '2'
-  part_2_middle_initial_2:
+      block_prefix: part_ii_person
+      block_iteration: '2'
+      subject: first_name
+    label_source: llm
+  part_ii_person_2_middle_initial:
     x_petey_id: '2_46'
     type: string
-    semantic_type: middle_initial
-    pattern: ^[A-Za-z]$
+    semantic_type: name
     widget:
       page: 2
       rect:
@@ -3280,42 +2078,13 @@ fields:
       - 480.00201416015625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_46[0]
-    label_source: llm
-    description: Line 18 middle initial of the second person in Part II.
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      - description
-      reason: One-character box captioned '18 M.I.'; digit pattern wrong.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_middle_initial_2
-        type: string
-        semantic_type: middle_initial
-        pattern: ^[A-Za-z]$
-      to:
-        name: part_2_middle_2_initial
-        type: string
-        semantic_type: middle_initial
-        pattern: ^[A-Za-z]$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number moved before the suffix'
     x_petey_identifiers:
-      block_prefix: part_2
-      suffix: initial
+      block_prefix: part_ii_person
+      block_iteration: '2'
       subject: middle
-      iteration: '2'
-  part_2_2_tin:
+      suffix: initial
+    label_source: llm
+  part_ii_person_2_tin:
     x_petey_id: '2_47'
     type: string
     semantic_type: tin
@@ -3329,43 +2098,25 @@ fields:
       - 480.00201416015625
       widget_type: text
       path: topmostSubform[0].Page2[0].Line19_CombField_2[0].f1_47[0]
+    x_petey_identifiers:
+      block_prefix: part_ii_person
+      block_iteration: '2'
+      subject: tin
     label_source: llm
-    description: Line 19 taxpayer identification number of the second person in Part
-      II.
     x_petey_review:
       model: claude-opus-5
       changed:
-      - semantic_type
       - pattern
-      - description
-      reason: 9-digit comb box captioned '19 Taxpayer identification number'.
+      reason: 9-cell comb box holds nine bare digits with no separators.
       before:
         type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
+        semantic_type: tin
+        pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
       judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_tin_2
-        type: string
-        semantic_type: tin
-        pattern: ^\d{9}$
-      to:
-        name: part_2_2_tin
-        type: string
-        semantic_type: tin
-        pattern: ^\d{9}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number moved before the suffix'
-    x_petey_identifiers:
-      subject: part_2_2
-      suffix: tin
-  part_2_dba_2_nm:
+  part_ii_person_2_dba_nm:
     x_petey_id: '2_48'
     type: string
+    semantic_type: name
     widget:
       page: 2
       rect:
@@ -3375,35 +2126,16 @@ fields:
       - 504.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_48[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=410
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_dba_name_2
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_dba_2_nm
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; name -> nm; number moved before the
-        suffix'
     x_petey_identifiers:
-      block_prefix: part_2
-      suffix: nm
-      subject: dba_2
-  part_2_2_ein:
+      block_prefix: part_ii_person
+      block_iteration: '2'
+      subject: dba_name
+    label_source: llm
+  part_ii_person_2_ein:
     x_petey_id: '2_49'
     type: string
     semantic_type: ein
-    pattern: ^\d{9}$
+    pattern: ^\d{2}\d{7}$
     widget:
       page: 2
       rect:
@@ -3413,44 +2145,17 @@ fields:
       - 504.0000305175781
       widget_type: text
       path: topmostSubform[0].Page2[0].EIN_CombField_2[0].f1_49[0]
-    label_source: llm
-    description: Employer identification number of the second person in Part II.
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      - description
-      reason: 9-digit comb box captioned 'Employer identification number'; the 1-5
-        digit pattern cannot hold it.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_ein_2
-        type: string
-        semantic_type: ein
-        pattern: ^\d{9}$
-      to:
-        name: part_2_2_ein
-        type: string
-        semantic_type: ein
-        pattern: ^\d{9}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number moved before the suffix'
     x_petey_identifiers:
-      block_prefix: part_2
-      suffix: ein
-      subject: '2'
-  part_2_address_line_1_txt_2:
+      block_prefix: part_ii_person
+      block_iteration: '2'
+      subject: ein
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:9
+  part_ii_person_2_address:
     x_petey_id: '2_50'
     type: string
+    semantic_type: street_address
     widget:
       page: 2
       rect:
@@ -3460,33 +2165,15 @@ fields:
       - 528.0009765625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_50[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=367
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_address_line_1_txt_2
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_address_line_1_2_txt
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number moved before the suffix'
     x_petey_identifiers:
-      block_prefix: part_2
-      suffix: txt
-      subject: address_line_1
-      iteration: '2'
-  part_2_occupation_txt_2:
+      block_prefix: part_ii_person
+      block_iteration: '2'
+      subject: address
+    label_source: llm
+  part_ii_person_2_occupation_profession_or_business:
     x_petey_id: '2_51'
     type: string
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -3496,34 +2183,15 @@ fields:
       - 528.0009765625
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_51[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=172
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_occupation_2
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_occupation_2_txt
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; +_txt (type); number moved before the
-        suffix'
     x_petey_identifiers:
-      block_prefix: part_2
-      suffix: txt
-      subject: occupation
-      iteration: '2'
-  part_2_city_nm_2:
+      block_prefix: part_ii_person
+      block_iteration: '2'
+      subject: occupation_profession_or_business
+    label_source: llm
+  part_ii_person_2_city:
     x_petey_id: '2_52'
     type: string
+    semantic_type: city
     widget:
       page: 2
       rect:
@@ -3533,34 +2201,15 @@ fields:
       - 552.0020141601562
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_52[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=194
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_city_nm_2
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_city_2_nm
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number moved before the suffix'
     x_petey_identifiers:
-      block_prefix: part_2
-      suffix: nm
+      block_prefix: part_ii_person
+      block_iteration: '2'
       subject: city
-      iteration: '2'
-  part_2_state_cd_2:
+    label_source: llm
+  part_ii_person_2_state:
     x_petey_id: '2_53'
     type: string
-    semantic_type: state
+    semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
     widget:
       page: 2
@@ -3571,48 +2220,16 @@ fields:
       - 552.0020141601562
       widget_type: text
       path: topmostSubform[0].Page2[0].Line24_CombField_2[0].f1_53[0]
-    label_source: llm
-    description: Line 24 two-letter state abbreviation for the second person in Part
-      II.
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      - description
-      reason: Two-character comb box captioned '24 State'.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_state_abbreviation_cd_2
-        type: string
-        semantic_type: state
-        pattern: ^[A-Z]{2}$
-      to:
-        name: part_2_state_2_cd
-        type: string
-        semantic_type: state
-        pattern: ^[A-Z]{2}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; state_abbreviation_cd -> state_cd;
-        number moved before the suffix'
     x_petey_identifiers:
-      block_prefix: part_2
-      suffix: cd
+      block_prefix: part_ii_person
+      block_iteration: '2'
       subject: state
-      iteration: '2'
-  part_2_zip_cd_2:
+    label_source: llm
+  part_ii_person_2_zip_cd:
     x_petey_id: '2_54'
     type: string
     semantic_type: zip
-    pattern: ^\d{5}(-?\d{4})?$
+    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 2
       rect:
@@ -3622,44 +2239,15 @@ fields:
       - 552.0020141601562
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_54[0]
-    label_source: llm
-    description: Line 25 ZIP code for the second person in Part II.
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - semantic_type
-      - pattern
-      - description
-      reason: Caption '25 ZIP code', maxlen 10 allows ZIP+4.
-      before:
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      judged: 'kept: 1 -> 0'
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_zip_cd_2
-        type: string
-        semantic_type: zip
-        pattern: ^\d{5}(-?\d{4})?$
-      to:
-        name: part_2_zip_2_cd
-        type: string
-        semantic_type: zip
-        pattern: ^\d{5}(-?\d{4})?$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number moved before the suffix'
     x_petey_identifiers:
-      block_prefix: part_2
-      suffix: cd
-      subject: zip
-      iteration: '2'
-  part_2_country_cd_2:
+      block_prefix: part_ii_person
+      block_iteration: '2'
+      subject: zip_code
+    label_source: llm
+  part_ii_person_2_country:
     x_petey_id: '2_55'
     type: string
+    semantic_type: country
     widget:
       page: 2
       rect:
@@ -3669,33 +2257,15 @@ fields:
       - 552.0020141601562
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_55[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=237
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_country_cd_2
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_country_2_cd
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number moved before the suffix'
     x_petey_identifiers:
-      block_prefix: part_2
-      suffix: cd
+      block_prefix: part_ii_person
+      block_iteration: '2'
       subject: country
-      iteration: '2'
-  part_2_alien_id_description_2_txt:
+    label_source: llm
+  part_ii_person_2_alien_identifying_document_description:
     x_petey_id: '2_56'
     type: string
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -3705,35 +2275,15 @@ fields:
       - 563.998046875
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_56[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=217
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_alien_id_description_2
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_alien_id_description_2_txt
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; description -> description_txt; number
-        moved before the suffix'
     x_petey_identifiers:
-      block_prefix: part_2
-      suffix: txt
-      subject: alien_id_description_2
-  part_2_alien_id_issued_by_2_txt:
+      block_prefix: part_ii_person
+      block_iteration: '2'
+      subject: alien_identifying_document_description
+    label_source: llm
+  part_ii_person_2_alien_identifying_document_issued_by:
     x_petey_id: '2_57'
     type: string
-    semantic_type: id_part
-    pattern: ^\d{1,5}$
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -3743,29 +2293,12 @@ fields:
       - 563.998046875
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_57[0]
-    label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_alien_id_issued_by_2
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      to:
-        name: part_2_alien_id_issued_by_2_txt
-        type: string
-        semantic_type: id_part
-        pattern: ^\d{1,5}$
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; +_txt (type); number moved before the
-        suffix'
     x_petey_identifiers:
-      block_prefix: part_2
-      suffix: txt
-      subject: alien_id_issued_by_2
-  part_2_alien_id_2_nbr:
+      block_prefix: part_ii_person
+      block_iteration: '2'
+      subject: alien_identifying_document_issued_by
+    label_source: llm
+  part_ii_person_2_alien_identifying_document_nbr:
     x_petey_id: '2_58'
     type: string
     widget:
@@ -3777,31 +2310,12 @@ fields:
       - 576.0
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_58[0]
-    label_source: llm
-    x_petey_retype:
-    - wide_widget_short_pattern:width=231
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: part2_alien_id_number_2
-        type: string
-        semantic_type: null
-        pattern: null
-      to:
-        name: part_2_alien_id_2_nbr
-        type: string
-        semantic_type: null
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: number split off; number -> nbr; number moved before
-        the suffix'
     x_petey_identifiers:
-      block_prefix: part_2
-      suffix: nbr
-      subject: alien_id_2
-  comments_txt_1:
+      block_prefix: part_ii_person
+      block_iteration: '2'
+      subject: alien_identifying_document_number
+    label_source: llm
+  comments_line_1:
     x_petey_id: '2_59'
     type: string
     semantic_type: text
@@ -3815,28 +2329,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_59[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: comments
-        type: string
-        semantic_type: text
-        pattern: null
-      to:
-        name: comments_1_txt
-        type: string
-        semantic_type: text
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: comments -> comments_txt; first of a numbered set gets
-        1'
-    x_petey_identifiers:
-      subject: comments
-      suffix: txt
-      iteration: '1'
-  comments_txt_2:
+  comments_line_2:
     x_petey_id: '2_60'
     type: string
     semantic_type: text
@@ -3850,27 +2343,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_60[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: comments_2
-        type: string
-        semantic_type: text
-        pattern: null
-      to:
-        name: comments_2_txt
-        type: string
-        semantic_type: text
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: +_txt (type)'
-    x_petey_identifiers:
-      subject: comments
-      suffix: txt
-      iteration: '2'
-  comments_txt_3:
+  comments_line_3:
     x_petey_id: '2_61'
     type: string
     semantic_type: text
@@ -3884,27 +2357,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_61[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: comments_3
-        type: string
-        semantic_type: text
-        pattern: null
-      to:
-        name: comments_3_txt
-        type: string
-        semantic_type: text
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: +_txt (type)'
-    x_petey_identifiers:
-      subject: comments
-      suffix: txt
-      iteration: '3'
-  comments_txt_4:
+  comments_line_4:
     x_petey_id: '2_62'
     type: string
     semantic_type: text
@@ -3918,27 +2371,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_62[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: comments_4
-        type: string
-        semantic_type: text
-        pattern: null
-      to:
-        name: comments_4_txt
-        type: string
-        semantic_type: text
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: +_txt (type)'
-    x_petey_identifiers:
-      subject: comments
-      suffix: txt
-      iteration: '4'
-  comments_txt_5:
+  comments_line_5:
     x_petey_id: '2_63'
     type: string
     semantic_type: text
@@ -3952,27 +2385,7 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_63[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: comments_5
-        type: string
-        semantic_type: text
-        pattern: null
-      to:
-        name: comments_5_txt
-        type: string
-        semantic_type: text
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: +_txt (type)'
-    x_petey_identifiers:
-      subject: comments
-      suffix: txt
-      iteration: '5'
-  comments_txt_6:
+  comments_line_6:
     x_petey_id: '2_64'
     type: string
     semantic_type: text
@@ -3986,26 +2399,6 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page2[0].f1_64[0]
     label_source: llm
-    x_petey_hand_edit:
-      when: '2026-10-16 11:59:02'
-      from:
-        name: comments_6
-        type: string
-        semantic_type: text
-        pattern: null
-      to:
-        name: comments_6_txt
-        type: string
-        semantic_type: text
-        pattern: null
-      record: eval/standardize_names.py
-      by: claude
-      kind: name
-      why: 'naming standard: +_txt (type)'
-    x_petey_identifiers:
-      subject: comments
-      suffix: txt
-      iteration: '6'
   transaction_type:
     x_petey_id: '1_49'
     type: category
@@ -4141,315 +2534,32 @@ fields:
         on_state: '10'
         caption: Other (specify in item 34)
         x_petey_caption_source: page_text
-    x_petey_identifiers:
-      subject: transaction_type
-x_petey_dedup_log:
-  duplicate_labels_reassigned: 34
-  collisions:
-  - original_label: part1_last_name
-    assigned_label: part1_last_name_2
-    page: 2
-    rect:
-    - 36.0
-    - 214.00103759765625
-    - 288.0
-    - 228.00201416015625
-  - original_label: part1_first_name
-    assigned_label: part1_first_name_2
-    page: 2
-    rect:
-    - 288.0
-    - 214.00103759765625
-    - 403.20001220703125
-    - 228.00201416015625
-  - original_label: part1_middle_initial
-    assigned_label: part1_middle_initial_2
-    page: 2
-    rect:
-    - 403.20001220703125
-    - 214.00103759765625
-    - 446.3999938964844
-    - 228.00201416015625
-  - original_label: part1_tin
-    assigned_label: part1_tin_2
-    page: 2
-    rect:
-    - 446.3999938964844
-    - 214.00103759765625
-    - 576.0
-    - 228.00201416015625
-  - original_label: part1_address_line_1_txt
-    assigned_label: part1_address_line_1_txt_2
-    page: 2
-    rect:
-    - 36.0
-    - 237.9990234375
-    - 381.6000061035156
-    - 252.0
-  - original_label: part1_birth_dt
-    assigned_label: part1_birth_dt_2
-    page: 2
-    rect:
-    - 460.79998779296875
-    - 238.14703369140625
-    - 576.0
-    - 252.0
-  - original_label: part1_city_nm
-    assigned_label: part1_city_nm_2
-    page: 2
-    rect:
-    - 36.0
-    - 262.0
-    - 194.39999389648438
-    - 276.00103759765625
-  - original_label: part1_state_abbreviation_cd
-    assigned_label: part1_state_abbreviation_cd_2
-    page: 2
-    rect:
-    - 194.39999389648438
-    - 262.0
-    - 237.60000610351562
-    - 276.00103759765625
-  - original_label: part1_zip_cd
-    assigned_label: part1_zip_cd_2
-    page: 2
-    rect:
-    - 237.60000610351562
-    - 262.0
-    - 302.3999938964844
-    - 276.00103759765625
-  - original_label: part1_country_cd
-    assigned_label: part1_country_cd_2
-    page: 2
-    rect:
-    - 303.3999938964844
-    - 262.0
-    - 403.20001220703125
-    - 276.00103759765625
-  - original_label: part1_occupation
-    assigned_label: part1_occupation_2
-    page: 2
-    rect:
-    - 404.20001220703125
-    - 262.0
-    - 576.0
-    - 276.00103759765625
-  - original_label: part1_id_description
-    assigned_label: part1_id_description_2
-    page: 2
-    rect:
-    - 200.8000030517578
-    - 276.00103759765625
-    - 410.3999938964844
-    - 288.0000305175781
-  - original_label: part1_id_issued_by
-    assigned_label: part1_id_issued_by_2
-    page: 2
-    rect:
-    - 475.20001220703125
-    - 276.00103759765625
-    - 576.0
-    - 288.0000305175781
-  - original_label: part1_id_number
-    assigned_label: part1_id_number_2
-    page: 2
-    rect:
-    - 186.8000030517578
-    - 288.0000305175781
-    - 410.3999938964844
-    - 299.9990234375
-  - original_label: part2_individual_last_name_or_organization_name
-    assigned_label: part2_individual_last_name_or_organization_name_2
-    page: 2
-    rect:
-    - 36.0
-    - 466.0010070800781
-    - 280.79998779296875
-    - 480.00201416015625
-  - original_label: part2_first_name
-    assigned_label: part2_first_name_2
-    page: 2
-    rect:
-    - 281.79998779296875
-    - 466.0010070800781
-    - 403.20001220703125
-    - 480.00201416015625
-  - original_label: part2_middle_initial
-    assigned_label: part2_middle_initial_2
-    page: 2
-    rect:
-    - 403.20001220703125
-    - 466.0010070800781
-    - 446.3999938964844
-    - 480.00201416015625
-  - original_label: part2_tin
-    assigned_label: part2_tin_2
-    page: 2
-    rect:
-    - 446.3999938964844
-    - 466.0010070800781
-    - 576.0
-    - 480.00201416015625
-  - original_label: part2_dba_name
-    assigned_label: part2_dba_name_2
-    page: 2
-    rect:
-    - 36.0
-    - 489.9990234375
-    - 446.3999938964844
-    - 504.0000305175781
-  - original_label: part2_ein
-    assigned_label: part2_ein_2
-    page: 2
-    rect:
-    - 446.3999938964844
-    - 489.9990234375
-    - 576.0
-    - 504.0000305175781
-  - original_label: part2_address_line_1_txt
-    assigned_label: part2_address_line_1_txt_2
-    page: 2
-    rect:
-    - 36.0
-    - 514.0
-    - 403.20001220703125
-    - 528.0009765625
-  - original_label: part2_occupation
-    assigned_label: part2_occupation_2
-    page: 2
-    rect:
-    - 404.20001220703125
-    - 514.0
-    - 576.0
-    - 528.0009765625
-  - original_label: part2_city_nm
-    assigned_label: part2_city_nm_2
-    page: 2
-    rect:
-    - 36.0
-    - 538.0010375976562
-    - 230.39999389648438
-    - 552.0020141601562
-  - original_label: part2_state_abbreviation_cd
-    assigned_label: part2_state_abbreviation_cd_2
-    page: 2
-    rect:
-    - 230.39999389648438
-    - 538.0010375976562
-    - 273.6000061035156
-    - 552.0020141601562
-  - original_label: part2_zip_cd
-    assigned_label: part2_zip_cd_2
-    page: 2
-    rect:
-    - 273.6000061035156
-    - 538.0010375976562
-    - 338.3999938964844
-    - 552.0020141601562
-  - original_label: part2_country_cd
-    assigned_label: part2_country_cd_2
-    page: 2
-    rect:
-    - 339.3999938964844
-    - 538.0010375976562
-    - 576.0
-    - 552.0020141601562
-  - original_label: part2_alien_id_description
-    assigned_label: part2_alien_id_description_2
-    page: 2
-    rect:
-    - 193.60000610351562
-    - 551.9990234375
-    - 410.3999938964844
-    - 563.998046875
-  - original_label: part2_alien_id_issued_by
-    assigned_label: part2_alien_id_issued_by_2
-    page: 2
-    rect:
-    - 475.20001220703125
-    - 551.9990234375
-    - 576.0
-    - 563.998046875
-  - original_label: part2_alien_id_number
-    assigned_label: part2_alien_id_number_2
-    page: 2
-    rect:
-    - 179.60000610351562
-    - 564.0010375976562
-    - 410.3999938964844
-    - 576.0
-  - original_label: comments
-    assigned_label: comments_2
-    page: 2
-    rect:
-    - 36.0
-    - 600.0010375976562
-    - 576.0
-    - 612.0
-  - original_label: comments
-    assigned_label: comments_3
-    page: 2
-    rect:
-    - 36.0
-    - 612.0
-    - 576.0
-    - 623.9990234375
-  - original_label: comments
-    assigned_label: comments_4
-    page: 2
-    rect:
-    - 36.0
-    - 623.9990234375
-    - 576.0
-    - 635.998046875
-  - original_label: comments
-    assigned_label: comments_5
-    page: 2
-    rect:
-    - 36.0
-    - 636.0010375976562
-    - 576.0
-    - 648.0
-  - original_label: comments
-    assigned_label: comments_6
-    page: 2
-    rect:
-    - 36.0
-    - 648.0
-    - 576.0
-    - 659.9990234375
-x_petey_emit_fixes:
-  separators_dropped_by_maxlen: 3
-  wide_widget_short_pattern: 31
 x_petey_page_check:
-  when: '2026-10-16 12:02:10'
-  model: claude-opus-5
-  prompt: bbf7099d
-  pages:
-  - 1
-  - 2
-  fields: 128
-  flagged: 10
-  unanswered: 0
-  record: runs/page_check/form_8300__207d16__df7b8a83.json
+  record: runs/judge_eval/form_runs/form_8300.json
+  model: gemini-3.8-flash (round 0), claude-opus-5 (loop)
+  prompt: 88809e44
+  when: '2026-10-26 15:00:24'
+  fields: 129
+  checked: 129
+  flagged: 1
 x_petey_build:
-  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
-  finder: step2flat-3+env6af728
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
   finder_label: step2flat-3
   finder_code_sha: 93d5efe257db
-  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
   classifier_model: claude-sonnet-4-6
   classifier_prompt: '4'
   generator: bank
   case_set: 1
-  run: form_8300_20261006_220211
-  blueprint: /home/user/petey-2/runs/judge_eval/work/form_8300.bpt
-  when: '2026-10-06 22:02:49'
+  run: form_8300_20261026_150021
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/form_8300.bpt
+  when: '2026-10-26 15:00:23'
 x_petey_run:
   record: runs/judge_eval/form_runs/form_8300.json
   status: converged_with_residue
   stop: every flagged field already reviewed as it stands
   stable: true
-  rounds: 4
-  review_rounds: 1
-  when: '2026-10-06 22:02:51'
+  rounds: 5
+  review_rounds: 2
+  when: '2026-10-26 15:00:24'
