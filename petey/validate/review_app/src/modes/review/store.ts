@@ -29,6 +29,7 @@ export interface RField {
   adjudication?: { verdict: string; proposed: string; reason?: string };
   claude?: { kind: string; from?: string; why?: string };
   identifiers?: Parts & { grid?: string }; identifiers_stored?: boolean; identifier_flags?: string[];
+  printed?: boolean | null;    // expected hand-written (signature, initials, printed name); null on a choice
   idx: number;
 }
 export interface Made {
@@ -313,6 +314,15 @@ export async function removeField() {
   if (!verdictOf(f.name)) await putV({ [f.name]: { verdict: 'accept', note: 'removed' } });   // removing it is the fix
   next();
 }
+// printed (Andrew, 2026-10-31: "printed types should move to blueprints, they are fields"): a text field expected to
+// be hand-written, tagged on the field in the working copy (printed_fields.set_field)
+export async function togglePrinted() {
+  const f = fieldOf(S().selected); if (!f || f.printed == null) return;
+  try { await send('PUT', `/api/printed-field/${encodeURIComponent(app().bid!)}`, { field: f.name, on: !f.printed }); }
+  catch (e) { alert((e as Error).message); return; }
+  await reload();
+  toast(`${f.name}: ${f.printed ? 'not printed' : 'printed (hand-written)'}, in the working copy.`);
+}
 export async function keepField() {
   const f = fieldOf(S().selected); if (!f) return;
   put({ removed: S().removed.filter(r => r.name !== f.name) });
@@ -513,6 +523,7 @@ export function key(e: KeyboardEvent): boolean {
   else if (e.key === 'e') { const el = document.getElementById('eName') as HTMLInputElement | null; if (el) { el.focus(); el.select(); } }
   else if (e.key === 'c') setVerdict(null);
   else if (e.key === 'd') { if (isRemoved(selected)) keepField(); else removeField(); }
+  else if (e.key === 'w') togglePrinted();
   else if (e.key === 'n' || e.key === 'ArrowRight') next(1);
   else if (e.key === 'p' || e.key === 'ArrowLeft') back();
   else if (e.key === 'U') setFilter({ unrevOnly: !S().unrevOnly });     // u ungroups since 2026-10-28

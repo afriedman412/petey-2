@@ -94,7 +94,8 @@ async function load(sweep) {
       b.onclick = () => mark(v); return b; }));
   $("help").innerHTML = D.verdicts.map(v => `<kbd>${KEYS[v]}</kbd> ${LABEL[v].toLowerCase()}`).join(", ")
     + ", <kbd>&larr;</kbd> <kbd>&rarr;</kbd> move. Blue: text fields; green: boxes."
-    + (sweep === "office" ? " Add the missing fields on the review page (Add / remove), then say \"fields added\"; \"keep\" when none are missing." : "");
+    + (sweep === "office" ? " Add the missing fields on the review page (Add / remove), then say \"fields added\"; \"keep\" when none are missing." : "")
+    + (sweep === "signature" ? " Add a field for each signature, initials or printed name line on the review page (Add / remove), mark it printed on Review (w), then say \"fields added\"; \"keep\" when none are missing." : "");
   $("filter").value = store.get("sweep.filter") || "todo";
   refilter(store.get(`sweep.page.${sweep}`));
 }

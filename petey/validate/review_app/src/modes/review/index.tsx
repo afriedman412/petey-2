@@ -71,7 +71,7 @@ export const review: ModeDef = {
   own: ['valid', 'groups'],
   help: {
     keys: [['a', 'accept, then the next field'], ['f', 'flag, then the next field'], ['c', 'clear the verdict'],
-      ['d', 'remove the field / keep it'], ['e', 'edit the field name'], ['n / →', 'next field'], ['p / ←', 'back to the field you were on before'],
+      ['d', 'remove the field / keep it'], ['w', 'printed (hand-written: signature, initials, printed name) on / off'], ['e', 'edit the field name'], ['n / →', 'next field'], ['p / ←', 'back to the field you were on before'],
       ['Shift+click', 'pick checkboxes / a group\'s boxes'], ['g', 'group the picked boxes'], ['u', 'ungroup the selected group'],
       ['Esc', 'clear the picks'], ['Shift+U', 'unreviewed only on / off']],
     tips: ['Edit the field\'s name, type, semantic type, pattern or option captions in place: Enter, "save correction" or accept saves the changes; Esc undoes them. Empty a semantic type or pattern box to clear it.',

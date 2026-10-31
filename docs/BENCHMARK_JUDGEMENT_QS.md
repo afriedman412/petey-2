@@ -17,10 +17,13 @@ same column) and blocks (same copy, same slot). Scored pairwise plus groups, gri
   different kind of answer.
 - Three field types: text, choice and printed (2026-10-31, Andrew: "printed" is "anything that is expected to be
   hand-written -- signatures, printed names, etc. this makes scoring more straightforward"). Initials are printed; the
-  date of signing and the signer's title stay text (Claude's defaults, agreed with the plan). No blueprint records it,
-  so the key takes it from a side record Andrew confirms a page at a time (`runs/benchmark/field_types.json`, the
-  review server's /printed sheet; candidates from caption words, names and original widgets,
-  `eval/benchmark_printed.py`: 973 on 359 pages). The blueprints are not edited (that would un-validate them). Scored
+  date of signing and the signer's title stay text (Claude's defaults, agreed with the plan). Stored on the field in its
+  blueprint since later the same day (Andrew: "printed types should move to blueprints, they are fields ... the logic
+  here is that if there is something on the page, we want to extract it"; "what matters is we are aware of everywhere
+  there could be information we need on a page"): `x_petey_printed` on text fields, set a page at a time on the
+  review server's /printed sheet (candidates from caption words, names and original widgets,
+  `eval/benchmark_printed.py`) or one field on the Review tab (w); validation holds (an `x_petey_` key). Lines asking
+  for a signature, initials or a printed name with no field near them are the /sweep sheet's signature sweep. Scored
   as text answers of their own type: typed right is three-way, plus precision / recall a type.
 - Andrew's draft of the benchmark's definitions is in `PETEY BENCHMARK HEURISTICS AND GLOSSARY` (repo root, 2026-10-28):
   Fields of three Types (Text, Choice, Signature) and four kinds of Collection (Groups, Entities, Grids, Blocks); Entity

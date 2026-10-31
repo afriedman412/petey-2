@@ -277,9 +277,17 @@ def field_rows(bp: dict) -> list[dict]:
                       "before": rv.get("before")} if rv else None),
             "adjudication": spec.get("x_petey_adjudication"),
             "claude": claude_change(spec),
+            # expected to be hand-written (signature, initials, printed name), text fields only (2026-10-31)
+            "printed": _printed(spec),
         })
     rows.sort(key=lambda r: (r["page"], round(r["rects"][0]["rect"][1] / 6), r["rects"][0]["rect"][0]))
     return rows
+
+
+def _printed(spec: dict) -> Optional[bool]:
+    """True / False on a text field (printed or not), None on a choice: the Review tab's printed toggle."""
+    from petey.validate.printed_fields import is_printed, is_text
+    return is_printed(spec) if is_text(spec) else None
 
 
 def identifiers(bid: str, bp: dict) -> dict:

@@ -162,28 +162,76 @@ class TestPrinted:
         lines = S.report(S.score_page(self._signed(), self._signed()))
         assert sum(ln.strip().startswith(("text ", "choice ", "printed ")) for ln in lines) == 3
 
-    def test_key_marks_only_text_fields_printed(self):
-        k = K.mark_printed(_page(), {"nm", "x"})
-        assert {f["id"]: f["kind"] for f in k["fields"]}["nm"] == "printed"
-        assert {f["id"]: f["kind"] for f in k["fields"]}["x"] == "choice"
+    def test_key_types_tagged_text_fields_printed(self):
+        sig = {"x_petey_id": "1_1", "type": "string", "x_petey_printed": {"source": "review"},
+               "widget": {"page": 1, "rect": [0, 0, 100, 12], "widget_type": "text"}}
+        box = {"x_petey_id": "1_2", "type": "boolean", "x_petey_printed": {"source": "review"},
+               "widget": {"page": 1, "rect": [0, 20, 8, 28], "widget_type": "checkbox"}}
+        nm = {"x_petey_id": "1_3", "type": "string", "widget": {"page": 1, "rect": [0, 40, 100, 52], "widget_type": "text"}}
+        k = K.page_keys({"fields": {"sig": sig, "box": box, "nm": nm}})[1]
+        assert {f["id"]: f["kind"] for f in k["fields"]} == {"1_1": "printed", "1_2": "choice", "1_3": "text"}
 
 
-class TestPrintedRecord:
-    def test_confirm_writes_the_page_and_refuses_choice_boxes(self, tmp_path):
+class TestPrintedOnTheBlueprint:
+    """Printed is stored on the field (Andrew, 2026-10-31: "printed types should move to blueprints, they are fields")."""
+
+    def _setup(self, tmp_path, monkeypatch):
         import json
 
+        import yaml
+
+        from petey.validate import draft, field_ids
+        bp = {"fields": {
+            "sig": {"x_petey_id": "1_1", "type": "string", "widget": {"page": 1, "rect": [0, 0, 100, 12], "widget_type": "text"}},
+            "nm": {"x_petey_id": "1_2", "type": "string", "widget": {"page": 1, "rect": [0, 20, 100, 32], "widget_type": "text"}},
+            "yes": {"x_petey_id": "1_3", "type": "boolean", "widget": {"page": 1, "rect": [0, 40, 8, 48], "widget_type": "checkbox"}},
+            "p2": {"x_petey_id": "2_1", "type": "string", "widget": {"page": 2, "rect": [0, 0, 100, 12], "widget_type": "text"}}}}
+        real = tmp_path / "x.bpt"
+        real.write_text(yaml.safe_dump(bp, sort_keys=False))
+        key = {"form": "bm__x", "page": 1, "fields": [{"id": "1_1", "kind": "text"}, {"id": "1_2", "kind": "text"},
+                                                      {"id": "1_3", "kind": "choice"}]}
+        (tmp_path / "bm__x__p1.json").write_text(json.dumps(key))
+        monkeypatch.setattr(draft, "DRAFTS", tmp_path / "drafts")
+        moved = []
+        monkeypatch.setattr(field_ids, "_rehash", lambda bid, old, new: moved.append((bid, old != new)) or [])
+        return real, moved
+
+    def test_the_sheet_writes_the_blueprint_and_its_records_follow(self, tmp_path, monkeypatch):
         import pytest
+        import yaml
 
         from petey.validate import printed_fields as pf
-        (tmp_path / "bm__x__p1.json").write_text(json.dumps(_page()))
+        real, moved = self._setup(tmp_path, monkeypatch)
         rec = tmp_path / "field_types.json"
-        assert pf.printed_ids("bm__x__p1", pf.load(rec)) is None
-        pf.confirm("bm__x__p1", ["nm"], record=rec, key_dir=tmp_path)
-        assert pf.printed_ids("bm__x__p1", pf.load(rec)) == {"nm"}
-        pf.confirm("bm__x__p1", [], record=rec, key_dir=tmp_path)
-        assert pf.printed_ids("bm__x__p1", pf.load(rec)) == set()
+        out = pf.confirm("bm__x__p1", ["1_1"], record=rec, key_dir=tmp_path, real=real)
+        assert out["printed"] == ["1_1"] and moved == [("bm__x", True)]
+        f = yaml.safe_load(real.read_text())["fields"]
+        assert f["sig"]["x_petey_printed"]["source"] == "printed_sheet" and "x_petey_printed" not in f["nm"]
+        assert list(pf.load(rec)) == ["bm__x__p1"]
+        out = pf.confirm("bm__x__p1", [], record=rec, key_dir=tmp_path, real=real)          # unmarked: taken off
+        assert out["printed"] == [] and "x_petey_printed" not in yaml.safe_load(real.read_text())["fields"]["sig"]
         with pytest.raises(ValueError):
-            pf.confirm("bm__x__p1", ["yes"], record=rec, key_dir=tmp_path)
+            pf.confirm("bm__x__p1", ["1_3"], record=rec, key_dir=tmp_path, real=real)    # a checkbox is never printed
+
+    def test_the_review_tab_works_in_the_working_copy(self, tmp_path, monkeypatch):
+        import pytest
+        import yaml
+
+        from petey.validate import draft
+        from petey.validate import printed_fields as pf
+        real, moved = self._setup(tmp_path, monkeypatch)
+        before = real.read_text()
+        assert pf.set_field("bm__x", "nm", True, real) == ["nm: printed (hand-written)"]
+        assert real.read_text() == before                       # the blueprint waits for Save
+        copy = draft.working("bm__x", real)
+        assert copy != real and yaml.safe_load(copy.read_text())["fields"]["nm"]["x_petey_printed"]["source"] == "review"
+        assert pf.set_field("bm__x", "nm", True, real) == []    # already printed: nothing
+        with pytest.raises(ValueError):
+            pf.set_field("bm__x", "yes", True, real)
+        # with the copy open, the sheet writes into it too
+        pf.confirm("bm__x__p1", ["1_1"], record=tmp_path / "r.json", key_dir=tmp_path, real=real)
+        assert real.read_text() == before and moved == []
+        assert pf.printed_on("bm__x", 1, real) == ["1_1"]
 
 
 class TestPrintedCandidates:

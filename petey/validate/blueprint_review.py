@@ -946,6 +946,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if len(parts) == 3 and parts[:2] == ["api", "ignored-pages"]:
             body = self._body()
             return self._route(lambda: ignored_pages.put(parts[2], bool(body.get("ignore", True)), str(body.get("reason") or "")))
+        if len(parts) == 3 and parts[:2] == ["api", "printed-field"]:    # the Review tab's printed toggle (2026-10-31)
+            body, bid = self._body(), parts[2]
+            return self._route(lambda: {"changes": printed_fields.set_field(bid, str(body.get("field") or ""),
+                                                                          bool(body.get("on")), APP.paths[bid])}, bid)
         if len(parts) == 3 and parts[:2] == ["api", "printed"]:
             body = self._body()
             return self._route(lambda: printed_fields.confirm(parts[2], list(body.get("printed") or [])))

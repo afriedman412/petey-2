@@ -15,8 +15,9 @@ What the guidelines say, as read here (docs/BENCHMARK_JUDGEMENT_QS.md, Decided):
     fields     every box of a validated blueprint on the page; a checkbox typed in a text box (a converted field) is
                choice. The key stays as the publisher cut it (combs whole)
     printed    (2026-10-31, Andrew: "anything that is expected to be hand-written -- signatures, printed names, etc.")
-               the text fields Andrew confirmed on the printed sheet (petey.validate.printed_fields' record; initials
-               printed, signing dates and titles text). A page not confirmed there has none, and is counted
+               text fields tagged x_petey_printed on the blueprint (Andrew, 2026-10-31: "printed types should move
+               to blueprints, they are fields"), set on the printed sheet or the Review tab; initials printed, signing
+               dates and titles text
     groups     option groups of two or more boxes; Split Fields as tagged on the Groups tab (x_petey_entity). Library
                forms validated before the tag existed carry none
 
@@ -62,9 +63,10 @@ def _set_of(bid: str, business: set, gov: set) -> Optional[str]:
 
 
 def _kind(spec: dict, w: dict) -> str:
+    from petey.validate.printed_fields import is_printed
     if w.get("widget_type") in CHOICE or spec.get("type") == "boolean":
         return "choice"
-    return "text"
+    return "printed" if is_printed(spec) else "text"
 
 
 def page_keys(bp: dict, entities: list[dict] = ()) -> dict[int, dict]:
@@ -103,14 +105,6 @@ def page_keys(bp: dict, entities: list[dict] = ()) -> dict[int, dict]:
             if len(g) >= 2:
                 out[p]["groups"].append(g)
     return dict(out)
-
-
-def mark_printed(k: dict, printed: set) -> dict:
-    """The page's key with its confirmed printed fields typed printed (text fields only)."""
-    for f in k["fields"]:
-        if f["id"] in printed and f["kind"] == "text":
-            f["kind"] = "printed"
-    return k
 
 
 def candidates() -> list[tuple[str, str]]:
@@ -183,9 +177,7 @@ def main() -> int:
             pid = f"{bid}__p{pg}"
             k = {"page_id": pid, "form": bid, "page": pg, "set": sset, "source_pdf": bp.get("source_pdf"),
                  "size": None, **keys[pg]}
-            if pid in record:
-                mark_printed(k, pf.printed_ids(pid, record))
-            elif pid in proposed:
+            if pid in proposed and pid not in record:
                 unconfirmed += 1
             if args.pdfs:
                 if blank is None:

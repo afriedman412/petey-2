@@ -10,6 +10,10 @@ Each sweep proposes pages; Andrew looks at each and says what it is:
                 in uses (attach, enclose, copy of, ...)
     office      a printed "office use only" or "do not  fields added on the review page ("done"), none needed
                 write below" section                    ("keep"), or ignore
+    signature   a short line asking for a signature,    the same as office: fields added (and marked printed
+                initials or a printed name with no      on the Review tab, w), none needed, or ignore
+                field near it (2026-10-31: "what matters is we are aware of everywhere there could be
+                information we need on a page")
 
 The words only rank pages for a person to look at; nothing is decided by them. Candidates are cached in
 runs/benchmark/sweeps/candidates.json (`find`, rebuilt when the key's index is newer); what was said goes to
@@ -37,11 +41,15 @@ SWEEPS = {
     "few": {"title": f"Pages with {FEW} fields or fewer", "reason": "few fields", "verdicts": ["ignore", "keep"]},
     "checklist": {"title": "Checklists", "reason": "checklist", "verdicts": ["ignore", "keep"]},
     "office": {"title": "Office use only sections", "reason": "office use only", "verdicts": ["done", "keep", "ignore"]},
+    "signature": {"title": "Signature lines with no field", "reason": "signature lines", "verdicts": ["done", "keep", "ignore"]},
 }
 OFFICE = re.compile(r"\b(for\s+(office|official|staff|department|agency|internal|clerk'?s?|admin\w*)\s+use(\s+only)?"
                     r"|(office|internal|official)\s+use\s+only|do\s+not\s+write\s+(below|in\s+this\s+(space|area|box)))\b", re.I)
 CHECKLIST = re.compile(r"\b(check\s*list|attach(ed|ments?)?|enclose[ds]?|copy\s+of|documents?\s+(required|needed|to\s+"
                        r"(submit|include|attach))|have\s+you\s+(included|attached))\b", re.I)
+SIGN = re.compile(r"\b(signature|sign\s+here|initials|print(ed)?\s+name|name\s*\(print)", re.I)
+HEADING = re.compile(r"^\s*(section|part)\b", re.I)
+SIGN_WORDS = 8          # a caption, not a sentence about signing
 _LOCK = threading.Lock()
 
 
@@ -66,7 +74,38 @@ def page_text(pid: str, key_dir: Path = KEY) -> str:
         return " ".join(doc[0].get_text().split())
 
 
-def why(key: dict, text: str) -> dict:
+def page_lines(pid: str, key_dir: Path = KEY) -> list[tuple[str, tuple]]:
+    """(text, bbox) of each printed line on the key page."""
+    import pymupdf
+    pdf = key_dir / "pages" / f"{pid}.pdf"
+    if not pdf.exists():
+        return []
+    pymupdf.TOOLS.mupdf_display_errors(False)
+    out = []
+    with pymupdf.open(str(pdf)) as doc:
+        for b in doc[0].get_text("dict")["blocks"]:
+            for ln in b.get("lines", []):
+                t = " ".join(" ".join(sp["text"] for sp in ln["spans"]).split())
+                if t:
+                    out.append((t, tuple(ln["bbox"])))
+    return out
+
+
+def _near_a_field(bbox, fields) -> bool:
+    """A field where the line's answer would be: on its line to the right, or just above (a signature line over its
+    caption) or below."""
+    x0, y0, x1, y1 = bbox
+    return any(r[3] >= y0 - 28 and r[1] <= y1 + 14 and r[2] >= x0 - 40 and r[0] <= x1 + 320
+               for r in (f["rect"] for f in fields))
+
+
+def unsigned(key: dict, lines: list) -> list[str]:
+    """Short lines asking for a signature, initials or a printed name, with no field near them."""
+    return [t for t, bb in lines if SIGN.search(t) and len(t.split()) <= SIGN_WORDS and not HEADING.match(t)
+            and not _near_a_field(bb, key["fields"])]
+
+
+def why(key: dict, text: str, lines: Optional[list] = None) -> dict:
     """{sweep: why} for one key page."""
     n = len(key["fields"])
     boxes = sum(f.get("kind") == "choice" for f in key["fields"])
@@ -79,6 +118,9 @@ def why(key: dict, text: str) -> dict:
     m = OFFICE.search(text)
     if m:
         out["office"] = f'"{m.group(0)}"'
+    miss = unsigned(key, lines or [])
+    if miss:
+        out["signature"] = "no field near: " + "; ".join(f'"{t}"' for t in miss[:4]) + (f" and {len(miss) - 4} more" if len(miss) > 4 else "")
     return out
 
 
@@ -88,7 +130,8 @@ def find(key_dir: Path = KEY, out: Optional[Path] = None) -> dict:
     found = {s: {} for s in SWEEPS}
     for x in json.loads((key_dir / "index.json").read_text()):
         pid = x["page_id"]
-        for s, w in why(json.loads((key_dir / f"{pid}.json").read_text()), page_text(pid, key_dir)).items():
+        for s, w in why(json.loads((key_dir / f"{pid}.json").read_text()), page_text(pid, key_dir),
+                        page_lines(pid, key_dir)).items():
             found[s][pid] = w
     _write(found, out)
     return found

@@ -50,3 +50,13 @@ def test_a_page_ignored_elsewhere_stays_ignored_when_kept(tmp_path, monkeypatch)
     ignored_pages.put("bm__sd_3__p1", True, "instructions")
     ps.mark("office", "bm__sd_3__p1", "keep")
     assert ignored_pages.load()["bm__sd_3__p1"]["reason"] == "instructions"
+
+
+def test_signature_lines_with_no_field_near():
+    key = {"fields": [{"id": "1", "kind": "text", "rect": [150, 100, 400, 112]}]}
+    lines = [("Signature of applicant", (40, 102, 140, 112)),          # its field on the line: covered
+             ("Printed name", (40, 300, 100, 310)),                    # nothing near
+             ("SECTION IV: DECLARATION AND SIGNATURE", (40, 500, 300, 510)),   # a heading
+             ("By signing below you agree that your signature is binding on you", (40, 600, 400, 610))]   # a sentence
+    assert ps.unsigned(key, lines) == ["Printed name"]
+    assert ps.why({"fields": key["fields"] * 20}, "", lines)["signature"] == 'no field near: "Printed name"'

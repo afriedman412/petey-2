@@ -5,7 +5,7 @@ import { PART_KEYS, type PartKey } from '../../lib/util';
 import { toast } from '../../state/actions';
 import {
   applyCorrections, dirtyOf, fieldOf, fieldRef, fixCaptions, improveName, isRemoved, keepField, optList, ordered,
-  removeField, rereadCaptions, resetBoxes, reviewEdits, saveFix, saveNote, select, setBox, setFilter, setNote, setOpt,
+  removeField, rereadCaptions, resetBoxes, reviewEdits, saveFix, saveNote, select, setBox, setFilter, setNote, setOpt, togglePrinted,
   setPart, setVerdict, TIER_LETTER, TIER_RANK, toggleIds, useFix, useReview, verdictOf,
   type Made, type RField, type Verdict,
 } from './store';
@@ -248,6 +248,8 @@ export function Panel() {
         <button className={'btn flag' + (v?.verdict === 'flag' ? ' on' : '')} id="vFlag" title="I can't or don't want to fix this myself: say what is wrong in the note (review edits sends it to the agent)" onClick={() => setVerdict('flag')}>flag</button>
         <button className="btn" id="vClear" title="no verdict" onClick={() => setVerdict(null)}>clear</button>
         {!removed && <button className="btn warn" id="vRemove" title="remove this field from the blueprint" onClick={removeField}>remove field</button>}
+        {f.printed != null && <button className={'btn' + (f.printed ? ' on' : '')} id="vPrinted" title="expected to be hand-written: a signature, initials, a printed name (w); saved on the field in the working copy"
+          onClick={togglePrinted}>{f.printed ? 'printed ✓' : 'printed'}</button>}
       </div></div>
       <div className="sect"><h4>Note</h4>
         <textarea id="note" placeholder="anything else that is wrong (saved with the verdict)" value={note}
