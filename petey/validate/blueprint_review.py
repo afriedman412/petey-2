@@ -43,7 +43,7 @@ from urllib.parse import unquote, urlparse
 import pymupdf
 
 from petey import web
-from petey.validate import draft, field_add, group_review, hand_review, ignored_pages, printed_fields, run_audit
+from petey.validate import draft, field_add, group_review, hand_review, ignored_pages, page_sweeps, printed_fields, run_audit
 from petey.validate.retype import resolve_blank
 
 HTML_PATH = Path(__file__).with_suffix(".html")
@@ -909,6 +909,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if len(parts) == 4 and parts[:3] == ["api", "printed", "png"]:
             png = printed_fields.page_png(parts[3])
             return self._send(png, "image/png") if png else self._send(b"no such page", "text/plain", 404)
+        if path in ("/sweep", "/sweep/"):                # manual sweeps of the key's pages (2026-10-31)
+            return self._send(page_sweeps.HTML_PATH.read_bytes(), "text/html; charset=utf-8")
+        if len(parts) == 3 and parts[:2] == ["api", "sweep"]:
+            return self._route(lambda: page_sweeps.sheet(parts[2]))
         if path == "/api/ignored-pages":                  # pages left out of the benchmark (2026-10-31)
             return self._route(ignored_pages.load)
         if path == "/api/blueprints":
@@ -936,6 +940,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     def do_PUT(self):
         parts = self._parts()
+        if len(parts) == 4 and parts[:2] == ["api", "sweep"]:
+            body = self._body()
+            return self._route(lambda: page_sweeps.mark(parts[2], parts[3], str(body.get("verdict") or ""), str(body.get("reason") or "")))
         if len(parts) == 3 and parts[:2] == ["api", "ignored-pages"]:
             body = self._body()
             return self._route(lambda: ignored_pages.put(parts[2], bool(body.get("ignore", True)), str(body.get("reason") or "")))
