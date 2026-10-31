@@ -84,6 +84,10 @@ with sync_playwright() as p:
         pg.keyboard.press("Enter")
         pg.wait_for_function("!document.querySelector('.btpe')")
         pg.wait_for_timeout(800)
+        for _ in range(40):      # the rename follows the confirm's reload: waited for, not a fixed time (2026-10-31: the
+            if any(s[0].endswith("/tfix") for s in sent):   # 800 ms alone missed it twice in a full run)
+                break
+            pg.wait_for_timeout(100)
         out[form] = {"lit": lit, "warn": warn, "preview": preview, "dialogs": len(dialogs),
                      "sent": [[s[0].rsplit("/", 1)[1], s[1]] for s in sent]}
     out["errors"] = errs
