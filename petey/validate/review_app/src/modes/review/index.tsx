@@ -55,8 +55,8 @@ function Layer() {
     const sel = selected === f.name, c = cl[f.name];
     const cls = 'rv ' + verdictOf(f.name) + (f.tier === 'contested' ? ' contested' : '') + (isRemoved(f.name) ? ' removed' : '')
       + (sel ? ' sel pulse' : '') + (sel && opt && opt === selOpt ? ' optsel' : '') + (c ? ' clash' : '')
-      + (picks.includes(pickKey(f.name, opt)) ? ' picked' : '');
-    const title = `${f.id ? f.id + ' · ' : ''}${f.name}${f.options.length && f.options[i] ? ' · ' + (f.options[i].caption || f.options[i].on_state) : ''}${c ? ` · clashes on ${c.to}` : ''}`;
+      + (picks.includes(pickKey(f.name, opt)) ? ' picked' : '') + (f.printed ? ' printed' : '');
+    const title = `${f.id ? f.id + ' · ' : ''}${f.name}${f.printed ? ' · printed' : ''}${f.options.length && f.options[i] ? ' · ' + (f.options[i].caption || f.options[i].on_state) : ''}${c ? ` · clashes on ${c.to}` : ''}`;
     // a box of a group: its key / caption row lights up
     out.push(<Box key={`${f.name}#${i}`} className={cls} rect={r.rect} title={title} vars={c ? { '--cc': c.color } : undefined}
       data-f={f.name} data-o={opt || ''} onClick={e => (e.shiftKey && isOption(f) ? togglePick(f.name, opt) : select(f.name, false, opt))}

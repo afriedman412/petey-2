@@ -52,3 +52,9 @@ def test_home_counts_fold_away_and_structure_validated_can_be_hidden():
     assert 'id="hstatsTab"' in home and "{!H.hideStats && <div className=\"hstats\">" in home
     assert 'id="hideStruct"' in home and "statusOf(b).k === 'structure'" in home
     assert "hideStats?: boolean; hideStruct?: boolean;" in (SRC / "state" / "app.ts").read_text()
+
+
+def test_printed_fields_are_hatched_on_review():
+    assert "(f.printed ? ' printed' : '')" in (SRC / "modes" / "review" / "index.tsx").read_text()
+    css = (SRC / "styles.css").read_text()
+    assert ".rv.printed:not(.flag):not(.removed) { background:repeating-linear-gradient(" in css
