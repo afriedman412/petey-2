@@ -97,3 +97,10 @@ def test_saving_renames_a_clash_instead_of_refusing(tmp_path, monkeypatch):
     assert not out["errors"]
     assert {"p1_f1", "p1_f1_2", "p1_f1_3"} <= set(out["fields"])
     assert "p1_f1 is taken: added as p1_f1_2" in out["changes"] and "p1_f1 is taken: added as p1_f1_3" in out["changes"]
+
+
+def test_fields_say_which_are_choices():
+    bp = {"fields": {"nm": {"type": "string", "widget": {"page": 1, "rect": [0, 0, 50, 10], "widget_type": "text"}},
+                     "yes": {"type": "boolean", "widget": {"page": 1, "rect": [0, 20, 8, 28], "widget_type": "checkbox"}},
+                     "work": {"type": "category", "widget": {"page": 1, "rect": [0, 40, 50, 50], "widget_type": "combobox"}}}}
+    assert {f["name"]: f["choice"] for f in field_add.field_rects(bp)} == {"nm": False, "yes": True, "work": True}

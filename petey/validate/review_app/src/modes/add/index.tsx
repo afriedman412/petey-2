@@ -1,4 +1,4 @@
-// Add / remove on the page: the blueprint's fields (purple; red dashed when to be removed), the suggestions left
+// Add / remove on the page: the blueprint's fields (purple; red dashed when to be removed; choices filled rose), the suggestions left
 // (orange: solid an unclaimed widget, dashed a finder box), the underlines no field covers (cyan, to click), the fields
 // added (green, with their name), and what is proposed; and the tab's definition for the frame.
 import { Box } from '../../components/Box';
@@ -13,14 +13,14 @@ function Layer() {
   if (!BP) return null;
   const out: React.ReactNode[] = [];
   if (showFields) BP.fields.forEach((f, i) => f.page === page && out.push(
-    <Box key={`f${i}`} className={'ov field' + (isRemoved(f.name) ? ' removed' : '') + (picked === f.name || rmPicks.includes(f.name) ? ' picked' : '')} rect={f.rect} title={f.name} data-field={f.name} />));
+    <Box key={`f${i}`} className={'ov field' + (f.choice ? ' choice' : '') + (isRemoved(f.name) ? ' removed' : '') + (picked === f.name || rmPicks.includes(f.name) ? ' picked' : '')} rect={f.rect} title={f.name} data-field={f.name} />));
   if (showSug) for (const s of remaining()) if (s.page === page) out.push(
     <Box key={`s${s.sid}`} className={`ov sug ${s.source}${s.copy ? ' copy' : ''}${s.sid === curSid ? ' cur' : ''}`} rect={s.rect} title={s.what} data-sid={s.sid} />);
   if (showLines) for (const s of linesLeft()) if (s.page === page) out.push(
     <Box key={`l${s.sid}`} className={`ov line${s.sid === curSid ? ' cur' : ''}`} rect={s.rect} title="an underline: click to add a field over it" data-sid={s.sid} />);
   added.forEach((a, i) => boxesOf(a).filter(b => b.page === page).forEach((b, k) => out.push(
-    <Box key={`a${i}-${k}`} className="ov added" rect={b.rect} title={a.name} data-added={i}>{k === 0 && <span className="tag">{a.name}</span>}</Box>)));
-  props.forEach((p, i) => boxesOf(p).forEach((b, k) => b.page === page && out.push(<Box key={`p${i}-${k}`} className="ov prop" rect={b.rect} />)));
+    <Box key={`a${i}-${k}`} className={'ov added' + (a.kind !== 'text' ? ' choice' : '')} rect={b.rect} title={a.name} data-added={i}>{k === 0 && <span className="tag">{a.name}</span>}</Box>)));
+  props.forEach((p, i) => boxesOf(p).forEach((b, k) => b.page === page && out.push(<Box key={`p${i}-${k}`} className={'ov prop' + (p.kind !== 'text' ? ' choice' : '')} rect={b.rect} />)));
   return <>{out}</>;
 }
 

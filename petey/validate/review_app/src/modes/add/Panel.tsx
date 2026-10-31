@@ -51,10 +51,12 @@ function Card({ p, i }: { p: Proposal; i: number }) {
         <span className="achip" title={`one call to ${BP!.label_model} with this page's words`} onClick={() => askLabeler(i)}>{asking[p._k!] ? 'asking…' : 'ask the labeler'}</span>
       </div>
       <div className="grid">
+        {/* a button on every one-box card (Andrew, 2026-10-31: "lets just have 'convert to choice' (and v/v) on every
+            card on the add/remove page"); what was under the box decides the kind, and can be wrong */}
         {p.kind !== 'group' && <>
-          <label>box</label>
-          <select value={p.kind} title="what the page shows: what was under the box decides, and can be wrong" onChange={e => switchKind(i, e.target.value)}>
-            <option value="text">text box</option><option value="option">checkbox</option></select>
+          <label>kind</label>
+          <button className="btn" id={`aKind${i}`} title="what the page shows: a box to tick, or one to write in"
+            onClick={() => switchKind(i, p.kind === 'text' ? 'option' : 'text')}>{p.kind === 'text' ? 'convert to choice' : 'convert to text'}</button>
         </>}
         <label>type</label>
         <select value={p.type || ''} onChange={e => setPropField(i, 'type', e.target.value)} onKeyDown={cardKeys}>{TYPES.map(t => <option key={t}>{t}</option>)}</select>

@@ -32,7 +32,7 @@ export interface AddData {
   pages: PageInfo[]; suggestions: Suggestion[];
   /** underlines no field or suggestion covers (field_add.Context.lines): highlighted to click, not stepped through */
   lines?: Suggestion[];
-  fields: { name: string; page: number; rect: Rect }[];
+  fields: { name: string; page: number; rect: Rect; choice?: boolean }[];
   field_specs?: Record<string, { x_petey_id?: string; type?: string; semantic_type?: string; description?: string }>;
   semantic_types: string[]; added: Added[]; dismissed: Dismissed[]; removed?: Removal[]; plan?: Plan | null;
 }

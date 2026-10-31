@@ -227,6 +227,9 @@ def _norm_tip(t: Optional[str]) -> Optional[str]:
 
 
 def field_rects(bp: dict) -> list[dict]:
+    """Each box of each field: {name, page, rect, choice} (choice: a checkbox, radio button or dropdown, drawn in its
+    own colour on the page, 2026-10-31)."""
+    from petey.validate.printed_fields import is_text
     out = []
     for name, spec in (bp.get("fields") or {}).items():
         if not isinstance(spec, dict):
@@ -234,7 +237,8 @@ def field_rects(bp: dict) -> list[dict]:
         blocks = list((spec.get("widgets") or {}).values()) or ([spec["widget"]] if spec.get("widget") else [])
         for w in blocks:
             if w.get("rect") and w.get("page"):
-                out.append({"name": name, "page": int(w["page"]), "rect": [float(c) for c in w["rect"]]})
+                out.append({"name": name, "page": int(w["page"]), "rect": [float(c) for c in w["rect"]],
+                            "choice": not is_text(spec)})
     return out
 
 

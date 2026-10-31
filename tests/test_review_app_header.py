@@ -77,3 +77,9 @@ def test_kind_fills_on_every_tab_but_add_remove():
     assert "mode !== 'review' && mode !== 'add'" in canvas and "'ovl kind '" in canvas
     css = (SRC / "styles.css").read_text()
     assert "--fill-printed:" in css and "--fill-choice:" in css
+
+
+def test_add_cards_convert_and_choices_are_filled():
+    panel = (SRC / "modes" / "add" / "Panel.tsx").read_text()
+    assert "'convert to choice' : 'convert to text'" in panel
+    assert ".ov.field.choice, .ov.prop.choice, .ov.added.choice { background:var(--fill-choice); }" in (SRC / "styles.css").read_text()
