@@ -69,3 +69,10 @@ def test_the_two_whole_form_accepts_save_after_and_a_field_accept_does_not():
         assert "await saveAfter();" in body, fn
     sv = store.index("export async function setVerdict") if "export async function setVerdict" in store else store.index("function setVerdict")
     assert "saveAfter" not in store[sv:store.index("\n}\n", sv)]
+
+
+def test_kind_fills_on_every_tab_but_add_remove():
+    canvas = (SRC / "components" / "Canvas.tsx").read_text()
+    assert "mode !== 'review' && mode !== 'add'" in canvas and "'ovl kind '" in canvas
+    css = (SRC / "styles.css").read_text()
+    assert ".ovl.kind.txt { background:var(--fill-text); }" in css and "--fill-printed:" in css

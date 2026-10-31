@@ -430,6 +430,7 @@ def overlay(bp: dict, bid: str, verdicts: dict) -> dict:
     import sys
     from petey.validate import grid_naming
     from petey.validate import block_types, grid_check
+    from petey.validate.printed_fields import is_printed, is_text
     acc = {n for n, v in verdicts.items() if (v or {}).get("verdict") == "accept"}
     fields = []
     for n, sp in (bp.get("fields") or {}).items():
@@ -439,7 +440,9 @@ def overlay(bp: dict, bid: str, verdicts: dict) -> dict:
         rs = [{"page": w.get("page"), "rect": w.get("rect")} for w in ws if w.get("rect")]
         if rs:
             fields.append({"name": n, "id": str(sp.get("x_petey_id", "")), "page": rs[0]["page"], "rects": rs,
-                           "accepted": n in acc, "group": len(rs) > 1 and sp.get("type") in ("category", "multi_category")})
+                           "accepted": n in acc, "group": len(rs) > 1 and sp.get("type") in ("category", "multi_category"),
+                           # the fill every tab gives a field by its kind (2026-10-31)
+                           "kind": "printed" if is_printed(sp) else "text" if is_text(sp) else "choice"})
 
     def bbox(rs):
         return [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
