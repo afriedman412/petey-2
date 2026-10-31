@@ -445,6 +445,20 @@ def _box_info(ctx: Context, page: int, rect) -> Optional[dict]:
     return best if score >= CLAIM else None
 
 
+def free_name(name: str, taken) -> str:
+    """`name`, or the nearest free one (Andrew, 2026-10-31: "any suggested duplicate name should just be converted to
+    a non-clashing name, either by increasing the iteration value or by adding one"): a trailing number raised until
+    free (x_line_2 -> x_line_3), else _2 added (sort_code -> sort_code_2). A field's iteration ends its name
+    (docs/NAMING.md), so a number inside it (line_12_amt) is left alone."""
+    if name not in taken:
+        return name
+    m = re.match(r"^(.*)_(\d+)$", name)
+    base, k = (m.group(1), int(m.group(2)) + 1) if m else (name, 2)
+    while f"{base}_{k}" in taken:
+        k += 1
+    return f"{base}_{k}"
+
+
 def _named(p: dict, candidates: list[tuple[Optional[str], str]], kind: str, taken: set[str],
            ctx: Optional[Context] = None) -> None:
     """Name options in order of preference, each with the typing it implies: a twin's name verbatim with the
@@ -481,9 +495,7 @@ def _named(p: dict, candidates: list[tuple[Optional[str], str]], kind: str, take
             o["types"] = {"type": "boolean", "semantic_type": "indicator"}
         else:
             o["types"] = {"type": p.get("type") or "category"}
-        base, k = o["name"], 2
-        while o["name"] in taken:
-            o["name"], k = f"{base}_{k}", k + 1
+        o["name"] = free_name(o["name"], taken)
     p["name"], p["name_source"], p["name_options"] = opts[0]["name"], opts[0]["source"], opts
     for k in ("type", "semantic_type", "pattern"):
         p.pop(k, None)
@@ -527,10 +539,7 @@ def switch_kind(p: dict, kind: str, taken: set[str] = frozenset()) -> dict:
         return {"type": "boolean", "semantic_type": "indicator"} if kind == "option" else enrich_field(n, "text")
     opts, seen, now = [], set(), {}
     for o in p.get("name_options") or [{"name": p["name"], "source": p.get("name_source") or "hand"}]:
-        n = renamed(o["name"])
-        base, k = n, 2
-        while n in taken:
-            n, k = f"{base}_{k}", k + 1
+        n = free_name(renamed(o["name"]), taken)
         now[o["name"]] = n
         if n not in seen:
             seen.add(n)
@@ -905,16 +914,11 @@ def plan(bp: dict, added: list[dict], removed: list[dict] = ()) -> dict:
             skipped.append(f"{r.get('name')}: already not in the blueprint")
     rects = field_rects({"fields": fields})
     now = time.strftime("%Y-%m-%d %H:%M:%S")
-    names = [p["name"] for p in added]
-    for n in sorted({n for n in names if names.count(n) > 1}):
-        errors.append(f"two added fields are both named {n!r}")
     new: list[tuple[str, dict]] = []
+    used = set(fields)                              # names taken so far: the blueprint's, then each addition's
     for p in added:
         if not NAME_RE.match(p.get("name") or ""):
             errors.append(f"{p.get('name')!r} is not a field name (lower case, digits, underscores)")
-            continue
-        if p["name"] in fields:
-            errors.append(f"{p['name']!r} is already a field in the blueprint")
             continue
         box = p["rect"] if p["kind"] != "group" else p["options"][0]["rect"]
         # overlapping a field is fine (2026-10-31, "overlapping boxes are common"); only the same box again is not
@@ -923,6 +927,11 @@ def plan(bp: dict, added: list[dict], removed: list[dict] = ()) -> dict:
         if same:
             skipped.append(f"{p['name']}: the same box is field {same}")
             continue
+        if p["name"] in used:                       # a clash is renamed, not refused (2026-10-31)
+            free = free_name(p["name"], used)
+            changes.append(f"{p['name']} is taken: added as {free}")
+            p = {**p, "name": free}
+        used.add(p["name"])
         over = next((f["name"] for f in rects if f["page"] == p["page"] and overlap(box, f["rect"]) >= CLAIM), None)
         spec = spec_of(p, now)
         new.append((p["name"], spec))

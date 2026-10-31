@@ -77,3 +77,23 @@ def test_saving_keeps_an_added_field_that_overlaps_and_skips_the_same_box_again(
     assert "signature" in out["fields"] and "line_again" not in out["fields"]
     assert any("overlaps field p1_f1" in c for c in out["changes"])
     assert out["skipped"] == ["line_again: the same box is field p1_f1"]
+
+
+def test_free_name_adds_or_raises_the_iteration():
+    """Andrew, 2026-10-31: "any suggested duplicate name should just be converted to a non-clashing name, either by
+    increasing the iteration value or by adding one"."""
+    assert field_add.free_name("sort_code", {"sort_code"}) == "sort_code_2"
+    assert field_add.free_name("sort_code", {"sort_code", "sort_code_2"}) == "sort_code_3"
+    assert field_add.free_name("x_line_2", {"x_line_2", "x_line_3"}) == "x_line_4"
+    assert field_add.free_name("line_12_amt", {"line_12_amt"}) == "line_12_amt_2"     # a number inside stays
+    assert field_add.free_name("free", set()) == "free"
+
+
+def test_saving_renames_a_clash_instead_of_refusing(tmp_path, monkeypatch):
+    ctx = _ctx(tmp_path, monkeypatch, HAVE)
+    (a,) = field_add.propose(ctx, 1, rect=[60, 150, 200, 170])["proposals"]
+    (b,) = field_add.propose(ctx, 1, rect=[60, 500, 200, 520])["proposals"]
+    out = field_add.plan({"fields": dict(HAVE)}, [{**a, "name": "p1_f1"}, {**b, "name": "p1_f1"}])
+    assert not out["errors"]
+    assert {"p1_f1", "p1_f1_2", "p1_f1_3"} <= set(out["fields"])
+    assert "p1_f1 is taken: added as p1_f1_2" in out["changes"] and "p1_f1 is taken: added as p1_f1_3" in out["changes"]

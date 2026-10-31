@@ -54,6 +54,12 @@ export const useAdd = create<State>(() => ({
   showFields: true, showSug: true, showLines: true, copies: false, asking: {}, finderRunning: false,
 }));
 const S = useAdd.getState, put = useAdd.setState;
+// a suggested name that comes to clash (a field saved, added or proposed since with that name) is made free at once
+useAdd.subscribe((s, prev) => {
+  if (s.props === prev.props && s.added === prev.added && s.BP === prev.BP && s.removed === prev.removed) return;
+  const props = freeSuggested(s);
+  if (props !== s.props) put({ props });
+});
 
 /** why proposal `i` cannot take `name`: a field of the blueprint has it ('blueprint'; one recorded for removal frees it),
  *  or another addition does ('pending'); else null. The save refuses both ("'x' is already a field in the blueprint"),
@@ -65,6 +71,32 @@ export function nameClash(name: string, i: number, st: Pick<State, 'BP' | 'added
   const gone = new Set(st.removed.map(r => r.name));
   const has = (st.BP?.fields || []).some(f => f.name === name) || Object.prototype.hasOwnProperty.call(st.BP?.field_specs || {}, name);
   return has && !gone.has(name) ? 'blueprint' : null;
+}
+
+/** `name`, or the nearest free one (Andrew, 2026-10-31: "any suggested duplicate name should just be converted to a
+ *  non-clashing name, either by increasing the iteration value or by adding one"): a trailing number raised until free,
+ *  else _2 added; as field_add.free_name */
+export function freeName(name: string, taken: (n: string) => boolean): string {
+  if (!taken(name)) return name;
+  const m = name.match(/^(.*)_(\d+)$/);
+  const base = m ? m[1] : name;
+  let k = m ? +m[2] + 1 : 2;
+  while (taken(`${base}_${k}`)) k++;
+  return `${base}_${k}`;
+}
+/** the cards with each suggested name that clashes made free, in card order: a name the blueprint or an addition has, or
+ *  an earlier card's (a name typed by hand is left, and its card says it clashes); the same array when nothing clashes */
+export function freeSuggested(st: Pick<State, 'BP' | 'added' | 'props' | 'removed'>): Proposal[] {
+  let props = st.props, changed = false;
+  props.forEach((p, i) => {
+    if (!p.name || p.name_source === 'hand') return;
+    const cur = { ...st, props: props.slice(0, i) };          // the earlier card keeps the name, the later one moves
+    if (!nameClash(p.name, i, cur)) return;
+    const name = freeName(p.name, n => nameClash(n, i, cur) !== null);
+    props = props.map((q, k) => (k === i ? { ...q, name } : q));
+    changed = true;
+  });
+  return changed ? props : st.props;
 }
 
 const bid = () => app().bid!;
