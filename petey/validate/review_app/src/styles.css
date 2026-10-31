@@ -165,6 +165,7 @@ body.home #draftBar, body.home #notesBtn { display:none !important; }
 .hstat span { font-size:.66rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); }
 .hctl { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
 .hctl input { width:260px; }
+.hctl input[type=checkbox] { width:auto; }   /* the search box's width, not the checkboxes' (2026-10-31) */
 .hctl .help { margin-left:auto; }
 table.home { border-collapse:separate; border-spacing:0; width:100%; font-size:.8rem; }
 table.home th { position:sticky; top:-14px; z-index:1; background:var(--bg); text-align:left; font-size:.64rem; font-weight:700;
@@ -419,3 +420,14 @@ body.notabs .ghtab, body.notabs .gtab .gtid, body.notabs .btb span, body.notabs 
 
 /* a box Shift-clicked on Review's page, for g (2026-10-28) */
 .rv.picked { box-shadow:0 0 0 2px var(--sel), 0 0 8px 2px color-mix(in srgb, var(--sel) 60%, transparent); }
+
+/* the home table's column picker (2026-10-31) */
+.hcols { position:relative; display:inline-block; }
+.hcols > summary { list-style:none; cursor:pointer; }
+.hcols > summary::-webkit-details-marker { display:none; }
+.hcols-menu { position:absolute; z-index:20; top:calc(100% + 4px); right:0; min-width:180px; display:flex; flex-direction:column; gap:4px;
+  padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,.35); }
+.hcols-menu label { display:flex; gap:6px; align-items:center; justify-content:flex-start; font-size:.8rem; white-space:nowrap; cursor:pointer;
+  text-transform:none; letter-spacing:0; color:var(--text); }
+.hcols-menu input { flex:none; width:auto; margin:0; }
+.hcols-menu .btn { margin-top:4px; align-self:flex-start; }

@@ -1,6 +1,6 @@
 // Home (2026-10-15): every blueprint in one table, sortable by any column, filtered by section / domain / stage /
 // text; a row opens the form in the current tab. Sort and filters are kept per browser.
-import { useMemo, useRef, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import type { Entry } from '../lib/types';
 import { openBlueprint } from '../state/actions';
 import { setHome, useApp } from '../state/app';
@@ -52,7 +52,9 @@ export function Home() {
   const { list, home: H, mode, bid } = useApp();
   const q = useRef<HTMLInputElement>(null);
   const dups = useMemo(() => findDups(list), [list]);
-  const COLS = useMemo(() => cols(dups), [dups]);
+  const ALL = useMemo(() => cols(dups), [dups]);
+  const hidden = new Set(H.hidden || []);
+  const COLS = ALL.filter(c => c.k === 'form' || !hidden.has(c.k));
   if (!H.on) return <div id="home" />;
   // domain: null is any, '' the forms at the top of source_pdfs
   const inSection = list.filter(b => (!H.section || sectionOf(b) === H.section) && (H.domain == null || (b.collection ?? '') === H.domain));
@@ -60,7 +62,7 @@ export function Home() {
   // hide validated (Andrew, 2026-10-15); the validated tile still shows them
   const rows = inSection.filter(b => homeMatch(b, H.status, dups) && !(H.hideVal && H.status !== 'validated' && statusOf(b).k === 'validated')
     && (!qs || [b.form, b.id, b.collection, b.note?.text, b.desc?.text].some(s => String(s ?? '').toLowerCase().includes(qs))));
-  const col = COLS.find(c => c.k === H.sort) || COLS[1], dir = H.asc ? 1 : -1;
+  const col = ALL.find(c => c.k === H.sort) || ALL[1], dir = H.asc ? 1 : -1;
   const cmp = (x: string | number, y: string | number) => typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y));
   rows.sort((a, b) => dir * cmp(col.sort(a), col.sort(b)) || a.form.localeCompare(b.form));
   const secs = Object.keys(SECTIONS).filter(k => list.some(b => sectionOf(b) === k));
@@ -92,6 +94,7 @@ export function Home() {
           {doms.map(([d, n]) => <option key={d} value={d}>{d === '' ? '(top of source_pdfs)' : d} ({n})</option>)}
         </select>
         <label className="ctl"><input type="checkbox" checked={H.hideVal} onChange={e => setHome({ hideVal: e.target.checked })} /> hide validated</label>
+        <Columns all={ALL} hidden={hidden} />
         {filtered && <button className="btn" onClick={() => setHome({ q: '', section: '', status: '', domain: null })}>clear filters</button>}
         <span className="help">{rows.length} of {list.length} · click a row to open it in {mode}
           {bid && <> · <a href="#" onClick={e => { e.preventDefault(); openBlueprint(bid); }}>back to {list.find(b => b.id === bid)?.form || bid}</a></>}</span>
@@ -108,6 +111,33 @@ export function Home() {
         </tbody>
       </table>
     </div>
+  );
+}
+
+// which columns the table shows (Andrew, 2026-10-31: "can you add a dropdown to control which columns show up on the
+// index page"): a checkbox a column, kept per browser with the other home settings; the form column always shows (it
+// is the link). Closes on a click outside it or Escape.
+function Columns({ all, hidden }: { all: Col[]; hidden: Set<string> }) {
+  const ref = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    const close = (e: MouseEvent | KeyboardEvent) => {
+      const d = ref.current;
+      if (d?.open && (('key' in e && e.key === 'Escape') || (!('key' in e) && !d.contains(e.target as Node)))) d.open = false;
+    };
+    document.addEventListener('mousedown', close); document.addEventListener('keydown', close);
+    return () => { document.removeEventListener('mousedown', close); document.removeEventListener('keydown', close); };
+  }, []);
+  const toggle = (k: string) => setHome({ hidden: hidden.has(k) ? [...hidden].filter(x => x !== k) : [...hidden, k] });
+  const n = all.filter(c => c.k !== 'form' && hidden.has(c.k)).length;
+  return (
+    <details className="hcols" id="hcols" ref={ref}>
+      <summary className="btn">columns{n ? ` (${n} hidden)` : ''}</summary>
+      <div className="hcols-menu">
+        {all.filter(c => c.k !== 'form').map(c => (
+          <label key={c.k} title={c.tip}><input type="checkbox" checked={!hidden.has(c.k)} onChange={() => toggle(c.k)} /> {c.head}</label>))}
+        {n > 0 && <button className="btn" onClick={() => setHome({ hidden: [] })}>show all</button>}
+      </div>
+    </details>
   );
 }
 

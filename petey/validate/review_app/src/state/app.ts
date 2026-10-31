@@ -7,6 +7,8 @@ import { store, storeJson } from '../lib/util';
 
 export interface HomeState {
   on: boolean; sort: string; asc: boolean; q: string; section: string; domain: string | null; status: string; hideVal: boolean;
+  /** the table's columns left out (Andrew, 2026-10-31: "a dropdown to control which columns show up") */
+  hidden?: string[];
 }
 export type ShowKey = 'valid' | 'groups' | 'grids' | 'blocks';
 
@@ -44,7 +46,7 @@ export const useApp = create<AppState>(() => ({
   mode: savedMode && MODE_IDS.includes(savedMode) ? savedMode : 'review',
   page: 1,
   zoom: parseFloat(store('br_zoom') || '') || 1.6,
-  home: { ...storeJson('br_home', { sort: 'section', asc: true, q: '', section: '', domain: null as string | null, status: '', hideVal: false }), on: false },
+  home: { ...storeJson('br_home', { sort: 'section', asc: true, q: '', section: '', domain: null as string | null, status: '', hideVal: false, hidden: [] as string[] }), on: false },
   show: storeJson('br_show', { valid: true, groups: true, grids: true, blocks: true }),
   wide: store('br_wide') === '1',
   sideW: +(store('br_side_w') || 0) || 460,

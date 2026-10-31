@@ -38,3 +38,10 @@ def test_accept_structure_replaces_accept_all():
     assert ">accept structure</button>" in HEADER and ">accept all</button>" not in HEADER
     home = (SRC / "components" / "home-data.ts").read_text()
     assert "{ k: 'structure', t: 'structure validated' }" in home
+
+
+def test_home_has_a_column_picker_kept_per_browser():
+    home = (SRC / "components" / "Home.tsx").read_text()
+    assert '<Columns all={ALL} hidden={hidden} />' in home
+    assert "c.k === 'form' || !hidden.has(c.k)" in home              # the form column (the link) always shows
+    assert "hidden?: string[];" in (SRC / "state" / "app.ts").read_text()   # saved with the other home settings
