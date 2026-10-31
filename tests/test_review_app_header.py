@@ -26,3 +26,9 @@ def test_audit_has_no_tab_and_no_key():
     ids = re.search(r"export const MODE_IDS: ModeId\[\] = \[([^\]]*)\]", (SRC / "lib" / "types.ts").read_text()).group(1)
     assert "'audit'" not in ids and "'blocks'" in ids
     assert "MODE_IDS.map" in (SRC / "components" / "Frame.tsx").read_text()
+
+
+def test_ignore_page_reason_starts_as_too_few_fields():
+    frame = (SRC / "components" / "Frame.tsx").read_text()
+    assert "const DEFAULT_REASON = 'too few fields';" in frame
+    assert "useState(DEFAULT_REASON)" in frame and "e.currentTarget.select()" in frame

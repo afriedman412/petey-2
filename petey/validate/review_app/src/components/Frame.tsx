@@ -65,11 +65,13 @@ function PagesOf() {
 
 // "ignore this page" (Andrew, 2026-10-31): the page open left out of the benchmark, with a reason (required; the
 // reasons used before are offered). An ignored page's button is struck through; "take back" puts it back in.
+// The reason starts as "too few fields", selected so typing replaces it (Andrew, 2026-10-31).
+const DEFAULT_REASON = 'too few fields';
 function IgnorePage({ bid, page }: { bid: string; page: number }) {
   const { rec, open } = useIgnored();
-  const [reason, setReason] = useState('');
+  const [reason, setReason] = useState(DEFAULT_REASON);
   const pid = pageId(bid, page), ig = rec[pid];
-  useEffect(() => { useIgnored.setState({ open: false }); setReason(''); }, [pid]);
+  useEffect(() => { useIgnored.setState({ open: false }); setReason(DEFAULT_REASON); }, [pid]);
   if (ig) return (
     <span className="ignorepg" id="ignorePage">
       <span className="why" title={`ignored ${ig.when}`}>p{page} ignored: {ig.reason}</span>
@@ -81,10 +83,10 @@ function IgnorePage({ bid, page }: { bid: string; page: number }) {
       <button onClick={() => useIgnored.setState({ open: true })} title="leave this page out of the benchmark, with a reason">ignore page</button>
     </span>
   );
-  const go = () => { if (reason.trim()) setIgnored(pid, true, reason).then(ok => ok && setReason('')); };
+  const go = () => { if (reason.trim()) setIgnored(pid, true, reason).then(ok => ok && setReason(DEFAULT_REASON)); };
   return (
     <span className="ignorepg" id="ignorePage">
-      <input autoFocus list="ignoreReasons" placeholder={`why ignore p${page}?`} value={reason} onChange={e => setReason(e.target.value)}
+      <input autoFocus onFocus={e => e.currentTarget.select()} list="ignoreReasons" placeholder={`why ignore p${page}?`} value={reason} onChange={e => setReason(e.target.value)}
         onKeyDown={e => { if (e.key === 'Enter') go(); else if (e.key === 'Escape') useIgnored.setState({ open: false }); }} />
       <datalist id="ignoreReasons">{reasonsUsed(rec).map(r => <option key={r} value={r} />)}</datalist>
       <button disabled={!reason.trim()} onClick={go}>ignore</button>
