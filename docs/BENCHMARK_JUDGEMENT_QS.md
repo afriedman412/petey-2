@@ -87,6 +87,20 @@ same column) and blocks (same copy, same slot). Scored pairwise plus groups, gri
   downstream, probably." A call on purpose, not layout, and on what is useful in the set, not a scoring mechanic
   (Andrew: "this isn't a functional issue, it's a question of what is useful as a part of this benchmark"): made when
   the set is built.
+  How, 2026-10-31 (Andrew: "'checklist' issue will be handled by 'ignore this page'"): a checklist page is ignored,
+  page by page, on the review page ("ignore page", with a reason) or the /sweep sheet's checklist sweep; the key and the
+  scorer leave ignored pages out (petey/validate/ignored_pages.py, runs/benchmark/ignored_pages.json).
+- Ignored pages (2026-10-31): any key page can be left out with a reason, a record apart from the blueprints ("a bulk
+  tagging issue, not something we really need for production"). Pages with few or no fields go the same way, one by
+  one on the /sweep sheet's "few fields" sweep (51 key pages with 9 fields or fewer).
+- "Office use only" sections are fields like any other (2026-10-31, Andrew: "sweep to add fields in 'internal use
+  only' sections of pages, and other similar"): added to the key where the publisher drew none, from the /sweep
+  sheet's office sweep (78 key pages). Settles 12.
+- Near-duplicate layouts (2026-10-31, settles 7's fingerprint): every page of the library fingerprinted
+  (eval/page_inventory.py: words and a small image hash; eval/page_dups.py). Same-form copies archived (91, aggressive:
+  a later edition, a typo fix or another town's address on one layout is one form; Andrew: "aggressive is fine");
+  different forms on one layout (CMS-20027 / CMS-20033) stay two forms. A page in the key that is the same page as
+  another key page is ignored, reason "same page as <page id>" (3 on 2026-10-31).
 
 ## Before the full run
 
@@ -187,7 +201,7 @@ and Jev joins), and grids / blocks from `structure.find`. Validating them by eye
 already does. Options: validate from a blank start on a sample to measure the anchoring; strip the starting groups on
 part of the set; accept it and say so.
 
-## 7. Near-duplicate layouts and caps (2026-10-26, open)
+## 7. Near-duplicate layouts and caps (2026-10-26; fingerprint built and used 2026-10-31, see Decided; the cap per fingerprint still open)
 
 The caps are per form and per publisher, but different publishers reuse one layout (the same vendor template, a
 rehosted government form). Open: a page fingerprint to catch near-duplicates across publishers, and what the cap is for
@@ -249,7 +263,7 @@ could be a grid of per-row groups) and strike-out choices ("delete whichever is 
 [bm__pb_996e62b8f783](http://localhost:5005/#review/bm__pb_996e62b8f783) page 2 (2026-10-28, Andrew: "circle fields
 ('circle the value that applies' or similar) -- need to figure these out").
 
-## 12. "Official use only" / "office use only" sections (2026-10-28, open)
+## 12. "Official use only" / "office use only" sections (2026-10-28; settled 2026-10-31: fields like any other)
 
 Andrew: "I need to decide what we are going to do about 'official use only'/'office use only' stuff." Fields the filer
 never fills, left for the receiving office. Options: fields like any other (they are on the page and someone fills
