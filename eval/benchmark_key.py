@@ -21,7 +21,8 @@ What the guidelines say, as read here (docs/BENCHMARK_JUDGEMENT_QS.md, Decided):
     groups     option groups of two or more boxes; Split Fields as tagged on the Groups tab (x_petey_entity). Library
                forms validated before the tag existed carry none
 
-Pages: forms the review page counts as validated (every field has a verdict, none flagged, file unchanged since), in
+Pages: forms the review page counts as validated (every field has a verdict, none flagged, file unchanged since) or
+as STRUCTURE VALIDATED ("accept structure", file unchanged since; 2026-10-31), in
 the benchmark's sets (library, first batch, business, government, municipal, big publishers, hand-picked, finance);
 at most `PER_FORM` pages a form, those with the most fields, after the pages ignored on the review page are left out
 (petey.validate.ignored_pages, 2026-10-31). Nothing is written to the blueprints.
@@ -158,13 +159,12 @@ def main() -> int:
     unconfirmed = 0
     for bid, sset in todo:
         v = h.load_verdicts(bid)
-        if not v.get("verdicts"):
+        if not v.get("verdicts") and not v.get("structure"):
             skipped["not reviewed"] += 1
             continue
         p = h.working_path(bid, paths)
         bp = h._load(p)
-        c = h.checked(v, p, bp)
-        if not (c and c["validated"]):
+        if not h.structure_ok(v, p, bp):                 # validated, or its structure validated (2026-10-31)
             skipped["not validated"] += 1
             continue
         keys = page_keys(bp, cv.from_tags(bp))

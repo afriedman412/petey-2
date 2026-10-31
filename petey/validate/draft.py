@@ -103,9 +103,9 @@ def follow(bid: str, before: str, after: str) -> None:
         if rec.get("blueprint_sha") != before:
             continue
         rec["blueprint_sha"] = after
-        ck = rec.get("checked")
-        if isinstance(ck, dict) and ck.get("blueprint_sha") == before:
-            ck["blueprint_sha"] = after
+        for stamp in (rec.get("checked"), rec.get("structure")):
+            if isinstance(stamp, dict) and stamp.get("blueprint_sha") == before:
+                stamp["blueprint_sha"] = after
         rp.write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
 
 

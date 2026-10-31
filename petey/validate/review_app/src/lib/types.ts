@@ -7,6 +7,7 @@ export type ModeId = 'review' | 'groups' | 'add' | 'grids' | 'blocks' | 'audit';
 export const MODE_IDS: ModeId[] = ['review', 'groups', 'add', 'grids', 'blocks'];
 
 export interface Draft { changes: number; log: string[]; made: string; real_changed?: boolean }
+export interface Structure { when?: string; by?: string; stale?: boolean }
 export interface Checked { validated?: boolean; flagged?: number; pending?: number; stale?: boolean; when?: string }
 
 /** A row of `/api/blueprints`: one blueprint the page can open. */
@@ -18,6 +19,8 @@ export interface Entry {
   flagged: number;
   draft?: Draft | null;
   checked?: Checked | null;
+  // "accept structure" (2026-10-31): fields, kinds, groups, grids and blocks right, names not looked at
+  structure?: Structure | null;
   age?: { when?: string; by?: string } | null;
   check_errors?: number | null;
   check_suggestions?: number | null;

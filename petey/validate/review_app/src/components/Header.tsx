@@ -13,6 +13,7 @@ function pickerText(b: Entry) {
   // fields, reviewed, VALIDATED; a * marks an unsaved working copy
   const bits = [`${b.fields} fields`, `${b.accepted + b.flagged} reviewed`];
   if (b.checked?.validated) bits.push('VALIDATED');
+  else if (b.structure && !b.structure.stale) bits.push('STRUCTURE VALIDATED');
   return `${b.form}${b.draft ? ' *' : ''}  (${bits.join(', ')})`;
 }
 
@@ -101,9 +102,9 @@ export function Header() {
           onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.bulkAccept(); }}>
           {inReview ? `accept settled (${counts.settledLeft})` : 'accept settled'}
         </button>
-        <button className="btn" id="acceptAll" disabled={!bid}
-          title="TEMPORARY: accept every unreviewed field on this form at once (for the benchmark forms); undo with reset validation (opens Review)"
-          onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.acceptAll(); }}>accept all</button>
+        <button className="btn" id="acceptStructure" disabled={!bid}
+          title="the form's structure is right (its fields, their kinds, groups, grids and blocks): STRUCTURE VALIDATED, names left to review; accepting every name makes it VALIDATED (opens Review)"
+          onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.acceptStructure(); }}>accept structure</button>
         <button className="btn" id="resetV" disabled={!bid}
           title="clear every verdict on this form (accepted, flagged, notes), to check it again from scratch; the old record is kept aside (opens Review)"
           onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.resetValidation(); }}>reset validation</button>

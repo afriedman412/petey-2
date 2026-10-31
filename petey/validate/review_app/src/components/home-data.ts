@@ -17,23 +17,25 @@ export const SECTION_ORDER: Record<string, number> = Object.fromEntries(Object.k
 // loops) -> cleared (the automated passes, recorded by eval/passes_record.py) -> validated (the manual check: in
 // review, needs work, changed since check, validated). A form is in review only once cleared, with verdicts made after
 // that; without the passes it is generated, unless it was fully checked before they existed.
-export type Status = { k: 'validated' | 'work' | 'recheck' | 'progress' | 'cleared' | 'generated'; t: string };
+export type Status = { k: 'validated' | 'structure' | 'work' | 'recheck' | 'progress' | 'cleared' | 'generated'; t: string };
 export function statusOf(b: Entry): Status {
   const c = b.checked;
   if (c && c.validated) return { k: 'validated', t: 'validated' };
+  // STRUCTURE VALIDATED (2026-10-31): "accept structure", names still to review; VALIDATED supersedes it
+  if (b.structure && !b.structure.stale) return { k: 'structure', t: 'structure validated' };
   if (c && (c.flagged || c.pending)) return { k: 'work', t: 'needs work' };
-  if (c && c.stale) return { k: 'recheck', t: 'changed since check' };
+  if ((c && c.stale) || b.structure?.stale) return { k: 'recheck', t: 'changed since check' };
   const reviewed = !!b.passes && (b.accepted + b.flagged) > 0 && (b.touched || '') > (b.passes.when || '');
   if (reviewed) return { k: 'progress', t: 'in review' };
   if (b.passes) return { k: 'cleared', t: 'cleared' };
   return { k: 'generated', t: 'generated' };
 }
-export const STATUS_ORDER: Record<Status['k'], number> = { generated: 0, cleared: 1, progress: 2, work: 3, recheck: 4, validated: 5 };
+export const STATUS_ORDER: Record<Status['k'], number> = { generated: 0, cleared: 1, progress: 2, work: 3, recheck: 4, structure: 5, validated: 6 };
 
 export const HSTAGES: [string | null, [string, string][]][] = [
   [null, [['', 'blueprints']]],
   ['automated', [['generated', 'generated'], ['cleared', 'cleared']]],
-  ['validation (manual)', [['progress', 'in review'], ['work', 'needs work'], ['recheck', 'changed since check'], ['validated', 'validated']]],
+  ['validation (manual)', [['progress', 'in review'], ['work', 'needs work'], ['recheck', 'changed since check'], ['structure', 'structure validated'], ['validated', 'validated']]],
   [null, [['copy', 'unsaved copies'], ['dup', 'possible duplicates']]],
 ];
 

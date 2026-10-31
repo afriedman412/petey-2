@@ -269,6 +269,8 @@ export function Bar() {
   const t: Record<string, number> = {}; BP.fields.forEach(f => { if (f.tier) t[f.tier] = (t[f.tier] || 0) + 1; });
   const tiers = Object.keys(TIER_RANK).filter(k => t[k]).map(k => `${k} ${t[k]}`).join(' · ');
   const c = BP.checked;
+  const st = !c?.validated && BP.structure && !BP.structure.stale
+    ? <span className="badge structure" title={`"accept structure" ${BP.structure.when || ''}: fields, kinds, groups, grids and blocks right; accept every name to make it validated`}>structure validated</span> : null;
   const ck = !c ? null : c.validated ? <span className="badge validated" title="every field has a verdict, none flagged, every correction applied">validated</span>
     : c.stale ? <span className="badge stalecheck">checked, file changed since</span>
     : <span className="badge checked" title={`every field has a verdict${c.flagged ? '; flags still need work' : ''}${c.pending ? '; corrections still to apply' : ''}`}>checked {(c.when || '').slice(0, 10)}{c.flagged ? `, ${c.flagged} flagged` : ''}{c.pending ? `, ${c.pending} to apply` : ''}</span>;
@@ -278,7 +280,7 @@ export function Bar() {
   const pending = Object.entries(BP.verdicts).filter(([nm, v]) => v.edit && !v.applied && names.has(nm)).length;
   return (
     <span className={'progress' + (justChecked ? ' justchecked' : '')} id="progress">
-      {ck}{ck ? ' ' : ''}<b>{acc}</b> accepted · <b>{flg}</b> flagged · <b>{n - acc - flg}</b> left of {n}
+      {st}{st ? ' ' : ''}{ck}{ck ? ' ' : ''}<b>{acc}</b> accepted · <b>{flg}</b> flagged · <b>{n - acc - flg}</b> left of {n}
       {tiers && <> <span className="help">({tiers})</span></>}
       {BP.witness_error && <> <span className="stale">witnesses failed: {BP.witness_error}</span></>}
       {BP.agent_running ? <> <span className="help">· the agent is reviewing your edits…</span></> : <>

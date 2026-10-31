@@ -342,6 +342,36 @@ def checked(v: dict, p: Path, bp: dict) -> Optional[dict]:
             "validated": not stale and not flagged and not pending}
 
 
+def structure(v: dict, p: Path) -> Optional[dict]:
+    """`{when, stale}` once the form's structure is validated, else None (Andrew, 2026-10-31: "since we are currently
+    only looking at structure, in the service of building the data set, let's encode that status"): "accept structure"
+    on the review page says its fields, their kinds, groups, grids and blocks are right, names not looked at. Shown as
+    STRUCTURE VALIDATED until every name is accepted too (`checked` validated), which supersedes it. Stale when the
+    blueprint changed after it, as `checked` is (the page's own changes carry it along: `draft.follow`)."""
+    s = v.get("structure")
+    if not s:
+        return None
+    return {"when": s.get("when"), "by": s.get("by"), "stale": s.get("blueprint_sha") != _sha(p)}
+
+
+def structure_ok(v: dict, p: Path, bp: dict) -> bool:
+    """Validated in full, or its structure validated and the file unchanged since: what the benchmark key takes."""
+    c, s = checked(v, p, bp), structure(v, p)
+    return bool((c and c["validated"]) or (s and not s["stale"]))
+
+
+def stamp_structure(bid: str, p: Path, real: Path, by: str = "accept structure") -> dict:
+    """The form's structure validated against the file the page reads (`p`, its working copy if open)."""
+    with _VERDICT_LOCK:
+        rec = load_verdicts(bid) or {"blueprint": str(real), "form": real.stem, "verdicts": {}}
+        sha = _sha(p)
+        rec.setdefault("blueprint_sha", sha)
+        rec["structure"] = {"when": time.strftime("%Y-%m-%d %H:%M:%S"), "blueprint_sha": sha, "by": by}
+        OUT.mkdir(parents=True, exist_ok=True)
+        _write_verdicts(bid, rec)
+        return rec["structure"]
+
+
 def _git(*args: str, cwd: Path = BLUEPRINTS.parent) -> str:
     try:
         return subprocess.run(["git", *args], capture_output=True, text=True, cwd=cwd, timeout=10).stdout.strip()
@@ -474,7 +504,7 @@ class State:
                 "accepted": sum(1 for n in fields if vs.get(n, {}).get("verdict") == "accept"),
                 "flagged": sum(1 for n in fields if vs.get(n, {}).get("verdict") == "flag"),
                 "stale": bool(v) and v.get("blueprint_sha") != _sha(p),
-                "checked": checked(v, p, bp),
+                "checked": checked(v, p, bp), "structure": structure(v, p),
                 "finder": (bp.get("x_petey_build") or {}).get("finder"),
                 "age": age(real, bp, self._git_here, self._git_origin),
                 # a library form run again through the current code (scripts/run_form.sh, form_run.py): the picker
@@ -539,7 +569,7 @@ class State:
                 "agent_running": _flag_agent().running(bid), "agent_todo": len(_flag_agent().todo(v)),
                 "semantic_types": __import__("petey.semantic_types", fromlist=["registered_names"]).registered_names(),
                 "witness_run": wit.get("run"), "witness_error": wit.get("error"), "made": made(real, bp),
-                "checked": checked(v, p, bp), "dpi": DPI}
+                "checked": checked(v, p, bp), "structure": structure(v, p), "dpi": DPI}
 
     def witnesses(self, bid: str, p: Path) -> dict:
         """Per-field witnesses and tier (`witness.py`), once per blueprint version; no API calls."""
@@ -614,6 +644,8 @@ class State:
         sha = _sha(p)
         out = {"blueprint": str(real), "form": real.stem, "blueprint_sha": sha, "build": bp.get("x_petey_build"),
                "updated": now, "verdicts": vs}
+        if cur.get("structure"):
+            out["structure"] = cur["structure"]          # "accept structure" stays through verdict saves
         # checked: every reviewable field has a verdict. The first moment that holds is kept (re-saving a note
         # does not move it); clearing a verdict, or completing it again on a changed file, starts over
         names = reviewable(bp)

@@ -2,7 +2,7 @@
 // The tab's data and everything it does; Panel.tsx and Layer.tsx draw it.
 import { create } from 'zustand';
 import { j, mapi, send } from '../../lib/api';
-import type { Checked, PageInfo } from '../../lib/types';
+import type { Checked, PageInfo, Structure } from '../../lib/types';
 import { fileStem, localNow, PART_KEYS, scrollToSel, stdPrint, store, type PartKey, type Parts, type Rect } from '../../lib/util';
 import { loadMode, syncSha, toast, updateEntry } from '../../state/actions';
 import { entryOf, get as app, set as setApp, useApp } from '../../state/app';
@@ -42,7 +42,7 @@ export interface Made {
 export interface ReviewData {
   path: string; blank?: string | null; build?: { finder: string } | null; made?: Made | null;
   pages: PageInfo[]; fields: RField[]; verdicts: Record<string, Verdict>; semantic_types?: string[];
-  stale?: boolean; checked?: Checked | null; witness_error?: string | null; agent_running?: boolean; agent_todo?: number;
+  stale?: boolean; checked?: Checked | null; structure?: Structure | null; witness_error?: string | null; agent_running?: boolean; agent_todo?: number;
 }
 export interface Removal { name: string; page: number; rect: Rect; when: string; from: string }
 
@@ -436,15 +436,17 @@ async function bulkAccept() {
   await putV(Object.fromEntries(todo.map(f => [f.name, { verdict: 'accept' as const, note: 'bulk: settled' }])));
 }
 
-// TEMPORARY (Andrew, 2026-10-27: "can you add an 'accept all' button temporarily (I'm not doing individual validation of
-// fields on these)"): every unreviewed field accepted at once, for the benchmark forms, where the structure is checked in
-// the other tabs and names do not matter. Undone by "reset validation".
-async function acceptAll() {
-  const BP = S().BP; if (!BP) return;
-  const todo = BP.fields.filter(f => !verdictOf(f.name));
-  if (!todo.length) { toast('Every field already has a verdict.'); return; }
-  await putV(Object.fromEntries(todo.map(f => [f.name, { verdict: 'accept' as const, note: 'bulk: accept all' }])));
-  toast(`${todo.length} field(s) accepted.`);
+// "accept structure" (Andrew, 2026-10-31: "since we are currently only looking at structure, in the service of building
+// the data set, let's encode that status"; replaces "accept all", which accepted every name unseen): the form is
+// STRUCTURE VALIDATED, its field verdicts untouched; accepting every name makes it VALIDATED
+async function acceptStructure() {
+  const bid = app().bid; if (!bid) return;
+  if (!confirm('Mark this form STRUCTURE VALIDATED (its fields, kinds, groups, grids and blocks are right)? Names stay to review.')) return;
+  let out;
+  try { out = await send('PUT', mapi('review', bid, '/structure'), {}); }
+  catch (e) { alert((e as Error).message); return; }
+  updateEntry(out.entry); await loadMode();
+  toast('Structure validated. Accept every name to make it VALIDATED.');
 }
 
 // names two or more fields would have once saved corrections are applied (Andrew, 2026-10-13); each set gets its own
@@ -474,7 +476,7 @@ function toggleClashes() {
   const here = names.find(n => fieldOf(n)?.page === app().page);
   select(here || names[0]);
 }
-export const reviewActions = { toggleClashes, bulkAccept, acceptAll, resetValidation };
+export const reviewActions = { toggleClashes, bulkAccept, acceptStructure, resetValidation };
 
 /** What the header shows from Review: the clash count and the settled fields left. */
 export function useHeaderCounts() {
