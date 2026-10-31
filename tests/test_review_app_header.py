@@ -55,9 +55,9 @@ def test_home_counts_fold_away_and_structure_validated_can_be_hidden():
 
 
 def test_printed_fields_are_hatched_on_review():
-    assert "(f.printed ? ' printed' : '')" in (SRC / "modes" / "review" / "index.tsx").read_text()
+    assert "(f.printed ? ' printed' : f.printed === false ? ' txt' : '')" in (SRC / "modes" / "review" / "index.tsx").read_text()
     css = (SRC / "styles.css").read_text()
-    assert ".rv.printed:not(.flag):not(.removed) { background:repeating-linear-gradient(" in css
+    assert ".rv.printed:not(.flag):not(.removed) { background:rgba(" in css and ".rv.txt:not(.flag):not(.removed) { background:rgba(" in css
 
 
 def test_the_two_whole_form_accepts_save_after_and_a_field_accept_does_not():
