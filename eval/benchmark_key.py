@@ -22,7 +22,8 @@ What the guidelines say, as read here (docs/BENCHMARK_JUDGEMENT_QS.md, Decided):
 
 Pages: forms the review page counts as validated (every field has a verdict, none flagged, file unchanged since), in
 the benchmark's sets (library, first batch, business, government, municipal, big publishers, hand-picked, finance);
-at most `PER_FORM` pages a form, those with the most fields. Nothing is written to the blueprints.
+at most `PER_FORM` pages a form, those with the most fields, after the pages ignored on the review page are left out
+(petey.validate.ignored_pages, 2026-10-31). Nothing is written to the blueprints.
 
     PYTHONPATH=. venv/bin/python eval/benchmark_key.py [--pdfs] [--forms ID ...]
 
@@ -146,6 +147,7 @@ def write_page_pdf(blank: Path, page: int, dst: Path) -> list[float]:
 def main() -> int:
     from petey.validate import compound_values as cv
     from petey.validate import hand_review as h
+    from petey.validate import ignored_pages
     from petey.validate import printed_fields as pf
     from petey.validate.retype import resolve_blank
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
@@ -157,6 +159,7 @@ def main() -> int:
     todo = [(b, s) for b, s in candidates() if not args.forms or b in args.forms]
     index, skipped = [], collections.Counter()
     record = pf.load()
+    ignored = ignored_pages.load()
     proposed = json.loads(pf.CANDIDATES.read_text()) if pf.CANDIDATES.exists() else {}
     unconfirmed = 0
     for bid, sset in todo:
@@ -171,6 +174,9 @@ def main() -> int:
             skipped["not validated"] += 1
             continue
         keys = page_keys(bp, cv.from_tags(bp))
+        for pg in [pg for pg in keys if f"{bid}__p{pg}" in ignored]:      # ignored on the review page, before the pick
+            del keys[pg]
+            skipped["pages ignored"] += 1
         pages = sorted(keys, key=lambda pg: (-len(keys[pg]["fields"]), pg))[:PER_FORM]
         blank = resolve_blank(bp)
         for pg in sorted(pages):

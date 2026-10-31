@@ -7,6 +7,7 @@ import { gotoPage, setMode, setZoom, toggleWide } from '../state/actions';
 import { copyText } from '../lib/dnd';
 import { set, useApp, useEntry, type ShowKey } from '../state/app';
 import { MODES } from '../modes';
+import { loadIgnored, pageId, reasonsUsed, setIgnored, useIgnored } from '../state/ignored';
 
 // the page's reference (file_p3) before the tab's counts, on every tab: click to copy it (Andrew, 2026-10-27)
 function PageRef() {
@@ -45,16 +46,50 @@ function PagesOf() {
   const { mode, page, bid, loaded } = useApp();
   const d = MODES[mode];
   d.useData();
+  const ign = useIgnored(s => s.rec);
+  useEffect(() => { loadIgnored(); }, []);
   if (!bid || loaded?.mode !== mode || loaded.bid !== bid) return <div className="pages" id="pages" />;
   return (
     <div className="pages" id="pages">
       {d.pages().map(p => {
         const lab = d.pageLabel(p.page) || `p${p.page}`;
-        const done = typeof lab !== 'string' && lab.done, empty = p.fields === 0;
-        return <button key={p.page} className={(p.page === page ? 'on' : '') + (done ? ' done' : '') + (empty ? ' empty' : '')}
-          title={empty ? 'no fields on this page' : undefined} onClick={() => gotoPage(p.page)}>{typeof lab === 'string' ? lab : lab.text}</button>;
+        const done = typeof lab !== 'string' && lab.done, empty = p.fields === 0, ig = ign[pageId(bid, p.page)];
+        return <button key={p.page} className={(p.page === page ? 'on' : '') + (done ? ' done' : '') + (empty ? ' empty' : '') + (ig ? ' ignored' : '')}
+          title={[empty && 'no fields on this page', ig && `ignored: ${ig.reason}`].filter(Boolean).join('; ') || undefined}
+          onClick={() => gotoPage(p.page)}>{typeof lab === 'string' ? lab : lab.text}</button>;
       })}
+      <IgnorePage bid={bid} page={page} />
     </div>
+  );
+}
+
+// "ignore this page" (Andrew, 2026-10-31): the page open left out of the benchmark, with a reason (required; the
+// reasons used before are offered). An ignored page's button is struck through; "take back" puts it back in.
+function IgnorePage({ bid, page }: { bid: string; page: number }) {
+  const { rec, open } = useIgnored();
+  const [reason, setReason] = useState('');
+  const pid = pageId(bid, page), ig = rec[pid];
+  useEffect(() => { useIgnored.setState({ open: false }); setReason(''); }, [pid]);
+  if (ig) return (
+    <span className="ignorepg" id="ignorePage">
+      <span className="why" title={`ignored ${ig.when}`}>p{page} ignored: {ig.reason}</span>
+      <button className="mini" onClick={() => setIgnored(pid, false)} title="put this page back in the benchmark">take back</button>
+    </span>
+  );
+  if (!open) return (
+    <span className="ignorepg" id="ignorePage">
+      <button onClick={() => useIgnored.setState({ open: true })} title="leave this page out of the benchmark, with a reason">ignore page</button>
+    </span>
+  );
+  const go = () => { if (reason.trim()) setIgnored(pid, true, reason).then(ok => ok && setReason('')); };
+  return (
+    <span className="ignorepg" id="ignorePage">
+      <input autoFocus list="ignoreReasons" placeholder={`why ignore p${page}?`} value={reason} onChange={e => setReason(e.target.value)}
+        onKeyDown={e => { if (e.key === 'Enter') go(); else if (e.key === 'Escape') useIgnored.setState({ open: false }); }} />
+      <datalist id="ignoreReasons">{reasonsUsed(rec).map(r => <option key={r} value={r} />)}</datalist>
+      <button disabled={!reason.trim()} onClick={go}>ignore</button>
+      <button onClick={() => useIgnored.setState({ open: false })}>cancel</button>
+    </span>
   );
 }
 
