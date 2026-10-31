@@ -44,6 +44,12 @@ header select { max-width:520px; }
 /* one line (2026-10-13): the form menu gives way first, then the subtitle */
 header { flex-wrap:nowrap; gap:8px; } header > * { flex-shrink:0; }
 header #listorder { width:112px; }
+/* the whole form's verdict buttons as one joined cluster (2026-10-31) */
+header .btngroup { display:inline-flex; }
+header .btngroup .btn { border-radius:0; margin-left:-1px; }
+header .btngroup .btn:first-child { border-radius:5px 0 0 5px; margin-left:0; }
+header .btngroup .btn:last-child { border-radius:0 5px 5px 0; }
+header .btngroup .btn:hover:not(:disabled) { position:relative; z-index:1; }
 header #pick { flex:0 1 380px; min-width:140px; width:380px; }
 @media (max-width:1500px) { .brand .sub { display:none; } }
 header .ctl select { text-transform:none; letter-spacing:0; font-weight:400; font-size:.8rem; }
@@ -399,7 +405,7 @@ details.raw { font-size:12px; } details.raw summary { cursor:pointer; color:var(
 .ghanchor .ghtab { position:absolute; left:-1.5px; top:-9px; width:18px; height:9px; background:var(--c); border-radius:3px 3px 0 0; cursor:grab; pointer-events:auto;
   background-image:repeating-linear-gradient(90deg, transparent 0 3px, rgba(255,255,255,.55) 3px 4px); background-clip:padding-box; }
 .gh.dragging, .ghtab.dragging { opacity:.4; }
-/* "hide tabs" in the header (2026-10-27): the labels and grab tabs on the page, not the boxes; .ovl span too, the grid
+/* hidden tabs (t; a header button 2026-10-27 to 10-31): the labels and grab tabs on the page, not the boxes; .ovl span too, the grid
    ids and block labels "show" draws on the other tabs, so they hide on every tab at once */
 body.notabs .ghtab, body.notabs .gtab .gtid, body.notabs .btb span, body.notabs .ov.added .tag, body.notabs .ovl span { display:none; }
 

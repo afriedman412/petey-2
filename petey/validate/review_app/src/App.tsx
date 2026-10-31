@@ -18,7 +18,7 @@ function onKey(e: KeyboardEvent) {
   if (e.key === '?') { set({ helpOpen: !helpOpen }); e.preventDefault(); return; }
   if (e.key === 'Escape' && helpOpen) { set({ helpOpen: false }); e.preventDefault(); return; }
   if (home.on) { if (e.key === '/') { focusHomeSearch(); e.preventDefault(); } return; }
-  if (e.shiftKey && /^Digit[123456]$/.test(e.code)) { setMode(MODE_IDS[+e.code.slice(5) - 1]); e.preventDefault(); return; }
+  if (e.shiftKey && /^Digit[1-9]$/.test(e.code) && MODE_IDS[+e.code.slice(5) - 1]) { setMode(MODE_IDS[+e.code.slice(5) - 1]); e.preventDefault(); return; }
   if (!bid) return;
   const d = def();
   if (e.key === '+' || e.key === '=') setZoom(zoom * 1.25);

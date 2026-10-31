@@ -2,7 +2,9 @@
 import type { Rect } from './util';
 
 export type ModeId = 'review' | 'groups' | 'add' | 'grids' | 'blocks' | 'audit';
-export const MODE_IDS: ModeId[] = ['review', 'groups', 'add', 'grids', 'blocks', 'audit'];
+// the tabs shown, in order (Shift+1..5); Audit is left out until it is built (Andrew, 2026-10-31: "audit will come
+// back later when we implement it"): its code stays, no button, no key, a saved or linked #audit opens Review
+export const MODE_IDS: ModeId[] = ['review', 'groups', 'add', 'grids', 'blocks'];
 
 export interface Draft { changes: number; log: string[]; made: string; real_changed?: boolean }
 export interface Checked { validated?: boolean; flagged?: number; pending?: number; stale?: boolean; when?: string }

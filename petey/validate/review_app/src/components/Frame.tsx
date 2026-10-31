@@ -1,7 +1,7 @@
 // The frame around the tabs: the mode bar and tabs, the page buttons, the sidebar (with its "show" toggles and the
 // view buttons), the help menu and the toast.
 import { useEffect, useRef, useState, type KeyboardEvent as RKeyboardEvent } from 'react';
-import type { ModeId } from '../lib/types';
+import { MODE_IDS } from '../lib/types';
 import { store } from '../lib/util';
 import { gotoPage, setMode, setZoom, toggleWide } from '../state/actions';
 import { copyText } from '../lib/dnd';
@@ -25,7 +25,7 @@ export function ModeBar() {
     <div id="modebarRow">
       <div id="modebar"><PageRef />{ready ? <d.Bar /> : <span className="progress" id="progress" />}</div>
       <span className="tabs" id="tabs">
-        {(Object.keys(MODES) as ModeId[]).map((m, i) => (
+        {MODE_IDS.map((m, i) => (
           <button key={m} className={m === mode ? 'on' : ''} title={`Shift+${i + 1}`} onClick={() => setMode(m)}>{MODES[m].name}</button>
         ))}
       </span>

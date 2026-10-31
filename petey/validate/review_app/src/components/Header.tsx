@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import type { Entry } from '../lib/types';
 import { store } from '../lib/util';
 import { discardDraft, openBlueprint, reboot, saveDraft, setMode, showHome } from '../state/actions';
-import { set, setTabsHidden, useApp, useEntry } from '../state/app';
+import { set, useApp, useEntry } from '../state/app';
 import { reviewActions, useHeaderCounts } from '../modes/review/store';
 import { runFinders } from '../modes/blocks/actions';
 import { SECTIONS, sectionOf } from './home-data';
@@ -65,7 +65,7 @@ export function Header() {
   const counts = useHeaderCounts();
   const [rebootLabel, setRebootLabel] = useState<string | null>(null);
   const [finding, setFinding] = useState(false);
-  // the tabs on the page hidden (state/app.setTabsHidden; t does the same)
+  // the tabs on the page hidden (t, state/app.setTabsHidden; the header button went 2026-10-31)
   const tabsHidden = useApp(s => s.tabsHidden);
   useEffect(() => { document.body.classList.toggle('notabs', tabsHidden); }, [tabsHidden]);
   const inReview = mode === 'review' && counts.loaded;
@@ -93,20 +93,21 @@ export function Header() {
         onClick={async () => { if (get_mode() !== 'blocks') await setMode('blocks'); setFinding(true); try { await runFinders(); } finally { setFinding(false); } }}>
         {finding ? 'running…' : 'run finders'}
       </button>
-      <button className="btn" id="bulk" disabled={!bid || (inReview && !counts.settledLeft)}
-        title="accept every unreviewed field that two or more witnesses back and none disputes (opens Review)"
-        onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.bulkAccept(); }}>
-        {inReview ? `accept settled (${counts.settledLeft})` : 'accept settled'}
-      </button>
-      <button className={'btn' + (tabsHidden ? ' has' : '')} id="tabsBtn" title="hide the tabs drawn on the page (group grab tabs, grid ids, block labels, added fields' names) when they cover printed text; the boxes stay clickable"
-        onClick={() => setTabsHidden(!tabsHidden)}>{tabsHidden ? 'show tabs' : 'hide tabs'}</button>
-      <button className="btn" id="acceptAll" disabled={!bid}
-        title="TEMPORARY: accept every unreviewed field on this form at once (for the benchmark forms); undo with reset validation (opens Review)"
-        onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.acceptAll(); }}>accept all</button>
-      <button className="btn" id="resetV" disabled={!bid}
-        title="clear every verdict on this form (accepted, flagged, notes), to check it again from scratch; the old record is kept aside (opens Review)"
-        onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.resetValidation(); }}>reset validation</button>
-      <a className="btn" href="/extract" title="drop filled PDFs and get their data (petey.web)">extract</a>
+      {/* the whole form's verdicts side by side (Andrew, 2026-10-31: "put 'accept all' 'accept settled' and 'reset
+          validation' together") */}
+      <span className="btngroup" id="verdictBtns">
+        <button className="btn" id="bulk" disabled={!bid || (inReview && !counts.settledLeft)}
+          title="accept every unreviewed field that two or more witnesses back and none disputes (opens Review)"
+          onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.bulkAccept(); }}>
+          {inReview ? `accept settled (${counts.settledLeft})` : 'accept settled'}
+        </button>
+        <button className="btn" id="acceptAll" disabled={!bid}
+          title="TEMPORARY: accept every unreviewed field on this form at once (for the benchmark forms); undo with reset validation (opens Review)"
+          onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.acceptAll(); }}>accept all</button>
+        <button className="btn" id="resetV" disabled={!bid}
+          title="clear every verdict on this form (accepted, flagged, notes), to check it again from scratch; the old record is kept aside (opens Review)"
+          onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.resetValidation(); }}>reset validation</button>
+      </span>
       <button className={'btn' + (entry?.note ? ' has' : '')} id="notesBtn" title="your notes on this form (saved as you type, shown on the home page)"
         onClick={() => set({ notesOpen: !notesOpen })}>{entry?.note ? 'notes •' : 'notes'}</button>
       <button className="btn" id="chatBtn" title="ask for batch edits to this form in plain words; it proposes, you tick and apply (one Opus call per request)"
