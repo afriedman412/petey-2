@@ -3,7 +3,7 @@
 import type { KeyboardEvent } from 'react';
 import {
   addAll, addProps, askLabeler, cancel, closePicked, dropOption, goto, isRemoved, keepRemoved, linesLeft, NAME_RE, pickName, pickRemoved,
-  remaining, runFinder, save, setOptField, setPropField, setShow, skipProp, switchKind, toggleRemove, toggleRmPick, removeAll, unAdd, unDismiss, useAdd,
+  remaining, runFinder, save, setOptField, setPropField, setShow, skipProp, setKind, toggleRemove, toggleRmPick, removeAll, unAdd, unDismiss, useAdd,
   gotoSuggestion, nameClash, type Proposal,
 } from './store';
 
@@ -51,12 +51,15 @@ function Card({ p, i }: { p: Proposal; i: number }) {
         <span className="achip" title={`one call to ${BP!.label_model} with this page's words`} onClick={() => askLabeler(i)}>{asking[p._k!] ? 'asking…' : 'ask the labeler'}</span>
       </div>
       <div className="grid">
-        {/* a button on every one-box card (Andrew, 2026-10-31: "lets just have 'convert to choice' (and v/v) on every
-            card on the add/remove page"); what was under the box decides the kind, and can be wrong */}
+        {/* the kind on every one-box card, text, choice or printed in one pick (Andrew, 2026-10-31: "can you make the
+            'kind' field on the add card a dropdown that has text, choice and printed?"); what was under the box decides
+            it at first, and can be wrong */}
         {p.kind !== 'group' && <>
           <label>kind</label>
-          <button className="btn" id={`aKind${i}`} title="what the page shows: a box to tick, or one to write in"
-            onClick={() => switchKind(i, p.kind === 'text' ? 'option' : 'text')}>{p.kind === 'text' ? 'convert to choice' : 'convert to text'}</button>
+          <select id={`aKind${i}`} title="what the page shows: a box to write in, a box to tick, or a line to sign / write by hand"
+            value={p.kind === 'option' ? 'choice' : p.printed ? 'printed' : 'text'} onKeyDown={cardKeys}
+            onChange={e => setKind(i, e.target.value as 'text' | 'choice' | 'printed')}>
+            <option value="text">text</option><option value="choice">choice</option><option value="printed">printed</option></select>
         </>}
         <label>type</label>
         <select value={p.type || ''} onChange={e => setPropField(i, 'type', e.target.value)} onKeyDown={cardKeys}>{TYPES.map(t => <option key={t}>{t}</option>)}</select>

@@ -93,5 +93,8 @@ def test_grouped_fields_filled_in_their_group_colour():
 
 def test_add_cards_convert_and_choices_are_filled():
     panel = (SRC / "modes" / "add" / "Panel.tsx").read_text()
-    assert "'convert to choice' : 'convert to text'" in panel
+    # the kind a dropdown since (Andrew, 2026-10-31: "can you make the 'kind' field on the add card a dropdown that has
+    # text, choice and printed?")
+    assert '<option value="text">text</option><option value="choice">choice</option><option value="printed">printed</option>' in panel
+    assert "value={p.kind === 'option' ? 'choice' : p.printed ? 'printed' : 'text'}" in panel
     assert ".ov.field.choice, .ov.prop.choice, .ov.added.choice { background:var(--fill-choice); }" in (SRC / "styles.css").read_text()

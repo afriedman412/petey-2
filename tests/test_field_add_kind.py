@@ -1,7 +1,7 @@
 """Add / remove: a proposal made a checkbox or a text box by hand (field_add.switch_kind, 2026-10-20)."""
 import types
 
-from petey.validate.field_add import _named, switch_kind
+from petey.validate.field_add import _named, spec_of, switch_kind
 
 
 def text_proposal(**kw):
@@ -76,3 +76,12 @@ def test_selected_checkboxes_are_not_grouped():
     r2 = ({"widget_type": "radiobutton", "path": "R[0]", "on_state": "2"}, "widget")
     units = _option_units([a, r1, b, r2, f])
     assert units == [[a], [r1, r2], [b], [f]]
+
+
+def test_a_card_added_as_printed_is_tagged_printed():
+    """The card's kind "printed" (Andrew, 2026-10-31): a text box, tagged as Review's w tags it; a choice never is."""
+    from petey.validate.printed_fields import TAG, is_printed
+    spec = spec_of(text_proposal(printed=True), "2026-10-31 12:00:00")
+    assert is_printed(spec) and spec[TAG]["source"] == "field_add"
+    assert TAG not in spec_of(text_proposal(), "2026-10-31 12:00:00")
+    assert TAG not in spec_of({**switch_kind(text_proposal(), "option"), "printed": True}, "2026-10-31 12:00:00")

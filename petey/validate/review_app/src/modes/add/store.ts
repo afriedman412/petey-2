@@ -17,6 +17,8 @@ export interface Proposal {
   name: string; name_source?: string; name_options: NameOption[]; twin?: string;
   type?: string | null; semantic_type?: string | null; pattern?: string | null; description?: string | null;
   caption?: string | null; page_class?: string | null; entity?: string | null; evidence: string[];
+  /** a text box expected to be hand-written (signature, initials, printed name): added tagged printed */
+  printed?: boolean;
   /** the page's own key for a proposal (React's key; never sent to the server) */
   _k?: number;
   /** the suggestion it came from, and whether n / p brought it (its card gives way to the next one's) */
@@ -234,6 +236,14 @@ export async function switchKind(i: number, kind: string) {
     const at = indexOfK(k);                       // the card may have gone meanwhile (cancelled, added)
     if (at >= 0) editProp(at, () => ({ ...r.proposal, _k: k }));
   } catch (e) { put({ notes: ['could not change the box: ' + (e as Error).message] }); }
+}
+/** the card's kind in one pick (Andrew, 2026-10-31: "can you make the 'kind' field on the add card a dropdown that has
+ *  text, choice and printed?"): printed is a text box, tagged printed when added */
+export async function setKind(i: number, kind: 'text' | 'choice' | 'printed') {
+  const k = S().props[i]._k, want = kind === 'choice' ? 'option' : 'text';
+  if (S().props[i].kind !== want) await switchKind(i, want);
+  const at = indexOfK(k);
+  if (at >= 0) editProp(at, q => ({ ...q, printed: kind === 'printed' && q.kind === 'text' ? true : undefined }));
 }
 export async function askLabeler(i: number) {
   const k = S().props[i]._k!;

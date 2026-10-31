@@ -59,7 +59,7 @@ from petey.paths import RUNS
 from petey.semantic_types import enrich_field, registered_names
 from petey.synth.boxes import CACHE_DIR as BOX_CACHE, FINDER_VERSION, find_boxes, overlap
 from petey.synth.classify import classify_form
-from petey.validate import field_ids
+from petey.validate import field_ids, printed_fields
 from petey.validate.hand_review import _load, _sha, blueprint_paths, page_sizes, working_path
 from petey.validate.retype import resolve_blank
 
@@ -880,6 +880,8 @@ def spec_of(p: dict, now: str) -> dict:
                           "widget_type": w["widget_type"], "path": w.get("path")}
         if w.get("on_state"):
             spec["widget"]["on_state"] = w["on_state"]
+        if p.get("printed") and p["kind"] == "text":     # the card's kind "printed" (2026-10-31), as Review's w tags it
+            spec[printed_fields.TAG] = {"source": "field_add", "when": p.get("when") or now}
     if p.get("description"):
         spec["description"] = p["description"]
     src = p.get("name_source") or "hand"
