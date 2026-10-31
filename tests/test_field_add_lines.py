@@ -56,3 +56,24 @@ def test_a_click_just_above_an_open_underline_takes_the_line(tmp_path, monkeypat
     assert p["geometry"] == "underline" and abs(p["rect"][3] - 300) < 1.5 and p["rect"][0] <= 73
     taken = field_add.propose(ctx, 1, rect=[199, 394, 201, 396])
     assert taken == {"proposals": [], "notes": ["the underline here is already field p1_f1"]}
+
+
+def test_a_box_drawn_over_fields_is_a_field_anyway(tmp_path, monkeypatch):
+    """Andrew, 2026-10-31: "in general you should just let a box be drawn anywhere and become a field. overlapping
+    boxes are common" (je__f4506t p1: a box on the signature line was refused, the finder's row box under it being
+    the phone field's)."""
+    ctx = _ctx(tmp_path, monkeypatch, HAVE)
+    r = field_add.propose(ctx, 1, rect=[60, 380, 320, 404])           # right over field p1_f1
+    (p,) = r["proposals"]
+    assert p["rect"] == [60.0, 380.0, 320.0, 404.0] and p["geometry"] == "selection"
+
+
+def test_saving_keeps_an_added_field_that_overlaps_and_skips_the_same_box_again(tmp_path, monkeypatch):
+    ctx = _ctx(tmp_path, monkeypatch, HAVE)
+    (over,) = field_add.propose(ctx, 1, rect=[60, 380, 200, 404])["proposals"]
+    (again,) = field_add.propose(ctx, 1, rect=[72, 388, 300, 400])["proposals"]
+    over, again = {**over, "name": "signature"}, {**again, "name": "line_again"}
+    out = field_add.plan({"fields": dict(HAVE)}, [over, again])
+    assert "signature" in out["fields"] and "line_again" not in out["fields"]
+    assert any("overlaps field p1_f1" in c for c in out["changes"])
+    assert out["skipped"] == ["line_again: the same box is field p1_f1"]

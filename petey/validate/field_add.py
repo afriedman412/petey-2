@@ -69,6 +69,15 @@ LABEL_MODEL = auto_label.MODEL
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_]*$")     # spec 5.2 allows digits anywhere
 OPTION_WIDGETS = ("checkbox", "radiobutton")
 CLAIM = 0.5                     # overlap (of the smaller rect) at which a field covers a box
+SAME_BOX = 0.9                  # intersection over union at which an added box is a field's own box again
+
+
+def _iou(a, b) -> float:
+    ix = max(0.0, min(a[2], b[2]) - max(a[0], b[0]))
+    iy = max(0.0, min(a[3], b[3]) - max(a[1], b[1]))
+    inter = ix * iy
+    union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
+    return inter / union if union > 0 else 0.0
 _DROP = {"the", "a", "an", "your", "enter", "here", "please", "print", "type", "and", "or", "if", "any", "see",
          "instructions", "optional", "applicable", "check", "box", "this", "below", "above", "following"}
 _ITEM_NO = re.compile(r"^\s*(\(?\d{1,3}[a-z]?\)?[.:]?|\(?[a-z]\)[.:]?|[A-Z][.:])\s+")
@@ -739,7 +748,10 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
                 continue
             cands.append((b, "finder"))
         if not cands:
-            if ws or bs:
+            # a box drawn is always a field (Andrew, 2026-10-31: "in general you should just let a box be drawn anywhere
+            # and become a field. overlapping boxes are common"): what is under it already a field, or set aside by the
+            # classifier, is only a note, and the area drawn is the field. A click on such a thing still proposes nothing
+            if (ws or bs) and point:
                 return {"proposals": [], "notes": notes}
             w_, h_ = sel[2] - sel[0], sel[3] - sel[1]
             geom = "selection"
@@ -879,9 +891,9 @@ def _first_rect(spec: dict) -> Optional[tuple]:
 
 def plan(bp: dict, added: list[dict], removed: list[dict] = ()) -> dict:
     """`{changes, errors, skipped, fields}`: the blueprint's fields less the removed ones, with the added ones
-    inserted, each after the field that precedes it in reading order. An added field whose box a field now covers is
-    skipped (added since, by another route); a removal of a field that is no longer there is skipped too. An added
-    field may take the name of a removed one."""
+    inserted, each after the field that precedes it in reading order. An added field may overlap fields (2026-10-31:
+    noted in its change line); one whose box is a field's own box again is skipped (added since, by another route); a
+    removal of a field that is no longer there is skipped too. An added field may take the name of a removed one."""
     errors, changes, skipped = [], [], []
     fields = dict(bp.get("fields") or {})
     for r in removed:
@@ -905,16 +917,19 @@ def plan(bp: dict, added: list[dict], removed: list[dict] = ()) -> dict:
             errors.append(f"{p['name']!r} is already a field in the blueprint")
             continue
         box = p["rect"] if p["kind"] != "group" else p["options"][0]["rect"]
-        hit = next((f["name"] for f in rects if f["page"] == p["page"] and overlap(box, f["rect"]) >= CLAIM), None)
-        if hit:
-            skipped.append(f"{p['name']}: its box is now field {hit}")
+        # overlapping a field is fine (2026-10-31, "overlapping boxes are common"); only the same box again is not
+        # (an addition saved twice, or one a rename made a field meanwhile: je__i_129 2026-10-25)
+        same = next((f["name"] for f in rects if f["page"] == p["page"] and _iou(box, f["rect"]) >= SAME_BOX), None)
+        if same:
+            skipped.append(f"{p['name']}: the same box is field {same}")
             continue
+        over = next((f["name"] for f in rects if f["page"] == p["page"] and overlap(box, f["rect"]) >= CLAIM), None)
         spec = spec_of(p, now)
         new.append((p["name"], spec))
         what = (f"group of {len(p['options'])} ({', '.join(o['key'] for o in p['options'])})" if p["kind"] == "group"
                 else spec["type"] + (f"/{spec['semantic_type']}" if spec.get("semantic_type") else ""))
         changes.append(f"add {p['name']} on p{p['page']}: {what}; {p.get('geometry')} geometry, name from "
-                       f"{p.get('name_source')}")
+                       f"{p.get('name_source')}" + (f"; overlaps field {over}" if over else ""))
     if errors:
         return {"changes": changes, "errors": errors, "skipped": skipped, "fields": None}
     order = [(n, _first_rect(s)) for n, s in fields.items() if isinstance(s, dict)]
