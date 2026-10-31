@@ -98,3 +98,10 @@ def test_add_cards_convert_and_choices_are_filled():
     assert '<option value="text">text</option><option value="choice">choice</option><option value="printed">printed</option>' in panel
     assert "value={p.kind === 'option' ? 'choice' : p.printed ? 'printed' : 'text'}" in panel
     assert ".ov.field.choice, .ov.prop.choice, .ov.added.choice { background:var(--fill-choice); }" in (SRC / "styles.css").read_text()
+
+
+def test_another_form_opens_on_page_1():
+    """Andrew, 2026-10-31: "can you make it so loading a new document automatically opens page 1?"."""
+    actions = (SRC / "state" / "actions.ts").read_text()
+    assert "set({ bid: id, page: 1, loaded: null, loadError: null });" in actions
+    assert "await loadMode(true);" in actions and "(!fresh && !d.pageLabel(page))" in actions

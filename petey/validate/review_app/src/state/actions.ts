@@ -51,8 +51,9 @@ export async function refreshList() {
   catch (e) { set({ listError: (e as Error).message }); }
 }
 
-/** The tab's data for the form open, read again; a tab opened meanwhile, or another form, takes over. */
-export async function loadMode() {
+/** The tab's data for the form open, read again; a tab opened meanwhile, or another form, takes over. `fresh`: a form
+ *  just opened, which stays on page 1 whatever the tab finds there */
+export async function loadMode(fresh = false) {
   const { mode: m, bid: form } = get();
   if (!form) return;
   const d = MODES[m];
@@ -68,7 +69,7 @@ export async function loadMode() {
   if (get().mode !== m || get().bid !== form) return;
   const pages = d.pages();
   let page = get().page;
-  if (!pages.some(p => p.page === page) || !d.pageLabel(page)) page = d.startPage() || pages[0]?.page || 1;
+  if (!pages.some(p => p.page === page) || (!fresh && !d.pageLabel(page))) page = d.startPage() || pages[0]?.page || 1;
   set({ page, loaded: { mode: m, bid: form }, loadError: null });
 }
 
@@ -109,9 +110,11 @@ export async function openBlueprint(id: string) {
   if (wasHome && id === get().bid) { setHash(); await loadMode(); return; }
   await leaveTab();
   await flushNote();
-  set({ bid: id, loaded: null, loadError: null });
+  // another form opens on page 1 (Andrew, 2026-10-31: "can you make it so loading a new document automatically opens
+  // page 1?"), not on the page number the last one was on; a field link goes on to its field's page after
+  set({ bid: id, page: 1, loaded: null, loadError: null });
   setHash();
-  await loadMode();
+  await loadMode(true);
 }
 
 export function gotoPage(p: number) {
