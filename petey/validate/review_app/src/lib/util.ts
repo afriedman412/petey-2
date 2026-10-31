@@ -97,7 +97,7 @@ export function scrollToSel(selector: string, block: ScrollLogicalPosition = 'ce
 }
 
 // one palette for the things drawn around boxes: option groups (Review, Groups) and tables / block groups (Grids, Blocks)
-export const GROUP_COLORS = ['#4fc3f7', '#ba68c8', '#81c784', '#ffb74d', '#f06292', '#4db6ac', '#9575cd', '#dce775'];
+export const GROUP_COLORS = ['#4fc3f7', '#ba68c8', '#81c784', '#ffb74d', '#f06292', '#4db6ac', '#9575cd'];
 
 // a block type's colour (Andrew, 2026-10-28: "every block type is a diff color ... most importantly it needs to be a
 // diff color than the 'unvalidated' outline"): none of the colours that already mean something on the page (orange
