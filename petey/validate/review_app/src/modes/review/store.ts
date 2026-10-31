@@ -446,12 +446,13 @@ async function bulkAccept() {
 // STRUCTURE VALIDATED, its field verdicts untouched; accepting every name makes it VALIDATED
 async function acceptStructure() {
   const bid = app().bid; if (!bid) return;
-  if (!confirm('Mark this form STRUCTURE VALIDATED (its fields, kinds, groups, grids and blocks are right)? Names stay to review.')) return;
+  const s = entryOf(bid)?.structure, on = !(s && !s.stale);       // accepted already: clicking takes it back
   let out;
-  try { out = await send('PUT', mapi('review', bid, '/structure'), {}); }
+  try { out = await send('PUT', mapi('review', bid, '/structure'), { on }); }
   catch (e) { alert((e as Error).message); return; }
   updateEntry(out.entry); await loadMode();
-  toast('Structure validated. Accept every name to make it VALIDATED.');
+  if (!on) { toast('Structure no longer accepted.'); return; }
+  toast('Structure accepted. Accept every name to make it VALIDATED.');
   await saveAfter();
 }
 

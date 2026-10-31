@@ -35,7 +35,7 @@ def test_ignore_page_reason_starts_as_too_few_fields():
 
 
 def test_accept_structure_replaces_accept_all():
-    assert ">accept structure</button>" in HEADER and ">accept all</button>" not in HEADER
+    assert "'structure accepted' : 'accept structure'" in HEADER and ">accept all</button>" not in HEADER
     home = (SRC / "components" / "home-data.ts").read_text()
     assert "{ k: 'structure', t: 'structure validated' }" in home
 

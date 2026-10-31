@@ -600,9 +600,10 @@ class App:
         self.review._index[bid] = self.review._entry(bid)
         return {**out, "entry": self.entry(bid)}
 
-    def accept_structure(self, bid: str) -> dict:
-        """The header's "accept structure" (2026-10-31): the form's structure validated, names left to review."""
-        out = hand_review.stamp_structure(bid, self.working(bid), self.paths[bid])
+    def accept_structure(self, bid: str, on: bool = True) -> dict:
+        """The header's "accept structure" (2026-10-31): the form's structure validated, names left to review; clicked
+        again (`on` false), taken back."""
+        out = hand_review.stamp_structure(bid, self.working(bid), self.paths[bid]) if on else hand_review.unstamp_structure(bid)
         self.review._index[bid] = self.review._entry(bid)
         return {"structure": out, "entry": self.entry(bid)}
 
@@ -969,7 +970,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if (mode, what) == ("review", "verdicts"):
             return self._route(lambda: APP.put_verdicts(bid, body), bid)
         if (mode, what) == ("review", "structure"):         # "accept structure": STRUCTURE VALIDATED
-            return self._route(lambda: APP.accept_structure(bid), bid)
+            return self._route(lambda: APP.accept_structure(bid, body.get("on", True) is not False), bid)
         if (mode, what) == ("review", "reset"):             # every verdict on the form cleared
             return self._route(lambda: APP.reset_verdicts(bid), bid)
         if (mode, what) == ("form", "note"):                 # the notes panel: one note per form

@@ -70,6 +70,8 @@ export function Header() {
   const tabsHidden = useApp(s => s.tabsHidden);
   useEffect(() => { document.body.classList.toggle('notabs', tabsHidden); }, [tabsHidden]);
   const inReview = mode === 'review' && counts.loaded;
+  // "accept structure" turns to "structure accepted" once clicked, and clicking it again takes it back (2026-10-31)
+  const structOk = !!entry?.structure && !entry.structure.stale;
   return (
     <header>
       <div className="brand" id="brand" title="home: every blueprint in one list" onClick={() => showHome(true)}>
@@ -102,9 +104,10 @@ export function Header() {
           onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.bulkAccept(); }}>
           {inReview ? `accept settled (${counts.settledLeft})` : 'accept settled'}
         </button>
-        <button className="btn" id="acceptStructure" disabled={!bid}
-          title="the form's structure is right (its fields, their kinds, groups, grids and blocks): STRUCTURE VALIDATED, names left to review; accepting every name makes it VALIDATED. Saves the working copy into the blueprint after (opens Review)"
-          onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.acceptStructure(); }}>accept structure</button>
+        <button className={'btn' + (structOk ? ' ok on' : '')} id="acceptStructure" disabled={!bid}
+          title={structOk ? "the form's structure is accepted (STRUCTURE VALIDATED); click to take that back"
+            : "the form's structure is right (its fields, their kinds, groups, grids and blocks): STRUCTURE VALIDATED, names left to review; accepting every name makes it VALIDATED. Saves the working copy into the blueprint after (opens Review)"}
+          onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.acceptStructure(); }}>{structOk ? 'structure accepted' : 'accept structure'}</button>
         <button className="btn" id="resetV" disabled={!bid}
           title="clear every verdict on this form (accepted, flagged, notes), to check it again from scratch; the old record is kept aside (opens Review)"
           onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.resetValidation(); }}>reset validation</button>

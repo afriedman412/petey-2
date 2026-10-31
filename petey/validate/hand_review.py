@@ -372,6 +372,14 @@ def stamp_structure(bid: str, p: Path, real: Path, by: str = "accept structure")
         return rec["structure"]
 
 
+def unstamp_structure(bid: str) -> None:
+    """"accept structure" clicked again: the form's structure no longer validated (Andrew, 2026-10-31)."""
+    with _VERDICT_LOCK:
+        rec = load_verdicts(bid)
+        if rec.pop("structure", None) is not None:
+            _write_verdicts(bid, rec)
+
+
 def _git(*args: str, cwd: Path = BLUEPRINTS.parent) -> str:
     try:
         return subprocess.run(["git", *args], capture_output=True, text=True, cwd=cwd, timeout=10).stdout.strip()

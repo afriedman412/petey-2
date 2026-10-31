@@ -58,3 +58,11 @@ def test_reset_validation_clears_it(state):
     H.stamp_structure("t__form", bpt, bpt)
     H.reset_verdicts("t__form")
     assert _status(bpt) == (None, False)
+
+
+def test_clicking_accept_structure_again_takes_it_back(state):
+    st, bpt = state
+    H.stamp_structure("t__form", bpt, bpt)
+    H.unstamp_structure("t__form")
+    assert _status(bpt) == (None, False)
+    H.unstamp_structure("t__form")                               # nothing to take back: fine
