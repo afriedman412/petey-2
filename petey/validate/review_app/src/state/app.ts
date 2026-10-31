@@ -9,6 +9,8 @@ export interface HomeState {
   on: boolean; sort: string; asc: boolean; q: string; section: string; domain: string | null; status: string; hideVal: boolean;
   /** the table's columns left out (Andrew, 2026-10-31: "a dropdown to control which columns show up") */
   hidden?: string[];
+  /** the review-status counts folded away, and structure-validated rows hidden (2026-10-31) */
+  hideStats?: boolean; hideStruct?: boolean;
 }
 export type ShowKey = 'valid' | 'groups' | 'grids' | 'blocks';
 

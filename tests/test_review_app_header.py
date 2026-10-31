@@ -45,3 +45,10 @@ def test_home_has_a_column_picker_kept_per_browser():
     assert '<Columns all={ALL} hidden={hidden} />' in home
     assert "c.k === 'form' || !hidden.has(c.k)" in home              # the form column (the link) always shows
     assert "hidden?: string[];" in (SRC / "state" / "app.ts").read_text()   # saved with the other home settings
+
+
+def test_home_counts_fold_away_and_structure_validated_can_be_hidden():
+    home = (SRC / "components" / "Home.tsx").read_text()
+    assert 'id="hstatsTab"' in home and "{!H.hideStats && <div className=\"hstats\">" in home
+    assert 'id="hideStruct"' in home and "statusOf(b).k === 'structure'" in home
+    assert "hideStats?: boolean; hideStruct?: boolean;" in (SRC / "state" / "app.ts").read_text()

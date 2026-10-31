@@ -59,8 +59,9 @@ export function Home() {
   // domain: null is any, '' the forms at the top of source_pdfs
   const inSection = list.filter(b => (!H.section || sectionOf(b) === H.section) && (H.domain == null || (b.collection ?? '') === H.domain));
   const qs = H.q.trim().toLowerCase();
-  // hide validated (Andrew, 2026-10-15); the validated tile still shows them
+  // hide validated (Andrew, 2026-10-15), hide structure validated (2026-10-31); their tiles still show them
   const rows = inSection.filter(b => homeMatch(b, H.status, dups) && !(H.hideVal && H.status !== 'validated' && statusOf(b).k === 'validated')
+    && !(H.hideStruct && H.status !== 'structure' && statusOf(b).k === 'structure')
     && (!qs || [b.form, b.id, b.collection, b.note?.text, b.desc?.text].some(s => String(s ?? '').toLowerCase().includes(qs))));
   const col = ALL.find(c => c.k === H.sort) || ALL[1], dir = H.asc ? 1 : -1;
   const cmp = (x: string | number, y: string | number) => typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y));
@@ -72,7 +73,12 @@ export function Home() {
   const filtered = H.q || H.section || H.domain != null || H.status;
   return (
     <div id="home">
-      <div className="hstats">{HSTAGES.map(([label, tiles], i) => (
+      {/* the counts by stage, a tab that folds away (Andrew, 2026-10-31: "make the number blocks at the top just a
+          review tab that can be hidden"); a tile still filters the table */}
+      <button className={'hstats-tab' + (H.hideStats ? '' : ' open')} id="hstatsTab" onClick={() => setHome({ hideStats: !H.hideStats })}
+        title={H.hideStats ? 'show the counts by review stage' : 'hide the counts'}>review status {H.hideStats ? '▸' : '▾'}
+        {H.hideStats && H.status && <span className="help"> · showing {HSTAGES.flatMap(([, t]) => t).find(([k]) => k === H.status)?.[1] || H.status}</span>}</button>
+      {!H.hideStats && <div className="hstats">{HSTAGES.map(([label, tiles], i) => (
         <div className="hstage" key={i}><div className="hstage-l">{label || ' '}</div>
           <div className="hstage-t">{tiles.map(([k, t]) => (
             <div key={k} className={'hstat' + (H.status === k ? ' on' : '')} onClick={() => setHome({ status: H.status === k ? '' : k })}>
@@ -80,7 +86,7 @@ export function Home() {
             </div>))}
           </div>
         </div>))}
-      </div>
+      </div>}
       <div className="hctl">
         <input id="hq" ref={q} type="text" placeholder="search form, id, description, domain, notes (/)" value={H.q}
           onChange={e => setHome({ q: e.target.value })}
@@ -94,6 +100,7 @@ export function Home() {
           {doms.map(([d, n]) => <option key={d} value={d}>{d === '' ? '(top of source_pdfs)' : d} ({n})</option>)}
         </select>
         <label className="ctl"><input type="checkbox" checked={H.hideVal} onChange={e => setHome({ hideVal: e.target.checked })} /> hide validated</label>
+        <label className="ctl"><input type="checkbox" id="hideStruct" checked={!!H.hideStruct} onChange={e => setHome({ hideStruct: e.target.checked })} /> hide structure validated</label>
         <Columns all={ALL} hidden={hidden} />
         {filtered && <button className="btn" onClick={() => setHome({ q: '', section: '', status: '', domain: null })}>clear filters</button>}
         <span className="help">{rows.length} of {list.length} · click a row to open it in {mode}
