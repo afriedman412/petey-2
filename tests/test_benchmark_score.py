@@ -1,45 +1,28 @@
-"""The flat-structure benchmark's key and scorer (eval/benchmark_key.py, eval/benchmark_score.py; 2026-10-30)."""
+"""The flat-structure benchmark's key and scorer (eval/benchmark_key.py, eval/benchmark_score.py; 2026-10-30): fields
+found, typed right, grouped, splits combined."""
 import benchmark_key as K
 import benchmark_score as S
 
 
 def _page():
-    """A date in three boxes (one value), a name line, a Yes / No group, a 2 x 2 grid of text, two block copies."""
+    """A date in three boxes (one value), a name line, a Yes / No group, a lone checkbox."""
     return {"fields": [{"id": "m", "rect": [100, 100, 120, 112], "kind": "text"},
                        {"id": "d", "rect": [122, 100, 142, 112], "kind": "text"},
                        {"id": "y", "rect": [144, 100, 184, 112], "kind": "text"},
                        {"id": "nm", "rect": [100, 130, 300, 142], "kind": "text"},
                        {"id": "yes", "rect": [100, 160, 108, 168], "kind": "choice"},
                        {"id": "no", "rect": [130, 160, 138, 168], "kind": "choice"},
-                       {"id": "a1", "rect": [100, 200, 150, 212], "kind": "text"},
-                       {"id": "a2", "rect": [160, 200, 210, 212], "kind": "text"},
-                       {"id": "b1", "rect": [100, 220, 150, 232], "kind": "text"},
-                       {"id": "b2", "rect": [160, 220, 210, 232], "kind": "text"},
-                       {"id": "c1", "rect": [100, 300, 200, 312], "kind": "text"},
-                       {"id": "c2", "rect": [100, 320, 200, 332], "kind": "text"},
-                       {"id": "e1", "rect": [300, 300, 400, 312], "kind": "text"},
-                       {"id": "e2", "rect": [300, 320, 400, 332], "kind": "text"}],
-            "groups": [["m", "d", "y"], ["yes", "no"]],
-            "grids": [{"cells": [{"field": "a1", "row": 1, "col": 1}, {"field": "a2", "row": 1, "col": 2},
-                                 {"field": "b1", "row": 2, "col": 1}, {"field": "b2", "row": 2, "col": 2}]}],
-            "blocks": [{"cells": [{"field": "c1", "copy": 0, "slot": 0}, {"field": "c2", "copy": 0, "slot": 1},
-                                  {"field": "e1", "copy": 1, "slot": 0}, {"field": "e2", "copy": 1, "slot": 1}]}]}
-
-
-def _f1(c, rel):
-    return c[f"{rel}_tp"] == c[f"{rel}_tp"] + c[f"{rel}_fp"] == c[f"{rel}_tp"] + c[f"{rel}_fn"]
+                       {"id": "x", "rect": [100, 200, 108, 208], "kind": "choice"}],
+            "groups": [["m", "d", "y"], ["yes", "no"]]}
 
 
 class TestScore:
     def test_key_against_itself_is_perfect(self):
         k = _page()
         c = S.score_page(k, k)
-        assert c["text_hit"] == c["text_key"] == 10 and c["choice_hit"] == 2
-        assert c["field_hit"] == 14 and c["kind_right"] == 14
-        assert c["group_exact"] == c["group_key"] == 1 and c["grid_exact"] == 1 and c["block_exact"] == 1
-        for rel in ("group", "row", "col", "copy", "slot"):
-            assert _f1(c, rel)
-        assert c["row_tp"] == 2 and c["col_tp"] == 2 and c["copy_tp"] == 2 and c["slot_tp"] == 2
+        assert c["found_hit"] == c["found_key"] == c["found_found"] == 5 and c["kind_right"] == 5
+        assert c["group_tp"] == 1 and c["group_fp"] == c["group_fn"] == 0 and c["group_exact"] == c["group_key"] == 1
+        assert c["split_hit"] == c["split_key"] == 1 and c["split_found_hit"] == c["split_found"] == 1
 
     def test_one_box_over_the_whole_date_is_the_same_value(self):
         k = _page()
@@ -48,52 +31,53 @@ class TestScore:
             [{"id": "date", "rect": [100, 100, 184, 112], "kind": "text"}]
         p["groups"] = [["yes", "no"]]
         c = S.score_page(k, p)
-        assert c["text_hit"] == c["text_key"] == 10
-        assert c["field_hit"] == 11                  # box to box, the three parts are not found one by one
+        assert c["found_hit"] == 5 and c["split_hit"] == 1 and c["split_found"] == 0
 
-    def test_date_parts_found_but_not_joined_miss_the_value(self):
+    def test_date_parts_found_but_not_combined_miss_the_value(self):
         k = _page()
         p = _page()
         p["groups"] = [["yes", "no"]]
         c = S.score_page(k, p)
-        assert c["text_hit"] == 9 and c["text_found"] == 12
-        assert c["field_hit"] == 14
+        assert c["found_hit"] == 4 and c["found_found"] == 7 and c["split_hit"] == 0
+
+    def test_combining_two_separate_answers_is_not_a_split(self):
+        k = _page()
+        p = _page()
+        p["groups"] = [["m", "d", "y", "nm"], ["yes", "no"]]
+        c = S.score_page(k, p)
+        assert c["split_found"] == 1 and c["split_found_hit"] == 0 and c["split_hit"] == 0
 
     def test_loose_choice_boxes_lose_the_group(self):
         k = _page()
         p = _page()
         p["groups"] = [["m", "d", "y"]]
         c = S.score_page(k, p)
-        assert c["choice_hit"] == 2 and c["group_fn"] == 1 and c["group_tp"] == 0 and c["group_exact"] == 0
+        assert c["found_hit"] == 5 and c["group_fn"] == 1 and c["group_tp"] == 0 and c["group_exact"] == 0
 
-    def test_grid_with_rows_swapped_for_columns_scores_the_mixup(self):
+    def test_a_group_with_an_extra_box_is_not_rebuilt_exactly(self):
         k = _page()
         p = _page()
-        p["grids"] = [{"cells": [{"field": x["field"], "row": x["col"], "col": x["row"]}
-                                 for x in k["grids"][0]["cells"]]}]
+        p["groups"] = [["m", "d", "y"], ["yes", "no", "x"]]
         c = S.score_page(k, p)
-        assert c["row_tp"] == 0 and c["row_fp"] == 2 and c["row_fn"] == 2 and c["grid_exact"] == 0
+        assert c["group_tp"] == 1 and c["group_fp"] == 2 and c["group_exact"] == 0
 
-    def test_relations_count_only_among_found_units(self):
+    def test_wrong_kind_is_found_but_typed_wrong(self):
         k = _page()
         p = _page()
-        p["fields"] = [f for f in p["fields"] if f["id"] != "b2"]
-        p["grids"] = [{"cells": [x for x in k["grids"][0]["cells"] if x["field"] != "b2"]}]
+        p["fields"] = [{**f, "kind": "text"} if f["id"] == "x" else f for f in p["fields"]]
         c = S.score_page(k, p)
-        assert c["row_fn"] == 0 and c["col_fn"] == 0 and c["row_tp"] == 1
-        assert c["grid_exact"] == 0                  # a unit missed: not rebuilt
+        assert c["found_hit"] == 5 and c["kind_right"] == 4
 
     def test_box_drawn_off_by_a_little_still_matches(self):
         k = _page()
         p = _page()
-        p["fields"] = [{**f, "rect": [f["rect"][0] + 2, f["rect"][1], f["rect"][2] + 2, f["rect"][3] + 1]}
+        p["fields"] = [{**f, "rect": [f["rect"][0] + 1, f["rect"][1], f["rect"][2] + 1, f["rect"][3] + 1]}
                        for f in p["fields"]]
-        c = S.score_page(k, p)
-        assert c["field_hit"] == 14
+        assert S.score_page(k, p)["found_hit"] == 5
 
     def test_no_prediction_scores_zero(self):
         c = S.score_page(_page(), None)
-        assert c["text_hit"] == 0 and c["text_key"] == 10 and c["grid_exact"] == 0
+        assert c["found_hit"] == 0 and c["found_key"] == 5 and c["split_key"] == 1
 
 
 class TestKey:
@@ -108,10 +92,7 @@ class TestKey:
         "mm": {"x_petey_id": "4", "type": "string", "widget": {"page": 2, "rect": [10, 10, 30, 20],
                                                                "widget_type": "text"}},
         "dd": {"x_petey_id": "5", "type": "string", "widget": {"page": 2, "rect": [32, 10, 52, 20],
-                                                               "widget_type": "text"}},
-        "r1": {"x_petey_id": "6", "type": "string", "widget": {"page": 2, "rect": [10, 100, 50, 110]}},
-        "r2": {"x_petey_id": "7", "type": "string", "widget": {"page": 2, "rect": [10, 120, 50, 130]}},
-        "z": {"x_petey_id": "8", "type": "string", "widget": {"page": 3, "rect": [10, 120, 50, 130]}}}}
+                                                               "widget_type": "text"}}}}
 
     def test_kinds_groups_and_split_fields(self):
         keys = K.page_keys(self.BP, entities=[{"fields": ["4", "5"]}])
@@ -120,20 +101,102 @@ class TestKey:
         assert keys[1]["groups"] == [["1.yes", "1.no"]]
         assert keys[2]["groups"] == [["4", "5"]]
 
-    def test_grids_by_name_and_blocks_need_two_copies_on_the_page(self):
-        grids = [{"grid": [{"name": "r1", "row": 1, "col": 1}, {"name": "r2", "row": 2, "col": 1}]}]
-        types = [{"blocks": [["6"], ["8"]]}, {"blocks": [["6", None], ["7", None]]}]
-        keys = K.page_keys(self.BP, grids=grids, types=types)
-        assert keys[2]["grids"] == [{"cells": [{"field": "6", "row": 1, "col": 1},
-                                               {"field": "7", "row": 2, "col": 1}]}]
-        assert keys[2]["blocks"] == [{"cells": [{"field": "6", "copy": 0, "slot": 0},
-                                                {"field": "7", "copy": 1, "slot": 0}]}]
-        assert keys[3]["blocks"] == []
-
     def test_key_built_from_a_blueprint_scores_perfect_against_itself(self):
-        keys = K.page_keys(self.BP, entities=[{"fields": ["4", "5"]}],
-                           grids=[{"grid": [{"name": "r1", "row": 1, "col": 1}, {"name": "r2", "row": 2, "col": 1}]}])
-        for k in keys.values():
+        for k in K.page_keys(self.BP, entities=[{"fields": ["4", "5"]}]).values():
             c = S.score_page(k, k)
-            assert c["text_hit"] == c["text_key"] and c["choice_hit"] == c["choice_key"]
-            assert c["grid_exact"] == c["grid_key"]
+            assert c["found_hit"] == c["found_key"] and c["kind_right"] == c["found_hit"]
+            assert c["split_hit"] == c["split_key"]
+
+
+class TestLightPrediction:
+    def test_light_path_blueprint_becomes_a_prediction_with_its_splits(self):
+        import benchmark_light as L
+        bp = {"fields": {
+            "p1_o1": {"x_petey_id": "1", "type": "category", "widgets": {
+                "opt1": {"page": 1, "rect": [10, 10, 18, 18], "widget_type": "checkbox"},
+                "opt2": {"page": 1, "rect": [30, 10, 38, 18], "widget_type": "checkbox"}}},
+            "p1_f1": {"x_petey_id": "2", "type": "string", "widget": {"page": 1, "rect": [10, 40, 30, 50],
+                                                                      "widget_type": "text"}},
+            "p1_f2": {"x_petey_id": "3", "type": "string", "widget": {"page": 1, "rect": [32, 40, 52, 50],
+                                                                      "widget_type": "text"}},
+            "p1_f3": {"x_petey_id": "4", "type": "boolean", "widget": {"page": 1, "rect": [60, 40, 68, 48],
+                                                                       "widget_type": "checkbox"}}}}
+        p = L.to_prediction(bp, [{"fields": ["2", "3"]}])
+        assert {f["id"]: f["kind"] for f in p["fields"]} == {"p1_o1.opt1": "choice", "p1_o1.opt2": "choice",
+                                                             "p1_f1": "text", "p1_f2": "text", "p1_f3": "choice"}
+        assert p["groups"] == [["p1_o1.opt1", "p1_o1.opt2"], ["p1_f1", "p1_f2"]]
+        assert L.to_prediction(bp)["groups"] == [["p1_o1.opt1", "p1_o1.opt2"]]
+
+
+class TestPrinted:
+    """The third field type (Andrew, 2026-10-31): printed = expected to be hand-written (signatures, initials,
+    printed names)."""
+
+    @staticmethod
+    def _signed():
+        k = _page()
+        k["fields"].append({"id": "sig", "rect": [100, 240, 300, 256], "kind": "printed"})
+        return k
+
+    def test_key_against_itself_types_the_signature_printed(self):
+        c = S.score_page(self._signed(), self._signed())
+        assert c["kind_right"] == c["found_hit"] == 6
+        assert c["type_printed_key"] == c["type_printed_found"] == c["type_printed_hit"] == 1
+        assert c["type_text_key"] == 2 and c["type_choice_key"] == 3
+
+    def test_a_signature_found_as_text_is_found_but_typed_wrong(self):
+        p = self._signed()
+        p["fields"] = [{**f, "kind": "text"} if f["id"] == "sig" else f for f in p["fields"]]
+        c = S.score_page(self._signed(), p)
+        assert c["found_hit"] == 6 and c["kind_right"] == 5
+        assert c["type_printed_hit"] == 0 and c["type_printed_found"] == 0 and c["type_text_found"] == 3
+
+    def test_printed_fields_in_a_group_make_one_printed_value(self):
+        k = self._signed()
+        k["fields"].append({"id": "sig2", "rect": [302, 240, 400, 256], "kind": "printed"})
+        k["groups"].append(["sig", "sig2"])
+        c = S.score_page(k, k)
+        assert c["type_printed_key"] == 1 and c["split_key"] == 2 and c["split_hit"] == 2
+
+    def test_report_has_a_line_a_type(self):
+        lines = S.report(S.score_page(self._signed(), self._signed()))
+        assert sum(ln.strip().startswith(("text ", "choice ", "printed ")) for ln in lines) == 3
+
+    def test_key_marks_only_text_fields_printed(self):
+        k = K.mark_printed(_page(), {"nm", "x"})
+        assert {f["id"]: f["kind"] for f in k["fields"]}["nm"] == "printed"
+        assert {f["id"]: f["kind"] for f in k["fields"]}["x"] == "choice"
+
+
+class TestPrintedRecord:
+    def test_confirm_writes_the_page_and_refuses_choice_boxes(self, tmp_path):
+        import json
+
+        import pytest
+
+        from petey.validate import printed_fields as pf
+        (tmp_path / "bm__x__p1.json").write_text(json.dumps(_page()))
+        rec = tmp_path / "field_types.json"
+        assert pf.printed_ids("bm__x__p1", pf.load(rec)) is None
+        pf.confirm("bm__x__p1", ["nm"], record=rec, key_dir=tmp_path)
+        assert pf.printed_ids("bm__x__p1", pf.load(rec)) == {"nm"}
+        pf.confirm("bm__x__p1", [], record=rec, key_dir=tmp_path)
+        assert pf.printed_ids("bm__x__p1", pf.load(rec)) == set()
+        with pytest.raises(ValueError):
+            pf.confirm("bm__x__p1", ["yes"], record=rec, key_dir=tmp_path)
+
+
+class TestPrintedCandidates:
+    def test_caption_words_beside_and_below(self):
+        import benchmark_printed as P
+        words = [(20, 100, 80, 110, "Signature"), (100, 125, 160, 135, "Printed"), (162, 125, 200, 135, "Name"),
+                 (20, 160, 80, 170, "Middle"), (82, 160, 120, 170, "Initial")]
+        assert P.SAYS.search(P.caption(words, [90, 98, 300, 112]))          # on its line, to the left
+        assert P.SAYS.search(P.caption(words, [100, 110, 300, 122]))        # the words just below
+        assert not P.SAYS.search(P.caption(words, [130, 158, 200, 172]))    # "Middle Initial" is not initials
+
+    def test_names(self):
+        import benchmark_printed as P
+        assert P.name_says("applicant_signature") and P.name_says("witness_printed_nm") and P.name_says("initials")
+        assert not P.name_says("signature_dt") and not P.name_says("spouse_middle_initial")
+        assert not P.name_says("p2_f24")

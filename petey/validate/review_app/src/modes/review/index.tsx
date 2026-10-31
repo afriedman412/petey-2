@@ -46,7 +46,7 @@ function Layer() {
     const c = GROUP_COLORS[gi++ % GROUP_COLORS.length], rs = e.rects.filter(r => r.page === page).map(r => r.rect);
     if (!rs.length) continue;
     out.push(<Box key={'e' + e.name} className={'gh rvg entity' + (e.fields.includes(selected || '') ? ' sel' : '')} rect={hull(rs, 4)} color={c}
-      title={`${e.name} (entity${e.entity_type ? ': ' + e.entity_type.replace(/_/g, ' ') : ''}, ${e.fields.length} fields)`}
+      title={`${e.name} (text group${e.entity_type ? ': ' + e.entity_type.replace(/_/g, ' ') : ''}, ${e.fields.length} fields)`}
       onClick={() => select(e.fields[0], false)} />);
   }
   for (const f of BP.fields) f.rects.forEach((r, i) => {

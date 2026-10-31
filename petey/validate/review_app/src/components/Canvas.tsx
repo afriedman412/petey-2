@@ -24,7 +24,7 @@ function ShowLayer() {
     (o.entities || []).forEach((e, i) => {              // entities too, after the groups' colours (2026-10-28)
       const c = GROUP_COLORS[gi++ % GROUP_COLORS.length], rs = e.rects.filter(r => r.page === page).map(r => r.rect);
       if (rs.length) out.push(<Box key={`e${i}`} className="ovl group entity" rect={grow(hull(rs), 3)} color={c}
-        title={`${e.name} (entity${e.entity_type ? ': ' + e.entity_type.replace(/_/g, ' ') : ''}, ${e.fields.length} fields)`} />);
+        title={`${e.name} (text group${e.entity_type ? ': ' + e.entity_type.replace(/_/g, ' ') : ''}, ${e.fields.length} fields)`} />);
     });
   }
   if (on('grids')) o.grids.forEach(g => g.page === page && out.push(

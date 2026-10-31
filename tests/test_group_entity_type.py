@@ -32,7 +32,7 @@ def test_an_entity_tags_its_fields_and_keeps_them():
         assert (tag["name"], tag["entity_type"], tag["n"]) == ("dob", "date", k)
         assert {x: v for x, v in f[n].items() if x != gr.ENTITY_KEY} == bp["fields"][n]   # nothing else touched
     assert gr.ENTITY_KEY not in f["notes_txt"] and gr.ENTITY_KEY not in bp["fields"]["dob_day"]
-    assert any(c.startswith("entity dob (date): dob_month, dob_day, dob_yr") for c in pl["changes"])
+    assert any(c.startswith("text group dob (date): dob_month, dob_day, dob_yr") for c in pl["changes"])
 
 
 def test_no_type_or_one_not_on_the_list_tags_without_one():
@@ -46,7 +46,7 @@ def test_a_field_taken_out_loses_its_tag_and_an_unchanged_entity_is_no_change():
     again = gr.plan({"fields": once}, [_entity(entity_type="date")], page_captions=False)
     assert again["changes"] == [] and again["fields"]["dob_day"] == once["dob_day"]
     out = gr.plan({"fields": once}, [{**_entity(), "items": ["dob_month", "dob_day"]}], page_captions=False)
-    assert gr.ENTITY_KEY not in out["fields"]["dob_yr"] and "dob_yr: out of entity 'dob'" in out["changes"]
+    assert gr.ENTITY_KEY not in out["fields"]["dob_yr"] and "dob_yr: out of text group 'dob'" in out["changes"]
     gone = gr.plan({"fields": once}, [], page_captions=False)["fields"]
     assert not any(gr.ENTITY_KEY in s for s in gone.values())
 

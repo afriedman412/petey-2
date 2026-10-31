@@ -152,7 +152,7 @@ function suggestTextName(us: Unit[], ids: string[]) {
   return n;
 }
 export function nameCheck(u: Unit) {
-  if (isText(u)) return !/^[a-z0-9][a-z0-9_]*$/.test(u.name) ? 'not a name (lower case, digits, underscores)' : entityNames(S().units, u.uid).has(u.name) ? 'another entity already has this name' : '';
+  if (isText(u)) return !/^[a-z0-9][a-z0-9_]*$/.test(u.name) ? 'not a name (lower case, digits, underscores)' : entityNames(S().units, u.uid).has(u.name) ? 'another text group already has this name' : '';
   return !/^[a-z0-9][a-z0-9_]*$/.test(u.name) ? 'not a field name (lower case, digits, underscores)' : takenNames(S().units, u.uid).has(u.name) ? 'another field already has this name' : '';
 }
 export function note(msg: string) { put({ notes: [msg] }); }
@@ -200,14 +200,14 @@ function detach(us: Unit[], id: string) {
 // or g makes them one group. They leave the units they were in; a unit emptied that way hands its name and place
 // to the new group. Option boxes only (entities stay drag-and-drop).
 export function togglePick(id: string) {
-  if (isTextItem(id) && unitOf(id)) return note('That text field is part of an entity; take it out first to make it a checkbox.');
+  if (isTextItem(id) && unitOf(id)) return note('That text field is part of a text group; take it out first to make it a checkbox.');
   const p = new Set(S().picked);
   if (p.has(id)) p.delete(id); else p.add(id);
   put({ picked: p });
 }
 /** a loose text field clicked: it alone is picked, for "convert to bool" (Andrew, 2026-10-27) */
 export function pickText(id: string) {
-  if (unitOf(id)) return note('That text field is part of an entity; take it out first to make it a checkbox.');
+  if (unitOf(id)) return note('That text field is part of a text group; take it out first to make it a checkbox.');
   put({ picked: new Set([id]) });
 }
 export const clearPicked = () => put({ picked: new Set() });
@@ -262,7 +262,7 @@ export function entityPicked(entityType = '') {
     ...(entityType ? { entity_type: entityType } : {}) };
   us.push(u); put({ picked: new Set() });
   afterEdit(us, u.uid);
-  toast(`${ids.length} text fields made one entity: ${u.name} (z undoes)`);
+  toast(`${ids.length} text fields made one text group: ${u.name} (z undoes)`);
 }
 
 // text fields made checkboxes (Andrew, 2026-10-27: "click or select a text field(s) ... a button that says 'convert to
@@ -294,8 +294,8 @@ export function toText(uid: number) {
   afterEdit(us, optUnits(us).length ? optUnits(us)[0].uid : null);
 }
 
-const MIX = 'text fields make entities only with text fields; option boxes group only with option boxes';
-const PAGES = 'an entity stays on one page';
+const MIX = 'text fields group only with text fields; option boxes only with option boxes';
+const PAGES = 'a text group stays on one page';
 function moveText(id: string, target: Target) {
   const us = draft(), src = unitOf(id, us);
   if (target.inTray) target = { tray: true };               // anywhere in the tray means out

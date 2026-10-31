@@ -43,7 +43,7 @@ from urllib.parse import unquote, urlparse
 import pymupdf
 
 from petey import web
-from petey.validate import draft, field_add, group_review, hand_review, run_audit
+from petey.validate import draft, field_add, group_review, hand_review, printed_fields, run_audit
 from petey.validate.retype import resolve_blank
 
 HTML_PATH = Path(__file__).with_suffix(".html")
@@ -902,6 +902,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 return self._send(f"The React page is not built: {SERVED.get('app_build', '')}".encode(), "text/plain", 503)
             ctype = mimetypes.guess_type(f.name)[0] or "application/octet-stream"
             return self._send(f.read_bytes(), ctype + ("; charset=utf-8" if ctype.startswith("text/") or ctype.endswith("javascript") else ""))
+        if path in ("/printed", "/printed/"):            # the benchmark key's printed fields (2026-10-31)
+            return self._send(printed_fields.HTML_PATH.read_bytes(), "text/html; charset=utf-8")
+        if path == "/api/printed":
+            return self._route(printed_fields.sheet)
+        if len(parts) == 4 and parts[:3] == ["api", "printed", "png"]:
+            png = printed_fields.page_png(parts[3])
+            return self._send(png, "image/png") if png else self._send(b"no such page", "text/plain", 404)
         if path == "/api/blueprints":
             return self._json(APP.listing())
         if path == "/api/audit-batch":
@@ -927,6 +934,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     def do_PUT(self):
         parts = self._parts()
+        if len(parts) == 3 and parts[:2] == ["api", "printed"]:
+            body = self._body()
+            return self._route(lambda: printed_fields.confirm(parts[2], list(body.get("printed") or [])))
         if len(parts) != 4 or parts[0] != "api":
             return self._send(b"not found", "text/plain", 404)
         mode, bid, what = parts[1], parts[2], parts[3]

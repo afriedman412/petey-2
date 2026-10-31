@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Printed fields</title>
+<style>
+:root {
+  --bg: #f6f6f4; --panel: #ffffff; --ink: #1d1d1b; --muted: #6b6b66; --line: #d9d9d4;
+  --field: rgba(60, 90, 160, 0.55); --printed: #d9622b; --printed-fill: rgba(217, 98, 43, 0.28);
+  --done: #2f7d4f; --accent: #2b5fd9;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #18181a; --panel: #222225; --ink: #ececea; --muted: #a0a09a; --line: #3a3a3e;
+    --field: rgba(120, 150, 230, 0.6); --printed: #f08a55; --printed-fill: rgba(240, 138, 85, 0.3);
+    --done: #5cbf85; --accent: #7a9cf0;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.4 -apple-system, system-ui, sans-serif; }
+header { position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line);
+  padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+header h1 { font-size: 15px; margin: 0; }
+.muted { color: var(--muted); }
+button, select { font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line);
+  border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+main { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 16px; padding: 16px; max-width: 1400px; margin: 0 auto; }
+@media (max-width: 800px) { main { grid-template-columns: 1fr; } }
+.page { position: relative; background: #fff; border: 1px solid var(--line); line-height: 0; }
+.page img { width: 100%; display: block; }
+.box { position: absolute; border: 1px solid var(--field); cursor: pointer; }
+.box:hover { outline: 2px solid var(--accent); }
+.box.on { border: 2px solid var(--printed); background: var(--printed-fill); }
+aside { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px; align-self: start;
+  position: sticky; top: 64px; }
+aside h2 { font-size: 13px; margin: 0 0 8px; }
+aside ul { padding-left: 18px; margin: 6px 0 12px; }
+.state { font-weight: 600; }
+.state.done { color: var(--done); }
+kbd { border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; font-size: 12px; }
+a { color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Printed fields</h1>
+  <span id="progress" class="muted"></span>
+  <select id="filter" aria-label="Pages to show">
+    <option value="todo">to confirm</option>
+    <option value="all">all pages</option>
+    <option value="done">confirmed</option>
+  </select>
+  <button id="prev" title="previous page (left arrow)">Previous</button>
+  <span id="where" class="muted"></span>
+  <button id="next" title="next page (right arrow)">Next</button>
+  <button id="confirm" class="primary" title="confirm and go on (Enter)">Confirm page</button>
+</header>
+<main>
+  <div class="page" id="page"><img id="img" alt=""></div>
+  <aside>
+    <h2 id="title"></h2>
+    <div>State: <span id="state" class="state"></span></div>
+    <div class="muted" id="setname"></div>
+    <p><a id="form-link" target="_blank" rel="noopener">open the form on the review page</a></p>
+    <h2>Printed on this page (<span id="count"></span>)</h2>
+    <ul id="list"></ul>
+    <p class="muted">Orange: printed (signatures, initials, printed names). Blue outline: other text fields. Click a
+      field to mark or unmark it. <kbd>Enter</kbd> confirms and moves on, <kbd>&larr;</kbd> <kbd>&rarr;</kbd> move,
+      <kbd>r</kbd> resets the page to the candidates.</p>
+  </aside>
+</main>
+<script>
+let PAGES = [], view = [], at = 0, marks = new Set();
+const $ = (id) => document.getElementById(id);
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+                set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+
+async function load() {
+  const r = await fetch("/api/printed");
+  const d = await r.json();
+  PAGES = d.pages;
+  $("filter").value = store.get("printed.filter") || "todo";
+  refilter(store.get("printed.page"));
+}
+
+function refilter(keep) {
+  const f = $("filter").value;
+  view = PAGES.filter(p => f === "all" || (f === "done") === (p.confirmed !== null));
+  at = Math.max(0, view.findIndex(p => p.page_id === keep));
+  show();
+}
+
+function show() {
+  const done = PAGES.filter(p => p.confirmed !== null).length;
+  $("progress").textContent = `${done} of ${PAGES.length} pages confirmed`;
+  const p = view[at];
+  $("where").textContent = view.length ? `${at + 1} / ${view.length}` : "none";
+  if (!p) { $("page").replaceChildren($("img")); $("img").removeAttribute("src"); $("title").textContent = "Nothing here"; return; }
+  store.set("printed.page", p.page_id);
+  marks = new Set(p.confirmed ?? p.proposed);
+  $("title").textContent = `${p.form}, page ${p.page}`;
+  $("setname").textContent = p.set;
+  $("state").textContent = p.confirmed === null ? "candidates, not confirmed" : "confirmed";
+  $("state").className = "state" + (p.confirmed === null ? "" : " done");
+  $("form-link").href = `/#review/${p.form}`;
+  $("img").src = `/api/printed/png/${encodeURIComponent(p.page_id)}`;
+  const [w, h] = p.size;
+  const boxes = p.fields.map(f => {
+    const b = document.createElement("div");
+    b.className = "box";
+    b.dataset.id = f.id;
+    const [x0, y0, x1, y1] = f.rect;
+    Object.assign(b.style, { left: `${x0 / w * 100}%`, top: `${y0 / h * 100}%`,
+                             width: `${(x1 - x0) / w * 100}%`, height: `${(y1 - y0) / h * 100}%` });
+    b.title = `${f.id}${p.signals[f.id] ? " (" + p.signals[f.id].join(", ") + ")" : ""}`;
+    b.onclick = () => { marks.has(f.id) ? marks.delete(f.id) : marks.add(f.id); paint(); };
+    return b;
+  });
+  $("page").replaceChildren($("img"), ...boxes);
+  paint();
+}
+
+function paint() {
+  const p = view[at];
+  for (const b of $("page").querySelectorAll(".box")) b.classList.toggle("on", marks.has(b.dataset.id));
+  $("count").textContent = marks.size;
+  $("list").replaceChildren(...[...marks].sort().map(id => {
+    const li = document.createElement("li");
+    li.textContent = id + (p.signals[id] ? ` (${p.signals[id].join(", ")})` : " (added)");
+    return li;
+  }));
+}
+
+async function confirmPage() {
+  const p = view[at];
+  if (!p) return;
+  const r = await fetch(`/api/printed/${encodeURIComponent(p.page_id)}`, {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ printed: [...marks] }) });
+  if (!r.ok) { alert(await r.text()); return; }
+  p.confirmed = (await r.json()).printed;
+  if ($("filter").value === "todo") { view.splice(at, 1); at = Math.min(at, view.length - 1); }
+  else at = Math.min(at + 1, view.length - 1);
+  show();
+  window.scrollTo(0, 0);
+}
+
+function move(d) { at = Math.max(0, Math.min(view.length - 1, at + d)); show(); window.scrollTo(0, 0); }
+$("prev").onclick = () => move(-1);
+$("next").onclick = () => move(1);
+$("confirm").onclick = confirmPage;
+$("filter").onchange = () => { store.set("printed.filter", $("filter").value); refilter(view[at]?.page_id); };
+document.addEventListener("keydown", (e) => {
+  if (e.target.tagName === "SELECT") return;
+  if (e.key === "Enter") { e.preventDefault(); confirmPage(); }
+  else if (e.key === "ArrowRight") move(1);
+  else if (e.key === "ArrowLeft") move(-1);
+  else if (e.key === "r") { const p = view[at]; if (p) { marks = new Set(p.proposed); paint(); } }
+});
+load();
+</script>
+</body>
+</html>

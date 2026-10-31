@@ -40,12 +40,12 @@ function TextCard({ u }: { u: Unit }) {
   const bad = nameCheck(u), asking = busyOn(busy, u, 'label');
   return (
     <div className="gcur">
-      <h2>Entity of {u.items.length} fields <Badge u={u} /></h2>
+      <h2>Text group of {u.items.length} fields <Badge u={u} /></h2>
       <NameBox key={u.uid + '\n' + u.name} u={u} text />{' '}
       <button className="btn" id="gLabel" title="one call to the labeler with the words on this page" disabled={asking} onClick={() => askLabeler(u.uid)}>{asking ? 'asking…' : 'ask the labeler'}</button>
       {u.name_from === 'labeler' && <> <span className="help">(from the labeler)</span></>}
       {bad && <div className="warn">{bad}</div>}
-      <div className="frow"><label>entity type{' '}
+      <div className="frow"><label>type{' '}
         <select id="gEntityType" value={u.entity_type || ''} onChange={e => setEntityType(u.uid, e.target.value)}
           onKeyDown={e => e.stopPropagation()}>
           <option value="">(none)</option>
@@ -54,7 +54,7 @@ function TextCard({ u }: { u: Unit }) {
       <DescBox key={u.uid + '\n' + (u.description || '')} u={u} />
       <ol>{u.items.map(id => { const it = item(id);
         return <li key={id} {...hoverProps(id)}>{it.field} <span className="help">{it.type || ''}{it.semantic_type ? '/' + it.semantic_type : ''}{it.path ? ' · ' + it.path.split('.').pop() : ''}</span></li>; })}</ol>
-      <div className="help">One value over these fields, in this order. The fields stay as they are (names, boxes, paths); each is tagged with the entity.</div>
+      <div className="help">One value over these fields, in this order. The fields stay as they are (names, boxes, paths); each is tagged with the text group.</div>
       <div className="row"><button className="btn" id="gSplit" onClick={() => separate(u.uid)}>separate again</button></div>
     </div>
   );
@@ -73,10 +73,10 @@ function PickedText() {
       <ul>{ids.map(id => { const it = item(id);
         return <li key={id} {...hoverProps(id)}><code>{it.field}</code> <span className="help">→ {it.ind_name || it.field + '_ind'}{it.type ? ` · now ${it.type}${it.semantic_type ? '/' + it.semantic_type : ''}` : ''}</span></li>; })}</ul>
       <div className="frow">
-        {!one && <button className="btn ok" id="gEntity" title="make the selected text fields one entity (g)" onClick={() => entityPicked()}>make entity ({ids.length})</button>}
-        {!one && <select id="gEntityPick" value="" title="make the selected text fields one entity of this type"
+        {!one && <button className="btn ok" id="gEntity" title="make the selected text fields one text group (g)" onClick={() => entityPicked()}>make text group ({ids.length})</button>}
+        {!one && <select id="gEntityPick" value="" title="make the selected text fields one text group of this type"
           onChange={e => entityPicked(e.target.value)} onKeyDown={e => e.stopPropagation()}>
-          <option value="">make entity of type…</option>
+          <option value="">make text group of type…</option>
           {ENTITY_TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>}
         <button className="btn ok" id="gToBool" onClick={() => toBool(ids)}>convert to bool</button>
@@ -170,7 +170,7 @@ function Chip({ id, u }: { id: string; u: Unit }) {
       title={`${it.field}${it.key !== null ? ' · ' + it.key : ''}${it.on_state ? ' · on ' + it.on_state : ''}`}
       onClick={() => select(cu.uid)} {...hoverProps(id)} {...dragProps('item', id, !u.locked)} {...drop}>
       <span className="gl">{orphan ? u.name : label(id, units)}{it.page !== page && <> <span className="help">p{it.page}</span></>}</span>
-      {!orphan && !u.locked && <span className="x" title={isText(u) ? 'take it out of the entity' : 'take it out of the group'}
+      {!orphan && !u.locked && <span className="x" title={isText(u) ? 'take it out of the text group' : 'take it out of the group'}
         onClick={e => { e.stopPropagation(); moveItem(id, { tray: true }); }}>×</span>}
     </span>
   );
@@ -182,7 +182,7 @@ function UnitCard({ g }: { g: Unit }) {
   return (
     <div className={'gcard' + (g.uid === selected ? ' sel' : '') + (g.confirmed ? ' ok' : '')} data-unit={g.uid}
       style={{ '--c': colorOf(g, units, page) } as React.CSSProperties} {...(g.locked ? {} : dropOn({ unit: g.uid }))}>
-      <h3 onClick={() => select(g.uid)}><span className="grip" title={`drag the whole ${isText(g) ? 'entity' : 'group'}`} {...dragProps('unit', g.uid, !g.locked)}>⠿</span>{g.name} <Badge u={g} /></h3>
+      <h3 onClick={() => select(g.uid)}><span className="grip" title={`drag the whole ${isText(g) ? 'text group' : 'group'}`} {...dragProps('unit', g.uid, !g.locked)}>⠿</span>{g.name} <Badge u={g} /></h3>
       <div className="gchips">{g.items.map(id => <Chip key={id} id={id} u={g} />)}</div>
     </div>
   );
@@ -242,11 +242,11 @@ export function Panel() {
       <Suggestions />
       <div><h4>Groups on page {page} ({groups.length}) · drop a box on a group to add it</h4>
         {groups.length ? groups.map(g => <UnitCard key={g.uid} g={g} />) : <p className="help">none</p>}</div>
-      <div className="tray" id="tray" {...dropOn({ tray: true })}><h4>Loose boxes on page {page} ({loose.length}) · drop a box here to take it out of its group or entity; drop one loose box on another to group them</h4>
+      <div className="tray" id="tray" {...dropOn({ tray: true })}><h4>Loose boxes on page {page} ({loose.length}) · drop a box here to take it out of its group; drop one loose box on another to group them</h4>
         <div className="gchips">{loose.map(o => <Chip key={o.uid} id={o.items[0]} u={o} />)}</div></div>
-      <div><h4>Entities on page {page} ({combos.length})</h4>
+      <div><h4>Text groups on page {page} ({combos.length})</h4>
         {combos.map(g => <UnitCard key={g.uid} g={g} />)}
-        <p className="help">{showText ? `Drag a teal text field onto another to make them one entity: one value over several fields, a date, a name, a signature and its date (${nLoose} text fields on this page). The fields stay as they are.` : 'Text fields are hidden; press Shift+T to show them.'}</p></div>
+        <p className="help">{showText ? `Drag a teal text field onto another to make them one text group: one value over several fields, a date, a name, a signature and its date (${nLoose} text fields on this page). The fields stay as they are.` : 'Text fields are hidden; press Shift+T to show them.'}</p></div>
       <Changes />
     </>
   );
@@ -258,7 +258,7 @@ export function Bar() {
   if (BP) {
     const ou = optUnits(units), n = ou.length, ok = ou.filter(x => x.confirmed).length, g = ou.filter(isGroup).length, t = units.filter(isText).length;
     progress = <>
-      <b>{ok}</b> of {n} confirmed · {g} groups, {n - g} loose{t ? ` · ${t} entit${t === 1 ? 'y' : 'ies'}` : ''}
+      <b>{ok}</b> of {n} confirmed · {g} groups, {n - g} loose{t ? ` · ${t} text group${t === 1 ? '' : 's'}` : ''}
       {PLAN && <> · <b>{PLAN.changes.length}</b> change{PLAN.changes.length === 1 ? '' : 's'}{PLAN.errors.length > 0 && <> <span className="stale">({PLAN.errors.length} to fix)</span></>}</>}
       {/* the apply button in the bar as well as under the change list (2026-10-13: saved groups that never reached the
           blueprint, because the only button sat at the bottom of the sidebar) */}

@@ -15,6 +15,45 @@ authoring:
   labels: llm
   when: '2026-10-06 10:04:51'
 fields:
+  group_p2:
+    x_petey_id: '2_21'
+    type: category
+    values:
+    - void_ind_2
+    - corrected_ind_2
+    widgets:
+      void_ind_2:
+        page: 2
+        rect:
+        - 187.1999969482422
+        - 24.5
+        - 197.1999969482422
+        - 34.5
+        widget_type: checkbox
+        path: topmostSubform[0].CopyA[0].c1_1[0]
+        on_state: '1'
+        caption: VOID
+        x_petey_caption_source: page_text
+      corrected_ind_2:
+        page: 2
+        rect:
+        - 244.8000030517578
+        - 24.5
+        - 254.8000030517578
+        - 34.5
+        widget_type: checkbox
+        path: topmostSubform[0].CopyA[0].c1_1[1]
+        on_state: '2'
+        caption: CORRECTED
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-31 10:32:18'
+      from:
+      - void_ind_2
+      - corrected_ind_2
+    x_petey_identifiers:
+      subject: group_p2
   calendar_yr:
     x_petey_id: '2_2'
     type: string
@@ -36,7 +75,7 @@ fields:
   payer_business_name_address:
     x_petey_id: '2_1'
     type: string
-    semantic_type: address_block
+    semantic_type: name_and_address
     widget:
       page: 2
       rect:
@@ -58,6 +97,23 @@ fields:
         type: string
         semantic_type: business_name
       judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: payer_business_name_address
+        type: string
+        semantic_type: address_block
+        pattern: null
+      to:
+        name: payer_business_name_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       subject: payer_business_name_address
   payer_tin:
@@ -166,6 +222,31 @@ fields:
     x_petey_identifiers:
       subject: account_number
       suffix: txt
+  second_tin_ind:
+    x_petey_id: '2_20'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 268.8
+      - 230.4
+      - 276.0
+      - 237.6
+      widget_type: checkbox
+      path: null
+    description: TIN
+    label_source: hand
+    x_petey_added:
+      source: field_add
+      when: '2026-10-06 12:10:51'
+      geometry: finder
+      name_from: hand
+      caption: TIN
+      finder: step2flat-3
+    x_petey_identifiers:
+      suffix: ind
+      subject: second_tin
   nonemployee_compensation_amt:
     x_petey_id: '2_5'
     type: number
@@ -395,7 +476,7 @@ fields:
   payer_name_address_txt:
     x_petey_id: '3_3'
     type: string
-    semantic_type: address_block
+    semantic_type: name_and_address
     widget:
       page: 3
       rect:
@@ -416,6 +497,23 @@ fields:
         type: string
         semantic_type: business_name
       judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: payer_name_address_txt
+        type: string
+        semantic_type: address_block
+        pattern: null
+      to:
+        name: payer_name_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       subject: payer_name_address
       suffix: txt

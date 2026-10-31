@@ -12,9 +12,16 @@ same column) and blocks (same copy, same slot). Scored pairwise plus groups, gri
 
 - Single pages, not documents. Purely structural: compound values (date parts, SSN, name parts, address) are out; they
   need meaning (2026-10-26). Superseded 2026-10-28: Split Fields are in (below), feasibility pending.
-- Kinds are the visible ones only: text (signatures count as text) and choice (checkbox and radio together). Comb is
+- Superseded 2026-10-31 (next item). Kinds are the visible ones only: text (signatures count as text) and choice (checkbox and radio together). Comb is
   not a kind (2026-10-26). Still holds: the draft below lists Signature separately for how it is drawn, not as a
   different kind of answer.
+- Three field types: text, choice and printed (2026-10-31, Andrew: "printed" is "anything that is expected to be
+  hand-written -- signatures, printed names, etc. this makes scoring more straightforward"). Initials are printed; the
+  date of signing and the signer's title stay text (Claude's defaults, agreed with the plan). No blueprint records it,
+  so the key takes it from a side record Andrew confirms a page at a time (`runs/benchmark/field_types.json`, the
+  review server's /printed sheet; candidates from caption words, names and original widgets,
+  `eval/benchmark_printed.py`: 973 on 359 pages). The blueprints are not edited (that would un-validate them). Scored
+  as text answers of their own type: typed right is three-way, plus precision / recall a type.
 - Andrew's draft of the benchmark's definitions is in `PETEY BENCHMARK HEURISTICS AND GLOSSARY` (repo root, 2026-10-28):
   Fields of three Types (Text, Choice, Signature) and four kinds of Collection (Groups, Entities, Grids, Blocks); Entity
   renamed Split Field (below). Signatures (Andrew, 2026-10-28): "text fields for all intents and purposes, but they are
@@ -301,3 +308,28 @@ question"). Related: 13 (stacked questions).
 Guidance from the second case (Andrew, 2026-10-30): "text groups shouldn't cross grid lines -- but that's heuristic
 guidance, not something we should hard code for now." A text group (an entity, a split field) stays inside one cell of
 a grid. For the benchmark's guidance, not a rule in the finders.
+
+## 17. Notary stamp fields (2026-10-30, open)
+
+Andrew: "I need to make a decision about notary stamp fields." The notary's part of a form: the space left for the
+seal or stamp, often an empty area or a box with no line to write on, beside the notary's signature, printed name,
+commission number and expiry date. To set: whether the stamp area is a field at all (and of what kind: an image, a
+signature-like mark, or not a field), and whether the notary's own entries are in the benchmark or left out, as with
+office use only sections (12). No case logged yet.
+
+## 18. How groups are scored (2026-10-30, open; Andrew's lean recorded)
+
+The scorer (`eval/benchmark_score.py`) and its first baseline (`eval/benchmark_light.py`, the light path on 1,077
+pages) raised it. Andrew, 2026-10-30: drop the "split" terminology: "associated text fields are groups just like
+associated choice fields. only difference is the text groups are specific types only, whereas associated choice groups
+answer the same question." Asked how wrong groupings and false fields are punished (false fields: fields-found
+precision; wrong groups: only a pair score today, the exact count is recall only), his lean, to look at more carefully:
+"we only give partial credit for choice groupings. you either get the whole text grouping or you don't."
+
+What that would mean, not built: a text group scored all or nothing (found whole, by the area its fields cover, or not);
+a choice group scored exactly (precision and recall over groups) and with partial credit (pairs of its boxes, averaged
+per group so a 126-box group counts once).
+
+Settled the same day: a found group that matches no key group is a false positive and counts against precision, a
+group made only of junk boxes included (Andrew: "yep that would be a false positive"); the Groups tab says "text
+group", not "entity" (the stored tag stays `x_petey_entity`).

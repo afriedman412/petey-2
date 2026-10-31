@@ -66,6 +66,6 @@ def test_entities_are_drawn_on_review_and_the_other_tabs():
     assert res.returncode == 0, res.stderr
     out = json.loads(res.stdout.strip().splitlines()[-1])
     assert out["errors"] == []
-    assert out["review"] == ["owner (entity: name, 2 fields)"]
+    assert out["review"] == ["owner (text group: name, 2 fields)"]
     assert out["selected"] == ["owner_nm"]
-    assert out["blocks"] == ["owner (entity: name, 2 fields)"]
+    assert out["blocks"] == ["owner (text group: name, 2 fields)"]

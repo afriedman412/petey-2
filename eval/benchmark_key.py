@@ -1,31 +1,28 @@
 """The flat-structure benchmark's answer key (Andrew, 2026-10-30: "let's build it for the data we have and the guidelines
-we have"): one JSON a page, from the validated blueprints and their Grids / Blocks records, in the same shape a system
-under test hands in (`benchmark_score.py` reads both).
+we have"): one JSON a page, from the validated blueprints, in the same shape a system under test hands in
+(`benchmark_score.py` reads both). Blocks and grids are not scored (2026-10-30), so not in the key.
 
 A page's key:
 
     {"page_id": "bm__sd_531654__p1", "form": "bm__sd_531654", "page": 1, "set": "government (corpus)",
      "source_pdf": ..., "size": [w, h],
-     "fields": [{"id", "rect": [x0, y0, x1, y1], "kind": "text" | "choice"}],     points, top left origin
-     "groups": [[field id, ...]],          the fields that make one answer: an option group's boxes (choice), a Split
+     "fields": [{"id", "rect": [x0, y0, x1, y1], "kind": "text" | "choice" | "printed"}],   points, top left origin
+     "groups": [[field id, ...]]}          the fields that make one answer: an option group's boxes (choice), a Split
                                            Field's parts (text). What a grouping is, is not graded (2026-10-30)
-     "grids":  [{"cells": [{"field", "row", "col"}]}],
-     "blocks": [{"cells": [{"field", "copy", "slot"}]}]}
 
 What the guidelines say, as read here (docs/BENCHMARK_JUDGEMENT_QS.md, Decided):
 
-    fields     every box of a validated blueprint on the page; signatures are text; a checkbox typed in a text box
-               (a converted field) is choice. The key stays as the publisher cut it (combs whole)
+    fields     every box of a validated blueprint on the page; a checkbox typed in a text box (a converted field) is
+               choice. The key stays as the publisher cut it (combs whole)
+    printed    (2026-10-31, Andrew: "anything that is expected to be hand-written -- signatures, printed names, etc.")
+               the text fields Andrew confirmed on the printed sheet (petey.validate.printed_fields' record; initials
+               printed, signing dates and titles text). A page not confirmed there has none, and is counted
     groups     option groups of two or more boxes; Split Fields as tagged on the Groups tab (x_petey_entity). Library
                forms validated before the tag existed carry none
-    grids      the Grids tab's active grids, as the review page lists them (blocks over grids, set-aside finder grids
-               out); a cell holding an option group lists each of its boxes at the cell's row and column
-    blocks     block types with two or more copies on the page (single pages: one copy a page makes no block; the
-               proposal under question 4, not decided); slot = the position in the type's template
 
 Pages: forms the review page counts as validated (every field has a verdict, none flagged, file unchanged since), in
 the benchmark's sets (library, first batch, business, government, municipal, big publishers, hand-picked, finance);
-at most `PER_FORM` pages a form, those with the most fields. Nothing is written to the blueprints or the records.
+at most `PER_FORM` pages a form, those with the most fields. Nothing is written to the blueprints.
 
     PYTHONPATH=. venv/bin/python eval/benchmark_key.py [--pdfs] [--forms ID ...]
 
@@ -36,7 +33,6 @@ from __future__ import annotations
 
 import argparse
 import collections
-import copy
 import json
 import sys
 from pathlib import Path
@@ -70,12 +66,11 @@ def _kind(spec: dict, w: dict) -> str:
     return "text"
 
 
-def page_keys(bp: dict, grids: list[dict] = (), types: list[dict] = (), entities: list[dict] = ()) -> dict[int, dict]:
-    """{page: {fields, groups, grids, blocks}} for one blueprint. `grids`: active grid listings ([{grid: [{name, row,
-    col}]}]); `types`: block types from the record ([{blocks: [[code or None, ...]]}]); `entities`: Split Fields as
-    `compound_values.from_tags` gives them ([{fields: [code, ...]}])."""
+def page_keys(bp: dict, entities: list[dict] = ()) -> dict[int, dict]:
+    """{page: {fields, groups}} for one blueprint. `entities`: Split Fields as `compound_values.from_tags` gives them
+    ([{fields: [code, ...]}])."""
     fields = {n: s for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
-    out: dict[int, dict] = collections.defaultdict(lambda: {"fields": [], "groups": [], "grids": [], "blocks": []})
+    out: dict[int, dict] = collections.defaultdict(lambda: {"fields": [], "groups": []})
     by_code: dict[str, list[str]] = {}             # a field's code -> its box ids (an option group: one a box)
     page_of: dict[str, int] = {}
     for n, s in fields.items():
@@ -106,39 +101,15 @@ def page_keys(bp: dict, grids: list[dict] = (), types: list[dict] = (), entities
         for p, g in on.items():
             if len(g) >= 2:
                 out[p]["groups"].append(g)
-    code_of = {n: str(s.get("x_petey_id") if s.get("x_petey_id") is not None else n) for n, s in fields.items()}
-    for t in grids:
-        on = collections.defaultdict(list)
-        for c in t["grid"]:
-            for i in by_code.get(code_of.get(c["name"], ""), []):
-                on[page_of[i]].append({"field": i, "row": c["row"], "col": c["col"]})
-        for p, cells in on.items():
-            if len({x["field"] for x in cells}) >= 2:
-                out[p]["grids"].append({"cells": cells})
-    for t in types:
-        on = collections.defaultdict(list)
-        for k, b in enumerate(t.get("blocks") or []):
-            for j, c in enumerate(b):
-                for i in by_code.get(str(c), []) if c else []:
-                    on[page_of[i]].append({"field": i, "copy": k, "slot": j})
-        for p, cells in on.items():
-            if len({x["copy"] for x in cells}) >= 2:
-                out[p]["blocks"].append({"cells": cells})
     return dict(out)
 
 
-def _records(bid: str, bp: dict) -> tuple[list[dict], list[dict]]:
-    """(active grids, block types) as the review page shows them, read without saving: `grid_check.listing` settles
-    grids against blocks on a copy of the record and would write it back when something is new."""
-    from petey.validate import grid_check as gc
-    rec = copy.deepcopy(gc.load_set(bid))
-    load, save = gc.load_set, gc._save_set
-    gc.load_set, gc._save_set = (lambda _b: rec), (lambda *_a, **_k: None)
-    try:
-        grids = [t for t in gc.listing(bid, bp) if t.get("status") == "active" and t.get("kind", "table") == "table"]
-    finally:
-        gc.load_set, gc._save_set = load, save
-    return grids, rec.get("types") or []
+def mark_printed(k: dict, printed: set) -> dict:
+    """The page's key with its confirmed printed fields typed printed (text fields only)."""
+    for f in k["fields"]:
+        if f["id"] in printed and f["kind"] == "text":
+            f["kind"] = "printed"
+    return k
 
 
 def candidates() -> list[tuple[str, str]]:
@@ -175,6 +146,7 @@ def write_page_pdf(blank: Path, page: int, dst: Path) -> list[float]:
 def main() -> int:
     from petey.validate import compound_values as cv
     from petey.validate import hand_review as h
+    from petey.validate import printed_fields as pf
     from petey.validate.retype import resolve_blank
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--forms", nargs="*", help="review ids (default: every validated form in the sets)")
@@ -184,6 +156,9 @@ def main() -> int:
     paths = h.blueprint_paths()
     todo = [(b, s) for b, s in candidates() if not args.forms or b in args.forms]
     index, skipped = [], collections.Counter()
+    record = pf.load()
+    proposed = json.loads(pf.CANDIDATES.read_text()) if pf.CANDIDATES.exists() else {}
+    unconfirmed = 0
     for bid, sset in todo:
         v = h.load_verdicts(bid)
         if not v.get("verdicts"):
@@ -195,18 +170,17 @@ def main() -> int:
         if not (c and c["validated"]):
             skipped["not validated"] += 1
             continue
-        try:
-            grids, types = _records(bid, bp)
-        except Exception as e:                          # a blank that will not open: grids by names only fail too
-            skipped[f"grids unreadable ({type(e).__name__})"] += 1
-            continue
-        keys = page_keys(bp, grids, types, cv.from_tags(bp))
+        keys = page_keys(bp, cv.from_tags(bp))
         pages = sorted(keys, key=lambda pg: (-len(keys[pg]["fields"]), pg))[:PER_FORM]
         blank = resolve_blank(bp)
         for pg in sorted(pages):
             pid = f"{bid}__p{pg}"
             k = {"page_id": pid, "form": bid, "page": pg, "set": sset, "source_pdf": bp.get("source_pdf"),
                  "size": None, **keys[pg]}
+            if pid in record:
+                mark_printed(k, pf.printed_ids(pid, record))
+            elif pid in proposed:
+                unconfirmed += 1
             if args.pdfs:
                 if blank is None:
                     skipped["no blank for the page PDF"] += 1
@@ -215,18 +189,19 @@ def main() -> int:
             args.out.mkdir(parents=True, exist_ok=True)
             (args.out / f"{pid}.json").write_text(json.dumps(k, indent=1))
             index.append({"page_id": pid, "set": sset, "fields": len(k["fields"]), "groups": len(k["groups"]),
-                          "grids": len(k["grids"]), "blocks": len(k["blocks"])})
+                          "printed": sum(f["kind"] == "printed" for f in k["fields"])})
     (args.out / "index.json").write_text(json.dumps(index, indent=1))
     by = collections.defaultdict(collections.Counter)
     for x in index:
-        by[x["set"]].update({"pages": 1, "fields": x["fields"], "groups": x["groups"], "grids": x["grids"],
-                             "blocks": x["blocks"], "forms": 0})
+        by[x["set"]].update({"pages": 1, "fields": x["fields"], "groups": x["groups"], "printed": x["printed"]})
     forms = collections.Counter(s for _f, s in {(x["page_id"].rsplit("__p", 1)[0], x["set"]) for x in index})
     print(f"{len(index)} pages from {sum(forms.values())} forms -> {args.out}")
     for s, c in sorted(by.items(), key=lambda kv: -kv[1]["pages"]):
-        print(f"  {s:22} forms {forms[s]:4}  pages {c['pages']:5}  fields {c['fields']:6}  groups {c['groups']:5}  "
-              f"grids {c['grids']:4}  blocks {c['blocks']:4}")
+        print(f"  {s:22} forms {forms[s]:4}  pages {c['pages']:5}  fields {c['fields']:6}  groups {c['groups']:5}"
+              f"  printed {c['printed']:4}")
     print("left out:", dict(skipped))
+    if unconfirmed:
+        print(f"{unconfirmed} pages with printed candidates not confirmed on the printed sheet (typed text for now)")
     return 0
 
 

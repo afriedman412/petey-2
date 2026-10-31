@@ -661,20 +661,20 @@ def _check_text(fields: dict, text_units: list[dict], option_names: set[str]) ->
     for u in text_units:
         n = u.get("name") or ""
         if len(u["items"]) < 2:
-            errors.append(f"entity {n!r} has fewer than two text fields")
+            errors.append(f"text group {n!r} has fewer than two text fields")
         missing = [m for m in u["items"] if m not in texts]
         if missing:
-            errors.append(f"entity {n!r}: {', '.join(missing)} not a text field of this blueprint (any more)")
+            errors.append(f"text group {n!r}: {', '.join(missing)} not a text field of this blueprint (any more)")
         elif len({texts[m]["page"] for m in u["items"]}) > 1:
-            errors.append(f"entity {n!r}: text fields on more than one page")
+            errors.append(f"text group {n!r}: text fields on more than one page")
         for m in u["items"]:
             if m in used:
-                errors.append(f"{m} is in two entities ({used[m]!r} and {n!r})")
+                errors.append(f"{m} is in two text groups ({used[m]!r} and {n!r})")
             used[m] = n
         if not NAME_RE.match(n):
             errors.append(f"{n!r} is not a name (lower case, digits, underscores)")
         elif names.count(n) > 1:
-            errors.append(f"two entities are both named {n!r}")
+            errors.append(f"two text groups are both named {n!r}")
     return errors
 
 
@@ -711,7 +711,7 @@ def _group_text(bp: dict, out: dict, text_units: list[dict], now: str, changes: 
         had = [(bp.get("fields") or {}).get(m, {}).get(ENTITY_KEY) or {} for m in members]
         if any({k: v for k, v in h.items() if k in ("name", "entity_type", "n")} != want[m]
                for h, m in zip(had, members)):
-            changes.append(f"entity {u['name']}{f' ({t})' if t else ''}: {', '.join(members)} "
+            changes.append(f"text group {u['name']}{f' ({t})' if t else ''}: {', '.join(members)} "
                            f"(p{texts[members[0]]['page']}, the fields kept as they are)")
     new: dict = {}
     for name, spec in out.items():
@@ -719,7 +719,7 @@ def _group_text(bp: dict, out: dict, text_units: list[dict], now: str, changes: 
         w = want.get(name) if name in texts else None
         if w is None and tag:
             spec = {k: v for k, v in spec.items() if k != ENTITY_KEY}
-            changes.append(f"{name}: out of entity {tag.get('name')!r}")
+            changes.append(f"{name}: out of text group {tag.get('name')!r}")
         elif w is not None and {k: v for k, v in (tag or {}).items() if k in ("name", "entity_type", "n")} != w:
             spec = {**spec, ENTITY_KEY: {**w, "source": "group_review", "when": now}}
         new[name] = spec

@@ -84,7 +84,7 @@ def test_a_combined_field_takes_an_entity_type():
     assert out["shown"] == "date"                                        # the saved type on the card
     assert out["choices"][0] == "" and "id_number" in out["choices"] and out["choices"][-1] == "other"
     assert out["saved"][-2:] == [["id_number"], [None]]                  # a pick saved; (none) takes it off
-    assert out["button"] == "make entity (4)"
+    assert out["button"] == "make text group (4)"
     assert out["made"] == [["a_1", "a_2", "a_3", "a_4"]]                 # four fields, one entity, one click
     assert out["typed"] == [[["a_1", "a_2", "a_3"], "date"]]           # picked, typed and made in one step
     c = out["colors"]

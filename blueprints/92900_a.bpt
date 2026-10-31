@@ -118,7 +118,7 @@ fields:
   sponsor_name_address:
     x_petey_id: '1_7'
     type: string
-    semantic_type: address
+    semantic_type: name_and_address
     widget:
       page: 1
       rect:
@@ -142,6 +142,23 @@ fields:
         semantic_type: person_name
         description: Name and Address of Sponsor
       judged: 'kept: 2 -> 1'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: sponsor_name_address
+        type: string
+        semantic_type: address
+        pattern: null
+      to:
+        name: sponsor_name_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       subject: sponsor_name_address
   agent_id:
@@ -175,21 +192,23 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
     x_petey_hand_edit:
-      when: '2026-10-14 19:30:25'
+      when: '2026-10-16 13:43:13'
       from:
-        name: agent_name_address
-        type: string
-        semantic_type: person_name
-        pattern: null
-      to:
         name: agent_name_address
         type: string
         semantic_type: null
         pattern: null
-      record: eval/mechanical_pass.py
+      to:
+        name: agent_name_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
       by: claude
       kind: type
-      why: person_name is no longer assigned (it changed nothing)
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    semantic_type: name_and_address
     x_petey_identifiers:
       subject: agent_name_address
   borrower_name_present_address:
