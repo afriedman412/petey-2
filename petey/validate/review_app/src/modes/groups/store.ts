@@ -223,7 +223,9 @@ export function selectArea(r: Rect, add: boolean) {
   let got = all.filter(it => !isTextItem(it.id));
   if (!got.length && S().showText) got = all.filter(it => isTextItem(it.id) && !unitOf(it.id));
   for (const it of got) p.add(it.id);
-  put({ picked: p });
+  // the selection moves to what the drag took: the group selected before is no longer lit (Andrew, 2026-10-31: "that
+  // field stays highlighted (although the focus moves to the group)")
+  put({ picked: p, selected: null });
   const text = [...p].some(id => isTextItem(id));
   toast(`${p.size} ${text ? 'field' : 'box'}${p.size === 1 ? '' : (text ? 's' : 'es')} selected${text ? ': "convert to bool" makes them checkboxes' : p.size > 1 ? ': g groups them, Esc clears' : ''}`);
 }
