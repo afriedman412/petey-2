@@ -27,11 +27,14 @@ function Layer() {
   const cl = clashOn ? clashGroups(BP, removed) : {};
   const out: React.ReactNode[] = [];
   // option groups drawn as in Groups (2026-10-13, Andrew): a dashed hull in the group's color around its boxes on this
-  // page, solid when the field is selected; the boxes keep their verdict colors
+  // page, solid when the field is selected; the boxes keep their verdict colors, filled in the group's colour (Andrew,
+  // 2026-10-31: "can you make grouped fields have the same color as their group color?")
   let gi = 0;
+  const fill: Record<string, string> = {};
   for (const f of BP.fields) {
     if (f.options.length < 2 || !showGroups) continue;
     const c = GROUP_COLORS[gi++ % GROUP_COLORS.length], rs = f.rects.filter(r => r.page === page).map(r => r.rect);
+    fill[f.name] = c;
     if (!rs.length) continue;
     const h = hull(rs, 4);
     out.push(<Box key={'h' + f.name} className={'gh rvg' + (selected === f.name ? ' sel' : '')} rect={h} color={c}
@@ -44,6 +47,7 @@ function Layer() {
   // entities visible everywhere the groups are"); a click on the hull selects its first field
   for (const e of (showGroups && overlay?.entities) || []) {
     const c = GROUP_COLORS[gi++ % GROUP_COLORS.length], rs = e.rects.filter(r => r.page === page).map(r => r.rect);
+    e.fields.forEach(n => { fill[n] = c; });
     if (!rs.length) continue;
     out.push(<Box key={'e' + e.name} className={'gh rvg entity' + (e.fields.includes(selected || '') ? ' sel' : '')} rect={hull(rs, 4)} color={c}
       title={`${e.name} (text group${e.entity_type ? ': ' + e.entity_type.replace(/_/g, ' ') : ''}, ${e.fields.length} fields)`}
@@ -55,10 +59,10 @@ function Layer() {
     const sel = selected === f.name, c = cl[f.name];
     const cls = 'rv ' + verdictOf(f.name) + (f.tier === 'contested' ? ' contested' : '') + (isRemoved(f.name) ? ' removed' : '')
       + (sel ? ' sel pulse' : '') + (sel && opt && opt === selOpt ? ' optsel' : '') + (c ? ' clash' : '')
-      + (picks.includes(pickKey(f.name, opt)) ? ' picked' : '') + (f.printed ? ' printed' : f.printed === false ? ' txt' : ' choice');
+      + (picks.includes(pickKey(f.name, opt)) ? ' picked' : '') + (f.printed ? ' printed' : f.printed === false ? ' txt' : ' choice') + (fill[f.name] ? ' grp' : '');
     const title = `${f.id ? f.id + ' · ' : ''}${f.name}${f.printed ? ' · printed' : ''}${f.options.length && f.options[i] ? ' · ' + (f.options[i].caption || f.options[i].on_state) : ''}${c ? ` · clashes on ${c.to}` : ''}`;
     // a box of a group: its key / caption row lights up
-    out.push(<Box key={`${f.name}#${i}`} className={cls} rect={r.rect} title={title} vars={c ? { '--cc': c.color } : undefined}
+    out.push(<Box key={`${f.name}#${i}`} className={cls} rect={r.rect} title={title} color={fill[f.name]} vars={c ? { '--cc': c.color } : undefined}
       data-f={f.name} data-o={opt || ''} onClick={e => (e.shiftKey && isOption(f) ? togglePick(f.name, opt) : select(f.name, false, opt))}
       {...(isOption(f) ? { ...dragProps('rvbox', f.name, isBool(f)), ...dropOnto(f, opt) } : {})} />);
   });

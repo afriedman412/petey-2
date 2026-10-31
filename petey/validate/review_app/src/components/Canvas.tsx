@@ -13,10 +13,19 @@ function ShowLayer() {
   const own = MODES[mode].own;
   const on = (k: keyof typeof show) => show[k] && !own.includes(k);
   const out: React.ReactNode[] = [];
+  // the groups' colours, a field of a group or text group filled in its group's (Andrew, 2026-10-31: "can you make
+  // grouped fields have the same color as their group color?"), while groups are shown
+  const fill: Record<string, string> = {};
+  if (on('groups')) {
+    let gi = 0;
+    o.fields.forEach(f => { if (f.group) fill[f.name] = GROUP_COLORS[gi++ % GROUP_COLORS.length]; });
+    (o.entities || []).forEach(e => { const c = GROUP_COLORS[gi++ % GROUP_COLORS.length]; e.fields.forEach(n => { fill[n] = c; }); });
+  }
   // every field filled by its kind, as on Review, on every tab but Add / remove (Andrew, 2026-10-31: "can you
   // standardize that across all the tabs (except add/remove)"); Review fills its own boxes
   if (mode !== 'review' && mode !== 'add') o.fields.forEach((f, i) => f.kind && f.rects.forEach((r, k) =>
-    r.page === page && out.push(<Box key={`k${i}-${k}`} className={'ovl kind ' + (f.kind === 'text' ? 'txt' : f.kind)} rect={r.rect} />)));
+    r.page === page && out.push(<Box key={`k${i}-${k}`} className={'ovl kind ' + (f.kind === 'text' ? 'txt' : f.kind) + (fill[f.name] ? ' grp' : '')}
+      rect={r.rect} color={fill[f.name]} />)));
   if (on('valid')) o.fields.forEach((f, i) => f.accepted && f.rects.forEach((r, k) => r.page === page && out.push(<Box key={`v${i}-${k}`} className="ovl valid" rect={r.rect} />)));
   if (on('groups')) {
     let gi = 0;

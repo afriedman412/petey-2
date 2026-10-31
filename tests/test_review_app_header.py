@@ -79,6 +79,18 @@ def test_kind_fills_on_every_tab_but_add_remove():
     assert "--fill-printed:" in css and "--fill-choice:" in css
 
 
+def test_grouped_fields_filled_in_their_group_colour():
+    """Andrew, 2026-10-31: "can you make grouped fields have the same color as their group color? (instead of the color
+    they would have as singletons)": on Review and the shared page layer, while groups show; after the kind fills."""
+    review = (SRC / "modes" / "review" / "index.tsx").read_text()
+    assert "(fill[f.name] ? ' grp' : '')" in review and "color={fill[f.name]}" in review
+    canvas = (SRC / "components" / "Canvas.tsx").read_text()
+    assert "if (on('groups'))" in canvas and "(fill[f.name] ? ' grp' : '')" in canvas
+    css = (SRC / "styles.css").read_text()
+    rule = ".rv.grp, .ovl.kind.grp { background:color-mix(in srgb, var(--c) 30%, transparent); }"
+    assert css.index(rule) > css.index(".rv.choice, .ovl.kind.choice {")
+
+
 def test_add_cards_convert_and_choices_are_filled():
     panel = (SRC / "modes" / "add" / "Panel.tsx").read_text()
     assert "'convert to choice' : 'convert to text'" in panel
