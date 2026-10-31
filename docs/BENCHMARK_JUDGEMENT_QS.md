@@ -25,6 +25,9 @@ same column) and blocks (same copy, same slot). Scored pairwise plus groups, gri
   `eval/benchmark_printed.py`) or one field on the Review tab (w); validation holds (an `x_petey_` key). Lines asking
   for a signature, initials or a printed name with no field near them are the /sweep sheet's signature sweep. Scored
   as text answers of their own type: typed right is three-way, plus precision / recall a type.
+- "Sign and date" on one line drawn as one field is valid as it is (2026-10-31, Andrew: "I'm going to start
+  considering lines that are 'sign and date' but are one contiguous field as valid, instead of worrying about
+  splitting them"): not split into a signature and a date in the key. It holds a signature, so it is printed.
 - Andrew's draft of the benchmark's definitions is in `PETEY BENCHMARK HEURISTICS AND GLOSSARY` (repo root, 2026-10-28):
   Fields of three Types (Text, Choice, Signature) and four kinds of Collection (Groups, Entities, Grids, Blocks); Entity
   renamed Split Field (below). Signatures (Andrew, 2026-10-28): "text fields for all intents and purposes, but they are
