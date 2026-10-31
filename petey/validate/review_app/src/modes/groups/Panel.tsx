@@ -121,7 +121,6 @@ function Current({ u }: { u?: Unit }) {
           <span className="gkind">
             <label><input type="radio" name="ty" value="category" checked={u.type === 'category'} onChange={() => setType(u.uid, 'category')} /> one of</label>
             <label><input type="radio" name="ty" value="multi_category" checked={u.type === 'multi_category'} onChange={() => setType(u.uid, 'multi_category')} /> any of</label>
-            {u.items.length === 1 && <span className="warn">a group of one option</span>}
           </span>
         </> : <>
           <span className="lbl">Box</span>

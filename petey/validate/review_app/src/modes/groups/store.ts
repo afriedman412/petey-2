@@ -189,9 +189,16 @@ async function afterEdit(us: Unit[], selected = S().selected) {
   await save();
   schedulePlan();
 }
-function detach(us: Unit[], id: string) {
+// a box taken out of its unit; a group left with one box is a loose box (Andrew, 2026-10-31: "the ability to group
+// one field is confusing and not really useful")
+export function detach(us: Unit[], id: string) {
   const u = unitOf(id, us)!; u.items = u.items.filter(x => x !== id); u.confirmed = false;
   if (!u.items.length || (isText(u) && u.items.length < 2)) drop(us, u);   // an entity of one is no entity
+  else if (u.items.length === 1 && !u.locked) {                            // nor is a group of one: a loose box,
+    u.type = 'boolean';                                                     // a box of its own under its own name
+    const it = S().BP?.items[u.items[0]];
+    if (it && it.key === null) { u.name = it.kind === 'text' ? (it.ind_name || `${it.field}_ind`) : it.field; u.origin = it.field; }
+  }
   return u;
 }
 

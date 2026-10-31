@@ -189,6 +189,20 @@ def converted(bp: dict, units: list[dict], now: str) -> tuple[dict, list[str], d
             {f: texts[f]["ind_name"] for f in ids})
 
 
+def as_loose(spec: dict) -> dict:
+    """A group of one option as the checkbox it is: the field keeps its name, id and bookkeeping; its one box becomes
+    its widget (the box's caption its description when it has none), a boolean indicator."""
+    out = copy.deepcopy(spec)
+    (block,) = out.pop("widgets").values()
+    out.pop("values", None)
+    cap = block.pop("caption", None)
+    block.pop("x_petey_caption_source", None)
+    out["type"], out["semantic_type"], out["widget"] = "boolean", "indicator", block
+    if cap and not out.get("description"):
+        out["description"] = cap
+    return out
+
+
 def _is_converted(spec: dict) -> bool:
     """A text field made a checkbox here and applied (`converted`), still a loose box on its own text widget."""
     return isinstance(spec, dict) and bool(spec.get("x_petey_converted")) and _is_orphan(spec) and _is_xbox(spec)
@@ -458,6 +472,13 @@ def current_units(bid: str, bp: dict, sha: str) -> tuple[dict, list[dict], dict]
             u["locked"] = locked[u["origin"]]
         if u.get("kind") != "text" and len(u["items"]) > 1 and u.get("type") not in ("category", "multi_category"):
             u["type"] = "category"               # several options make a group: one of, unless set to any of
+        # a group of one option is no group (Andrew, 2026-10-31: "the ability to group one field is confusing and
+        # not really useful"): its box is a loose checkbox, as a text group of one is no text group
+        if u.get("kind") != "text" and len(u["items"]) == 1 and u.get("type") != "boolean" and not u.get("locked"):
+            u["type"] = "boolean"
+            it = items[u["items"][0]]
+            if it["key"] is None:                        # a box of its own: the box as it is, under its own name
+                u["name"], u["origin"] = it.get("ind_name") or it["field"], it["field"]
     units.sort(key=lambda u: _order_key(items, u))
     return items, units, info
 
@@ -567,6 +588,11 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
             it = items[u["items"][0]]
             if origin is not None and _is_orphan(origin):
                 spec = copy.deepcopy(origin)                 # an orphan renamed
+            elif it["key"] is None:                          # a box of its own left alone by a group
+                spec = copy.deepcopy(fields[it["field"]])
+            elif origin is not None and it["field"] == u.get("origin") and len(origin.get("widgets") or {}) == 1:
+                spec = as_loose(origin)                      # a group of one option: the same field, a checkbox
+                changes.append(f"{it['field']}: a group of one option made a checkbox")
             else:
                 block = copy.deepcopy(fields[it["field"]]["widgets"][it["key"]])
                 cap = block.pop("caption", None)
