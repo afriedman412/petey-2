@@ -26,9 +26,31 @@ _END_PUNCT = re.compile(r"[.:;]$")
 GUARDS = False
 
 
+# a box printed as a character, alone or run into its label ("☐Yes", fin__pb_0c0d6152cdae p1, 2026-10-29): the
+# character is never caption text. Geometric shapes, ballot boxes, the shadowed squares, and the private-use area
+# where symbol fonts (Wingdings' box) land.
+_BOX_CHARS = re.compile("^[\u25a0-\u25ff\u2610-\u2612\u274f-\u2752\ue000-\uf8ff]+")
+GLYPHS = True        # off: words read as printed (for measuring the change)
+
+
+def _clean(words) -> list[tuple]:
+    """The page's words with leading box characters taken off (marked: a ninth item, True); a word that was only that
+    is dropped."""
+    if not GLYPHS:
+        return words
+    out = []
+    for w in words:
+        t = _BOX_CHARS.sub("", w[4])
+        if t == w[4]:
+            out.append(w)
+        elif t:
+            out.append((w[0], w[1], w[2], w[3], t, *w[5:8], True))
+    return out
+
+
 def _words_on(page: pymupdf.Page) -> list[tuple]:
     # (x0, y0, x1, y1, text, block, line, word) — keep the reading order
-    return [tuple(w[:8]) for w in page.get_text("words")]
+    return _clean([tuple(w[:8]) for w in page.get_text("words")])
 
 
 def _overlap(a0, a1, b0, b1) -> float:
@@ -44,8 +66,12 @@ def _right_words(words, rect, stop_x) -> Optional[list]:
     x0, y0, x1, y1 = rect
     limit = min(x1 + _MAX_REACH, stop_x if stop_x is not None else x1 + _MAX_REACH)
     cands = []
-    for w in words:
-        if w[0] < x1 - 1 or w[0] > limit:
+    for w in _clean(words):
+        # a word whose box character was taken off ("☐Yes") still starts where the box does: it counts when it starts
+        # inside the box and runs past its right edge. Only those: a symbol-font "r" drawn as the box is a word of its
+        # own, and read from inside it gave "r Destroyed" (measured 2026-10-31)
+        inside = len(w) > 8 and x0 - 1 <= w[0] < x1 - 1 and w[2] > x1 + 1
+        if (w[0] < x1 - 1 and not inside) or w[0] > limit:
             continue
         # on the box's line: the word's vertical span overlaps the box's by
         # at least half the smaller of the two — a line above or below the
@@ -127,7 +153,7 @@ def caption_right_of(page: pymupdf.Page, rect, stop_x: Optional[float] = None,
     it. None when nothing qualifies — never a guess. The two fallbacks skip
     `claimed` words (another option's caption, read right of its own box),
     and a `writein` box (a text field follows it) has no fallback at all."""
-    words = words if words is not None else _words_on(page)
+    words = _clean(words) if words is not None else _words_on(page)
     rest = [w for w in words if w not in claimed] if claimed else words
     cap = None
     finders = [lambda: _right_of(words, rect, stop_x)]
