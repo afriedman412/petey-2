@@ -138,7 +138,7 @@ function Columns({ all, hidden }: { all: Col[]; hidden: Set<string> }) {
   const n = all.filter(c => c.k !== 'form' && hidden.has(c.k)).length;
   return (
     <details className="hcols" id="hcols" ref={ref}>
-      <summary className="btn">columns{n ? ` (${n} hidden)` : ''}</summary>
+      <summary className="btn">columns</summary>
       <div className="hcols-menu">
         {all.filter(c => c.k !== 'form').map(c => (
           <label key={c.k} title={c.tip}><input type="checkbox" checked={!hidden.has(c.k)} onChange={() => toggle(c.k)} /> {c.head}</label>))}
