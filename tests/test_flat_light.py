@@ -75,6 +75,19 @@ def test_widget_boxes_skip_buttons_and_keep_radio_groups(tmp_path):
     assert groups == [{"f2", "f3"}]
 
 
+def test_a_publisher_group_stays_on_its_page(tmp_path):
+    # ATF Form 4 (2026-10-31): three copies of a page name each box the same; Q1's Yes on every copy was one group
+    doc = pymupdf.open()
+    for _ in range(3):
+        pg = doc.new_page(width=600, height=400)
+        _add(pg, pymupdf.PDF_WIDGET_TYPE_CHECKBOX, "q1yes", (500, 100, 510, 110))
+        _add(pg, pymupdf.PDF_WIDGET_TYPE_CHECKBOX, "q1no", (530, 100, 540, 110))
+    p = tmp_path / "f.pdf"
+    doc.save(p)
+    boxes, groups = SS.widget_boxes(p)
+    assert len(boxes) == 6 and groups == []
+
+
 def test_stacked_widgets_become_one_field():
     # bm__sd_1474805 p2 (2026-10-27): two widgets on one printed box; the one a saved block type uses stays
     w = lambda r: {"page": 2, "rect": r, "widget_type": "text", "path": None}
