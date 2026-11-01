@@ -47,7 +47,7 @@ import json
 import re
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Iterable, Optional
 
 import pymupdf
 import yaml
@@ -721,13 +721,17 @@ def line_at(ctx: Context, page: int, x: float, y: float) -> Optional[list[float]
 
 
 def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Optional[str] = None,
-            taken_extra: set[str] = frozenset(), dismissed: set[str] = frozenset()) -> dict:
+            taken_extra: set[str] = frozenset(), dismissed: Iterable = ()) -> dict:
     """Proposed field(s) for a drawn area (`rect`) or a suggestion (`sid`), with notes on what the area holds
-    that a field already covers. A suggestion set aside as not a field (`dismissed`, and the record's) is not there
-    for a box drawn or a click (Andrew, 2026-10-31: "I want to be able to un-suggest boxes so they don't get selected
-    when I draw over them"): the area drawn is the field."""
+    that a field already covers. A suggestion set aside as not a field (`dismissed`: ids, or the page's entries with
+    their boxes; and the record's) is not there for a box drawn or a click (Andrew, 2026-10-31: "I want to be able to
+    un-suggest boxes so they don't get selected when I draw over them"): the area drawn is the field. A click on the
+    box of anything set aside (an underline, a printed box, a removed field's box) proposes nothing (2026-11-01:
+    "'not a field' removes the outline from the add/remove layout. z brings it back")."""
     taken = ctx.names | set(taken_extra)
-    gone = set(dismissed) | {d.get("sid") for d in load_record(ctx.bid).get("dismissed") or []}
+    aside_ = [d if isinstance(d, dict) else {"sid": d} for d in dismissed] + (load_record(ctx.bid).get("dismissed") or [])
+    gone = {d.get("sid") for d in aside_}
+    aside = [d["rect"] for d in aside_ if d.get("page") == page and d.get("rect")]
     notes: list[str] = []
     sel = None
     if sid:
@@ -783,6 +787,8 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
                     geom = "underline"                     # or the line the click is on or just above
                     notes.append("the band above the underline at the click")
                 if box is not None:
+                    if any(overlap(box, r) >= CLAIM for r in aside):
+                        return {"proposals": [], "notes": ["set aside as not a field (z brings it back)"]}
                     sel = box
                     w_, h_ = sel[2] - sel[0], sel[3] - sel[1]
             if w_ < 3 or h_ < 3:
@@ -1026,13 +1032,13 @@ def with_removed(sugg: list[dict], fields: list[dict], rec: dict) -> list[dict]:
     out: the field is still there, drawn to be removed."""
     pending = [r for r in rec.get("removed") or [] if r.get("rect")]
     out = [x for x in sugg if not any(r["page"] == x["page"] and overlap(r["rect"], x["rect"]) >= CLAIM for r in pending)]
-    for i, r in enumerate(rec.get("removed_applied") or []):
+    for r in rec.get("removed_applied") or []:
         if not r.get("rect") or not r.get("page"):
             continue
         taken = [x for x in out if x["page"] == r["page"]] + [f for f in fields if f.get("page") == r["page"] and f.get("rect")]
         if any(overlap(r["rect"], x["rect"]) >= CLAIM for x in taken):
             continue
-        out.append({"sid": f"r{i}", "source": "removed_box", "page": r["page"], "rect": r["rect"],
+        out.append({"sid": f"r{r['page']}_{round(r['rect'][0])}_{round(r['rect'][1])}", "source": "removed_box", "page": r["page"], "rect": r["rect"],
                     "what": f"the box of {r.get('name') or 'a removed field'} (removed)"})
     out.sort(key=lambda x: _order(x["page"], x["rect"]))
     return out

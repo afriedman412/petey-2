@@ -13,7 +13,7 @@ def test_a_widget_freed_by_a_removal_stays_a_suggestion_of_itself():
 def test_a_removed_box_with_nothing_behind_it_comes_back_as_its_own_suggestion():
     rec = {"removed_applied": [{"name": "old", "page": 2, "rect": [50, 50, 90, 60]}]}
     got = with_removed([W], [], rec)
-    assert [(x["sid"], x["source"], x["page"]) for x in got] == [("w1", "widget", 1), ("r0", "removed_box", 2)]
+    assert [(x["sid"], x["source"], x["page"]) for x in got] == [("w1", "widget", 1), ("r2_50_50", "removed_box", 2)]
 
 
 def test_not_while_the_removal_waits_nor_where_a_field_is_again():

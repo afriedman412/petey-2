@@ -107,9 +107,13 @@ def test_another_form_opens_on_page_1():
     assert "await loadMode(true);" in actions and "(!fresh && !d.pageLabel(page))" in actions
 
 
-def test_not_a_field_is_back_on_a_suggestions_card():
-    # Andrew, 2026-10-31: "you can just add the 'not a field' button back" (gone with the cards' rework on 10-28)
+def test_not_a_field_is_on_every_card_and_z_brings_it_back():
+    # Andrew, 2026-11-01: "every time I click on a field in add/remove, 'not a field' should be available";
+    # "'not a field' removes the outline from the add/remove layout. z brings it back"
     panel, store = (SRC / "modes" / "add" / "Panel.tsx").read_text(), (SRC / "modes" / "add" / "store.ts").read_text()
-    assert "sidsOf(p).length > 0 &&" in panel and "onClick={() => notAField(i)}>not a field</button>" in panel
+    assert "sidsOf" not in panel and "onClick={() => notAField(i)}>not a field</button>" in panel
     assert "dismissed: [...S().dismissed, ...out]" in store                   # listed under Not fields, × puts it back
-    assert "e.key === 'x' && props.length && sidsOf(props[0]).length) notAField(0)" in store
+    assert "source: 'area'" in store                                         # a card with nothing behind it: its box
+    assert "!gone.has(s.sid) && !covered(s)" in store                         # an underline set aside leaves the page
+    assert "e.key === 'x' && props.length) notAField(0)" in store and "e.key === 'z') undoNotAField()" in store
+    assert "nav, s.sid);" in store                                           # a removed field's box: the card knows it

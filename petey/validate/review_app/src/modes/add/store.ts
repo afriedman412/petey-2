@@ -127,7 +127,10 @@ export function remaining(): Suggestion[] {
 }
 /** the underlines still to click: those a field just added covers are gone (Andrew, 2026-10-28: "the underlines are
  *  highlighted and you can click on one to create a field above it") */
-export const linesLeft = (): Suggestion[] => (S().BP?.lines || []).filter(s => !covered(s));
+export const linesLeft = (): Suggestion[] => {
+  const gone = new Set(S().dismissed.map(d => d.sid));
+  return (S().BP?.lines || []).filter(s => !gone.has(s.sid) && !covered(s));
+};
 export const NAME_RE = /^[a-z0-9][a-z0-9_]*$/;
 const sameBoxes = (p: Proposal, q: Proposal) =>
   boxesOf(p).some(b => boxesOf(q).some(c => c.page === b.page && overlap(b.rect, c.rect) >= 0.5));
@@ -144,7 +147,7 @@ export function mergeProps(old: Proposal[], fresh: Proposal[], nav = false): { p
 // ------------------------------------------------------------------------------------------------------- loading
 export async function load(form: string) {
   const BP: AddData = await j(mapi('add', form));
-  curAt = null;
+  curAt = null; undone.length = 0;
   put({ BP, added: BP.added, dismissed: BP.dismissed, removed: BP.removed || [], props: [], notes: [], curSid: null, picked: null, rmPicks: [], PLAN: BP.plan || null });
 }
 
@@ -169,18 +172,18 @@ export async function proposeSid(s: Suggestion, nav = false) {
   put({ curSid: s.sid }); curAt = s;
   if (s.page !== app().page) setApp({ page: s.page });
   // a removed field's box with no widget or finder box behind it (field_add.with_removed): proposed as an area drawn
-  await propose(s.source === 'removed_box' ? { page: s.page, rect: s.rect } : { page: s.page, sid: s.sid }, nav);
+  await propose(s.source === 'removed_box' ? { page: s.page, rect: s.rect } : { page: s.page, sid: s.sid }, nav, s.sid);
   scrollToSel('.ov.sug.cur');
 }
 let busy = false;
-async function propose(body: { page: number; sid?: string; rect?: Rect }, nav = false) {
+async function propose(body: { page: number; sid?: string; rect?: Rect }, nav = false, from = body.sid) {
   if (busy) return; busy = true; put({ picked: null });
   try {
     const taken = [...S().added, ...S().props].map(a => a.name);
     // the suggestions set aside are not there for a box drawn (Andrew, 2026-10-31: "un-suggest boxes so they don't get
-    // selected when I draw over them"): sent along, as the record may not be saved yet
-    const r = await send('POST', mapi('add', bid(), '/propose'), { ...body, taken, dismissed: S().dismissed.map(d => d.sid) });
-    const { props, dup } = mergeProps(S().props, keyed(r.proposals, body.sid, nav), nav);
+    // selected when I draw over them"), nor a box set aside for a click: sent along, as the record may not be saved yet
+    const r = await send('POST', mapi('add', bid(), '/propose'), { ...body, taken, dismissed: S().dismissed });
+    const { props, dup } = mergeProps(S().props, keyed(r.proposals, from, nav), nav);
     put({ props, notes: [...(r.notes || []), ...(dup ? ['that box is proposed already'] : [])] });
   }
   catch (e) { put({ notes: ['proposal failed: ' + (e as Error).message] }); }
@@ -230,17 +233,31 @@ export function pickName(i: number, k: number) {
   });
 }
 export const skipProp = (i: number) => put({ props: S().props.filter((_, k) => k !== i) });
-/** the suggestions a card came from: the one clicked or stepped to, else those its box was drawn over */
-export const sidsOf = (p: Proposal): string[] => (p._sid ? [p._sid] : Array.isArray(p.sids) ? (p.sids as string[]) : [])
-  .filter(sid => remaining().some(s => s.sid === sid));
-/** "not a field" (back on 2026-10-31, Andrew: "you can just add the 'not a field' button back"; it went with the cards'
- *  rework on 10-28): the card's suggestions set aside, listed under Not fields (× puts one back), the card gone */
+/** the suggestions and underlines a card came from: the one clicked or stepped to, and those its box was drawn over */
+const shownOf = (p: Proposal): Suggestion[] => {
+  const sids = [...(p._sid ? [p._sid] : []), ...(Array.isArray(p.sids) ? (p.sids as string[]) : [])];
+  return [...remaining(), ...linesLeft()].filter(s => sids.includes(s.sid));
+};
+/** "not a field" on every card (Andrew, 2026-11-01: "every time I click on a field in add/remove, 'not a field' should
+ *  be available"; "'not a field' removes the outline from the add/remove layout. z brings it back"): the card goes, and
+ *  what it came from is set aside under Not fields (× puts one back): its suggestions or underline, else its own box,
+ *  which a click no longer proposes */
+const undone: { card: Proposal; sids: string[] }[] = [];
 export function notAField(i: number) {
   const p = S().props[i]; if (!p) return;
-  const sids = sidsOf(p), now = localNow();
-  const out = remaining().filter(s => sids.includes(s.sid)).map(s => ({ sid: s.sid, page: s.page, rect: s.rect, source: s.source, what: s.what, when: now }));
-  if (!out.length) return;
+  const now = localNow(), shown = shownOf(p);
+  const out = shown.length ? shown.map(s => ({ sid: s.sid, page: s.page, rect: s.rect, source: s.source, what: s.what, when: now }))
+    : boxesOf(p).map(b => ({ sid: `a${b.page}_${b.rect.map(Math.round).join('_')}`, page: b.page, rect: b.rect, source: 'area',
+      what: `the box of ${p.name || 'a card'}`, when: now }));
+  undone.push({ card: p, sids: out.map(d => d.sid) });
   put({ dismissed: [...S().dismissed, ...out], props: S().props.filter((_, k) => k !== i), notes: [], curSid: null });
+  save();
+}
+/** z: the last "not a field" undone, its outline and its card back */
+export function undoNotAField() {
+  const u = undone.pop();
+  if (!u) { put({ notes: ['nothing set aside to bring back'] }); return; }
+  put({ dismissed: S().dismissed.filter(d => !u.sids.includes(d.sid)), props: mergeProps(S().props, [u.card]).props, notes: [] });
   save();
 }
 
@@ -364,7 +381,8 @@ export function key(e: KeyboardEvent): boolean {
   else if (e.key === 'p') gotoSuggestion(-1);
   else if ((e.key === 'Enter' || e.key === 'a') && props.length) addAll();   // a: as Review's accept
   else if (e.key === 'Escape') cancel();
-  else if (e.key === 'x' && props.length && sidsOf(props[0]).length) notAField(0);   // the newest card, on top
+  else if (e.key === 'x' && props.length) notAField(0);   // the newest card, on top
+  else if (e.key === 'z') undoNotAField();
   else if (e.key === 'd' && S().rmPicks.length) removeAll();
   else if (e.key === 'd' && picked) toggleRemove();
   else if (e.key === 'f') put({ showFields: !showFields });

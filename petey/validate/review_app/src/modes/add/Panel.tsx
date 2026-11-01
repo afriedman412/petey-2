@@ -3,7 +3,7 @@
 import type { KeyboardEvent } from 'react';
 import {
   addAll, addProps, askLabeler, cancel, closePicked, dropOption, goto, isRemoved, keepRemoved, linesLeft, NAME_RE, pickName, pickRemoved,
-  notAField, remaining, runFinder, save, sidsOf, setOptField, setPropField, setShow, skipProp, setKind, toggleRemove, toggleRmPick, removeAll, unAdd, unDismiss, useAdd,
+  notAField, remaining, runFinder, save, setOptField, setPropField, setShow, skipProp, setKind, toggleRemove, toggleRmPick, removeAll, unAdd, unDismiss, useAdd,
   gotoSuggestion, nameClash, type Proposal,
 } from './store';
 
@@ -78,7 +78,7 @@ function Card({ p, i }: { p: Proposal; i: number }) {
       <ul className="ev">{p.evidence.map((e, k) => <li key={k}>{e}</li>)}</ul>
       <div className="arow"><button className="btn primary" onClick={() => addProps([i])}>add this field</button>{' '}
         <button className="btn" title="drop this one; the others stay" onClick={() => skipProp(i)}>cancel</button>
-        {sidsOf(p).length > 0 && <>{' '}<button className="btn warn" title="this suggestion is not a field: take it off the page (x; Not fields below puts it back)" onClick={() => notAField(i)}>not a field</button></>}</div>
+        {' '}<button className="btn warn" title="not a field: its outline comes off the page (x; z brings it back)" onClick={() => notAField(i)}>not a field</button></div>
     </div>
   );
 }

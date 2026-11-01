@@ -130,3 +130,27 @@ def test_a_box_drawn_over_a_suggestion_set_aside_is_the_area_drawn(tmp_path, mon
     (tmp_path / "rec" / "t__f.json").write_text(json.dumps({"dismissed": [{"sid": "b7"}]}))
     (p,) = field_add.propose(ctx, 1, rect=draw)["proposals"]          # set aside in the record: the same
     assert p["geometry"] == "selection"
+
+
+def test_a_click_on_a_box_set_aside_proposes_nothing(tmp_path, monkeypatch):
+    """Andrew, 2026-11-01: "'not a field' removes the outline from the add/remove layout. z brings it back": a click
+    on a printed box or underline set aside proposes nothing; a box drawn there is still the field."""
+    monkeypatch.setattr(field_add, "OUT", tmp_path / "rec")
+    ctx = _ctx(tmp_path, monkeypatch)
+    ctx.boxes = []
+    band = _line(ctx, 200)["rect"]
+    x, y = (band[0] + band[2]) / 2, (band[1] + band[3]) / 2
+    click = [x - 1, y - 1, x + 1, y + 1]
+    assert field_add.propose(ctx, 1, rect=click)["proposals"]
+    aside = [{"sid": _line(ctx, 200)["sid"], "page": 1, "rect": band, "source": "underline"}]
+    r = field_add.propose(ctx, 1, rect=click, dismissed=aside)
+    assert r["proposals"] == [] and r["notes"] == ["set aside as not a field (z brings it back)"]
+    (p,) = field_add.propose(ctx, 1, rect=[band[0], band[1] - 2, band[2], band[3] + 2], dismissed=aside)["proposals"]
+    assert p["geometry"] == "selection"                                   # drawn: the field
+
+
+def test_a_removed_fields_box_keeps_its_id():
+    # the id names the box, not its place in the list, so setting one aside does not move to another
+    rec = {"removed_applied": [{"name": "a", "page": 1, "rect": [10, 20, 60, 30]}, {"name": "b", "page": 2, "rect": [5, 5, 9, 9]}]}
+    out = field_add.with_removed([], [], rec)
+    assert [x["sid"] for x in out] == ["r1_10_20", "r2_5_5"]
