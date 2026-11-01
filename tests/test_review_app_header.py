@@ -105,3 +105,11 @@ def test_another_form_opens_on_page_1():
     actions = (SRC / "state" / "actions.ts").read_text()
     assert "set({ bid: id, page: 1, loaded: null, loadError: null });" in actions
     assert "await loadMode(true);" in actions and "(!fresh && !d.pageLabel(page))" in actions
+
+
+def test_not_a_field_is_back_on_a_suggestions_card():
+    # Andrew, 2026-10-31: "you can just add the 'not a field' button back" (gone with the cards' rework on 10-28)
+    panel, store = (SRC / "modes" / "add" / "Panel.tsx").read_text(), (SRC / "modes" / "add" / "store.ts").read_text()
+    assert "sidsOf(p).length > 0 &&" in panel and "onClick={() => notAField(i)}>not a field</button>" in panel
+    assert "dismissed: [...S().dismissed, ...out]" in store                   # listed under Not fields, × puts it back
+    assert "e.key === 'x' && props.length && sidsOf(props[0]).length) notAField(0)" in store

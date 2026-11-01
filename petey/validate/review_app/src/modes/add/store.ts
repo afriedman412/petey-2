@@ -228,6 +228,19 @@ export function pickName(i: number, k: number) {
   });
 }
 export const skipProp = (i: number) => put({ props: S().props.filter((_, k) => k !== i) });
+/** the suggestions a card came from: the one clicked or stepped to, else those its box was drawn over */
+export const sidsOf = (p: Proposal): string[] => (p._sid ? [p._sid] : Array.isArray(p.sids) ? (p.sids as string[]) : [])
+  .filter(sid => remaining().some(s => s.sid === sid));
+/** "not a field" (back on 2026-10-31, Andrew: "you can just add the 'not a field' button back"; it went with the cards'
+ *  rework on 10-28): the card's suggestions set aside, listed under Not fields (× puts one back), the card gone */
+export function notAField(i: number) {
+  const p = S().props[i]; if (!p) return;
+  const sids = sidsOf(p), now = localNow();
+  const out = remaining().filter(s => sids.includes(s.sid)).map(s => ({ sid: s.sid, page: s.page, rect: s.rect, source: s.source, what: s.what, when: now }));
+  if (!out.length) return;
+  put({ dismissed: [...S().dismissed, ...out], props: S().props.filter((_, k) => k !== i), notes: [], curSid: null });
+  save();
+}
 
 const indexOfK = (k: number | undefined) => S().props.findIndex(p => p._k === k);
 // a text box made a checkbox, or back (2026-10-20): renamed (_ind) and typed again on the server
@@ -349,6 +362,7 @@ export function key(e: KeyboardEvent): boolean {
   else if (e.key === 'p') gotoSuggestion(-1);
   else if ((e.key === 'Enter' || e.key === 'a') && props.length) addAll();   // a: as Review's accept
   else if (e.key === 'Escape') cancel();
+  else if (e.key === 'x' && props.length && sidsOf(props[0]).length) notAField(0);   // the newest card, on top
   else if (e.key === 'd' && S().rmPicks.length) removeAll();
   else if (e.key === 'd' && picked) toggleRemove();
   else if (e.key === 'f') put({ showFields: !showFields });
