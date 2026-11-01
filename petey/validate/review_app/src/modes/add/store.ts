@@ -177,7 +177,9 @@ async function propose(body: { page: number; sid?: string; rect?: Rect }, nav = 
   if (busy) return; busy = true; put({ picked: null });
   try {
     const taken = [...S().added, ...S().props].map(a => a.name);
-    const r = await send('POST', mapi('add', bid(), '/propose'), { ...body, taken });
+    // the suggestions set aside are not there for a box drawn (Andrew, 2026-10-31: "un-suggest boxes so they don't get
+    // selected when I draw over them"): sent along, as the record may not be saved yet
+    const r = await send('POST', mapi('add', bid(), '/propose'), { ...body, taken, dismissed: S().dismissed.map(d => d.sid) });
     const { props, dup } = mergeProps(S().props, keyed(r.proposals, body.sid, nav), nav);
     put({ props, notes: [...(r.notes || []), ...(dup ? ['that box is proposed already'] : [])] });
   }

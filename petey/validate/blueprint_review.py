@@ -1032,7 +1032,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: APP.apply_groups(bid), bid)
         if (mode, what) == ("add", "propose"):
             return self._route(lambda: field_add.propose(APP.add.ctx(bid), int(body.get("page") or 1), body.get("rect"),
-                                                         body.get("sid"), set(body.get("taken") or [])), bid)
+                                                         body.get("sid"), set(body.get("taken") or []),
+                                                         set(body.get("dismissed") or [])), bid)
         if (mode, what) == ("add", "kind"):              # the card's box: text box / checkbox, by hand
             return self._route(lambda: {"proposal": field_add.switch_kind(
                 body["proposal"], body["kind"], APP.add.ctx(bid).names | set(body.get("taken") or []))}, bid)

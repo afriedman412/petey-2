@@ -112,3 +112,21 @@ def test_fields_say_which_are_printed():
                      "sig": {"type": "string", "widget": {"page": 1, "rect": [0, 20, 90, 30], "widget_type": "text"},
                              "x_petey_printed": {"source": "review", "when": "2026-10-31 20:00:00"}}}}
     assert {f["name"]: f["printed"] for f in field_add.field_rects(bp)} == {"nm": False, "sig": True}
+
+
+def test_a_box_drawn_over_a_suggestion_set_aside_is_the_area_drawn(tmp_path, monkeypatch):
+    """Andrew, 2026-10-31: "I want to be able to un-suggest boxes so they don't get selected when I draw over them":
+    a finder box set aside as not a field (sent by the page, or in the record) is not there for a box drawn."""
+    import json
+    monkeypatch.setattr(field_add, "OUT", tmp_path / "rec")
+    ctx = _ctx(tmp_path, monkeypatch)
+    ctx.boxes = [{"id": 7, "sid": "b7", "page": 1, "rect": [100, 600, 300, 614], "kind": "text", "claimed_by": None}]
+    draw = [90, 590, 320, 620]
+    (p,) = field_add.propose(ctx, 1, rect=draw)["proposals"]
+    assert p["rect"] == [100, 600, 300, 614]                          # the suggestion, as before
+    (p,) = field_add.propose(ctx, 1, rect=draw, dismissed={"b7"})["proposals"]
+    assert p["rect"] == [90.0, 590.0, 320.0, 620.0] and p["geometry"] == "selection"
+    (tmp_path / "rec").mkdir()
+    (tmp_path / "rec" / "t__f.json").write_text(json.dumps({"dismissed": [{"sid": "b7"}]}))
+    (p,) = field_add.propose(ctx, 1, rect=draw)["proposals"]          # set aside in the record: the same
+    assert p["geometry"] == "selection"

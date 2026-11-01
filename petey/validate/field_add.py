@@ -721,10 +721,13 @@ def line_at(ctx: Context, page: int, x: float, y: float) -> Optional[list[float]
 
 
 def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Optional[str] = None,
-            taken_extra: set[str] = frozenset()) -> dict:
+            taken_extra: set[str] = frozenset(), dismissed: set[str] = frozenset()) -> dict:
     """Proposed field(s) for a drawn area (`rect`) or a suggestion (`sid`), with notes on what the area holds
-    that a field already covers."""
+    that a field already covers. A suggestion set aside as not a field (`dismissed`, and the record's) is not there
+    for a box drawn or a click (Andrew, 2026-10-31: "I want to be able to un-suggest boxes so they don't get selected
+    when I draw over them"): the area drawn is the field."""
     taken = ctx.names | set(taken_extra)
+    gone = set(dismissed) | {d.get("sid") for d in load_record(ctx.bid).get("dismissed") or []}
     notes: list[str] = []
     sel = None
     if sid:
@@ -740,8 +743,8 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
         def hit(r):
             return (sel[0] >= r[0] - 1 and sel[2] <= r[2] + 1 and sel[1] >= r[1] - 1 and sel[3] <= r[3] + 1) if point \
                 else (_center_in(r, sel) or overlap(r, sel) >= 0.6 and _area(r) <= _area(sel) * 1.5)
-        ws = [w for w in ctx.widgets if w["page"] == page and hit(w["rect"])]
-        bs = [b for b in ctx.boxes or [] if b["page"] == page and hit(b["rect"])]
+        ws = [w for w in ctx.widgets if w["page"] == page and hit(w["rect"]) and w.get("sid") not in gone]
+        bs = [b for b in ctx.boxes or [] if b["page"] == page and hit(b["rect"]) and b.get("sid") not in gone]
         if point:                                          # a click: the smallest thing under it
             ws = sorted(ws, key=lambda w: _area(w["rect"]))[:1]
             bs = sorted(bs, key=lambda b: _area(b["rect"]))[:1] if not ws else []
