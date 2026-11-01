@@ -22,9 +22,9 @@ describe('freeSuggested', () => {
     const out = freeSuggested({ BP, added: [], removed: [], props: [P('sort_code'), P('x_line_2'), P('sort_code', 'hand')] });
     expect(out.map(p => p.name)).toEqual(['sort_code_2', 'x_line_3', 'sort_code']);
   });
-  it('two cards with one new name: the second is renamed', () => {
+  it('two cards with one new name: the newer one, on top, is renamed', () => {
     const out = freeSuggested({ BP, added: [], removed: [], props: [P('dob'), P('dob')] });
-    expect(out.map(p => p.name)).toEqual(['dob', 'dob_2']);
+    expect(out.map(p => p.name)).toEqual(['dob_2', 'dob']);
   });
   it('the same array when nothing clashes', () => {
     const props = [P('a'), P('b')];

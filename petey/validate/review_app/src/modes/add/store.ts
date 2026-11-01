@@ -34,7 +34,7 @@ export interface AddData {
   pages: PageInfo[]; suggestions: Suggestion[];
   /** underlines no field or suggestion covers (field_add.Context.lines): highlighted to click, not stepped through */
   lines?: Suggestion[];
-  fields: { name: string; page: number; rect: Rect; choice?: boolean }[];
+  fields: { name: string; page: number; rect: Rect; choice?: boolean; printed?: boolean }[];
   field_specs?: Record<string, { x_petey_id?: string; type?: string; semantic_type?: string; description?: string }>;
   semantic_types: string[]; added: Added[]; dismissed: Dismissed[]; removed?: Removal[]; plan?: Plan | null;
 }
@@ -86,18 +86,20 @@ export function freeName(name: string, taken: (n: string) => boolean): string {
   while (taken(`${base}_${k}`)) k++;
   return `${base}_${k}`;
 }
-/** the cards with each suggested name that clashes made free, in card order: a name the blueprint or an addition has, or
- *  an earlier card's (a name typed by hand is left, and its card says it clashes); the same array when nothing clashes */
+/** the cards with each suggested name that clashes made free, oldest card first (the newest is on top, so from the
+ *  bottom up): a name the blueprint or an addition has, or an older card's (a name typed by hand is left, and its card
+ *  says it clashes); the same array when nothing clashes */
 export function freeSuggested(st: Pick<State, 'BP' | 'added' | 'props' | 'removed'>): Proposal[] {
   let props = st.props, changed = false;
-  props.forEach((p, i) => {
-    if (!p.name || p.name_source === 'hand') return;
-    const cur = { ...st, props: props.slice(0, i) };          // the earlier card keeps the name, the later one moves
-    if (!nameClash(p.name, i, cur)) return;
-    const name = freeName(p.name, n => nameClash(n, i, cur) !== null);
+  for (let i = props.length - 1; i >= 0; i--) {
+    const p = props[i];
+    if (!p.name || p.name_source === 'hand') continue;
+    const cur = { ...st, props: props.slice(i + 1) };         // the older card keeps the name, the newer one moves
+    if (!nameClash(p.name, -1, cur)) continue;
+    const name = freeName(p.name, n => nameClash(n, -1, cur) !== null);
     props = props.map((q, k) => (k === i ? { ...q, name } : q));
     changed = true;
-  });
+  }
   return changed ? props : st.props;
 }
 
@@ -130,12 +132,13 @@ export const NAME_RE = /^[a-z0-9][a-z0-9_]*$/;
 const sameBoxes = (p: Proposal, q: Proposal) =>
   boxesOf(p).some(b => boxesOf(q).some(c => c.page === b.page && overlap(b.rect, c.rect) >= 0.5));
 /** The cards after a proposal (Andrew, 2026-10-27: "when you select a field to add, it stays added"; a second click
- *  replaced the first): new cards join those waiting, n / p's card (`nav`) takes the place of the last one n / p
- *  brought, and a box already waiting is not proposed twice (`dup`, the cards left out). */
+ *  replaced the first): new cards go on top of those waiting (2026-10-31: "can you put it on the top of the stack
+ *  instead of the bottom? (easier to click -> edit sequential boxes)"), n / p's card (`nav`) takes the place of the
+ *  last one n / p brought, and a box already waiting is not proposed twice (`dup`, the cards left out). */
 export function mergeProps(old: Proposal[], fresh: Proposal[], nav = false): { props: Proposal[]; dup: number } {
   const keep = nav ? old.filter(p => !p._nav) : old;
   const add = fresh.filter(p => !keep.some(q => sameBoxes(p, q)));
-  return { props: [...keep, ...add], dup: fresh.length - add.length };
+  return { props: [...add, ...keep], dup: fresh.length - add.length };
 }
 
 // ------------------------------------------------------------------------------------------------------- loading

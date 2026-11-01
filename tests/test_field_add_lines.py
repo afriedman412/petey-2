@@ -104,3 +104,11 @@ def test_fields_say_which_are_choices():
                      "yes": {"type": "boolean", "widget": {"page": 1, "rect": [0, 20, 8, 28], "widget_type": "checkbox"}},
                      "work": {"type": "category", "widget": {"page": 1, "rect": [0, 40, 50, 50], "widget_type": "combobox"}}}}
     assert {f["name"]: f["choice"] for f in field_add.field_rects(bp)} == {"nm": False, "yes": True, "work": True}
+
+
+def test_fields_say_which_are_printed():
+    # signatures, initials, printed names: their own colour on Add / remove (2026-10-31)
+    bp = {"fields": {"nm": {"type": "string", "widget": {"page": 1, "rect": [0, 0, 50, 10], "widget_type": "text"}},
+                     "sig": {"type": "string", "widget": {"page": 1, "rect": [0, 20, 90, 30], "widget_type": "text"},
+                             "x_petey_printed": {"source": "review", "when": "2026-10-31 20:00:00"}}}}
+    assert {f["name"]: f["printed"] for f in field_add.field_rects(bp)} == {"nm": False, "sig": True}
