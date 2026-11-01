@@ -982,6 +982,7 @@ def apply(bid: str) -> dict:
     pl = plan(bp, added, removed)
     if pl["errors"]:
         raise SystemExit(f"{bid}: not applied:\n  " + "\n  ".join(pl["errors"]))
+    freed = removed_boxes(bp, removed)                   # read before the fields go
     for s in pl["skipped"]:
         print(f"  skipped {s}")
     if pl["changes"]:
@@ -993,7 +994,7 @@ def apply(bid: str) -> dict:
     now = time.strftime("%Y-%m-%d %H:%M:%S")
     rec.setdefault("applied", []).append({"when": now, "sha_before": rec.get("blueprint_sha"), "sha_after": _sha(p),
                                           "changes": pl["changes"], "skipped": pl["skipped"]})
-    rec["removed_applied"] = (rec.get("removed_applied") or []) + removed    # their boxes are suggestions again (with_removed)
+    rec["removed_applied"] = (rec.get("removed_applied") or []) + freed      # their boxes are suggestions again (with_removed)
     rec["added"], rec["removed"], rec["blueprint_sha"], rec["updated"] = [], [], _sha(p), now
     record_path(bid).write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"{bid}: wrote {p}")
@@ -1003,6 +1004,18 @@ def apply(bid: str) -> dict:
 
 
 # ---------------------------------------------------------------- server
+
+
+def removed_boxes(bp: dict, removed: list[dict]) -> list[dict]:
+    """Each removal once for every box of the field it removes: a removal names the field by its first box only, and
+    a Yes / No pair removed came back with its Yes box alone, the No box gone with nothing to click (Andrew,
+    2026-10-31, bm__pb_2b940fceba30 p2 question 1). A removal of a field no longer there is kept as it was sent."""
+    out = []
+    for r in removed:
+        spec = (bp.get("fields") or {}).get(r.get("name"))
+        boxes = field_rects({"fields": {r["name"]: spec}}) if spec else []
+        out += [{**r, "page": b["page"], "rect": b["rect"]} for b in boxes] or [r]
+    return out
 
 
 def with_removed(sugg: list[dict], fields: list[dict], rec: dict) -> list[dict]:
