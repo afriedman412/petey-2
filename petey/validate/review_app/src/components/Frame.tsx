@@ -8,6 +8,7 @@ import { copyText } from '../lib/dnd';
 import { set, useApp, useEntry, type ShowKey } from '../state/app';
 import { MODES } from '../modes';
 import { loadIgnored, pageId, reasonsUsed, setIgnored, useIgnored } from '../state/ignored';
+import { fillSame, loadSame, sameLabel, useSame } from '../state/same';
 
 // the page's reference (file_p3) before the tab's counts, on every tab: click to copy it (Andrew, 2026-10-27)
 function PageRef() {
@@ -58,8 +59,31 @@ function PagesOf() {
           title={[empty && 'no fields on this page', ig && `ignored: ${ig.reason}`].filter(Boolean).join('; ') || undefined}
           onClick={() => gotoPage(p.page)}>{typeof lab === 'string' ? lab : lab.text}</button>;
       })}
+      <SamePage bid={bid} page={page} />
       <IgnorePage bid={bid} page={page} />
     </div>
+  );
+}
+
+// "fill from" an identical page (Andrew, 2026-10-31: "can you try to leverage existing pages to fill in the info on
+// identical pages"; "everything should carry over"): shown on a page that has one holding fields, this form's copies
+// first; the fill goes into the working copy, a field here that is not on the source kept and flagged.
+function SamePage({ bid, page }: { bid: string; page: number }) {
+  const { pages, busy } = useSame();
+  const [pick, setPick] = useState(0);
+  useEffect(() => { loadSame(bid); }, [bid]);
+  useEffect(() => { setPick(0); }, [bid, page]);
+  const rows = pages[String(page)] || [];
+  if (!rows.length) return null;
+  const s = rows[Math.min(pick, rows.length - 1)];
+  return (
+    <span className="samepg" id="samePage" title="this page is the same page as these: fill it from one (fields, kinds, groups, blocks, grids, names and verdicts), into the working copy">
+      <span className="lab">same as</span>
+      {rows.length > 1
+        ? <select value={pick} onChange={e => setPick(+e.target.value)}>{rows.map((r, i) => <option key={i} value={i}>{sameLabel(r)}</option>)}</select>
+        : <span className="one">{sameLabel(s)}</span>}
+      <button disabled={busy} onClick={() => fillSame(page, s)}>{busy ? 'filling…' : 'fill from it'}</button>
+    </span>
   );
 }
 

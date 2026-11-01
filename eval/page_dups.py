@@ -29,29 +29,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 INV = ROOT / "runs" / "inventory"
-HAM, JAC, HAM_IMAGE, MIN_WORDS, INK = 40, 0.85, 12, 20, 24
-
-
-def ham(a: str, b: str) -> int:
-    return bin(int(a, 16) ^ int(b, 16)).count("1")
-
-
-def jac(a: list, b: list) -> float:
-    a, b = set(a), set(b)
-    return len(a & b) / len(a | b) if a | b else 1.0
-
-
-def same_page(p: dict, q: dict) -> bool:
-    if p["n_words"] >= MIN_WORDS and p["words_sha"] == q["words_sha"]:
-        return True
-    d = ham(p["dhash"], q["dhash"])
-    if d <= HAM_IMAGE and min(ink(p), ink(q)) >= INK and abs(p["n_words"] - q["n_words"]) <= max(p["n_words"], q["n_words"]) / 10:
-        return True
-    return d <= HAM and p["n_words"] >= MIN_WORDS and q["n_words"] >= MIN_WORDS and jac(p["vocab"], q["vocab"]) >= JAC
-
-
-def ink(p: dict) -> int:
-    return bin(int(p["dhash"], 16)).count("1")
+sys.path.insert(0, str(ROOT))
+from petey.validate.same_pages import HAM, HAM_IMAGE, INK, JAC, MIN_WORDS, bands, ham, ink, jac, same_page  # noqa: E402,F401
 
 
 class UF:
@@ -80,11 +59,8 @@ def page_pairs(blanks: dict) -> set:
     pages = {(k, p["page"]): p for k, b in blanks.items() for p in b["pages"]}
     cand = collections.defaultdict(set)
     for key, p in pages.items():
-        h = f"{int(p['dhash'], 16):064x}"
-        for i in range(8):
-            cand[("band", i, h[i * 8:(i + 1) * 8])].add(key)
-        if p["n_words"] >= MIN_WORDS:
-            cand[("text", p["words_sha"])].add(key)
+        for k in bands(p):
+            cand[k].add(key)
     seen, out = set(), set()
     for keys in cand.values():
         if len(keys) < 2 or len(keys) > 400:          # a band every blank page shares says nothing

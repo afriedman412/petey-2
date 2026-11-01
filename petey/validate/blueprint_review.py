@@ -43,7 +43,7 @@ from urllib.parse import unquote, urlparse
 import pymupdf
 
 from petey import web
-from petey.validate import draft, field_add, group_review, hand_review, ignored_pages, page_sweeps, printed_fields, run_audit
+from petey.validate import draft, field_add, group_review, hand_review, ignored_pages, page_sweeps, printed_fields, run_audit, same_pages
 from petey.validate.retype import resolve_blank
 
 HTML_PATH = Path(__file__).with_suffix(".html")
@@ -594,6 +594,15 @@ class App:
         self.refresh()
         return {**out, "applied": pl.get("changes") or [], "changes": [], "skipped": pl.get("skipped") or []}
 
+    def fill_same(self, bid: str, page: int, src: str, src_page: int) -> dict:
+        """"fill from" (2026-10-31): the page made what an identical page is, in the working copy (`same_pages.fill`)."""
+        if src not in self.paths:
+            raise KeyError(src)
+        out = same_pages.fill(bid, page, src, src_page, self.paths[bid])
+        self.refresh()
+        self.review._index[bid] = self.review._entry(bid)
+        return {**out, "entry": self.entry(bid)}
+
     def reset_verdicts(self, bid: str) -> dict:
         """The Review bar's "reset validation" (2026-10-22): every verdict cleared, the record kept aside."""
         out = hand_review.reset_verdicts(bid)
@@ -938,6 +947,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._send(png, "image/png") if png else self._send(b"no such page", "text/plain", 404)
         if len(parts) == 4 and parts[:2] == ["api", "review"] and parts[3] == "removals":
             return self._route(lambda: {"removed": field_add.load_record(parts[2]).get("removed") or []}, parts[2])
+        if len(parts) == 3 and parts[:2] == ["api", "same"]:          # each page's identical pages (2026-10-31)
+            return self._route(lambda: {"pages": same_pages.same_pages(parts[2])}, parts[2])
         if len(parts) == 3 and parts[:2] == ["api", "overlay"]:       # what every tab draws besides its own
             return self._route(lambda: APP.overlay(parts[2]), parts[2])
         if len(parts) == 3 and parts[0] == "api" and parts[1] in MODES:
@@ -1009,6 +1020,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         body = self._body()
         if (mode, what) == ("draft", "save"):
             return self._route(lambda: APP.save_draft(bid, bool(body.get("force"))), bid)
+        if (mode, what) == ("same", "fill"):                  # "fill from" an identical page (2026-10-31)
+            return self._route(lambda: APP.fill_same(bid, int(body["page"]), str(body["form"]), int(body["from_page"])), bid)
         if (mode, what) == ("draft", "discard"):
             return self._route(lambda: APP.discard_draft(bid), bid)
         if (mode, what) == ("groups", "captions"):       # "re-read captions" on a group
