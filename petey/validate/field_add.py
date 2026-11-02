@@ -70,6 +70,11 @@ NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_]*$")     # spec 5.2 allows digits anywh
 OPTION_WIDGETS = ("checkbox", "radiobutton")
 CLAIM = 0.5                     # overlap (of the smaller rect) at which a field covers a box
 SAME_BOX = 0.9                  # intersection over union at which an added box is a field's own box again
+# Jev's is-it-a-field score per finder box (`eval/flat_light.screen`), kept by blank and finder version: a finder box
+# scored under SCREEN_KEEP is not suggested (Andrew, 2026-11-01: on publisher-box blueprints the finder's uncovered
+# boxes were 92,570, about 1 in 5 real by eye; screened, 36,325). A box with no score is suggested as before.
+SCREEN_DIR = RUNS / "jev" / "is_field_screen"
+SCREEN_KEEP = 0.6
 
 
 def _iou(a, b) -> float:
@@ -205,6 +210,20 @@ def name_from(text: Optional[str], kind: str) -> Optional[str]:
 
 # ---------------------------------------------------------------- what the documents say about a blueprint's blank
 
+def screen_path(blank: Path) -> Path:
+    return SCREEN_DIR / (hashlib.sha256(blank.read_bytes() + b"\x00boxes\x00" + FINDER_VERSION.encode()).hexdigest()
+                         + ".json")
+
+
+def screen_scores(blank: Path) -> dict[str, float]:
+    """{finder box id: Jev's score} for the blank's boxes under this finder version, {} when none were screened."""
+    p = screen_path(blank)
+    try:
+        return {str(k): float(v) for k, v in json.loads(p.read_text(encoding="utf-8"))["scores"].items()}
+    except (OSError, ValueError, KeyError):
+        return {}
+
+
 def _finder_cached(blank: Path) -> bool:
     h = hashlib.sha256(blank.read_bytes() + b"\x00boxes\x00" + FINDER_VERSION.encode()).hexdigest()
     return (BOX_CACHE / f"{h}.json").exists()
@@ -258,6 +277,7 @@ class Context:
         self.widgets: list[dict] = []
         self.boxes: Optional[list[dict]] = None
         self.cmap: Optional[dict] = None
+        self.screen: dict[str, float] = {}
         self._words: dict[int, list] = {}
         self._bands: Optional[list[tuple[int, list[float]]]] = None
         self._lines: Optional[list[dict]] = None
@@ -333,6 +353,7 @@ class Context:
                         "group": c.get("group"), "entity": c.get("entity"),
                         "claimed_by": self._claimed(b["page"], b["rect"])})
         self.boxes = out
+        self.screen = screen_scores(self.blank)
         self._lines = None                               # the lines leave out what the suggestions now show
 
     def bands(self) -> list[tuple[int, list[float]]]:
@@ -389,9 +410,13 @@ class Context:
                 continue
             if any(w["page"] == b["page"] and overlap(w["rect"], b["rect"]) >= CLAIM for w in free_w):
                 continue
+            jev = self.screen.get(str(b["id"]))
+            if jev is not None and jev < SCREEN_KEEP:
+                continue
             out.append({"sid": b["sid"], "source": "finder", "page": b["page"], "rect": b["rect"],
                         "what": f"finder {b['kind']} box" + (f", classifier: {b['class']}" if b.get("class")
-                                                             else ", not screened by the classifier")})
+                                                             else ", not screened by the classifier")
+                                + (f", Jev {jev:.2f}" if jev is not None else "")})
         out.sort(key=lambda s: _order(s["page"], s["rect"]))
         return out
 

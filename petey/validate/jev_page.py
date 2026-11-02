@@ -43,6 +43,7 @@ PER_REQUEST = 20               # fields per request; 60 with the text evidence w
 CACHE = RUNS / "jev" / "cache"
 N_NEIGHBOURS = 6
 PRICE = 0.042                  # $ per million input tokens, output free (2026-10-15)
+RETRY = (429, 502, 503, 504, 529)   # asked again after 2, 4, 8, 16, 32 s (or retry-after); other errors raise at once
 
 QUESTION = ("`page` is one page of a blank form; every fillable box is outlined in red with its number in a small red "
             "tag at its top-left (an option group's boxes N.a, N.b, ...). `fields` lists each number's name, type and "
@@ -182,8 +183,10 @@ def ask(client: httpx.Client, key: str, body: dict, imgs: dict[str, bytes]) -> d
                 raise
             time.sleep(2 ** attempt)
             continue
-        if r.status_code in (429, 529) and attempt < 5:
-            time.sleep(float(r.headers.get("retry-after") or 2 ** attempt))
+        # busy (429, 529) or briefly down (502-504: 2026-11-01, "Image processing is unavailable" on ~1 form in 3
+        # of a screening run, each one ending the whole form): this request waits and goes again, the rest go on
+        if r.status_code in RETRY and attempt < 5:
+            time.sleep(float(r.headers.get("retry-after") or 2 ** (attempt + 1)))
             continue
         if r.status_code >= 400:
             raise RuntimeError(f"{r.status_code}: {r.text[:400]}")
