@@ -435,9 +435,16 @@ def current_units(bid: str, bp: dict, sha: str) -> tuple[dict, list[dict], dict]
         info["rebased"] = len(moved)
         fmoved = {a.partition("::")[0]: b.partition("::")[0] for a, b in moved.items()
                   if a.partition("::")[0] != b.partition("::")[0]}
+        # a field whose kind was changed after the record (Add / remove's kind, field_add.flip_kind) is what the
+        # blueprint says now: a checkbox made text is not put back in its old unit, which would make it a checkbox
+        # again (2026-11-01, bm__pb_d985db100931: 53 cents cells made text)
+        since = rec.get("updated") or ""
+        reflipped = {n for n, s in (bp.get("fields") or {}).items()
+                     if isinstance(s, dict) and ((s.get("x_petey_kind_edit") or {}).get("when") or "") > since}
         for u in rec["units"]:
             ids = [moved.get(i, i) for i in u.get("items") or []]
-            ids = [i for i in ids if i in items and i not in seen]
+            ids = [i for i in ids if i in items and i not in seen and not (i.partition("::")[0] in reflipped
+                   and items[i].get("kind") == "text" and not items[i].get("converted"))]
             if not ids or (u.get("kind") == "text" and len(ids) < 2):
                 continue
             seen.update(ids)
@@ -450,6 +457,10 @@ def current_units(bid: str, bp: dict, sha: str) -> tuple[dict, list[dict], dict]
                 unit["name"] = next(iter(now))
             if u.get("origin") in fmoved:                # the field it came from, by its name now
                 unit["origin"] = fmoved[u["origin"]]
+                # a unit under its field's name follows the field's rename (Review), or saving Groups renamed the field
+                # back (2026-11-01, bm__mu_009291445aab: p3_o3 renamed p3_o9 in Review, the record's p3_o3 undid it)
+                if u.get("name") == u["origin"]:
+                    unit["name"] = unit["origin"]
             # a later edit of that field (Review, Claude's pass) wins over what the record says about its name and
             # type: the record predates it (2026-10-13: category -> multi_category set after the record, reverted)
             spec = (bp.get("fields") or {}).get(unit.get("origin"))
@@ -464,7 +475,18 @@ def current_units(bid: str, bp: dict, sha: str) -> tuple[dict, list[dict], dict]
         seen.update(moved.get(i, i) for i in rec.get("to_text") or [])
         for u in base:                                   # items the record never saw
             ids = [i for i in u["items"] if i not in seen]
-            if ids and (u.get("kind") != "text" or len(ids) > 1):
+            if not ids or (u.get("kind") == "text" and len(ids) < 2):
+                continue
+            # boxes of a group the record holds the rest of join that unit, as the blueprint has them together: a
+            # second unit under the group's name was a name clash the save refused (Andrew, 2026-11-01,
+            # bm__mu_009291445aab p3_o4: "no field or group should ever be given a name that is already in use")
+            held = [x for x in units if x.get("kind") != "text" and not x.get("locked")
+                    and any(i.partition("::")[0] == u["origin"] for i in x["items"])] if u.get("origin") else []
+            if held and u.get("kind") != "text":
+                home = next((x for x in held if x["name"] == u["name"]), max(held, key=lambda x: len(x["items"])))
+                home["items"] = home["items"] + ids
+                home["confirmed"] = False
+            else:
                 units.append(dict(u, items=ids, confirmed=False))
     locked = {u["origin"]: u.get("locked") for u in base if u.get("locked")}
     for u in units:
@@ -479,8 +501,26 @@ def current_units(bid: str, bp: dict, sha: str) -> tuple[dict, list[dict], dict]
             it = items[u["items"][0]]
             if it["key"] is None:                        # a box of its own: the box as it is, under its own name
                 u["name"], u["origin"] = it.get("ind_name") or it["field"], it["field"]
+    _free_names(bp, items, units)
     units.sort(key=lambda u: _order_key(items, u))
     return items, units, info
+
+
+def _free_names(bp: dict, items: dict, units: list[dict]) -> None:
+    """No two groups or loose boxes under one name, and none under another field's (Andrew, 2026-11-01: "no field or
+    group should ever be given a name that is already in use"): the first keeps it, a later one takes the next free
+    one (p3_o4 -> p3_o4_2), as the save would refuse both. Text groups have names of their own, no field's."""
+    held = {items[i]["field"] for u in units for i in u["items"] if i in items}
+    taken = {n for n in (bp.get("fields") or {}) if n not in held}
+    for u in units:
+        if u.get("kind") == "text":
+            continue
+        n, k = u["name"], 2
+        while n in taken:
+            n, k = f"{u['name']}_{k}", k + 1
+        if n != u["name"]:                     # a new group: the field it shared a name with stays the other's
+            u["name"], u["origin"] = n, None
+        taken.add(n)
 
 
 # ---------------------------------------------------------------- the plan: record -> blueprint

@@ -1,4 +1,4 @@
-"""Results table for docs/RELABEL_PLAN_v1.md: committed vs relabeled blueprint, judged by the loop.
+"""Results table for the relabel plan (docs/RELABEL_PLAN_v1.md, in git at ab5ca31): committed vs relabeled blueprint, judged by the loop.
 
 Reads the iterate outputs under runs/relabel/ (and, for a form whose committed
 side was run earlier, any iterate json passed with --committed-json), the two

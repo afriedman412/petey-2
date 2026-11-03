@@ -583,6 +583,81 @@ def switch_kind(p: dict, kind: str, taken: set[str] = frozenset()) -> dict:
     return q
 
 
+KIND_EDIT = "x_petey_kind_edit"
+
+
+def kind_of(spec: dict) -> str:
+    """text, printed or choice, as the Add / remove card's kind shows it."""
+    if not printed_fields.is_text(spec):
+        return "choice"
+    return "printed" if printed_fields.is_printed(spec) else "text"
+
+
+def flip_kind(spec: dict, name: str, kind: str, now: str) -> Optional[str]:
+    """One field of the blueprint made text, printed or a choice in place (Andrew, 2026-11-01: "can you add the
+    ability to flip a field from choice to text in add/remove (without deleting and re-adding the field)?"): its name,
+    id, box and records stay; the type follows the kind as `switch_kind` types a proposal (a choice a boolean
+    `indicator`, text typed from its name). A form path of the other kind (a checkbox widget's path on a field made
+    text) is set aside in `x_petey_kind_edit`, the page showing what the form layer does not, and comes back when the
+    field is flipped back. One box only: a group of several boxes is not one text field."""
+    if kind not in ("text", "printed", "choice"):
+        raise ValueError(f"unknown kind {kind!r}")
+    w = spec.get("widget")
+    if not w or spec.get("widgets"):
+        raise ValueError(f"{name} is a group of several boxes: only a one-box field changes kind")
+    was = kind_of(spec)
+    if was == kind:
+        return None
+    rec = dict(spec.get(KIND_EDIT) or {})
+    if (was == "choice") != (kind == "choice"):           # the box itself changes kind, not just the printed tag
+        held = rec.pop("path", None), rec.pop("widget_type", None)
+        if w.get("path"):
+            rec["path"], rec["widget_type"] = w["path"], w.get("widget_type")
+            w["path"] = None
+        if kind == "choice":
+            w["widget_type"] = held[1] if held[0] else "checkbox"
+            if held[0]:
+                w["path"] = held[0]
+            if rec.get("on_state"):
+                w["on_state"] = rec.pop("on_state")
+            if rec.get("values"):
+                spec["values"] = rec.pop("values")
+            for k in ("pattern", printed_fields.TAG):
+                spec.pop(k, None)
+            spec.update({"type": "boolean", "semantic_type": "indicator"})
+        else:
+            w["widget_type"] = "text"
+            if w.get("on_state"):                         # a choice's on-state and options, kept for a flip back
+                rec["on_state"] = w.pop("on_state")
+            if spec.get("values"):
+                rec["values"] = spec["values"]
+            if held[0]:
+                w["path"] = held[0]
+            for k in ("semantic_type", "pattern", "values"):
+                spec.pop(k, None)
+            spec.update({"type": "string"}, **enrich_field(name[:-4] if name.endswith("_ind") else name, "text"))
+    if kind == "printed":
+        spec[printed_fields.TAG] = {"source": "field_add", "when": now}
+    elif kind == "text":
+        spec.pop(printed_fields.TAG, None)
+    rec.update({"from": rec.get("from", was), "when": now})
+    spec[KIND_EDIT] = rec
+    return f"{name}: {was} -> {kind}"
+
+
+def set_field_kind(bid: str, field: str, kind: str, real: Optional[Path] = None) -> list[str]:
+    """Add / remove's kind on a field of the blueprint, in the working copy (`flip_kind`)."""
+    now = time.strftime("%Y-%m-%d %H:%M:%S")
+
+    def edit(bp):
+        spec = (bp.get("fields") or {}).get(field)
+        if not isinstance(spec, dict):
+            raise KeyError(field)
+        ln = flip_kind(spec, field, kind, now)
+        return [ln] if ln else []
+    return printed_fields.write(bid, edit, "add", real)
+
+
 def _twins(ctx: Context, cands: list[dict], evidence: list[str]) -> list[tuple[str, str]]:
     """Fields the blueprint already has for the same thing: a widget with the same publisher tooltip (a header
     repeated on a later page), or a sibling widget (the other part of a split number, the same row in another

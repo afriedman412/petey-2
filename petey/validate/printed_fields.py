@@ -70,7 +70,7 @@ def write(bid: str, edit: Callable[[dict], list[str]], mode: str, real: Optional
     from petey.validate import draft, field_ids
     from petey.validate import hand_review as h
     real = real or h.blueprint_paths()[bid]
-    if mode == "review" or draft.meta(bid) is not None:
+    if mode in ("review", "add") or draft.meta(bid) is not None:
         bp = h._load(h.working_path(bid, {bid: real}))
         if not edit(bp):                                    # nothing to change: no copy opened for it
             return []

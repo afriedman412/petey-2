@@ -1004,6 +1004,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: APP.save_add(bid, {"removed": body.get("removed") or []}), bid)
         if (mode, what) == ("add", "record"):
             return self._route(lambda: APP.save_add(bid, body), bid)
+        if (mode, what) == ("add", "fieldkind"):             # a field's kind flipped in place (2026-11-01)
+            return self._route(lambda: {"changes": field_add.set_field_kind(bid, str(body.get("field") or ""),
+                                                                            str(body.get("kind") or ""), APP.paths[bid]),
+                                        "entry": APP.entry(bid)}, bid)
         self._send(b"not found", "text/plain", 404)
 
     def do_POST(self):

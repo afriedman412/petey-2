@@ -3,7 +3,7 @@
 import type { KeyboardEvent } from 'react';
 import {
   addAll, addProps, askLabeler, cancel, closePicked, dropOption, goto, isRemoved, keepRemoved, linesLeft, NAME_RE, pickName, pickRemoved,
-  notAField, remaining, runFinder, save, setOptField, setPropField, setShow, skipProp, setKind, toggleRemove, toggleRmPick, removeAll, unAdd, unDismiss, useAdd,
+  notAField, remaining, runFinder, save, setOptField, setPropField, setShow, skipProp, setKind, fieldKind, setFieldKind, pile, toggleRemove, toggleRmPick, removeAll, unAdd, unDismiss, useAdd,
   gotoSuggestion, nameClash, type Proposal,
 } from './store';
 
@@ -83,6 +83,19 @@ function Card({ p, i }: { p: Proposal; i: number }) {
   );
 }
 
+/** a blueprint field's kind, flipped in place (2026-11-01); a field of several boxes says why it cannot be */
+function FieldKind({ name }: { name: string }) {
+  useAdd(s => s.BP);
+  const k = fieldKind(name);
+  if (!k) return <div className="help">a group of several boxes: its kind does not change here</div>;
+  return (
+    <div className="arow"><label>kind</label>{' '}
+      <select value={k} title="text, choice or printed, changed in the working copy: the name, id and box stay"
+        onChange={e => setFieldKind(name, e.target.value as 'text' | 'choice' | 'printed')}>
+        <option value="text">text</option><option value="choice">choice</option><option value="printed">printed</option></select></div>
+  );
+}
+
 function Picked({ name }: { name: string }) {
   const BP = useAdd(s => s.BP)!;
   useAdd(s => s.removed);
@@ -90,6 +103,7 @@ function Picked({ name }: { name: string }) {
   return (
     <div className="acard"><h3>{f.x_petey_id && <><code className="fid">{f.x_petey_id}</code> </>}{name} <span className="help">· a field of the blueprint</span></h3>
       <div className="help">{f.type || ''}{f.semantic_type ? '/' + f.semantic_type : ''}{f.description ? ' · ' + f.description : ''}</div>
+      {!gone && <FieldKind name={name} />}
       {gone && <div className="rbanner">recorded for removal, not removed yet (see the list below)</div>}
       <div className="arow">{gone ? <button className="btn" id="aKeep" onClick={toggleRemove}>keep it</button>
         : <button className="btn warn" id="aRemove" onClick={toggleRemove}>remove this field</button>}{' '}
@@ -116,6 +130,7 @@ function RmCard({ name }: { name: string }) {
   return (
     <div className="acard rmcard"><h3>{f.x_petey_id && <><code className="fid">{f.x_petey_id}</code> </>}{name} <span className="help">· to remove{at ? ` · p${at.page}` : ''}</span></h3>
       <div className="help">{f.type || ''}{f.semantic_type ? '/' + f.semantic_type : ''}{f.description ? ' · ' + f.description : ''}</div>
+      <FieldKind name={name} />
       <div className="arow"><button className="btn warn" onClick={() => removeAll([name])}>remove this field</button>{' '}
         <button className="btn" onClick={() => toggleRmPick(name)}>cancel</button></div></div>
   );
@@ -158,8 +173,7 @@ export function Panel() {
             2026-10-23; 2026-10-28: "let's have the 'cancel all' button at the top and the bottom"; removals collected
             as additions are, "with the same buttons") */}
         {props.length + rmPicks.length > 1 && <AllButtons top />}
-        {props.map((p, i) => <Card key={p._k} p={p} i={i} />)}
-        {rmPicks.map(n => <RmCard key={'r' + n} name={n} />)}
+        {pile(props, rmPicks).map(x => 'rm' in x ? <RmCard key={'r' + x.rm} name={x.rm} /> : <Card key={x.prop._k} p={x.prop} i={x.i} />)}
         <AllButtons />
       </> : !picked && <p className="help">Drag a box over an area of the page, click a box, or go to the next suggestion. Orange: suggestions (solid: an unclaimed widget; dashed: a finder box). Cyan: underlines no field covers. Purple: fields the blueprint has (hover for the name; click to collect them for removal). Green: fields you have added; red dashed: fields to remove.</p>}
       {notes.length > 0 && <div className="notes">{notes.map((n, k) => <div key={k}>{n}</div>)}</div>}

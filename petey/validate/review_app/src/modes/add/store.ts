@@ -315,9 +315,25 @@ export const cancel = () => put({ props: [], notes: [], picked: null, rmPicks: [
 export const closePicked = () => put({ picked: null });
 
 // ------------------------------------------------------------------------------------------------------ removing
+/** a field collected to remove goes on top of the pile, as a new add card does (Andrew, 2026-11-01: "can you also fix
+ *  it so remove cards are added to the pile at the top (like how add cards are)"): its key is drawn from the cards'
+ *  counter, so `pile` puts it above every card made before it */
+const rmKeys: Record<string, number> = {};
 export function toggleRmPick(name: string) {
   const ps = S().rmPicks;
-  put({ curSid: null, notes: [], picked: null, rmPicks: ps.includes(name) ? ps.filter(x => x !== name) : [...ps, name] });
+  if (!ps.includes(name)) rmKeys[name] = nextK++;
+  put({ curSid: null, notes: [], picked: null, rmPicks: ps.includes(name) ? ps.filter(x => x !== name) : [name, ...ps] });
+}
+/** the add cards (in their order) and the remove cards, newest on top: each remove card above the first add card
+ *  made before it */
+export function pile(props: Proposal[], rmPicks: string[], keyOf: (n: string) => number = n => rmKeys[n] ?? 0):
+    ({ prop: Proposal; i: number } | { rm: string })[] {
+  const rms = [...rmPicks].sort((a, b) => keyOf(b) - keyOf(a)), out: ({ prop: Proposal; i: number } | { rm: string })[] = [];
+  props.forEach((p, i) => {
+    while (rms.length && keyOf(rms[0]) > (p._k ?? 0)) out.push({ rm: rms.shift()! });
+    out.push({ prop: p, i });
+  });
+  return out.concat(rms.map(rm => ({ rm })));
 }
 /** the collected fields (or `names` of them, one card's "remove this field") recorded for removal, in one save */
 export function removeAll(names = S().rmPicks) {
@@ -333,6 +349,25 @@ export function toggleRemove() {
   if (isRemoved(picked)) put({ removed: removed.filter(r => r.name !== picked) });
   else { const f = BP!.fields.find(x => x.name === picked)!; put({ removed: [...removed, { name: picked, page: f.page, rect: f.rect, when: localNow(), from: 'add' }] }); }
   save();
+}
+
+/** a field of the blueprint made text, printed or a choice in place, in the working copy (Andrew, 2026-11-01: "can you
+ *  add the ability to flip a field from choice to text in add/remove (without deleting and re-adding the field)?");
+ *  one box only (field_add.flip_kind) */
+export const fieldKind = (name: string): 'text' | 'choice' | 'printed' | null => {
+  const bs = S().BP?.fields.filter(f => f.name === name) || [];
+  return bs.length !== 1 ? null : bs[0].choice ? 'choice' : bs[0].printed ? 'printed' : 'text';
+};
+export async function setFieldKind(name: string, kind: 'text' | 'choice' | 'printed') {
+  const form = bid();
+  try {
+    const r = await send('PUT', mapi('add', form, '/fieldkind'), { field: name, kind });
+    updateEntry(r.entry);
+    const d: AddData = await j(mapi('add', form));
+    put({ BP: d });
+    await syncSha();
+    if (r.changes?.length) toast(`Working copy: ${r.changes[0]}`);
+  } catch (e) { put({ notes: ['could not change the kind: ' + (e as Error).message] }); }
 }
 
 // ------------------------------------------------------------------------------------------- the lists below

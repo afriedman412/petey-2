@@ -59,8 +59,8 @@ export function Home() {
   // domain: null is any, '' the forms at the top of source_pdfs
   const inSection = list.filter(b => (!H.section || sectionOf(b) === H.section) && (H.domain == null || (b.collection ?? '') === H.domain));
   const qs = H.q.trim().toLowerCase();
-  // hide validated (Andrew, 2026-10-15), hide structure validated (2026-10-31); their tiles still show them
-  const rows = inSection.filter(b => homeMatch(b, H.status, dups) && !(H.hideVal && H.status !== 'validated' && statusOf(b).k === 'validated')
+  // hide validated (Andrew, 2026-10-15; with both, 2026-11-01), hide structure validated (2026-10-31); their tiles still show them
+  const rows = inSection.filter(b => homeMatch(b, H.status, dups) && !(H.hideVal && !['validated', 'both'].includes(H.status) && ['validated', 'both'].includes(statusOf(b).k))
     && !(H.hideStruct && H.status !== 'structure' && statusOf(b).k === 'structure')
     && (!qs || [b.form, b.id, b.collection, b.note?.text, b.desc?.text].some(s => String(s ?? '').toLowerCase().includes(qs))));
   const col = ALL.find(c => c.k === H.sort) || ALL[1], dir = H.asc ? 1 : -1;

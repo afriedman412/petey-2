@@ -9,7 +9,11 @@ const e = (x: Partial<Entry>) => ({ id: 'bm__x', source: 'bm', form: 'x', fields
 describe('statusOf', () => {
   it('structure validated, then validated', () => {
     expect(statusOf(e({ structure: { when: 'now', stale: false } })).k).toBe('structure');
-    expect(statusOf(e({ structure: { stale: false }, checked: { validated: true } })).k).toBe('validated');
+    expect(statusOf(e({ checked: { validated: true } })).k).toBe('validated');
+  });
+  it('validated with its structure accepted is both', () => {
+    expect(statusOf(e({ structure: { stale: false }, checked: { validated: true } })).k).toBe('both');
+    expect(statusOf(e({ structure: { stale: true }, checked: { validated: true } })).k).toBe('validated');
   });
   it('a stale structure stamp is changed since check', () => {
     expect(statusOf(e({ structure: { stale: true } })).k).toBe('recheck');

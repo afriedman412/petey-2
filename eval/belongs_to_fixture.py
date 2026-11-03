@@ -63,7 +63,7 @@ BEFORE = RUNS / "belongs_to" / "before"
 
 # review-draft's base (2026-10-13 11:27): the blueprints before the Claude pass and most of Andrew's review. A field's
 # `x_petey_hand_edit` keeps only its latest edit, so a type or caption fix after a rename hid the rename; the base
-# copy, matched by box, has them all (docs/HANDOFF_2026-10-14.md, step 1)
+# copy, matched by box, has them all (the 2026-10-14 review round, step 1)
 BASE = "5f285d6"
 KINDS = ("wrong", "clarity", "suffix", "type")
 

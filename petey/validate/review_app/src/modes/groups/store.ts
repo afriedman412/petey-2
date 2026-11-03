@@ -131,6 +131,8 @@ function takenNames(us: Unit[], except: number | null) {
   return new Set([...S().BP!.other_names, ...us.filter(u => !isText(u) && u.uid !== except).map(u => u.name)]);
 }
 const entityNames = (us: Unit[], except: number | null) => new Set(us.filter(u => isText(u) && u.uid !== except).map(u => u.name));
+// every name a unit is given goes through here (Andrew, 2026-11-01: "no field or group should ever be given a name that
+// is already in use"): a name another unit or field has takes _2, _3, ...
 function uniqueName(us: Unit[], base: string, except: number | null) { const taken = takenNames(us, except); let n = base, k = 2; while (taken.has(n)) n = `${base}_${k++}`; return n; }
 function suggestName(us: Unit[], ids: string[]) {
   const parts = ids.map(id => item(id).field.split('_')), pre: string[] = [];
@@ -250,7 +252,7 @@ export function groupPicked() {
   for (const id of ids) if (unitOf(id, us)) detach(us, id);
   const heir = [...from.keys()].filter(u => !us.includes(u) && isGroup(u)).sort((a, b) => from.get(b)! - from.get(a)!)[0];
   const g: Unit = {
-    uid: nextUid++, name: heir ? heir.name : suggestName(us, ids), type: heir && heir.type !== 'boolean' ? heir.type : 'category',
+    uid: nextUid++, name: heir ? uniqueName(us, heir.name, null) : suggestName(us, ids), type: heir && heir.type !== 'boolean' ? heir.type : 'category',
     items: ids, origin: heir ? heir.origin : null, confirmed: false,
   };
   us.push(g); put({ picked: new Set() });
@@ -373,10 +375,10 @@ export async function notGroup(i: number) {
   put({ BP: { ...BP, suggested: (BP.suggested || []).filter((_, k) => k !== i) } });
 }
 // a box taken out of group `src`: a loose box of its own, under its field's name or the group's name and its key
-function looseOf(us: Unit[], src: Unit, id: string): Unit {
+export function looseOf(us: Unit[], src: Unit, id: string): Unit {
   const it = item(id), own = it.key === null;
   return {
-    uid: nextUid++, name: own ? (it.kind === 'text' ? uniqueName(us, it.ind_name || `${it.field}_ind`, null) : it.field) : uniqueName(us, `${src.name}_${String(it.key).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'option'}`, null),
+    uid: nextUid++, name: own ? uniqueName(us, it.kind === 'text' ? it.ind_name || `${it.field}_ind` : it.field, null) : uniqueName(us, `${src.name}_${String(it.key).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'option'}`, null),
     type: 'boolean', items: [id], origin: own ? it.field : null, confirmed: false,
   };
 }
@@ -551,7 +553,7 @@ export function revert(uid: number) {
   for (const id of u.items.filter(id => !b.items.includes(id))) {
     const it = item(id); u.items = u.items.filter(x => x !== id);
     us.push({
-      uid: nextUid++, name: it.key === null ? it.field : uniqueName(us, `${u.name}_${it.key}`.toLowerCase().replace(/[^a-z0-9_]+/g, '_'), null),
+      uid: nextUid++, name: it.key === null ? uniqueName(us, it.field, null) : uniqueName(us, `${u.name}_${it.key}`.toLowerCase().replace(/[^a-z0-9_]+/g, '_'), null),
       type: 'boolean', items: [id], origin: it.key === null ? it.field : null, confirmed: false,
     });
   }
