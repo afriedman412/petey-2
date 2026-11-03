@@ -134,6 +134,29 @@ fields:
     x_petey_identifiers:
       subject: attorney
       suffix: nm
+  for_court_use_only:
+    x_petey_id: '1_56'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 396.48
+      - 58.56
+      - 575.04
+      - 241.44
+      widget_type: text
+      path: null
+    label_source: page_caption
+    x_petey_added:
+      source: office_sweep
+      when: '2026-11-01 13:49:00'
+      geometry: 'finder; office sweep: candidate finder'
+      name_from: page text (above the box)
+      caption: FOR COURT USE ONLY
+      finder: step2flat-3
+      sweep: office_use_2026-11-01
+    x_petey_identifiers:
+      subject: for_court_use_only
   attorney_firm_nm:
     x_petey_id: '1_3'
     type: string
@@ -1490,6 +1513,7 @@ fields:
     values:
     - property_control_consent_ind
     - property_control_do_not_consent_ind
+    - property_control_property_control_consent_to_following_order_ind
     widgets:
       property_control_consent_ind:
         page: 2
@@ -1515,39 +1539,26 @@ fields:
         on_state: '2'
         caption: I do not consent to the order requested
         x_petey_caption_source: tooltip
+      property_control_property_control_consent_to_following_order_ind:
+        page: 2
+        rect:
+        - 259.04400634765625
+        - 118.791015625
+        - 268.04400634765625
+        - 127.791015625
+        widget_type: checkbox
+        path: FL-320[0].Page2[0].List5[0].LI2[0].ConsentToFollowingOrder_cb[0]
+        on_state: '1'
     label_source: llm
     x_petey_grouping:
       source: group_review
-      when: '2026-10-20 20:31:16'
+      when: '2026-11-01 16:12:13'
       from:
-      - property_control_consent_ind
-      - property_control::property_control_do_not_consent_ind
-      name_from: labeler
+      - property_control_consent_order::property_control_consent_ind
+      - property_control_consent_order::property_control_do_not_consent_ind
+      - property_control_property_control_consent_to_following_order_ind
     x_petey_identifiers:
       subject: property_control_consent_order
-  property_control_property_control_consent_to_following_order_ind:
-    x_petey_id: '2_31'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 259.04400634765625
-      - 118.791015625
-      - 268.04400634765625
-      - 127.791015625
-      widget_type: checkbox
-      path: FL-320[0].Page2[0].List5[0].LI2[0].ConsentToFollowingOrder_cb[0]
-      on_state: '1'
-    description: 'but I consent to the following order:'
-    x_petey_grouping:
-      source: group_review
-      when: '2026-10-20 20:31:16'
-      from:
-      - property_control::property_control_consent_to_following_order_ind
-    x_petey_identifiers:
-      subject: property_control_property_control_consent_to_following_order
-      suffix: ind
   property_control_order_specified_txt:
     x_petey_id: '2_9'
     type: string
@@ -1592,6 +1603,7 @@ fields:
     values:
     - attorney_fees_consent_ind
     - attorney_fees_do_not_consent_ind
+    - attorney_fees_attorney_fees_consent_to_following_order_ind
     widgets:
       attorney_fees_consent_ind:
         page: 2
@@ -1617,37 +1629,27 @@ fields:
         on_state: '2'
         caption: I do not consent to the order requested
         x_petey_caption_source: tooltip
+      attorney_fees_attorney_fees_consent_to_following_order_ind:
+        page: 2
+        rect:
+        - 278.6969909667969
+        - 237.1500244140625
+        - 287.6969909667969
+        - 246.1500244140625
+        widget_type: checkbox
+        path: FL-320[0].Page2[0].List6[0].LI4[0].ConsentToFollowingOrder_cb[0]
+        on_state: '1'
+        caption: form
+        x_petey_caption_source: page_text
     x_petey_grouping:
       source: group_review
-      when: '2026-10-20 20:31:16'
+      when: '2026-11-01 16:12:13'
       from:
-      - attorney_fees_consent_ind
+      - attorney_fees::attorney_fees_consent_ind
       - attorney_fees::attorney_fees_do_not_consent_ind
+      - attorney_fees_attorney_fees_consent_to_following_order_ind
     x_petey_identifiers:
       subject: attorney_fees
-  attorney_fees_attorney_fees_consent_to_following_order_ind:
-    x_petey_id: '2_33'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 278.6969909667969
-      - 237.1500244140625
-      - 287.6969909667969
-      - 246.1500244140625
-      widget_type: checkbox
-      path: FL-320[0].Page2[0].List6[0].LI4[0].ConsentToFollowingOrder_cb[0]
-      on_state: '1'
-    description: 'but I consent to the following order:'
-    x_petey_grouping:
-      source: group_review
-      when: '2026-10-20 20:31:16'
-      from:
-      - attorney_fees::attorney_fees_consent_to_following_order_ind
-    x_petey_identifiers:
-      subject: attorney_fees_attorney_fees_consent_to_following_order
-      suffix: ind
   attorney_fees_order_specified_txt:
     x_petey_id: '2_14'
     type: string
@@ -1692,6 +1694,7 @@ fields:
     values:
     - other_orders_consent_ind
     - other_orders_do_not_consent_ind
+    - other_orders_other_orders_consent_to_following_order_ind
     widgets:
       other_orders_consent_ind:
         page: 2
@@ -1717,39 +1720,28 @@ fields:
         on_state: '2'
         caption: I do not consent to the order requested
         x_petey_caption_source: tooltip
+      other_orders_other_orders_consent_to_following_order_ind:
+        page: 2
+        rect:
+        - 278.7650146484375
+        - 322.3869934082031
+        - 287.7650146484375
+        - 331.3869934082031
+        widget_type: checkbox
+        path: FL-320[0].Page2[0].List7[0].LI2[0].ConsentToFollowingOrder_cb[0]
+        on_state: '1'
+        caption: form
+        x_petey_caption_source: page_text
     label_source: llm
     x_petey_grouping:
       source: group_review
-      when: '2026-10-20 20:31:16'
+      when: '2026-11-01 16:12:13'
       from:
-      - other_orders_consent_ind
-      - other_orders::other_orders_do_not_consent_ind
-      name_from: labeler
+      - other_orders_consent::other_orders_consent_ind
+      - other_orders_consent::other_orders_do_not_consent_ind
+      - other_orders_other_orders_consent_to_following_order_ind
     x_petey_identifiers:
       subject: other_orders_consent
-  other_orders_other_orders_consent_to_following_order_ind:
-    x_petey_id: '2_35'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 278.7650146484375
-      - 322.3869934082031
-      - 287.7650146484375
-      - 331.3869934082031
-      widget_type: checkbox
-      path: FL-320[0].Page2[0].List7[0].LI2[0].ConsentToFollowingOrder_cb[0]
-      on_state: '1'
-    description: 'but I consent to the following order:'
-    x_petey_grouping:
-      source: group_review
-      when: '2026-10-20 20:31:16'
-      from:
-      - other_orders::other_orders_consent_to_following_order_ind
-    x_petey_identifiers:
-      subject: other_orders_other_orders_consent_to_following_order
-      suffix: ind
   other_orders_order_specified_txt:
     x_petey_id: '2_19'
     type: string
@@ -1794,6 +1786,7 @@ fields:
     values:
     - time_for_service_hearing_consent_ind
     - time_for_service_hearing_do_not_consent_ind
+    - time_for_service_hearing_time_for_service_hearing_consent_to_following_order_ind
     widgets:
       time_for_service_hearing_consent_ind:
         page: 2
@@ -1819,37 +1812,25 @@ fields:
         on_state: '2'
         caption: I do not consent to the order requested
         x_petey_caption_source: tooltip
+      time_for_service_hearing_time_for_service_hearing_consent_to_following_order_ind:
+        page: 2
+        rect:
+        - 278.7650146484375
+        - 412.1180114746094
+        - 287.7650146484375
+        - 421.1180114746094
+        widget_type: checkbox
+        path: FL-320[0].Page2[0].List8[0].LI2[0].ConsentToFollowingOrder_cb[0]
+        on_state: '1'
     x_petey_grouping:
       source: group_review
-      when: '2026-10-20 20:31:16'
+      when: '2026-11-01 16:12:13'
       from:
-      - time_for_service_hearing_consent_ind
+      - time_for_service_hearing::time_for_service_hearing_consent_ind
       - time_for_service_hearing::time_for_service_hearing_do_not_consent_ind
+      - time_for_service_hearing_time_for_service_hearing_consent_to_following_order_ind
     x_petey_identifiers:
       subject: time_for_service_hearing
-  time_for_service_hearing_time_for_service_hearing_consent_to_following_order_ind:
-    x_petey_id: '2_37'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 278.7650146484375
-      - 412.1180114746094
-      - 287.7650146484375
-      - 421.1180114746094
-      widget_type: checkbox
-      path: FL-320[0].Page2[0].List8[0].LI2[0].ConsentToFollowingOrder_cb[0]
-      on_state: '1'
-    description: 'but I consent to the following order:'
-    x_petey_grouping:
-      source: group_review
-      when: '2026-10-20 20:31:16'
-      from:
-      - time_for_service_hearing::time_for_service_hearing_consent_to_following_order_ind
-    x_petey_identifiers:
-      subject: time_for_service_hearing_time_for_service_hearing_consent_to_following_order
-      suffix: ind
   time_for_service_hearing_order_specified_txt:
     x_petey_id: '2_24'
     type: string

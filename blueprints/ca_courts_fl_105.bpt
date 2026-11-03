@@ -101,6 +101,30 @@ fields:
     x_petey_identifiers:
       subject: attorney_or_party
       suffix: nm
+  for_court_use_only:
+    x_petey_id: '1_70'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 397.0
+      - 58.1
+      - 575.0
+      - 265.4
+      widget_type: text
+      path: null
+    label_source: classifier_caption
+    x_petey_added:
+      source: office_sweep
+      when: '2026-11-01 13:48:59'
+      geometry: 'selection; office sweep: candidate finder'
+      name_from: classifier caption
+      caption: FOR COURT USE ONLY
+      page_class: none
+      finder: step2flat-3
+      sweep: office_use_2026-11-01
+    x_petey_identifiers:
+      subject: for_court_use_only
   firm_nm:
     x_petey_id: '1_3'
     type: string
@@ -3881,69 +3905,59 @@ fields:
       block_iteration: a
       subject: name_address
       suffix: txt
-  nonparty_custody_claim_person_a_has_physical_custody_ind:
-    x_petey_id: '2_56'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 55.042999267578125
-      - 538.0169677734375
-      - 64.04299926757812
-      - 547.0169677734375
-      widget_type: checkbox
-      path: FL-105[0].Page2[0].List6[0].Li1[0].CheckBox6a1[0]
-    description: Has physical custody
-    x_petey_description_source: tooltip
-    label_source: llm
+  nonparty_custody_claim_person_a:
+    x_petey_id: '2_72'
+    type: category
+    values:
+    - nonparty_custody_claim_person_a_has_physical_custody_ind
+    - nonparty_custody_claim_person_a_claims_custody_rights_ind
+    - nonparty_custody_claim_person_a_claims_visitation_rights_ind
+    widgets:
+      nonparty_custody_claim_person_a_has_physical_custody_ind:
+        page: 2
+        rect:
+        - 55.042999267578125
+        - 538.0169677734375
+        - 64.04299926757812
+        - 547.0169677734375
+        widget_type: checkbox
+        path: FL-105[0].Page2[0].List6[0].Li1[0].CheckBox6a1[0]
+        on_state: '1'
+        caption: Has physical custody
+        x_petey_caption_source: tooltip
+      nonparty_custody_claim_person_a_claims_custody_rights_ind:
+        page: 2
+        rect:
+        - 55.042999267578125
+        - 549.5169677734375
+        - 64.04299926757812
+        - 558.5169677734375
+        widget_type: checkbox
+        path: FL-105[0].Page2[0].List6[0].Li1[0].CheckBox6a2[0]
+        on_state: '1'
+        caption: Claims custody rights
+        x_petey_caption_source: tooltip
+      nonparty_custody_claim_person_a_claims_visitation_rights_ind:
+        page: 2
+        rect:
+        - 55.042999267578125
+        - 560.8250122070312
+        - 64.04299926757812
+        - 569.8250122070312
+        widget_type: checkbox
+        path: FL-105[0].Page2[0].List6[0].Li1[0].CheckBox6a3[0]
+        on_state: '1'
+        caption: Claims visitation rights
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 15:59:49'
+      from:
+      - nonparty_custody_claim_person_a_has_physical_custody_ind
+      - nonparty_custody_claim_person_a_claims_custody_rights_ind
+      - nonparty_custody_claim_person_a_claims_visitation_rights_ind
     x_petey_identifiers:
-      block_prefix: nonparty_custody_claim_person
-      block_iteration: a
-      subject: has_physical_custody
-      suffix: ind
-  nonparty_custody_claim_person_a_claims_custody_rights_ind:
-    x_petey_id: '2_59'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 55.042999267578125
-      - 549.5169677734375
-      - 64.04299926757812
-      - 558.5169677734375
-      widget_type: checkbox
-      path: FL-105[0].Page2[0].List6[0].Li1[0].CheckBox6a2[0]
-    description: Claims custody rights
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      block_prefix: nonparty_custody_claim_person
-      block_iteration: a
-      subject: claims_custody_rights
-      suffix: ind
-  nonparty_custody_claim_person_a_claims_visitation_rights_ind:
-    x_petey_id: '2_62'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 55.042999267578125
-      - 560.8250122070312
-      - 64.04299926757812
-      - 569.8250122070312
-      widget_type: checkbox
-      path: FL-105[0].Page2[0].List6[0].Li1[0].CheckBox6a3[0]
-    description: Claims visitation rights
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      block_prefix: nonparty_custody_claim_person
-      block_iteration: a
-      subject: claims_visitation_rights
-      suffix: ind
+      subject: nonparty_custody_claim_person_a
   nonparty_custody_claim_person_a_child_names_txt:
     x_petey_id: '2_65'
     type: string
@@ -4029,69 +4043,59 @@ fields:
       block_iteration: b
       subject: name_address
       suffix: txt
-  nonparty_custody_claim_person_b_has_physical_custody_ind:
-    x_petey_id: '2_57'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 231.4199981689453
-      - 538.2210083007812
-      - 240.4199981689453
-      - 547.2210083007812
-      widget_type: checkbox
-      path: FL-105[0].Page2[0].List6[0].Li2[0].CheckBox6b1[0]
-    description: Has physical custody
-    x_petey_description_source: tooltip
-    label_source: llm
+  nonparty_custody_claim_person_b:
+    x_petey_id: '2_73'
+    type: category
+    values:
+    - nonparty_custody_claim_person_b_has_physical_custody_ind
+    - nonparty_custody_claim_person_b_claims_custody_rights_ind
+    - nonparty_custody_claim_person_b_claims_visitation_rights_ind
+    widgets:
+      nonparty_custody_claim_person_b_has_physical_custody_ind:
+        page: 2
+        rect:
+        - 231.4199981689453
+        - 538.2210083007812
+        - 240.4199981689453
+        - 547.2210083007812
+        widget_type: checkbox
+        path: FL-105[0].Page2[0].List6[0].Li2[0].CheckBox6b1[0]
+        on_state: '1'
+        caption: Has physical custody
+        x_petey_caption_source: tooltip
+      nonparty_custody_claim_person_b_claims_custody_rights_ind:
+        page: 2
+        rect:
+        - 231.4199981689453
+        - 549.7210083007812
+        - 240.4199981689453
+        - 558.7210083007812
+        widget_type: checkbox
+        path: FL-105[0].Page2[0].List6[0].Li2[0].CheckBox6b2[0]
+        on_state: '1'
+        caption: Claims custody rights
+        x_petey_caption_source: tooltip
+      nonparty_custody_claim_person_b_claims_visitation_rights_ind:
+        page: 2
+        rect:
+        - 231.4199981689453
+        - 561.0289916992188
+        - 240.4199981689453
+        - 570.0289916992188
+        widget_type: checkbox
+        path: FL-105[0].Page2[0].List6[0].Li2[0].CheckBox6b3[0]
+        on_state: '1'
+        caption: Claims visitation rights
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 15:59:49'
+      from:
+      - nonparty_custody_claim_person_b_has_physical_custody_ind
+      - nonparty_custody_claim_person_b_claims_custody_rights_ind
+      - nonparty_custody_claim_person_b_claims_visitation_rights_ind
     x_petey_identifiers:
-      block_prefix: nonparty_custody_claim_person
-      block_iteration: b
-      subject: has_physical_custody
-      suffix: ind
-  nonparty_custody_claim_person_b_claims_custody_rights_ind:
-    x_petey_id: '2_60'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 231.4199981689453
-      - 549.7210083007812
-      - 240.4199981689453
-      - 558.7210083007812
-      widget_type: checkbox
-      path: FL-105[0].Page2[0].List6[0].Li2[0].CheckBox6b2[0]
-    description: Claims custody rights
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      block_prefix: nonparty_custody_claim_person
-      block_iteration: b
-      subject: claims_custody_rights
-      suffix: ind
-  nonparty_custody_claim_person_b_claims_visitation_rights_ind:
-    x_petey_id: '2_63'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 231.4199981689453
-      - 561.0289916992188
-      - 240.4199981689453
-      - 570.0289916992188
-      widget_type: checkbox
-      path: FL-105[0].Page2[0].List6[0].Li2[0].CheckBox6b3[0]
-    description: Claims visitation rights
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      block_prefix: nonparty_custody_claim_person
-      block_iteration: b
-      subject: claims_visitation_rights
-      suffix: ind
+      subject: nonparty_custody_claim_person_b
   nonparty_custody_claim_person_b_child_names_txt:
     x_petey_id: '2_66'
     type: string
@@ -4177,69 +4181,59 @@ fields:
       block_iteration: c
       subject: name_address
       suffix: txt
-  nonparty_custody_claim_person_c_has_physical_custody_ind:
-    x_petey_id: '2_58'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 407.53399658203125
-      - 538.2130126953125
-      - 416.53399658203125
-      - 547.2130126953125
-      widget_type: checkbox
-      path: FL-105[0].Page2[0].List6[0].Li3[0].CheckBox6c1[0]
-    description: Has physical custody
-    x_petey_description_source: tooltip
-    label_source: llm
+  nonparty_custody_claim_person_c:
+    x_petey_id: '2_74'
+    type: category
+    values:
+    - nonparty_custody_claim_person_c_has_physical_custody_ind
+    - nonparty_custody_claim_person_c_claims_custody_rights_ind
+    - nonparty_custody_claim_person_c_claims_visitation_rights_ind
+    widgets:
+      nonparty_custody_claim_person_c_has_physical_custody_ind:
+        page: 2
+        rect:
+        - 407.53399658203125
+        - 538.2130126953125
+        - 416.53399658203125
+        - 547.2130126953125
+        widget_type: checkbox
+        path: FL-105[0].Page2[0].List6[0].Li3[0].CheckBox6c1[0]
+        on_state: '1'
+        caption: Has physical custody
+        x_petey_caption_source: tooltip
+      nonparty_custody_claim_person_c_claims_custody_rights_ind:
+        page: 2
+        rect:
+        - 407.53399658203125
+        - 549.7130126953125
+        - 416.53399658203125
+        - 558.7130126953125
+        widget_type: checkbox
+        path: FL-105[0].Page2[0].List6[0].Li3[0].CheckBox6c2[0]
+        on_state: '1'
+        caption: Claims custody rights
+        x_petey_caption_source: tooltip
+      nonparty_custody_claim_person_c_claims_visitation_rights_ind:
+        page: 2
+        rect:
+        - 407.53399658203125
+        - 561.02001953125
+        - 416.53399658203125
+        - 570.02001953125
+        widget_type: checkbox
+        path: FL-105[0].Page2[0].List6[0].Li3[0].CheckBox6c3[0]
+        on_state: '1'
+        caption: Claims visitation rights
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 15:59:49'
+      from:
+      - nonparty_custody_claim_person_c_has_physical_custody_ind
+      - nonparty_custody_claim_person_c_claims_custody_rights_ind
+      - nonparty_custody_claim_person_c_claims_visitation_rights_ind
     x_petey_identifiers:
-      block_prefix: nonparty_custody_claim_person
-      block_iteration: c
-      subject: has_physical_custody
-      suffix: ind
-  nonparty_custody_claim_person_c_claims_custody_rights_ind:
-    x_petey_id: '2_61'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 407.53399658203125
-      - 549.7130126953125
-      - 416.53399658203125
-      - 558.7130126953125
-      widget_type: checkbox
-      path: FL-105[0].Page2[0].List6[0].Li3[0].CheckBox6c2[0]
-    description: Claims custody rights
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      block_prefix: nonparty_custody_claim_person
-      block_iteration: c
-      subject: claims_custody_rights
-      suffix: ind
-  nonparty_custody_claim_person_c_claims_visitation_rights_ind:
-    x_petey_id: '2_64'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 407.53399658203125
-      - 561.02001953125
-      - 416.53399658203125
-      - 570.02001953125
-      widget_type: checkbox
-      path: FL-105[0].Page2[0].List6[0].Li3[0].CheckBox6c3[0]
-    description: Claims visitation rights
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      block_prefix: nonparty_custody_claim_person
-      block_iteration: c
-      subject: claims_visitation_rights
-      suffix: ind
+      subject: nonparty_custody_claim_person_c
   nonparty_custody_claim_person_c_child_names_txt:
     x_petey_id: '2_67'
     type: string
@@ -4352,6 +4346,35 @@ fields:
     x_petey_identifiers:
       subject: declaration
       suffix: dt
+  p2_text_333_667:
+    x_petey_id: '2_75'
+    type: string
+    semantic_type: text
+    widget:
+      page: 2
+      rect:
+      - 333.6
+      - 667.2
+      - 576.96
+      - 681.12
+      widget_type: text
+      path: null
+    x_petey_printed:
+      source: field_add
+      when: '2026-11-01 15:59:54'
+    label_source: placeholder
+    needs_review: true
+    x_petey_added:
+      source: field_add
+      when: '2026-11-01 15:59:54'
+      geometry: finder
+      name_from: placeholder
+      caption: (SIGNATURE OF DECLARANT)
+      page_class: signature
+      entity: applicant
+      finder: step2flat-3
+    x_petey_identifiers:
+      subject: p2_text_333_667
   declarant_nm:
     x_petey_id: '2_71'
     type: string

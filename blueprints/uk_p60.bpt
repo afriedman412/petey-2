@@ -164,25 +164,6 @@ fields:
     x_petey_identifiers:
       subject: previous_employment_tax_deducted_pence
       grid: p1-G1
-  previous_employment_tax_refund_ind:
-    x_petey_id: '1_9'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 454.25
-      - 198.0
-      - 491.40850830078125
-      - 210.0
-      widget_type: text
-      path: null
-    x_petey_geometry:
-      confidence: 0.55
-      source: lat:lattice:suffix_right
-    label_source: llm
-    x_petey_identifiers:
-      subject: previous_employment_tax_refund
-      suffix: ind
   this_employment_pay_pounds:
     x_petey_id: '1_10'
     type: string
@@ -201,27 +182,8 @@ fields:
     label_source: llm
     x_petey_identifiers:
       subject: this_employment_pay_pounds
-  this_employment_pay_pence:
-    x_petey_id: '1_11'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 421.75
-      - 211.25
-      - 445.5
-      - 234.5
-      widget_type: text
-      path: null
-    x_petey_geometry:
-      confidence: 0.7
-      source: lat:lattice:empty
-    label_source: llm
-    x_petey_identifiers:
-      subject: this_employment_pay_pence
-      grid: p1-G1
-  this_employment_tax_deducted_pounds:
-    x_petey_id: '1_12'
+  in_employment_tax_deducted:
+    x_petey_id: '1_57'
     type: string
     widget:
       page: 1
@@ -232,50 +194,18 @@ fields:
       - 233.28
       widget_type: text
       path: null
-    x_petey_geometry:
-      confidence: 0.8
-      source: fz:cell
-    label_source: llm
+    label_source: classifier_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-10-31 23:23:54'
+      geometry: finder
+      name_from: classifier caption
+      caption: In this employment Tax deducted £
+      page_class: money
+      entity: applicant
+      finder: step2flat-3
     x_petey_identifiers:
-      subject: this_employment_tax_deducted_pounds
-  this_employment_tax_deducted_pence:
-    x_petey_id: '1_13'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 529.75
-      - 211.25
-      - 553.75
-      - 234.5
-      widget_type: text
-      path: null
-    x_petey_geometry:
-      confidence: 0.7
-      source: lat:lattice:empty
-    label_source: llm
-    x_petey_identifiers:
-      subject: this_employment_tax_deducted_pence
-      grid: p1-G1
-  this_employment_tax_refund_ind:
-    x_petey_id: '1_14'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 454.25
-      - 235.75
-      - 553.75
-      - 245.75
-      widget_type: text
-      path: null
-    x_petey_geometry:
-      confidence: 0.6
-      source: lat:lattice:empty
-    label_source: llm
-    x_petey_identifiers:
-      subject: this_employment_tax_refund
-      suffix: ind
+      subject: in_employment_tax_deducted
   total_pay_pounds:
     x_petey_id: '1_15'
     type: string
@@ -352,25 +282,6 @@ fields:
     x_petey_identifiers:
       subject: total_tax_deducted_pence
       grid: p1-G1
-  total_tax_refund_ind:
-    x_petey_id: '1_19'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 454.25
-      - 269.5
-      - 553.75
-      - 280.5
-      widget_type: text
-      path: null
-    x_petey_geometry:
-      confidence: 0.6
-      source: lat:lattice:empty
-    label_source: llm
-    x_petey_identifiers:
-      subject: total_tax_refund
-      suffix: ind
   final_tax_cd:
     x_petey_id: '1_20'
     type: string
@@ -988,6 +899,24 @@ fields:
       geometry: selection
       name_from: page text (above the box)
       caption: Your employer’s full name and address (including postcode)
+    semantic_type: name_and_address
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: employer_full_name_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: employer_full_name_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       subject: employer_full_name_address
   student_loan_deductions_amt:

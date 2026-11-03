@@ -1591,69 +1591,59 @@ fields:
     x_petey_identifiers:
       subject: current_physical_unit
       suffix: nbr
-  current_physical_flr_ind:
-    x_petey_id: '3_16'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 495.3689880371094
-      - 465.9930114746094
-      - 505.3689880371094
-      - 475.9930114746094
-      widget_type: checkbox
-      path: form1[0].#subform[2].P4_Line1_Unit[0]
-    description: Part 3. Information About Your Residence. 3. Current Mailing Address
-      (Safe Mailing Address, if applicable). Select Floor.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  current_physical:
+    x_petey_id: '3_47'
+    type: category
+    values:
+    - current_physical_apt_ind
+    - current_physical_ste_ind
+    - current_physical_flr_ind
+    widgets:
+      current_physical_apt_ind:
+        page: 3
+        rect:
+        - 447.36700439453125
+        - 465.9930114746094
+        - 457.36700439453125
+        - 475.9930114746094
+        widget_type: checkbox
+        path: form1[0].#subform[2].P4_Line1_Unit[2]
+        on_state: APT
+        caption: Apt
+        x_petey_caption_source: page_text
+      current_physical_ste_ind:
+        page: 3
+        rect:
+        - 471.364990234375
+        - 465.9930114746094
+        - 481.364990234375
+        - 475.9930114746094
+        widget_type: checkbox
+        path: form1[0].#subform[2].P4_Line1_Unit[1]
+        on_state: STE
+        caption: Ste
+        x_petey_caption_source: page_text
+      current_physical_flr_ind:
+        page: 3
+        rect:
+        - 495.3689880371094
+        - 465.9930114746094
+        - 505.3689880371094
+        - 475.9930114746094
+        widget_type: checkbox
+        path: form1[0].#subform[2].P4_Line1_Unit[0]
+        on_state: FLR
+        caption: Flr
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 16:09:09'
+      from:
+      - current_physical_apt_ind
+      - current_physical_ste_ind
+      - current_physical_flr_ind
     x_petey_identifiers:
-      subject: current_physical_flr
-      suffix: ind
-  current_physical_ste_ind:
-    x_petey_id: '3_15'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 471.364990234375
-      - 465.9930114746094
-      - 481.364990234375
-      - 475.9930114746094
-      widget_type: checkbox
-      path: form1[0].#subform[2].P4_Line1_Unit[1]
-    description: Part 3. Information About Your Residence. 3. Current Mailing Address
-      (Safe Mailing Address, if applicable). Select Suite.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: current_physical_ste
-      suffix: ind
-  current_physical_apt_ind:
-    x_petey_id: '3_14'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 447.36700439453125
-      - 465.9930114746094
-      - 457.36700439453125
-      - 475.9930114746094
-      widget_type: checkbox
-      path: form1[0].#subform[2].P4_Line1_Unit[2]
-    description: Part 3. Information About Your Residence. 3. Current Mailing Address
-      (Safe Mailing Address, if applicable). Select Apartment.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: current_physical_apt
-      suffix: ind
+      subject: current_physical
   current_physical_residence_to_dt:
     x_petey_id: '3_24'
     type: date
@@ -7970,51 +7960,45 @@ fields:
     x_petey_identifiers:
       subject: head_of_household
       suffix: nm
-  fee_reduction_eligible_no_ind:
-    x_petey_id: '11_3'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 11
-      rect:
-      - 60.000999450683594
-      - 175.0
-      - 70.0009994506836
-      - 185.0
-      widget_type: checkbox
-      path: form1[0].#subform[10].P10_Line1_Citizen[0]
-    description: Part 7. Information About Your Marital History. Your Current Marriage.
-      4. D. Is your current spouse's present physical address the same as your physical
-      address? Select No. (If you answered “No,” provide address in Part 14. Additional
-      Information.)
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  fee_reduction_eligible:
+    x_petey_id: '11_16'
+    type: category
+    values:
+    - fee_reduction_eligible_yes_ind
+    - fee_reduction_eligible_no_ind
+    widgets:
+      fee_reduction_eligible_yes_ind:
+        page: 11
+        rect:
+        - 60.000999450683594
+        - 156.9940185546875
+        - 70.0009994506836
+        - 166.9940185546875
+        widget_type: checkbox
+        path: form1[0].#subform[10].P10_Line1_Citizen[1]
+        on_state: Y
+        caption: documentation)
+        x_petey_caption_source: page_text
+      fee_reduction_eligible_no_ind:
+        page: 11
+        rect:
+        - 60.000999450683594
+        - 175.0
+        - 70.0009994506836
+        - 185.0
+        widget_type: checkbox
+        path: form1[0].#subform[10].P10_Line1_Citizen[0]
+        on_state: N
+        caption: No (skip to Part 11.)
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 16:09:09'
+      from:
+      - fee_reduction_eligible_yes_ind
+      - fee_reduction_eligible_no_ind
     x_petey_identifiers:
-      subject: fee_reduction_eligible_no
-      suffix: ind
-  fee_reduction_eligible_yes_ind:
-    x_petey_id: '11_2'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 11
-      rect:
-      - 60.000999450683594
-      - 156.9940185546875
-      - 70.0009994506836
-      - 166.9940185546875
-      widget_type: checkbox
-      path: form1[0].#subform[10].P10_Line1_Citizen[1]
-    description: Part 7. Information About Your Marital History. Your Current Marriage.
-      4.D. Is your current spouse's present physical address the same as your physical
-      address? Select Yes.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: fee_reduction_eligible_yes
-      suffix: ind
+      subject: fee_reduction_eligible
   total_household_income_amt:
     x_petey_id: '11_4'
     type: number

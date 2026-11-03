@@ -32,7 +32,7 @@ fields:
     description: The date on which the form is completed. (MM/DD/YYYY)
     x_petey_description_source: tooltip
     label_source: llm
-  producer_name:
+  producer_nm:
     x_petey_id: '1_4'
     type: string
     semantic_type: name
@@ -49,6 +49,26 @@ fields:
       producer of record whose policy is being cancelled.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: producer
+      suffix: nm
+    x_petey_hand_edit:
+      when: '2026-10-26 18:54:47'
+      from:
+        name: producer_name
+        type: string
+        semantic_type: name
+        pattern: null
+        identifiers: null
+      to:
+        name: producer_nm
+        type: string
+        semantic_type: name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
   producer_address_line_1:
     x_petey_id: '1_6'
     type: string
@@ -197,7 +217,7 @@ fields:
       agency or brokerage).
     x_petey_description_source: tooltip
     label_source: llm
-  insurer_name:
+  insurer_nm:
     x_petey_id: '1_5'
     type: string
     semantic_type: name
@@ -215,6 +235,26 @@ fields:
       the policy has been issued. This is not the insurer's group name or trade name.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: insurer
+      suffix: nm
+    x_petey_hand_edit:
+      when: '2026-10-26 18:54:50'
+      from:
+        name: insurer_name
+        type: string
+        semantic_type: name
+        pattern: null
+        identifiers: null
+      to:
+        name: insurer_nm
+        type: string
+        semantic_type: name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
   insurer_address_line_1:
     x_petey_id: '1_7'
     type: string
@@ -479,38 +519,46 @@ fields:
     description: The effective time of the cancellation or non renewal.
     x_petey_description_source: tooltip
     label_source: llm
-  cancellation_time_am:
-    x_petey_id: '1_23'
-    type: boolean
-    widget:
-      page: 1
-      rect:
-      - 562.0
-      - 180.0
-      - 576.0
-      - 192.0
-      widget_type: checkbox
-      path: F[0].P1[0].CancelNonRenew_CancelNonRenewTimeMorningIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the effective time of the
-      cancellation is in the morning (AM).'
-    x_petey_description_source: tooltip
-    label_source: llm
-  cancellation_time_pm:
-    x_petey_id: '1_27'
-    type: boolean
-    widget:
-      page: 1
-      rect:
-      - 562.0
-      - 192.0
-      - 576.0
-      - 204.0
-      widget_type: checkbox
-      path: F[0].P1[0].CancelNonRenew_CancelNonRenewTimeAfternoonOrEveningIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the effective time of the
-      cancellation is in the afternoon or evening (PM).'
-    x_petey_description_source: tooltip
-    label_source: llm
+  cancellation_time_2:
+    x_petey_id: '1_83'
+    type: category
+    values:
+    - cancellation_time_am
+    - cancellation_time_pm
+    widgets:
+      cancellation_time_am:
+        page: 1
+        rect:
+        - 562.0
+        - 180.0
+        - 576.0
+        - 192.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_CancelNonRenewTimeMorningIndicator_A[0]
+        on_state: '1'
+        caption: AM
+        x_petey_caption_source: page_text
+      cancellation_time_pm:
+        page: 1
+        rect:
+        - 562.0
+        - 192.0
+        - 576.0
+        - 204.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_CancelNonRenewTimeAfternoonOrEveningIndicator_A[0]
+        on_state: '1'
+        caption: PM
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-02 22:48:43'
+      from:
+      - cancellation_time_am
+      - cancellation_time_pm
+    x_petey_identifiers:
+      iteration: '2'
+      subject: cancellation_time
   policy_term_effective_date:
     x_petey_id: '1_31'
     type: date
@@ -600,6 +648,9 @@ fields:
       subject: witness
       suffix: signature
     label_source: llm
+    x_petey_printed:
+      source: signature_sweep
+      when: '2026-10-31 15:36:27'
   signatory_1_witness_date:
     x_petey_id: '1_36'
     type: date
@@ -642,6 +693,9 @@ fields:
       subject: named_insured
       suffix: signature
     label_source: llm
+    x_petey_printed:
+      source: signature_sweep
+      when: '2026-10-31 15:36:27'
   signatory_1_named_insured_date:
     x_petey_id: '1_38'
     type: date
@@ -682,6 +736,9 @@ fields:
       subject: witness
       suffix: signature
     label_source: llm
+    x_petey_printed:
+      source: signature_sweep
+      when: '2026-10-31 15:36:27'
   signatory_2_witness_date:
     x_petey_id: '1_40'
     type: date
@@ -723,6 +780,9 @@ fields:
       subject: named_insured
       suffix: signature
     label_source: llm
+    x_petey_printed:
+      source: signature_sweep
+      when: '2026-10-31 15:36:27'
   signatory_2_named_insured_date:
     x_petey_id: '1_42'
     type: date
@@ -886,6 +946,9 @@ fields:
       suffix: signature
       iteration: '1'
     label_source: llm
+    x_petey_printed:
+      source: signature_sweep
+      when: '2026-10-31 15:36:27'
   authorized_representative_title_1:
     x_petey_id: '1_49'
     type: string
@@ -1060,6 +1123,9 @@ fields:
       suffix: signature
       iteration: '2'
     label_source: llm
+    x_petey_printed:
+      source: signature_sweep
+      when: '2026-10-31 15:36:27'
   authorized_representative_title_2:
     x_petey_id: '1_58'
     type: string
@@ -1411,6 +1477,9 @@ fields:
       (e.g. producer, agent, broker, etc.) completing this form.'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_printed:
+      source: signature_sweep
+      when: '2026-10-31 15:36:27'
   producers_signature_date:
     x_petey_id: '1_82'
     type: date
@@ -1470,6 +1539,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].AdditionalInterest_Interest_LossPayeeIndicator_A[0]
         on_state: '1'
+        caption: LOSS PAYEE
+        x_petey_caption_source: hand
       lenders_loss_payable:
         page: 1
         rect:
@@ -1480,11 +1551,34 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].AdditionalInterest_Interest_LendersLossPayableIndicator_A[0]
         on_state: '1'
+        caption: LENDER'S LOSS PAYABLE
+        x_petey_caption_source: hand
     description: 'Check the box (if applicable): Indicates the additional interest
       type is a lien holder.'
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-26 18:55:51'
+      from:
+        name: additional_interest_type_1
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          loss_payee: null
+          lenders_loss_payable: null
+      to:
+        name: additional_interest_type_1
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          loss_payee:
+            caption: LOSS PAYEE
+          lenders_loss_payable:
+            caption: LENDER'S LOSS PAYABLE
+      record: runs/hand_review/je__acord_35.json
   additional_interest_type_2:
     x_petey_id: '1_60'
     type: category
@@ -1528,6 +1622,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].AdditionalInterest_Interest_LossPayeeIndicator_B[0]
         on_state: '1'
+        caption: LOSS PAYEE
+        x_petey_caption_source: hand
       lenders_loss_payable:
         page: 1
         rect:
@@ -1538,11 +1634,34 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].AdditionalInterest_Interest_LendersLossPayableIndicator_B[0]
         on_state: '1'
+        caption: LENDER'S LOSS PAYABLE
+        x_petey_caption_source: hand
     description: 'Check the box (if applicable): Indicates the additional interest
       type is a lien holder.'
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-26 18:56:01'
+      from:
+        name: additional_interest_type_2
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          loss_payee: null
+          lenders_loss_payable: null
+      to:
+        name: additional_interest_type_2
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          loss_payee:
+            caption: LOSS PAYEE
+          lenders_loss_payable:
+            caption: LENDER'S LOSS PAYABLE
+      record: runs/hand_review/je__acord_35.json
   cancellation_reason:
     x_petey_id: '1_61'
     type: category
@@ -1635,8 +1754,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].CancelNonRenew_PremiumCalculation_ShortRateIndicator_A[0]
         on_state: '1'
-        caption: that
-        x_petey_caption_source: page_text
+        caption: SHORT RATE
+        x_petey_caption_source: hand
       pro_rata:
         page: 1
         rect:
@@ -1657,6 +1776,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-26 18:56:11'
+      from:
+        name: cancellation_method
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          short_rate: that
+      to:
+        name: cancellation_method
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          short_rate:
+            caption: SHORT RATE
+      record: runs/hand_review/je__acord_35.json
   distribution:
     x_petey_id: '1_72'
     type: category

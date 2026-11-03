@@ -240,6 +240,31 @@ fields:
     x_petey_identifiers:
       subject: attorney
       suffix: nm
+  zip_assignee_code_of_record:
+    x_petey_id: '1_35'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 369.6
+      - 60.0
+      - 575.04
+      - 211.68
+      widget_type: text
+      path: null
+    label_source: page_caption
+    x_petey_added:
+      source: office_sweep
+      when: '2026-11-01 13:48:59'
+      geometry: 'finder; office sweep: candidate finder'
+      name_from: page text (left of the box)
+      caption: 'ZIP ASSIGNEE CODE: OF RECORD'
+      finder: step2flat-3
+      sweep: office_use_2026-11-01
+    x_petey_identifiers:
+      subject: zip_assignee_code_of_record
   attorney_state_bar_nbr:
     x_petey_id: '1_1'
     type: string
@@ -838,47 +863,41 @@ fields:
     x_petey_identifiers:
       subject: judgment_debtor_name_and_address
       suffix: txt
-  more_than_one_judgment_debtor_ind:
-    x_petey_id: '1_29'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 51.060001373291016
-      - 507.2120056152344
-      - 60.060001373291016
-      - 516.2120361328125
-      widget_type: checkbox
-      path: EJ-130[0].Page1[0].li4[0].AddlPage4[0]
-    description: Check here if there is more than one judgment debtor. List the additional
-      judgment debtors and their last known addresses on an attached sheet of paper
-      labeled "Attachment 4."
-    x_petey_description_source: tooltip
-    label_source: llm
+  group_p1:
+    x_petey_id: '1_36'
+    type: category
+    values:
+    - judgment_debtor_additional_names_affidavit_of_identity_ind
+    - more_than_one_judgment_debtor_ind
+    widgets:
+      judgment_debtor_additional_names_affidavit_of_identity_ind:
+        page: 1
+        rect:
+        - 51.060001373291016
+        - 490.4419860839844
+        - 60.060001373291016
+        - 499.4419860839844
+        widget_type: checkbox
+        path: EJ-130[0].Page1[0].li4[0].Item4Check[0]
+        on_state: '1'
+      more_than_one_judgment_debtor_ind:
+        page: 1
+        rect:
+        - 51.060001373291016
+        - 507.2120056152344
+        - 60.060001373291016
+        - 516.2120361328125
+        widget_type: checkbox
+        path: EJ-130[0].Page1[0].li4[0].AddlPage4[0]
+        on_state: '1'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 15:10:17'
+      from:
+      - judgment_debtor_additional_names_affidavit_of_identity_ind
+      - more_than_one_judgment_debtor_ind
     x_petey_identifiers:
-      subject: more_than_one_judgment_debtor
-      suffix: ind
-  judgment_debtor_additional_names_affidavit_of_identity_ind:
-    x_petey_id: '1_28'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 51.060001373291016
-      - 490.4419860839844
-      - 60.060001373291016
-      - 499.4419860839844
-      widget_type: checkbox
-      path: EJ-130[0].Page1[0].li4[0].Item4Check[0]
-    description: The judgment debtor has additional names that are identified on an
-      affidavit of identity (Code Civ. Proc., § 680.135).
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: judgment_debtor_additional_names_affidavit_of_identity
-      suffix: ind
+      subject: group_p1
   judgment_entered_dt:
     x_petey_id: '1_30'
     type: date
@@ -1826,25 +1845,73 @@ fields:
     x_petey_identifiers:
       subject: writ_possession_or_sale
       suffix: ind
-  possession_real_property_ind:
-    x_petey_id: '3_11'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 65.39800262451172
-      - 338.46600341796875
-      - 74.39800262451172
-      - 347.46600341796875
-      widget_type: checkbox
-      path: EJ-130[0].Page3[0].List23[0].li25a[0].Item23aCheck[0]
-    description: 'Possession of real property: The complaint was filed on'
-    x_petey_description_source: tooltip
-    label_source: llm
+  group_p3:
+    x_petey_id: '3_23'
+    type: category
+    values:
+    - possession_real_property_ind
+    - possession_personal_property_ind
+    - sale_personal_property_ind
+    - sale_real_property_ind
+    widgets:
+      possession_real_property_ind:
+        page: 3
+        rect:
+        - 65.39800262451172
+        - 338.46600341796875
+        - 74.39800262451172
+        - 347.46600341796875
+        widget_type: checkbox
+        path: EJ-130[0].Page3[0].List23[0].li25a[0].Item23aCheck[0]
+        on_state: '1'
+        caption: a
+        x_petey_caption_source: page_text
+      possession_personal_property_ind:
+        page: 3
+        rect:
+        - 65.47200012207031
+        - 564.8779907226562
+        - 74.47200012207031
+        - 573.8779907226562
+        widget_type: checkbox
+        path: EJ-130[0].Page3[0].List23[0].li25b[0].Item23bCheck[0]
+        on_state: '1'
+        caption: Possession of personal property.
+        x_petey_caption_source: tooltip
+      sale_personal_property_ind:
+        page: 3
+        rect:
+        - 65.47200012207031
+        - 598.06298828125
+        - 74.47200012207031
+        - 607.06298828125
+        widget_type: checkbox
+        path: EJ-130[0].Page3[0].List23[0].li25c[0].Item23cCheck[0]
+        on_state: '2'
+        caption: Sale of personal property.
+        x_petey_caption_source: tooltip
+      sale_real_property_ind:
+        page: 3
+        rect:
+        - 65.47200012207031
+        - 616.7739868164062
+        - 74.47200012207031
+        - 625.7739868164062
+        widget_type: checkbox
+        path: EJ-130[0].Page3[0].List23[0].li25d[0].Item23dCheck[0]
+        on_state: '3'
+        caption: Sale of real property.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 15:10:17'
+      from:
+      - possession_real_property_ind
+      - possession_personal_property_ind
+      - sale_personal_property_ind
+      - sale_real_property_ind
     x_petey_identifiers:
-      subject: possession_real_property
-      suffix: ind
+      subject: group_p3
   complaint_filed_dt:
     x_petey_id: '3_12'
     type: date
@@ -1952,25 +2019,6 @@ fields:
     x_petey_identifiers:
       subject: objection_hearing_dates
       suffix: txt
-  possession_personal_property_ind:
-    x_petey_id: '3_17'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 65.47200012207031
-      - 564.8779907226562
-      - 74.47200012207031
-      - 573.8779907226562
-      widget_type: checkbox
-      path: EJ-130[0].Page3[0].List23[0].li25b[0].Item23bCheck[0]
-    description: Possession of personal property.
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: possession_personal_property
-      suffix: ind
   possession_personal_property_value_ind:
     x_petey_id: '3_18'
     type: boolean
@@ -1990,44 +2038,6 @@ fields:
     label_source: llm
     x_petey_identifiers:
       subject: possession_personal_property_value
-      suffix: ind
-  sale_personal_property_ind:
-    x_petey_id: '3_19'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 65.47200012207031
-      - 598.06298828125
-      - 74.47200012207031
-      - 607.06298828125
-      widget_type: checkbox
-      path: EJ-130[0].Page3[0].List23[0].li25c[0].Item23cCheck[0]
-    description: Sale of personal property.
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: sale_personal_property
-      suffix: ind
-  sale_real_property_ind:
-    x_petey_id: '3_20'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 65.47200012207031
-      - 616.7739868164062
-      - 74.47200012207031
-      - 625.7739868164062
-      widget_type: checkbox
-      path: EJ-130[0].Page3[0].List23[0].li25d[0].Item23dCheck[0]
-    description: Sale of real property.
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: sale_real_property
       suffix: ind
   property_description_txt:
     x_petey_id: '3_22'

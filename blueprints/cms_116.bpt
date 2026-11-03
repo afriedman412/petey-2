@@ -760,6 +760,29 @@ fields:
     x_petey_identifiers:
       subject: director_credentials
       suffix: txt
+  requested_refer_to_accompanying:
+    x_petey_id: '1_33'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 169.44
+      - 507.84
+      - 582.72
+      - 513.12
+      widget_type: text
+      path: null
+    label_source: page_caption
+    x_petey_added:
+      source: office_sweep
+      when: '2026-11-01 13:49:01'
+      geometry: 'finder; office sweep: missed, snapped to underline'
+      name_from: page text (above the box)
+      caption: REQUESTED (Check only one) Please refer to the accompanying instructions
+      finder: step2flat-3
+      sweep: office_use_2026-11-01
+    x_petey_identifiers:
+      subject: requested_refer_to_accompanying
   practitioner_other_specify_txt:
     x_petey_id: '2_1'
     type: string
@@ -5108,23 +5131,45 @@ fields:
     x_petey_identifiers:
       subject: histocompatibility_annual_test_volume
       suffix: txt
-  histocompatibility_transplant_ind:
-    x_petey_id: '4_38'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 36.0
-      - 478.44000244140625
-      - 45.0
-      - 487.44000244140625
-      widget_type: checkbox
-      path: Transplant
-    label_source: llm
+  histocompatibility:
+    x_petey_id: '4_91'
+    type: category
+    values:
+    - histocompatibility_transplant_ind
+    - histocompatibility_nontransplant_ind
+    widgets:
+      histocompatibility_transplant_ind:
+        page: 4
+        rect:
+        - 36.0
+        - 478.44000244140625
+        - 45.0
+        - 487.44000244140625
+        widget_type: checkbox
+        path: Transplant
+        on_state: 'On'
+        caption: Transplant
+        x_petey_caption_source: page_text
+      histocompatibility_nontransplant_ind:
+        page: 4
+        rect:
+        - 36.0
+        - 492.9599914550781
+        - 45.0
+        - 501.9599914550781
+        widget_type: checkbox
+        path: Nontransplant
+        on_state: 'On'
+        caption: Nontransplant
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 16:10:55'
+      from:
+      - histocompatibility_transplant_ind
+      - histocompatibility_nontransplant_ind
     x_petey_identifiers:
-      subject: histocompatibility_transplant
-      suffix: ind
+      subject: histocompatibility
   histocompatibility_transplant_accrediting_organization_txt:
     x_petey_id: '4_36'
     type: string
@@ -5159,25 +5204,6 @@ fields:
     x_petey_identifiers:
       subject: histocompatibility_transplant_accrediting_organization
       suffix: txt
-  histocompatibility_nontransplant_ind:
-    x_petey_id: '4_40'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 36.0
-      - 492.9599914550781
-      - 45.0
-      - 501.9599914550781
-      widget_type: checkbox
-      path: Nontransplant
-    description: Nontransplant
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: histocompatibility_nontransplant
-      suffix: ind
   histocompatibility_nontransplant_accrediting_organization_txt:
     x_petey_id: '4_41'
     type: string
@@ -5246,25 +5272,87 @@ fields:
     x_petey_identifiers:
       subject: microbiology_annual_test_volume
       suffix: txt
-  microbiology_bacteriology_ind:
-    x_petey_id: '4_48'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 36.0
-      - 521.8800048828125
-      - 45.0
-      - 530.8800048828125
-      widget_type: checkbox
-      path: Bacteriology 110
-    description: Bacteriology 110
-    x_petey_description_source: tooltip
-    label_source: llm
+  microbiology:
+    x_petey_id: '4_93'
+    type: category
+    values:
+    - microbiology_bacteriology_ind
+    - microbiology_mycobacteriology_ind
+    - microbiology_mycology_ind
+    - microbiology_parasitology_ind
+    - microbiology_virology_ind
+    widgets:
+      microbiology_bacteriology_ind:
+        page: 4
+        rect:
+        - 36.0
+        - 521.8800048828125
+        - 45.0
+        - 530.8800048828125
+        widget_type: checkbox
+        path: Bacteriology 110
+        on_state: 'On'
+        caption: Bacteriology 110
+        x_petey_caption_source: tooltip
+      microbiology_mycobacteriology_ind:
+        page: 4
+        rect:
+        - 36.0
+        - 536.4000244140625
+        - 45.0
+        - 545.4000244140625
+        widget_type: checkbox
+        path: Mycobacteriology 115
+        on_state: 'On'
+        caption: Mycobacteriology 115
+        x_petey_caption_source: tooltip
+      microbiology_mycology_ind:
+        page: 4
+        rect:
+        - 36.0
+        - 550.9199829101562
+        - 45.0
+        - 559.9199829101562
+        widget_type: checkbox
+        path: Mycology 120
+        on_state: 'On'
+        caption: Mycology 120
+        x_petey_caption_source: tooltip
+      microbiology_parasitology_ind:
+        page: 4
+        rect:
+        - 36.0
+        - 565.3200073242188
+        - 45.0
+        - 574.3200073242188
+        widget_type: checkbox
+        path: Parasitology 130
+        on_state: 'On'
+        caption: Parasitology 130
+        x_petey_caption_source: tooltip
+      microbiology_virology_ind:
+        page: 4
+        rect:
+        - 36.0
+        - 579.8399658203125
+        - 45.0
+        - 588.8399658203125
+        widget_type: checkbox
+        path: Virology 140
+        on_state: 'On'
+        caption: Virology 140
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 16:10:55'
+      from:
+      - microbiology_bacteriology_ind
+      - microbiology_mycobacteriology_ind
+      - microbiology_mycology_ind
+      - microbiology_parasitology_ind
+      - microbiology_virology_ind
     x_petey_identifiers:
-      subject: microbiology_bacteriology
-      suffix: ind
+      subject: microbiology
   microbiology_bacteriology_accrediting_organization_txt:
     x_petey_id: '4_46'
     type: string
@@ -5299,25 +5387,6 @@ fields:
     x_petey_identifiers:
       subject: microbiology_bacteriology_accrediting_organization
       suffix: txt
-  microbiology_mycobacteriology_ind:
-    x_petey_id: '4_50'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 36.0
-      - 536.4000244140625
-      - 45.0
-      - 545.4000244140625
-      widget_type: checkbox
-      path: Mycobacteriology 115
-    description: Mycobacteriology 115
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: microbiology_mycobacteriology
-      suffix: ind
   microbiology_mycobacteriology_accrediting_organization_txt:
     x_petey_id: '4_51'
     type: string
@@ -5352,25 +5421,6 @@ fields:
     x_petey_identifiers:
       subject: microbiology_mycobacteriology_accrediting_organization
       suffix: txt
-  microbiology_mycology_ind:
-    x_petey_id: '4_56'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 36.0
-      - 550.9199829101562
-      - 45.0
-      - 559.9199829101562
-      widget_type: checkbox
-      path: Mycology 120
-    description: Mycology 120
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: microbiology_mycology
-      suffix: ind
   microbiology_mycology_accrediting_organization_txt:
     x_petey_id: '4_54'
     type: string
@@ -5405,25 +5455,6 @@ fields:
     x_petey_identifiers:
       subject: microbiology_mycology_accrediting_organization
       suffix: txt
-  microbiology_parasitology_ind:
-    x_petey_id: '4_58'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 36.0
-      - 565.3200073242188
-      - 45.0
-      - 574.3200073242188
-      widget_type: checkbox
-      path: Parasitology 130
-    description: Parasitology 130
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: microbiology_parasitology
-      suffix: ind
   microbiology_parasitology_accrediting_organization_txt:
     x_petey_id: '4_59'
     type: string
@@ -5458,25 +5489,6 @@ fields:
     x_petey_identifiers:
       subject: microbiology_parasitology_accrediting_organization
       suffix: txt
-  microbiology_virology_ind:
-    x_petey_id: '4_64'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 36.0
-      - 579.8399658203125
-      - 45.0
-      - 588.8399658203125
-      widget_type: checkbox
-      path: Virology 140
-    description: Virology 140
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: microbiology_virology
-      suffix: ind
   microbiology_virology_accrediting_organization_txt:
     x_petey_id: '4_62'
     type: string
@@ -5545,25 +5557,45 @@ fields:
     x_petey_identifiers:
       subject: diagnostic_immunology_annual_test_volume
       suffix: txt
-  diagnostic_immunology_syphilis_serology_ind:
-    x_petey_id: '4_68'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 36.0
-      - 608.760009765625
-      - 45.0
-      - 617.760009765625
-      widget_type: checkbox
-      path: Syphilis Serology 210
-    description: Diagnostic Immunology Syphilis Serology 210
-    x_petey_description_source: tooltip
-    label_source: llm
+  diagnostic_immunology:
+    x_petey_id: '4_95'
+    type: category
+    values:
+    - diagnostic_immunology_syphilis_serology_ind
+    - diagnostic_immunology_general_immunology_ind
+    widgets:
+      diagnostic_immunology_syphilis_serology_ind:
+        page: 4
+        rect:
+        - 36.0
+        - 608.760009765625
+        - 45.0
+        - 617.760009765625
+        widget_type: checkbox
+        path: Syphilis Serology 210
+        on_state: 'On'
+        caption: Diagnostic Immunology Syphilis Serology 210
+        x_petey_caption_source: tooltip
+      diagnostic_immunology_general_immunology_ind:
+        page: 4
+        rect:
+        - 36.0
+        - 623.280029296875
+        - 45.0
+        - 632.280029296875
+        widget_type: checkbox
+        path: General Immunology 220
+        on_state: 'On'
+        caption: General Immunology 220
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 16:10:55'
+      from:
+      - diagnostic_immunology_syphilis_serology_ind
+      - diagnostic_immunology_general_immunology_ind
     x_petey_identifiers:
-      subject: diagnostic_immunology_syphilis_serology
-      suffix: ind
+      subject: diagnostic_immunology
   diagnostic_immunology_syphilis_serology_accrediting_organization_txt:
     x_petey_id: '4_69'
     type: string
@@ -5598,25 +5630,6 @@ fields:
     x_petey_identifiers:
       subject: diagnostic_immunology_syphilis_serology_accrediting_organization
       suffix: txt
-  diagnostic_immunology_general_immunology_ind:
-    x_petey_id: '4_74'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 36.0
-      - 623.280029296875
-      - 45.0
-      - 632.280029296875
-      widget_type: checkbox
-      path: General Immunology 220
-    description: General Immunology 220
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: diagnostic_immunology_general_immunology
-      suffix: ind
   diagnostic_immunology_general_immunology_accrediting_organization_txt:
     x_petey_id: '4_72'
     type: string
@@ -5685,23 +5698,73 @@ fields:
     x_petey_identifiers:
       subject: chemistry_annual_test_volume
       suffix: txt
-  chemistry_routine_ind:
-    x_petey_id: '4_80'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 36.0
-      - 652.2000122070312
-      - 45.0
-      - 661.2000122070312
-      widget_type: checkbox
-      path: Routine 310
-    label_source: llm
+  chemistry:
+    x_petey_id: '4_96'
+    type: category
+    values:
+    - chemistry_routine_ind
+    - chemistry_urinalysis_ind
+    - chemistry_endocrinology_ind
+    - chemistry_toxicology_ind
+    widgets:
+      chemistry_routine_ind:
+        page: 4
+        rect:
+        - 36.0
+        - 652.2000122070312
+        - 45.0
+        - 661.2000122070312
+        widget_type: checkbox
+        path: Routine 310
+        on_state: 'On'
+        caption: Routine 310
+        x_petey_caption_source: page_text
+      chemistry_urinalysis_ind:
+        page: 4
+        rect:
+        - 36.0
+        - 666.719970703125
+        - 45.0
+        - 675.719970703125
+        widget_type: checkbox
+        path: Urinalysis 320
+        on_state: 'On'
+        caption: Urinalysis 320
+        x_petey_caption_source: tooltip
+      chemistry_endocrinology_ind:
+        page: 4
+        rect:
+        - 36.0
+        - 681.239990234375
+        - 45.0
+        - 690.239990234375
+        widget_type: checkbox
+        path: Endocrinology 330
+        on_state: 'On'
+        caption: Endocrinology 330
+        x_petey_caption_source: tooltip
+      chemistry_toxicology_ind:
+        page: 4
+        rect:
+        - 36.0
+        - 695.6400146484375
+        - 45.0
+        - 704.6400146484375
+        widget_type: checkbox
+        path: Toxicology 340
+        on_state: 'On'
+        caption: Toxicology 340
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 16:10:55'
+      from:
+      - chemistry_routine_ind
+      - chemistry_urinalysis_ind
+      - chemistry_endocrinology_ind
+      - chemistry_toxicology_ind
     x_petey_identifiers:
-      subject: chemistry_routine
-      suffix: ind
+      subject: chemistry
   chemistry_routine_accrediting_organization_txt:
     x_petey_id: '4_78'
     type: string
@@ -5736,25 +5799,6 @@ fields:
     x_petey_identifiers:
       subject: chemistry_routine_accrediting_organization
       suffix: txt
-  chemistry_urinalysis_ind:
-    x_petey_id: '4_82'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 36.0
-      - 666.719970703125
-      - 45.0
-      - 675.719970703125
-      widget_type: checkbox
-      path: Urinalysis 320
-    description: Urinalysis 320
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: chemistry_urinalysis
-      suffix: ind
   chemistry_urinalysis_accrediting_organization_txt:
     x_petey_id: '4_83'
     type: string
@@ -5789,25 +5833,6 @@ fields:
     x_petey_identifiers:
       subject: chemistry_urinalysis_accrediting_organization
       suffix: txt
-  chemistry_endocrinology_ind:
-    x_petey_id: '4_87'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 36.0
-      - 681.239990234375
-      - 45.0
-      - 690.239990234375
-      widget_type: checkbox
-      path: Endocrinology 330
-    description: Endocrinology 330
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: chemistry_endocrinology
-      suffix: ind
   chemistry_endocrinology_accrediting_organization_txt:
     x_petey_id: '4_85'
     type: string
@@ -5842,25 +5867,6 @@ fields:
     x_petey_identifiers:
       subject: chemistry_endocrinology_accrediting_organization
       suffix: txt
-  chemistry_toxicology_ind:
-    x_petey_id: '4_91'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 36.0
-      - 695.6400146484375
-      - 45.0
-      - 704.6400146484375
-      widget_type: checkbox
-      path: Toxicology 340
-    description: Toxicology 340
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: chemistry_toxicology
-      suffix: ind
   chemistry_toxicology_accrediting_organization_txt:
     x_petey_id: '4_89'
     type: string
@@ -6014,25 +6020,87 @@ fields:
     x_petey_identifiers:
       subject: immunohematology_annual_test_volume
       suffix: txt
-  immunohematology_abo_group_rh_group_ind:
-    x_petey_id: '4_45'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 285.9599914550781
-      - 507.4800109863281
-      - 294.9599914550781
-      - 516.47998046875
-      widget_type: checkbox
-      path: ABO Group  Rh Group 510
-    description: ABO Group & Rh Group 510
-    x_petey_description_source: tooltip
-    label_source: llm
+  immunohematology:
+    x_petey_id: '4_92'
+    type: category
+    values:
+    - immunohematology_abo_group_rh_group_ind
+    - immunohematology_antibody_detection_transfusion_ind
+    - immunohematology_antibody_detection_nontransfusion_ind
+    - immunohematology_antibody_identification_ind
+    - immunohematology_compatibility_testing_ind
+    widgets:
+      immunohematology_abo_group_rh_group_ind:
+        page: 4
+        rect:
+        - 285.9599914550781
+        - 507.4800109863281
+        - 294.9599914550781
+        - 516.47998046875
+        widget_type: checkbox
+        path: ABO Group  Rh Group 510
+        on_state: 'On'
+        caption: ABO Group & Rh Group 510
+        x_petey_caption_source: tooltip
+      immunohematology_antibody_detection_transfusion_ind:
+        page: 4
+        rect:
+        - 285.9599914550781
+        - 521.8800048828125
+        - 294.9599914550781
+        - 530.8800048828125
+        widget_type: checkbox
+        path: Antibody Detection transfusion 520
+        on_state: 'On'
+        caption: Accrediting Organization Antibody Detection (transfusion) 520
+        x_petey_caption_source: tooltip
+      immunohematology_antibody_detection_nontransfusion_ind:
+        page: 4
+        rect:
+        - 285.9599914550781
+        - 536.4000244140625
+        - 294.9599914550781
+        - 545.4000244140625
+        widget_type: checkbox
+        path: Antibody Detection nontransfusion 530
+        on_state: 'On'
+        caption: Antibody Detection (nontransfusion) 530
+        x_petey_caption_source: tooltip
+      immunohematology_antibody_identification_ind:
+        page: 4
+        rect:
+        - 285.9599914550781
+        - 550.9199829101562
+        - 294.9599914550781
+        - 559.9199829101562
+        widget_type: checkbox
+        path: Antibody Identification 540
+        on_state: 'On'
+        caption: Antibody Identification 540
+        x_petey_caption_source: tooltip
+      immunohematology_compatibility_testing_ind:
+        page: 4
+        rect:
+        - 285.9599914550781
+        - 565.3200073242188
+        - 294.9599914550781
+        - 574.3200073242188
+        widget_type: checkbox
+        path: Compatibility Testing 550
+        on_state: 'On'
+        caption: Compatibility Testing 550
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 16:10:55'
+      from:
+      - immunohematology_abo_group_rh_group_ind
+      - immunohematology_antibody_detection_transfusion_ind
+      - immunohematology_antibody_detection_nontransfusion_ind
+      - immunohematology_antibody_identification_ind
+      - immunohematology_compatibility_testing_ind
     x_petey_identifiers:
-      subject: immunohematology_abo_group_rh_group
-      suffix: ind
+      subject: immunohematology
   immunohematology_abo_group_rh_group_accrediting_organization_txt:
     x_petey_id: '4_44'
     type: string
@@ -6067,25 +6135,6 @@ fields:
     x_petey_identifiers:
       subject: immunohematology_abo_group_rh_group_accrediting_organization
       suffix: txt
-  immunohematology_antibody_detection_transfusion_ind:
-    x_petey_id: '4_49'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 285.9599914550781
-      - 521.8800048828125
-      - 294.9599914550781
-      - 530.8800048828125
-      widget_type: checkbox
-      path: Antibody Detection transfusion 520
-    description: Accrediting Organization Antibody Detection (transfusion) 520
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: immunohematology_antibody_detection_transfusion
-      suffix: ind
   immunohematology_antibody_detection_transfusion_accrediting_organization_txt:
     x_petey_id: '4_47'
     type: string
@@ -6120,25 +6169,6 @@ fields:
     x_petey_identifiers:
       subject: immunohematology_antibody_detection_transfusion_accrediting_organization
       suffix: txt
-  immunohematology_antibody_detection_nontransfusion_ind:
-    x_petey_id: '4_52'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 285.9599914550781
-      - 536.4000244140625
-      - 294.9599914550781
-      - 545.4000244140625
-      widget_type: checkbox
-      path: Antibody Detection nontransfusion 530
-    description: Antibody Detection (nontransfusion) 530
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: immunohematology_antibody_detection_nontransfusion
-      suffix: ind
   immunohematology_antibody_detection_nontransfusion_accrediting_organization_txt:
     x_petey_id: '4_53'
     type: string
@@ -6173,25 +6203,6 @@ fields:
     x_petey_identifiers:
       subject: immunohematology_antibody_detection_nontransfusion_accrediting_organization
       suffix: txt
-  immunohematology_antibody_identification_ind:
-    x_petey_id: '4_57'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 285.9599914550781
-      - 550.9199829101562
-      - 294.9599914550781
-      - 559.9199829101562
-      widget_type: checkbox
-      path: Antibody Identification 540
-    description: Antibody Identification 540
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: immunohematology_antibody_identification
-      suffix: ind
   immunohematology_antibody_identification_accrediting_organization_txt:
     x_petey_id: '4_55'
     type: string
@@ -6226,25 +6237,6 @@ fields:
     x_petey_identifiers:
       subject: immunohematology_antibody_identification_accrediting_organization
       suffix: txt
-  immunohematology_compatibility_testing_ind:
-    x_petey_id: '4_60'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 285.9599914550781
-      - 565.3200073242188
-      - 294.9599914550781
-      - 574.3200073242188
-      widget_type: checkbox
-      path: Compatibility Testing 550
-    description: Compatibility Testing 550
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: immunohematology_compatibility_testing
-      suffix: ind
   immunohematology_compatibility_testing_accrediting_organization_txt:
     x_petey_id: '4_61'
     type: string
@@ -6313,25 +6305,59 @@ fields:
     x_petey_identifiers:
       subject: pathology_annual_test_volume
       suffix: txt
-  pathology_histopathology_ind:
-    x_petey_id: '4_66'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 285.9599914550781
-      - 594.3599853515625
-      - 294.9599914550781
-      - 603.3599853515625
-      widget_type: checkbox
-      path: Histopathology 610
-    description: Histopathology 610
-    x_petey_description_source: tooltip
-    label_source: llm
+  pathology:
+    x_petey_id: '4_94'
+    type: category
+    values:
+    - pathology_histopathology_ind
+    - pathology_oral_pathology_ind
+    - pathology_cytology_ind
+    widgets:
+      pathology_histopathology_ind:
+        page: 4
+        rect:
+        - 285.9599914550781
+        - 594.3599853515625
+        - 294.9599914550781
+        - 603.3599853515625
+        widget_type: checkbox
+        path: Histopathology 610
+        on_state: 'On'
+        caption: Histopathology 610
+        x_petey_caption_source: tooltip
+      pathology_oral_pathology_ind:
+        page: 4
+        rect:
+        - 285.9599914550781
+        - 608.760009765625
+        - 294.9599914550781
+        - 617.760009765625
+        widget_type: checkbox
+        path: Oral Pathology 620
+        on_state: 'On'
+        caption: Oral Pathology 620
+        x_petey_caption_source: tooltip
+      pathology_cytology_ind:
+        page: 4
+        rect:
+        - 285.9599914550781
+        - 623.280029296875
+        - 294.9599914550781
+        - 632.280029296875
+        widget_type: checkbox
+        path: Cytology 630
+        on_state: 'On'
+        caption: Cytology 630
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 16:10:55'
+      from:
+      - pathology_histopathology_ind
+      - pathology_oral_pathology_ind
+      - pathology_cytology_ind
     x_petey_identifiers:
-      subject: pathology_histopathology
-      suffix: ind
+      subject: pathology
   pathology_histopathology_accrediting_organization_txt:
     x_petey_id: '4_67'
     type: string
@@ -6366,25 +6392,6 @@ fields:
     x_petey_identifiers:
       subject: pathology_histopathology_accrediting_organization
       suffix: txt
-  pathology_oral_pathology_ind:
-    x_petey_id: '4_70'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 285.9599914550781
-      - 608.760009765625
-      - 294.9599914550781
-      - 617.760009765625
-      widget_type: checkbox
-      path: Oral Pathology 620
-    description: Oral Pathology 620
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: pathology_oral_pathology
-      suffix: ind
   pathology_oral_pathology_accrediting_organization_txt:
     x_petey_id: '4_71'
     type: string
@@ -6419,25 +6426,6 @@ fields:
     x_petey_identifiers:
       subject: pathology_oral_pathology_accrediting_organization
       suffix: txt
-  pathology_cytology_ind:
-    x_petey_id: '4_75'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 285.9599914550781
-      - 623.280029296875
-      - 294.9599914550781
-      - 632.280029296875
-      widget_type: checkbox
-      path: Cytology 630
-    description: Cytology 630
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: pathology_cytology
-      suffix: ind
   pathology_cytology_accrediting_organization_txt:
     x_petey_id: '4_73'
     type: string

@@ -213,106 +213,99 @@ fields:
     label_source: llm
     x_petey_identifiers:
       subject: named_insured
-  commercial_general_liability_ind:
-    x_petey_id: '1_9'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 20.606990814208984
-      - 126.9210205078125
-      - 30.606990814208984
-      - 136.9210205078125
-      widget_type: checkbox
-      path: F[0].P1[0].Check1[0]
-    description: 'Check the box (if applicable): Indicates the claims made or occurrence
-      option applies for the general liability policy.'
-    x_petey_description_source: tooltip
-    label_source: llm
+  group_p1_2:
+    x_petey_id: '1_150'
+    type: category
+    values:
+    - commercial_general_liability_ind
+    - owners_and_contractors_protective_ind
+    - other_coverage_ind
+    widgets:
+      commercial_general_liability_ind:
+        page: 1
+        rect:
+        - 20.606990814208984
+        - 126.9210205078125
+        - 30.606990814208984
+        - 136.9210205078125
+        widget_type: checkbox
+        path: F[0].P1[0].Check1[0]
+        on_state: '1'
+        caption: COMMERCIAL GENERAL LIABILITY
+        x_petey_caption_source: page_text
+      owners_and_contractors_protective_ind:
+        page: 1
+        rect:
+        - 20.606990814208984
+        - 151.0350341796875
+        - 30.606990814208984
+        - 161.0350341796875
+        widget_type: checkbox
+        path: F[0].P1[0].Check4[0]
+        on_state: '1'
+        caption: OWNER'S & CONTRACTOR'S PROTECTIVE
+        x_petey_caption_source: page_text
+      other_coverage_ind:
+        page: 1
+        rect:
+        - 20.606990814208984
+        - 162.98699951171875
+        - 30.606990814208984
+        - 172.98699951171875
+        widget_type: checkbox
+        path: F[0].P1[0].Check5[0]
+        on_state: '1'
+        caption: COVERAGES
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-02 22:47:06'
+      from:
+      - commercial_general_liability_ind
+      - owners_and_contractors_protective_ind
+      - other_coverage_ind
     x_petey_identifiers:
-      subject: commercial_general_liability
-      suffix: ind
-  claims_made_ind:
-    x_petey_id: '1_11'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 36.590999603271484
-      - 138.927978515625
-      - 46.590999603271484
-      - 148.927978515625
-      widget_type: checkbox
-      path: F[0].P1[0].Check2[0]
-    description: 'Check the box (if applicable): Indicates the "claims made" option
-      applies on the general liability policy.'
-    x_petey_description_source: tooltip
-    label_source: llm
+      iteration: '2'
+      subject: group_p1
+  group_p1:
+    x_petey_id: '1_151'
+    type: category
+    values:
+    - claims_made_ind
+    - occurrence_ind
+    widgets:
+      claims_made_ind:
+        page: 1
+        rect:
+        - 36.590999603271484
+        - 138.927978515625
+        - 46.590999603271484
+        - 148.927978515625
+        widget_type: checkbox
+        path: F[0].P1[0].Check2[0]
+        on_state: '1'
+        caption: CLAIMS MADE
+        x_petey_caption_source: page_text
+      occurrence_ind:
+        page: 1
+        rect:
+        - 124.12899780273438
+        - 138.927978515625
+        - 134.12899780273438
+        - 148.927978515625
+        widget_type: checkbox
+        path: F[0].P1[0].Check3[0]
+        on_state: '1'
+        caption: LIABILITY
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-02 22:47:06'
+      from:
+      - claims_made_ind
+      - occurrence_ind
     x_petey_identifiers:
-      subject: claims_made
-      suffix: ind
-  occurrence_ind:
-    x_petey_id: '1_12'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 124.12899780273438
-      - 138.927978515625
-      - 134.12899780273438
-      - 148.927978515625
-      widget_type: checkbox
-      path: F[0].P1[0].Check3[0]
-    description: 'Check the box (if applicable): Indicates the general liability policy,
-      occurrence basis applies.'
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: occurrence
-      suffix: ind
-  owners_and_contractors_protective_ind:
-    x_petey_id: '1_14'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 20.606990814208984
-      - 151.0350341796875
-      - 30.606990814208984
-      - 161.0350341796875
-      widget_type: checkbox
-      path: F[0].P1[0].Check4[0]
-    description: 'Check the box (if applicable): Indicates the owners and contractors
-      protective option applies for the general liability policy.'
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: owners_and_contractors_protective
-      suffix: ind
-  other_coverage_ind:
-    x_petey_id: '1_17'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 20.606990814208984
-      - 162.98699951171875
-      - 30.606990814208984
-      - 172.98699951171875
-      widget_type: checkbox
-      path: F[0].P1[0].Check5[0]
-    description: 'Check the box (if applicable): Indicates other coverage not found
-      on the form exists for the general liability policy.'
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: other_coverage
-      suffix: ind
+      subject: group_p1
   other_coverage_desc:
     x_petey_id: '1_18'
     type: string
@@ -333,26 +326,56 @@ fields:
     label_source: llm
     x_petey_identifiers:
       subject: other_coverage_desc
-  property_damage_deductible_ind:
-    x_petey_id: '1_22'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 20.60000991821289
-      - 187.69598388671875
-      - 30.60000991821289
-      - 197.69598388671875
-      widget_type: checkbox
-      path: F[0].P1[0].Check6[0]
-    description: 'Check the box (if applicable): Indicates if a property damage deductible
-      is requested.'
-    x_petey_description_source: tooltip
-    label_source: llm
+  group_p1_3:
+    x_petey_id: '1_152'
+    type: category
+    values:
+    - property_damage_deductible_ind
+    - bodily_injury_deductible_ind
+    - other_deductible_ind
+    widgets:
+      property_damage_deductible_ind:
+        page: 1
+        rect:
+        - 20.60000991821289
+        - 187.69598388671875
+        - 30.60000991821289
+        - 197.69598388671875
+        widget_type: checkbox
+        path: F[0].P1[0].Check6[0]
+        on_state: '1'
+      bodily_injury_deductible_ind:
+        page: 1
+        rect:
+        - 20.606990814208984
+        - 198.9210205078125
+        - 30.606990814208984
+        - 208.9210205078125
+        widget_type: checkbox
+        path: F[0].P1[0].Check7[0]
+        on_state: '1'
+        caption: BODILY INJURY
+        x_petey_caption_source: page_text
+      other_deductible_ind:
+        page: 1
+        rect:
+        - 20.60000991821289
+        - 210.94000244140625
+        - 30.60000991821289
+        - 220.94000244140625
+        widget_type: checkbox
+        path: F[0].P1[0].Check8[0]
+        on_state: '1'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-02 22:47:06'
+      from:
+      - property_damage_deductible_ind
+      - bodily_injury_deductible_ind
+      - other_deductible_ind
     x_petey_identifiers:
-      subject: property_damage_deductible
-      suffix: ind
+      iteration: '3'
+      subject: group_p1
   property_damage_deductible_amt:
     x_petey_id: '1_23'
     type: number
@@ -374,26 +397,6 @@ fields:
     x_petey_identifiers:
       subject: property_damage_deductible
       suffix: amt
-  bodily_injury_deductible_ind:
-    x_petey_id: '1_25'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 20.606990814208984
-      - 198.9210205078125
-      - 30.606990814208984
-      - 208.9210205078125
-      widget_type: checkbox
-      path: F[0].P1[0].Check7[0]
-    description: 'Check the box (if applicable): Indicates if a bodily injury deductible
-      is requested.'
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: bodily_injury_deductible
-      suffix: ind
   bodily_injury_deductible_amt:
     x_petey_id: '1_26'
     type: number
@@ -415,26 +418,6 @@ fields:
     x_petey_identifiers:
       subject: bodily_injury_deductible
       suffix: amt
-  other_deductible_ind:
-    x_petey_id: '1_30'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 20.60000991821289
-      - 210.94000244140625
-      - 30.60000991821289
-      - 220.94000244140625
-      widget_type: checkbox
-      path: F[0].P1[0].Check8[0]
-    description: 'Check the box (if applicable): Indicates that a deductible is requested
-      on the coverage other than Property Damage or Bodily Injury.'
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: other_deductible
-      suffix: ind
   other_deductible_desc:
     x_petey_id: '1_31'
     type: string
@@ -475,48 +458,45 @@ fields:
     x_petey_identifiers:
       subject: other_deductible
       suffix: amt
-  deductible_per_claim_ind:
-    x_petey_id: '1_27'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 181.8699951171875
-      - 198.9210205078125
-      - 191.8699951171875
-      - 208.9210205078125
-      widget_type: checkbox
-      path: F[0].P1[0].Check9[0]
-    description: 'Check the box (if applicable): Indicates that a per claim deductible
-      applies to individual claims even if the claims are all related to the same
-      occurrence or event.'
-    x_petey_description_source: tooltip
-    label_source: llm
+  deductible_per:
+    x_petey_id: '1_153'
+    type: category
+    values:
+    - deductible_per_claim_ind
+    - deductible_per_occurrence_ind
+    widgets:
+      deductible_per_claim_ind:
+        page: 1
+        rect:
+        - 181.8699951171875
+        - 198.9210205078125
+        - 191.8699951171875
+        - 208.9210205078125
+        widget_type: checkbox
+        path: F[0].P1[0].Check9[0]
+        on_state: '1'
+        caption: PER CLAIM
+        x_petey_caption_source: page_text
+      deductible_per_occurrence_ind:
+        page: 1
+        rect:
+        - 181.8699951171875
+        - 210.94000244140625
+        - 191.8699951171875
+        - 220.94000244140625
+        widget_type: checkbox
+        path: F[0].P1[0].Check10[0]
+        on_state: '1'
+        caption: COMMERCIAL
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-02 22:47:06'
+      from:
+      - deductible_per_claim_ind
+      - deductible_per_occurrence_ind
     x_petey_identifiers:
-      subject: deductible_per_claim
-      suffix: ind
-  deductible_per_occurrence_ind:
-    x_petey_id: '1_33'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 181.8699951171875
-      - 210.94000244140625
-      - 191.8699951171875
-      - 220.94000244140625
-      widget_type: checkbox
-      path: F[0].P1[0].Check10[0]
-    description: 'Check the box (if applicable): Indicates that a per occurrence deductible
-      applies once to each occurrence no matter how many individual claims result
-      from the occurrence or event.'
-    x_petey_description_source: tooltip
-    label_source: llm
-    x_petey_identifiers:
-      subject: deductible_per_occurrence
-      suffix: ind
+      subject: deductible_per
   general_aggregate_limit_amt:
     x_petey_id: '1_10'
     type: number
@@ -3147,37 +3127,6 @@ fields:
     label_source: llm
     x_petey_identifiers:
       subject: product_work_accident_location_excluded_explanation
-  tail_coverage_purchased_ind:
-    x_petey_id: '1_144'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 575.2630004882812
-      - 677.990966796875
-      - 590.2579956054688
-      - 691.6710205078125
-      widget_type: text
-      path: F[0].P1[0].Text132[0]
-    description: Input N for “No” response. The response to the question, "Was tail
-      coverage purchased under any previous policy?".
-    x_petey_description_source: tooltip
-    label_source: llm
-    pattern: ^[YN]$
-    x_petey_review:
-      model: claude-opus-5
-      changed:
-      - pattern
-      reason: Tooltip restricts the single character to Y or N; adding the pattern
-        stops generation of values like 'X'.
-      before:
-        type: string
-        description: Input N for “No” response. The response to the question, "Was
-          tail coverage purchased under any previous policy?".
-      judged: 'kept: 0 -> 0'
-    x_petey_identifiers:
-      subject: tail_coverage_purchased
-      suffix: ind
   tail_coverage_purchased_explanation:
     x_petey_id: '1_143'
     type: string
@@ -3196,6 +3145,30 @@ fields:
     label_source: llm
     x_petey_identifiers:
       subject: tail_coverage_purchased_explanation
+  agency_customer_id_5_ind:
+    x_petey_id: '1_149'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 575.2630004882812
+      - 677.990966796875
+      - 590.2579956054688
+      - 691.6710205078125
+      widget_type: checkbox
+      path: null
+    description: Input N for “No” response. The response to the question, "Was tail
+      coverage purchased under any previous policy?".
+    label_source: twin
+    x_petey_added:
+      source: field_add
+      when: '2026-11-02 22:44:27'
+      geometry: widget
+      name_from: 'twin: sibling path'
+    x_petey_identifiers:
+      suffix: ind
+      subject: agency_customer_id_5
   employee_benefits_deductible_per_claim_amt:
     x_petey_id: '1_145'
     type: number
@@ -3309,7 +3282,7 @@ fields:
       iteration: '2'
   contractor_draw_plans_designs_specs_ind:
     x_petey_id: '2_3'
-    type: string
+    type: boolean
     widget:
       page: 2
       rect:
@@ -3317,18 +3290,23 @@ fields:
       - 57.0050048828125
       - 590.2750244140625
       - 70.68499755859375
-      widget_type: text
-      path: F[0].P2[0].Text2[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Does applicant
       draw plans, designs or specifications for others?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: contractor_draw_plans_designs_specs
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P2[0].Text2[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:44:41'
   contractor_draw_plans_designs_specs_explanation:
     x_petey_id: '2_2'
     type: string
@@ -3349,7 +3327,7 @@ fields:
       subject: contractor_draw_plans_designs_specs_explanation
   contractor_blasting_explosives_ind:
     x_petey_id: '2_5'
-    type: string
+    type: boolean
     widget:
       page: 2
       rect:
@@ -3357,18 +3335,23 @@ fields:
       - 93.74200439453125
       - 590.2750244140625
       - 107.4219970703125
-      widget_type: text
-      path: F[0].P2[0].Text4[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Do any
       operations include blasting or utilize, or store explosive material?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: contractor_blasting_explosives
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P2[0].Text4[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:44:44'
   contractor_blasting_explosives_explanation:
     x_petey_id: '2_4'
     type: string
@@ -3389,7 +3372,7 @@ fields:
       subject: contractor_blasting_explosives_explanation
   contractor_excavation_underground_work_ind:
     x_petey_id: '2_7'
-    type: string
+    type: boolean
     widget:
       page: 2
       rect:
@@ -3397,18 +3380,23 @@ fields:
       - 132.7459716796875
       - 590.2750244140625
       - 146.426025390625
-      widget_type: text
-      path: F[0].P2[0].Text6[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Does any
       operation involve excavation, tunneling, underground work or earth moving?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: contractor_excavation_underground_work
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P2[0].Text6[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:44:46'
   contractor_excavation_underground_work_explanation:
     x_petey_id: '2_6'
     type: string
@@ -3429,7 +3417,7 @@ fields:
       subject: contractor_excavation_underground_work_explanation
   contractor_subcontractors_limits_less_ind:
     x_petey_id: '2_9'
-    type: string
+    type: boolean
     widget:
       page: 2
       rect:
@@ -3437,18 +3425,23 @@ fields:
       - 168.7459716796875
       - 590.2750244140625
       - 182.426025390625
-      widget_type: text
-      path: F[0].P2[0].Text8[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Do subcontractors
       carry coverages or limits less than applicant?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: contractor_subcontractors_limits_less
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P2[0].Text8[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:44:48'
   contractor_subcontractors_limits_less_explanation:
     x_petey_id: '2_8'
     type: string
@@ -3469,7 +3462,7 @@ fields:
       subject: contractor_subcontractors_limits_less_explanation
   contractor_subcontractors_work_without_coi_ind:
     x_petey_id: '2_11'
-    type: string
+    type: boolean
     widget:
       page: 2
       rect:
@@ -3477,18 +3470,23 @@ fields:
       - 204.010009765625
       - 590.2750244140625
       - 217.69000244140625
-      widget_type: text
-      path: F[0].P2[0].Text10[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Are subcontractors
       allowed to work without providing you with a certificate of insurance?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: contractor_subcontractors_work_without_coi
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P2[0].Text10[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:44:51'
   contractor_subcontractors_work_without_coi_explanation:
     x_petey_id: '2_10'
     type: string
@@ -3509,7 +3507,7 @@ fields:
       subject: contractor_subcontractors_work_without_coi_explanation
   contractor_lease_equipment_ind:
     x_petey_id: '2_13'
-    type: string
+    type: boolean
     widget:
       page: 2
       rect:
@@ -3517,18 +3515,23 @@ fields:
       - 240.74700927734375
       - 590.2750244140625
       - 254.427001953125
-      widget_type: text
-      path: F[0].P2[0].Text12[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Does applicant
       lease equipment to others with or without operators?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: contractor_lease_equipment
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P2[0].Text12[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:44:53'
   contractor_lease_equipment_explanation:
     x_petey_id: '2_12'
     type: string
@@ -4137,7 +4140,7 @@ fields:
       grid: p2-G1
   product_install_service_demonstrate_ind:
     x_petey_id: '2_41'
-    type: string
+    type: boolean
     widget:
       page: 2
       rect:
@@ -4145,18 +4148,23 @@ fields:
       - 420.7460021972656
       - 590.2750244140625
       - 434.4259948730469
-      widget_type: text
-      path: F[0].P2[0].Text40[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Does applicant
       install, service or demonstrate products?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: product_install_service_demonstrate
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P2[0].Text40[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:44:57'
   product_install_service_demonstrate_explanation:
     x_petey_id: '2_40'
     type: string
@@ -4177,7 +4185,7 @@ fields:
       subject: product_install_service_demonstrate_explanation
   foreign_products_sold_distributed_used_ind:
     x_petey_id: '2_42'
-    type: string
+    type: boolean
     widget:
       page: 2
       rect:
@@ -4185,21 +4193,26 @@ fields:
       - 450.0
       - 590.2750244140625
       - 463.67999267578125
-      widget_type: text
-      path: F[0].P2[0].Text42[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Foreign
       products, sold, distributed, used as components?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: foreign_products_sold_distributed_used
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P2[0].Text42[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:01'
   product_research_development_conducted_ind:
     x_petey_id: '2_44'
-    type: string
+    type: boolean
     widget:
       page: 2
       rect:
@@ -4207,18 +4220,23 @@ fields:
       - 469.50201416015625
       - 590.2750244140625
       - 483.1820068359375
-      widget_type: text
-      path: F[0].P2[0].Text43[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Research
       and development conducted or new products planned?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: product_research_development_conducted
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P2[0].Text43[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:03'
   product_research_development_conducted_explanation:
     x_petey_id: '2_43'
     type: string
@@ -4239,7 +4257,7 @@ fields:
       subject: product_research_development_conducted_explanation
   product_guarantees_warranties_hold_harmless_ind:
     x_petey_id: '2_46'
-    type: string
+    type: boolean
     widget:
       page: 2
       rect:
@@ -4247,18 +4265,23 @@ fields:
       - 504.0
       - 590.2750244140625
       - 517.6799926757812
-      widget_type: text
-      path: F[0].P2[0].Text45[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Guarantees,
       warrantees, hold harmless agreements?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: product_guarantees_warranties_hold_harmless
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P2[0].Text45[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:05'
   product_guarantees_warranties_hold_harmless_explanation:
     x_petey_id: '2_45'
     type: string
@@ -4279,7 +4302,7 @@ fields:
       subject: product_guarantees_warranties_hold_harmless_explanation
   product_aircraft_space_industry_ind:
     x_petey_id: '2_48'
-    type: string
+    type: boolean
     widget:
       page: 2
       rect:
@@ -4287,18 +4310,23 @@ fields:
       - 542.239013671875
       - 590.2750244140625
       - 555.9190063476562
-      widget_type: text
-      path: F[0].P2[0].Text47[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Products
       related to aircraft/space industry?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: product_aircraft_space_industry
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P2[0].Text47[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:07'
   product_aircraft_space_industry_explanation:
     x_petey_id: '2_47'
     type: string
@@ -4319,7 +4347,7 @@ fields:
       subject: product_aircraft_space_industry_explanation
   product_recalled_discontinued_changed_ind:
     x_petey_id: '2_50'
-    type: string
+    type: boolean
     widget:
       page: 2
       rect:
@@ -4327,18 +4355,23 @@ fields:
       - 577.5020141601562
       - 590.2750244140625
       - 591.1820068359375
-      widget_type: text
-      path: F[0].P2[0].Text49[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Products
       recalled, discontinued, changed?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: product_recalled_discontinued_changed
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P2[0].Text49[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:09'
   product_recalled_discontinued_changed_explanation:
     x_petey_id: '2_49'
     type: string
@@ -4359,7 +4392,7 @@ fields:
       subject: product_recalled_discontinued_changed_explanation
   product_of_others_sold_repackaged_ind:
     x_petey_id: '2_52'
-    type: string
+    type: boolean
     widget:
       page: 2
       rect:
@@ -4367,18 +4400,23 @@ fields:
       - 613.5020141601562
       - 590.2750244140625
       - 627.1820068359375
-      widget_type: text
-      path: F[0].P2[0].Text51[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Products
       of others sold or repackaged under applicant label?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: product_of_others_sold_repackaged
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P2[0].Text51[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:15'
   product_of_others_sold_repackaged_explanation:
     x_petey_id: '2_51'
     type: string
@@ -4399,7 +4437,7 @@ fields:
       subject: product_of_others_sold_repackaged_explanation
   product_under_label_of_others_ind:
     x_petey_id: '2_54'
-    type: string
+    type: boolean
     widget:
       page: 2
       rect:
@@ -4407,18 +4445,23 @@ fields:
       - 649.5020141601562
       - 590.2750244140625
       - 663.1820068359375
-      widget_type: text
-      path: F[0].P2[0].Text53[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Products
       under label of others?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: product_under_label_of_others
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P2[0].Text53[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:18'
   product_under_label_of_others_explanation:
     x_petey_id: '2_53'
     type: string
@@ -4439,7 +4482,7 @@ fields:
       subject: product_under_label_of_others_explanation
   vendors_coverage_required_ind:
     x_petey_id: '2_56'
-    type: string
+    type: boolean
     widget:
       page: 2
       rect:
@@ -4447,18 +4490,23 @@ fields:
       - 685.5020141601562
       - 590.2750244140625
       - 699.1820068359375
-      widget_type: text
-      path: F[0].P2[0].Text55[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Vendors
       coverage required?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: vendors_coverage_required
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P2[0].Text55[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:21'
   vendors_coverage_required_explanation:
     x_petey_id: '2_55'
     type: string
@@ -4479,7 +4527,7 @@ fields:
       subject: vendors_coverage_required_explanation
   named_insured_sell_to_other_named_insured_ind:
     x_petey_id: '2_58'
-    type: string
+    type: boolean
     widget:
       page: 2
       rect:
@@ -4487,18 +4535,23 @@ fields:
       - 723.0050048828125
       - 590.2750244140625
       - 736.6849975585938
-      widget_type: text
-      path: F[0].P2[0].Text57[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Does any
       named insured sell to other named insured?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: named_insured_sell_to_other_named_insured
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P2[0].Text57[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:23'
   named_insured_sell_to_other_named_insured_explanation:
     x_petey_id: '2_57'
     type: string
@@ -4861,7 +4914,7 @@ fields:
       subject: interest_item_desc
   medical_facilities_or_professionals_ind:
     x_petey_id: '3_21'
-    type: string
+    type: boolean
     widget:
       page: 3
       rect:
@@ -4869,18 +4922,23 @@ fields:
       - 165.0050048828125
       - 590.2750244140625
       - 178.68499755859375
-      widget_type: text
-      path: F[0].P3[0].Text18[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Any medical
       facilities provided or medical professionals employed or contracted?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: medical_facilities_or_professionals
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P3[0].Text18[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:32'
   medical_facilities_or_professionals_expl:
     x_petey_id: '3_20'
     type: string
@@ -4901,7 +4959,7 @@ fields:
       subject: medical_facilities_or_professionals_expl
   radioactive_nuclear_exposure_ind:
     x_petey_id: '3_23'
-    type: string
+    type: boolean
     widget:
       page: 3
       rect:
@@ -4909,18 +4967,23 @@ fields:
       - 207.7509765625
       - 590.2750244140625
       - 221.4310302734375
-      widget_type: text
-      path: F[0].P3[0].Text20[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Any exposure
       to radioactive/nuclear materials?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: radioactive_nuclear_exposure
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P3[0].Text20[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:34'
   radioactive_nuclear_exposure_expl:
     x_petey_id: '3_22'
     type: string
@@ -4941,7 +5004,7 @@ fields:
       subject: radioactive_nuclear_exposure_expl
   hazardous_material_operations_ind:
     x_petey_id: '3_25'
-    type: string
+    type: boolean
     widget:
       page: 3
       rect:
@@ -4949,19 +5012,24 @@ fields:
       - 256.50701904296875
       - 590.2750244140625
       - 270.18701171875
-      widget_type: text
-      path: F[0].P3[0].Text22[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Do/have
       past, present or discontinued operations involve(d) storing, treating, discharging,
       applying, disposing, or transporting of hazardous material?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: hazardous_material_operations
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P3[0].Text22[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:36'
   hazardous_material_operations_expl:
     x_petey_id: '3_24'
     type: string
@@ -4982,7 +5050,7 @@ fields:
       subject: hazardous_material_operations_expl
   operations_sold_acquired_discontinued_ind:
     x_petey_id: '3_27'
-    type: string
+    type: boolean
     widget:
       page: 3
       rect:
@@ -4990,18 +5058,23 @@ fields:
       - 297.7510070800781
       - 590.2750244140625
       - 311.4309997558594
-      widget_type: text
-      path: F[0].P3[0].Text24[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Any operations
       sold, acquired or discontinued in the last specified number of years?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: operations_sold_acquired_discontinued
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P3[0].Text24[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:38'
   operations_sold_acquired_discontinued_expl:
     x_petey_id: '3_26'
     type: string
@@ -5022,7 +5095,7 @@ fields:
       subject: operations_sold_acquired_discontinued_expl
   machinery_equipment_loaned_rented_ind:
     x_petey_id: '3_29'
-    type: string
+    type: boolean
     widget:
       page: 3
       rect:
@@ -5030,18 +5103,23 @@ fields:
       - 342.0
       - 590.2750244140625
       - 355.67999267578125
-      widget_type: text
-      path: F[0].P3[0].Text26[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Machinery
       or equipment loaned or rented to others?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: machinery_equipment_loaned_rented
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P3[0].Text26[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:44'
   machinery_equipment_loaned_rented_expl:
     x_petey_id: '3_28'
     type: string
@@ -5062,7 +5140,7 @@ fields:
       subject: machinery_equipment_loaned_rented_expl
   watercraft_docks_floats_ind:
     x_petey_id: '3_31'
-    type: string
+    type: boolean
     widget:
       page: 3
       rect:
@@ -5070,18 +5148,23 @@ fields:
       - 378.73699951171875
       - 590.2750244140625
       - 392.4169921875
-      widget_type: text
-      path: F[0].P3[0].Text28[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Any watercraft,
       docks, floats owned, hired or leased?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: watercraft_docks_floats
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P3[0].Text28[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:46'
   watercraft_docks_floats_expl:
     x_petey_id: '3_30'
     type: string
@@ -5102,7 +5185,7 @@ fields:
       subject: watercraft_docks_floats_expl
   parking_facilities_owned_rented_ind:
     x_petey_id: '3_33'
-    type: string
+    type: boolean
     widget:
       page: 3
       rect:
@@ -5110,18 +5193,23 @@ fields:
       - 415.50201416015625
       - 590.2750244140625
       - 429.1820068359375
-      widget_type: text
-      path: F[0].P3[0].Text30[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Any parking
       facilities owned/rented?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: parking_facilities_owned_rented
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P3[0].Text30[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:49'
   parking_facilities_owned_rented_expl:
     x_petey_id: '3_32'
     type: string
@@ -5142,7 +5230,7 @@ fields:
       subject: parking_facilities_owned_rented_expl
   parking_fee_charged_ind:
     x_petey_id: '3_35'
-    type: string
+    type: boolean
     widget:
       page: 3
       rect:
@@ -5150,18 +5238,23 @@ fields:
       - 451.50201416015625
       - 590.2750244140625
       - 465.1820068359375
-      widget_type: text
-      path: F[0].P3[0].Text32[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Is a fee
       charged for parking?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: parking_fee_charged
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P3[0].Text32[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:51'
   parking_fee_charged_expl:
     x_petey_id: '3_34'
     type: string
@@ -5182,7 +5275,7 @@ fields:
       subject: parking_fee_charged_expl
   recreation_facilities_provided_ind:
     x_petey_id: '3_37'
-    type: string
+    type: boolean
     widget:
       page: 3
       rect:
@@ -5190,18 +5283,23 @@ fields:
       - 486.0
       - 590.2750244140625
       - 499.67999267578125
-      widget_type: text
-      path: F[0].P3[0].Text34[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Recreation
       facilities provided?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: recreation_facilities_provided
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P3[0].Text34[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:53'
   recreation_facilities_provided_expl:
     x_petey_id: '3_36'
     type: string
@@ -5222,7 +5320,7 @@ fields:
       subject: recreation_facilities_provided_expl
   swimming_pool_on_premises_ind:
     x_petey_id: '3_39'
-    type: string
+    type: boolean
     widget:
       page: 3
       rect:
@@ -5230,18 +5328,23 @@ fields:
       - 523.5020141601562
       - 590.2750244140625
       - 537.1820068359375
-      widget_type: text
-      path: F[0].P3[0].Text36[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Is there
       a swimming pool on the premises?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: swimming_pool_on_premises
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P3[0].Text36[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:56'
   swimming_pool_on_premises_expl:
     x_petey_id: '3_38'
     type: string
@@ -5262,7 +5365,7 @@ fields:
       subject: swimming_pool_on_premises_expl
   sporting_social_events_sponsored_ind:
     x_petey_id: '3_41'
-    type: string
+    type: boolean
     widget:
       page: 3
       rect:
@@ -5270,18 +5373,23 @@ fields:
       - 561.0050048828125
       - 590.2750244140625
       - 574.6849975585938
-      widget_type: text
-      path: F[0].P3[0].Text38[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Sporting
       or social events sponsored?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: sporting_social_events_sponsored
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P3[0].Text38[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:45:58'
   sporting_social_events_sponsored_expl:
     x_petey_id: '3_40'
     type: string
@@ -5302,7 +5410,7 @@ fields:
       subject: sporting_social_events_sponsored_expl
   structural_alterations_contemplated_ind:
     x_petey_id: '3_43'
-    type: string
+    type: boolean
     widget:
       page: 3
       rect:
@@ -5310,18 +5418,23 @@ fields:
       - 597.0050048828125
       - 590.2750244140625
       - 610.6849975585938
-      widget_type: text
-      path: F[0].P3[0].Text40[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Any structural
       alterations contemplated?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: structural_alterations_contemplated
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P3[0].Text40[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:46:00'
   structural_alterations_contemplated_expl:
     x_petey_id: '3_42'
     type: string
@@ -5342,7 +5455,7 @@ fields:
       subject: structural_alterations_contemplated_expl
   demolition_exposure_contemplated_ind:
     x_petey_id: '3_45'
-    type: string
+    type: boolean
     widget:
       page: 3
       rect:
@@ -5350,18 +5463,23 @@ fields:
       - 630.7369995117188
       - 590.2750244140625
       - 644.4169921875
-      widget_type: text
-      path: F[0].P3[0].Text42[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Any demolition
       exposure contemplated?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: demolition_exposure_contemplated
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P3[0].Text42[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:46:03'
   demolition_exposure_contemplated_expl:
     x_petey_id: '3_44'
     type: string
@@ -5382,7 +5500,7 @@ fields:
       subject: demolition_exposure_contemplated_expl
   active_in_joint_ventures_ind:
     x_petey_id: '3_47'
-    type: string
+    type: boolean
     widget:
       page: 3
       rect:
@@ -5390,18 +5508,23 @@ fields:
       - 666.7369995117188
       - 590.2750244140625
       - 680.4169921875
-      widget_type: text
-      path: F[0].P3[0].Text44[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Has applicant
       been active in or is currently active in joint ventures?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: active_in_joint_ventures
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P3[0].Text44[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:46:06'
   active_in_joint_ventures_expl:
     x_petey_id: '3_46'
     type: string
@@ -5422,7 +5545,7 @@ fields:
       subject: active_in_joint_ventures_expl
   lease_employees_ind:
     x_petey_id: '3_49'
-    type: string
+    type: boolean
     widget:
       page: 3
       rect:
@@ -5430,18 +5553,23 @@ fields:
       - 700.4979858398438
       - 590.2750244140625
       - 714.177978515625
-      widget_type: text
-      path: F[0].P3[0].Text46[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Do you
       lease employees to or from other employers?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: lease_employees
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P3[0].Text46[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:46:09'
   lease_employees_expl:
     x_petey_id: '3_48'
     type: string
@@ -5481,7 +5609,7 @@ fields:
       iteration: '4'
   labor_interchange_ind:
     x_petey_id: '4_3'
-    type: string
+    type: boolean
     widget:
       page: 4
       rect:
@@ -5489,18 +5617,23 @@ fields:
       - 61.511962890625
       - 590.2579956054688
       - 75.1920166015625
-      widget_type: text
-      path: F[0].P4[0].Text2[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Is there
       a labor interchange with any other business or subsidiaries?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: labor_interchange
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P4[0].Text2[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:46:16'
   labor_interchange_explanation:
     x_petey_id: '4_2'
     type: string
@@ -5521,7 +5654,7 @@ fields:
       subject: labor_interchange_explanation
   day_care_facilities_operated_or_controlled_ind:
     x_petey_id: '4_5'
-    type: string
+    type: boolean
     widget:
       page: 4
       rect:
@@ -5529,18 +5662,23 @@ fields:
       - 96.009033203125
       - 590.2579956054688
       - 109.68896484375
-      widget_type: text
-      path: F[0].P4[0].Text4[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Are day
       care facilities operated or controlled?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: day_care_facilities_operated_or_controlled
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P4[0].Text4[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:46:18'
   day_care_facilities_operated_or_controlled_explanation:
     x_petey_id: '4_4'
     type: string
@@ -5561,7 +5699,7 @@ fields:
       subject: day_care_facilities_operated_or_controlled_explanation
   crimes_occurred_on_premises_ind:
     x_petey_id: '4_7'
-    type: string
+    type: boolean
     widget:
       page: 4
       rect:
@@ -5569,19 +5707,24 @@ fields:
       - 134.2490234375
       - 590.2579956054688
       - 147.92901611328125
-      widget_type: text
-      path: F[0].P4[0].Text6[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Have any
       crimes occurred or been attempted on your premises within the last specified
       number of years?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: crimes_occurred_on_premises
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P4[0].Text6[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:46:21'
   crimes_occurred_on_premises_explanation:
     x_petey_id: '4_6'
     type: string
@@ -5602,7 +5745,7 @@ fields:
       subject: crimes_occurred_on_premises_explanation
   written_safety_and_security_policy_ind:
     x_petey_id: '4_9'
-    type: string
+    type: boolean
     widget:
       page: 4
       rect:
@@ -5610,18 +5753,23 @@ fields:
       - 168.7459716796875
       - 590.2579956054688
       - 182.426025390625
-      widget_type: text
-      path: F[0].P4[0].Text8[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Is there
       a formal, written safety and security policy in effect?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: written_safety_and_security_policy
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P4[0].Text8[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:46:22'
   written_safety_and_security_policy_explanation:
     x_petey_id: '4_8'
     type: string
@@ -5642,7 +5790,7 @@ fields:
       subject: written_safety_and_security_policy_explanation
   promotional_literature_safety_representation_ind:
     x_petey_id: '4_11'
-    type: string
+    type: boolean
     widget:
       page: 4
       rect:
@@ -5650,19 +5798,24 @@ fields:
       - 201.74200439453125
       - 590.2579956054688
       - 215.4219970703125
-      widget_type: text
-      path: F[0].P4[0].Text10[0]
+      widget_type: checkbox
+      path: null
     description: Input N for “No” response. The response to the question, "Does the
       business' promotional literature make any representation about the safety or
       security of the premises?".
     x_petey_description_source: tooltip
     label_source: llm
-    pattern: ^[YN]$
     x_petey_retype:
     - yn
     x_petey_identifiers:
       subject: promotional_literature_safety_representation
       suffix: ind
+    semantic_type: indicator
+    x_petey_kind_edit:
+      path: F[0].P4[0].Text10[0]
+      widget_type: text
+      from: text
+      when: '2026-11-02 22:46:25'
   promotional_literature_safety_representation_explanation:
     x_petey_id: '4_10'
     type: string

@@ -406,40 +406,45 @@ fields:
     x_petey_identifiers:
       subject: surface_owner_zip
       suffix: cd
-  notice_provided_occupied_dwelling_within_1320_feet_ind:
-    x_petey_id: '1_16'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 151.70899963378906
-      - 241.5679931640625
-      - 165.52499389648438
-      - 253.52301025390625
-      widget_type: checkbox
-      path: Check Box1
-    label_source: llm
+  group_p1:
+    x_petey_id: '1_97'
+    type: category
+    values:
+    - notice_provided_occupied_dwelling_within_1320_feet_ind
+    - well_not_within_500_feet_occupied_dwelling_ind
+    widgets:
+      notice_provided_occupied_dwelling_within_1320_feet_ind:
+        page: 1
+        rect:
+        - 151.70899963378906
+        - 241.5679931640625
+        - 165.52499389648438
+        - 253.52301025390625
+        widget_type: checkbox
+        path: Check Box1
+        on_state: 'Yes'
+        caption: permanently occupied dwelling within 1,320 feet
+        x_petey_caption_source: page_text
+      well_not_within_500_feet_occupied_dwelling_ind:
+        page: 1
+        rect:
+        - 389.5369873046875
+        - 241.4429931640625
+        - 402.62799072265625
+        - 252.43902587890625
+        widget_type: checkbox
+        path: Check Box2
+        on_state: 'Yes'
+        caption: feet of an occupied dwelling
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 15:58:26'
+      from:
+      - notice_provided_occupied_dwelling_within_1320_feet_ind
+      - well_not_within_500_feet_occupied_dwelling_ind
     x_petey_identifiers:
-      subject: notice_provided_occupied_dwelling_within_1320_feet
-      suffix: ind
-  well_not_within_500_feet_occupied_dwelling_ind:
-    x_petey_id: '1_17'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 389.5369873046875
-      - 241.4429931640625
-      - 402.62799072265625
-      - 252.43902587890625
-      widget_type: checkbox
-      path: Check Box2
-    label_source: llm
-    x_petey_identifiers:
-      subject: well_not_within_500_feet_occupied_dwelling
-      suffix: ind
+      subject: group_p1
   well_nm:
     x_petey_id: '1_18'
     type: string
@@ -2585,6 +2590,33 @@ fields:
     x_petey_identifiers:
       subject: signatory_title
       suffix: txt
+  signature:
+    x_petey_id: '1_98'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 24.96
+      - 604.32
+      - 210.72
+      - 620.64
+      widget_type: text
+      path: null
+    x_petey_printed:
+      source: field_add
+      when: '2026-11-01 15:58:29'
+    label_source: classifier_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-11-01 15:58:29'
+      geometry: finder
+      name_from: classifier caption
+      caption: Signature
+      page_class: signature
+      entity: applicant
+      finder: step2flat-3
+    x_petey_identifiers:
+      subject: signature
   email_address_txt:
     x_petey_id: '1_88'
     type: string
@@ -2603,6 +2635,199 @@ fields:
     x_petey_identifiers:
       subject: email_address
       suffix: txt
+  api_number:
+    x_petey_id: '1_89'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 168.48
+      - 669.12
+      - 321.12
+      - 689.76
+      widget_type: text
+      path: null
+    label_source: classifier_caption
+    x_petey_added:
+      source: office_sweep
+      when: '2026-11-01 13:49:03'
+      geometry: 'finder; office sweep: candidate finder'
+      name_from: classifier caption
+      caption: API Number
+      page_class: other_id
+      finder: step2flat-3
+      sweep: office_use_2026-11-01
+    x_petey_identifiers:
+      subject: api_number
+  permit_file_number:
+    x_petey_id: '1_90'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 24.96
+      - 677.76
+      - 166.56
+      - 689.76
+      widget_type: text
+      path: null
+    label_source: classifier_caption
+    x_petey_added:
+      source: office_sweep
+      when: '2026-11-01 13:49:03'
+      geometry: 'finder; office sweep: candidate finder'
+      name_from: classifier caption
+      caption: Permit and File Number
+      page_class: other_id
+      finder: step2flat-3
+      sweep: office_use_2026-11-01
+    x_petey_identifiers:
+      subject: permit_file_number
+  date_approved:
+    x_petey_id: '1_91'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 345.12
+      - 679.68
+      - 586.08
+      - 689.76
+      widget_type: text
+      path: null
+    label_source: classifier_caption
+    x_petey_added:
+      source: office_sweep
+      when: '2026-11-01 13:49:03'
+      geometry: 'finder; office sweep: candidate finder'
+      name_from: classifier caption
+      caption: Date Approved
+      page_class: date
+      finder: step2flat-3
+      sweep: office_use_2026-11-01
+    x_petey_identifiers:
+      subject: date_approved
+  field:
+    x_petey_id: '1_92'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 24.96
+      - 700.8
+      - 321.12
+      - 712.8
+      widget_type: text
+      path: null
+    label_source: classifier_caption
+    x_petey_added:
+      source: office_sweep
+      when: '2026-11-01 13:49:03'
+      geometry: 'finder; office sweep: candidate finder'
+      name_from: classifier caption
+      caption: Field
+      page_class: other
+      finder: step2flat-3
+      sweep: office_use_2026-11-01
+    x_petey_identifiers:
+      subject: field
+  by:
+    x_petey_id: '1_93'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 345.12
+      - 702.72
+      - 586.08
+      - 712.8
+      widget_type: text
+      path: null
+    label_source: classifier_caption
+    x_petey_added:
+      source: office_sweep
+      when: '2026-11-01 13:49:03'
+      geometry: 'finder; office sweep: candidate finder'
+      name_from: classifier caption
+      caption: By
+      page_class: full_name
+      finder: step2flat-3
+      sweep: office_use_2026-11-01
+    x_petey_identifiers:
+      subject: by
+  pool:
+    x_petey_id: '1_94'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 168.48
+      - 715.2
+      - 321.12
+      - 735.84
+      widget_type: text
+      path: null
+    label_source: classifier_caption
+    x_petey_added:
+      source: office_sweep
+      when: '2026-11-01 13:49:03'
+      geometry: 'finder; office sweep: candidate finder'
+      name_from: classifier caption
+      caption: Pool
+      page_class: other
+      finder: step2flat-3
+      sweep: office_use_2026-11-01
+    x_petey_identifiers:
+      subject: pool
+  permit:
+    x_petey_id: '1_95'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 24.96
+      - 723.36
+      - 166.56
+      - 735.84
+      widget_type: text
+      path: null
+    label_source: classifier_caption
+    x_petey_added:
+      source: office_sweep
+      when: '2026-11-01 13:49:03'
+      geometry: 'finder; office sweep: candidate finder'
+      name_from: classifier caption
+      caption: Permit Type
+      page_class: other
+      finder: step2flat-3
+      sweep: office_use_2026-11-01
+    x_petey_identifiers:
+      subject: permit
+  title:
+    x_petey_id: '1_96'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 345.12
+      - 723.36
+      - 586.08
+      - 735.84
+      widget_type: text
+      path: null
+    label_source: classifier_caption
+    x_petey_added:
+      source: office_sweep
+      when: '2026-11-01 13:49:03'
+      geometry: 'finder; office sweep: candidate finder'
+      name_from: classifier caption
+      caption: Title
+      page_class: title
+      finder: step2flat-3
+      sweep: office_use_2026-11-01
+    x_petey_identifiers:
+      subject: title
 x_petey_dropped_widgets:
   count: 3
   widgets:
