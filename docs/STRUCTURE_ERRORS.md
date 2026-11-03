@@ -379,6 +379,25 @@ From the lockstep test (2026-10-27): when a block's two columns have boxes of on
 more copies of the left (Name <-> Company) and the caption check then drops both. Seen only in a synthetic page so far;
 sd_3867602's columns differ in width (258 / 175 pt).
 
+### Scoring: a small box drawn a few points off is a miss (2026-11-02)
+
+[bm__pb_c6b25015e629](http://localhost:5005/#review/bm__pb_c6b25015e629/19) p1, field 19 (p1_o1, Side of Highway
+N / S / E / W). Claude Opus 5 (box prompt, the 40-page VLM test) drew the N box at 409-420 pt across; the printed box
+and the key's are at 405-416. A 3 pt shift on a 10 pt box fails every match test by a hair: overlap 0.43 (< 0.5), 73%
+inside (< 80%), just under half the joint width shared. No other box within 30 pt, so the box meant is clear; the same
+model's first-prompt run drew it slightly differently and passed. Possible rule, not built: two boxes match when each
+one's centre lies inside the other. One case so far; watch for more before changing the scorer.
+
+### Scoring: one part of a value, left ungrouped, counts as the whole value (2026-11-02)
+
+[lib__cra_t2_sch_50](http://localhost:5005/#review/lib__cra_t2_sch_50/1_3) p1, field 1_3 (tax_year_end_dt, Tax
+year-end Year / Month / Day, one key field over the whole box). The light path found three boxes but grouped only
+Month and Day: its Year box alone (half the date's width, overlap 0.47) matches the whole date by the same-line rule,
+and the Month + Day pair counts as a false find. Plain iou only applies when one side is a group of two or more
+fields; a part left on its own still gets the looser rules. Possible rule, not built: a found single field that shares
+the key answer's box with other found fields matches by plain overlap. Claude Opus 5 grouped all three and matched
+(0.92). One case so far.
+
 ## Fixed
 
 ### bm__sd_3856391 BT2-2: a copy set tighter missed by detect

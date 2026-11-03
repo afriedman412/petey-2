@@ -14,7 +14,11 @@ combining splits"; not blocks or grids):
                       (signatures, initials, printed names; 2026-10-31) are text answers of their own type. Values graded whole
                       (2026-10-29): found and key fields match when their boxes (around all their parts) overlap by
                       `IOU` or more (intersection over union), one to one, best overlaps first, whatever their kind;
-                      so a comb, a date in three boxes and one box over the whole date are the same answer
+                      so a comb, a date in three boxes and one box over the whole date are the same answer. Short of
+                      that, they still match when one box sits mostly inside the other or the two share a line with
+                      half their width in common (2026-11-02, question 15: a text field's height, and which side of a
+                      caption inside its box it takes, are arbitrary on a flat page); the plain overlap count is
+                      reported alongside
     typed right       text / choice / printed right, of the fields found; and a line a type, found and typed it
                       end to end (precision over the system's fields of that type, recall over the key's)
     grouped           option groups: pairs of the key's choice boxes found as choice boxes, grouped alike or not
@@ -49,9 +53,36 @@ def iou(a, b) -> float:
     return inter / (area(a) + area(b) - inter)
 
 
-def match(keys: dict[str, list], found: dict[str, list], at: float) -> dict[str, str]:
-    """{found id: key id}, one to one, best overlaps first, overlap >= `at`."""
-    pairs = sorted(((iou(fr, kr), f, k) for f, fr in found.items() for k, kr in keys.items()
+def _inside(a, b) -> bool:
+    """Most (80%) of the smaller box inside the larger, the smaller at least a fifth of the larger."""
+    inter = max(0.0, min(a[2], b[2]) - max(a[0], b[0])) * max(0.0, min(a[3], b[3]) - max(a[1], b[1]))
+    area = lambda r: max(0.0, r[2] - r[0]) * max(0.0, r[3] - r[1])  # noqa: E731
+    s, big = sorted((area(a), area(b)))
+    return s > 0 and inter / s >= 0.8 and s / big >= 0.2
+
+
+def _same_line(a, b) -> bool:
+    """Half their joint width shared, and each box's middle inside the other's height."""
+    w = max(0.0, min(a[2], b[2]) - max(a[0], b[0])) / max(max(a[2], b[2]) - min(a[0], b[0]), 1e-9)
+    ma, mb = (a[1] + a[3]) / 2, (b[1] + b[3]) / 2
+    return w >= 0.5 and (b[1] <= ma <= b[3] or a[1] <= mb <= a[3])
+
+
+def overlap(a, b, at: float = IOU, loose: bool = True) -> float:
+    """`iou`, or `at` (a match, ranked below every true overlap match) when the boxes fall short of `at` but one sits
+    mostly inside the other or they share a line (2026-11-02, question 15: a text field's height and the side of a
+    caption it is drawn on are arbitrary on a flat page)."""
+    v = iou(a, b)
+    return at if loose and v < at and (_inside(a, b) or _same_line(a, b)) else v
+
+
+def match(keys: dict[str, list], found: dict[str, list], at: float, loose: bool = True,
+          whole: tuple = ((), ())) -> dict[str, str]:
+    """{found id: key id}, one to one, best overlaps first, `overlap` >= `at` (`loose=False`: plain iou). Values made
+    of several fields (`whole`: the key's, the system's) match by plain iou only: one part of a date inside the
+    date's area, or two answers joined over one, is not the value."""
+    pairs = sorted(((overlap(fr, kr, at, loose and k not in whole[0] and f not in whole[1]), f, k)
+                    for f, fr in found.items() for k, kr in keys.items()
                     if fr[0] < kr[2] and kr[0] < fr[2] and fr[1] < kr[3] and kr[1] < fr[3]), reverse=True)
     out, used = {}, set()
     for v, f, k in pairs:
@@ -100,8 +131,11 @@ def score_page(key: dict, pred: Optional[dict], at: float = IOU) -> collections.
     p_units = {**p_vals, **{f: r for f, r in p_rect.items() if p_kind[f] == "choice"}}
     k_ukind = _unit_kinds(k_units, k_vals, k_unit, k_kind)
     p_ukind = _unit_kinds(p_units, p_vals, p_unit, p_kind)
-    m = match(k_units, p_units, at)                     # found unit -> key unit
+    whole = tuple({u for u, n in collections.Counter(un[f] for f in kd if kd[f] != "choice").items() if n >= 2}
+                  for un, kd in ((k_unit, k_kind), (p_unit, p_kind)))          # values of two or more fields
+    m = match(k_units, p_units, at, whole=whole)                    # found unit -> key unit
     c["found_key"], c["found_found"], c["found_hit"] = len(k_units), len(p_units), len(m)
+    c["found_hit_iou"] = len(match(k_units, p_units, at, loose=False))   # plain overlap, reported alongside
     c["kind_right"] = sum(p_ukind[f] == k_ukind[k] for f, k in m.items())
     for t in KINDS:
         c[f"type_{t}_key"] = sum(v == t for v in k_ukind.values())
@@ -161,6 +195,7 @@ def _pr(tp: int, found: int, key: int) -> str:
 def report(c: collections.Counter) -> list[str]:
     tp = c["group_tp"]
     return [f"  fields found      {_pr(c['found_hit'], c['found_found'], c['found_key'])}   ({c['found_key']} in the key)",
+            f"    plain overlap   {_pr(c['found_hit_iou'], c['found_found'], c['found_key'])}",
             f"  typed right       {c['kind_right'] / max(c['found_hit'], 1):6.1%} of those found",
             *(f"    {t:15} {_pr(c[f'type_{t}_hit'], c[f'type_{t}_found'], c[f'type_{t}_key'])}   "
               f"({c[f'type_{t}_key']} in the key)" for t in KINDS),

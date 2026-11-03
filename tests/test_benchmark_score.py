@@ -75,6 +75,26 @@ class TestScore:
                        for f in p["fields"]]
         assert S.score_page(k, p)["found_hit"] == 5
 
+    def test_a_text_box_on_the_line_matches_a_taller_key_box(self):
+        """2026-11-02, question 15: a text field's height is arbitrary; the band on the line (overlap 0.42) is the
+        answer, and the plain overlap count is kept alongside."""
+        k = {"fields": [{"id": "a", "rect": [100, 100, 300, 124], "kind": "text"}], "groups": []}
+        p = {"fields": [{"id": "a", "rect": [100, 114, 300, 124], "kind": "text"}], "groups": []}
+        c = S.score_page(k, p)
+        assert c["found_hit"] == 1 and c["found_hit_iou"] == 0
+
+    def test_either_way_around_a_caption_in_the_box_matches(self):
+        """A caption in a drawn box's top-left corner: the band below it or the band beside it are both the answer."""
+        k = {"fields": [{"id": "a", "rect": [0, 0, 50, 30], "kind": "text"}], "groups": []}
+        for band in ([0, 10, 50, 30], [38, 0, 50, 30]):
+            p = {"fields": [{"id": "b", "rect": band, "kind": "text"}], "groups": []}
+            assert S.score_page(k, p)["found_hit"] == 1
+
+    def test_a_box_on_another_line_does_not_match(self):
+        k = {"fields": [{"id": "a", "rect": [100, 100, 300, 112], "kind": "text"}], "groups": []}
+        p = {"fields": [{"id": "b", "rect": [100, 108, 300, 132], "kind": "text"}], "groups": []}
+        assert S.score_page(k, p)["found_hit"] == 0
+
     def test_no_prediction_scores_zero(self):
         c = S.score_page(_page(), None)
         assert c["found_hit"] == 0 and c["found_key"] == 5 and c["split_key"] == 1
