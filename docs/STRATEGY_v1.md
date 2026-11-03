@@ -1,7 +1,7 @@
 # Strategy v1 — building and validating blueprints across the three routes
 
 Draft 2026-09-28. Task 3 of PLAN.md. Structure and integration only; optimization and the error taxonomy come later.
-Everything here is built on what already runs (`docs/PORT_PLAN_v2.md`) plus identity (`petey/identify.py`, registry)
+Everything here is built on what already runs (`docs/PORT_PLAN_v2.md`, removed 2026-11-01, in git at b8c566d) plus identity (`petey/identify.py`, registry)
 and geometry (`petey/locate/`).
 
 ## 1. Premise: the routes are stage sources, not pipelines

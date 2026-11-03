@@ -6,8 +6,8 @@ description: Write a handoff doc for the current chat (docs/HANDOFF_<date>.md) s
 # Handoff doc for the current chat
 
 The doc is for whoever picks the work up next: a fresh Claude session with no memory of this chat, or Andrew coming
-back days later. It must stand on its own. Model it on `docs/HANDOFF_2026-10-26.md`: state first, then what changed
-in plain words, then numbers, then what is open.
+back days later. It must stand on its own: state first, then what changed in plain words, then numbers, then what is open (old
+handoffs were removed 2026-11-01; `git show c2112f7:docs/HANDOFF_2026-10-26.md` is a good example).
 
 ## 1. Gather the facts (read-only)
 
@@ -23,7 +23,7 @@ Don't write from memory of the chat alone. Early parts may have been summarized 
 - **Left running or left behind:** background tasks, test servers (`lsof -nP -iTCP -sTCP:LISTEN | grep -i python`),
   drafts or records this chat created under `runs/` (test copies discarded? backups restored?), scratch files that
   matter, and caches that went stale ([[feedback-track-caches]]).
-- **The previous handoff** (`ls docs/HANDOFF_*`) and the RESUME HERE memory: say what this doc supersedes.
+- **The previous handoff** (`ls docs/HANDOFF_*`, if any) and the RESUME HERE memory: say what this doc supersedes.
 
 ## 2. Write `docs/HANDOFF_<YYYY-MM-DD>.md`
 
