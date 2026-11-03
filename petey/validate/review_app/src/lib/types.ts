@@ -19,6 +19,8 @@ export interface Entry {
   flagged: number;
   draft?: Draft | null;
   checked?: Checked | null;
+  // fields awaiting a verdict on a form once fully checked (a sweep or an edit added them; 2026-11-02)
+  new_fields?: number | null;
   // "accept structure" (2026-10-31): fields, kinds, groups, grids and blocks right, names not looked at
   structure?: Structure | null;
   age?: { when?: string; by?: string } | null;

@@ -383,6 +383,17 @@ def unstamp_structure(bid: str) -> None:
             _write_verdicts(bid, rec)
 
 
+def new_to_check(v: dict, p: Path, bp: dict) -> Optional[int]:
+    """How many fields await a verdict on a form that was once fully checked (Andrew, 2026-11-02: "is there a way for
+    me to know what needs to be revisited?"): a sweep or an edit added or renamed fields after every field had its
+    verdict. None when the form was never fully checked, or is fully checked now."""
+    if not (v.get("checked") or v.get("was_checked")) or checked(v, p, bp):
+        return None
+    vs = v.get("verdicts") or {}
+    n = sum(1 for name in reviewable(bp) if not vs.get(name, {}).get("verdict"))
+    return n or None
+
+
 def _git(*args: str, cwd: Path = BLUEPRINTS.parent) -> str:
     try:
         return subprocess.run(["git", *args], capture_output=True, text=True, cwd=cwd, timeout=10).stdout.strip()
@@ -516,6 +527,7 @@ class State:
                 "flagged": sum(1 for n in fields if vs.get(n, {}).get("verdict") == "flag"),
                 "stale": bool(v) and v.get("blueprint_sha") != _sha(p),
                 "checked": checked(v, p, bp), "structure": structure(v, p),
+                "new_fields": new_to_check(v, p, bp),
                 "finder": (bp.get("x_petey_build") or {}).get("finder"),
                 "age": age(real, bp, self._git_here, self._git_origin),
                 # a library form run again through the current code (scripts/run_form.sh, form_run.py): the picker
@@ -665,6 +677,9 @@ class State:
             out["checked"] = (prev if prev.get("blueprint_sha") == sha else
                               {"when": now, "blueprint_sha": sha})
             out["checked"].update(fields=len(names), flagged=sum(1 for n in names if vs[n]["verdict"] == "flag"))
+        elif cur.get("checked") or cur.get("was_checked"):
+            # once fully checked, remembered through saves of a form with new fields (`new_to_check`)
+            out["was_checked"] = {"when": (cur.get("checked") or cur.get("was_checked") or {}).get("when")}
         OUT.mkdir(parents=True, exist_ok=True)
         _write_verdicts(bid, out)
         if self._index:

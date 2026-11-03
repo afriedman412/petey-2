@@ -180,6 +180,10 @@ Fields that exist but are drawn wrong (2026-10-28, Andrew; not looked into yet).
 - [fin__pb_9dec7f6d42d5](http://localhost:5005/#review/fin__pb_9dec7f6d42d5) page 2 (2026-10-29): "issues with text
   field identification, not a huge problem". Andrew keeps it as the test case if he takes up how precise field
   locations must be for the benchmark (BENCHMARK_JUDGEMENT_QS 15).
+- [fin__pb_9dec7f6d42d5](http://localhost:5005/#review/fin__pb_9dec7f6d42d5) page 1 (2026-10-31): "might have issues
+  with identifying fields where there are two lines within one field (text)". One text field printed over two ruled
+  lines: the reverse of BENCHMARK_JUDGEMENT_QS 1 (one line holding several fields). Cf. split lines being fine as
+  x_line_1..N (2026-10-22), which is about naming, not finding.
 
 ### Fields missing from the blueprint
 
@@ -311,6 +315,76 @@ More of the kind of bm__sd_537564 p1_o1 below (2026-10-27, Andrew; not looked in
   split (a55cacf) then sees too few repeated captions and cuts the columns 2 + 4 only. Proposed then, not made: take a
   word that starts inside the box and runs past its edge. Fixed by hand on the page.
 
+### Option groups that are right though far apart (keep)
+
+Correct groups that a distance or layout rule would cut; any fix for the groups above must leave them whole.
+
+- [je__i_130a spouse_beneficiary (3_26)](http://localhost:5005/#groups/je__i_130a/spouse_beneficiary) (2026-11-01,
+  Andrew: "this is correct, it's one question split across two columns of a single page"). Part 4 item 1.A ("I can
+  read English", bottom of the left column, y 715) and 1.B ("used an interpreter", top of the right column, y 55):
+  one either-or question, its two boxes about 660 pt apart.
+
+### Option groups down a column (looked at 2026-10-31)
+
+Boxes stacked in one column joined into a group where the page asks a question per row, or one question across the
+columns. Andrew found [mg__pb_4062425c1219 fields 123-126](http://localhost:5005/#review/mg__pb_4062425c1219/123)
+(page 3, a 5 x 4 table, weight class down the side, Lift / Carry / Push / Pull across: each column one group); no
+check caught it (no grid drawn over it, boxes uncaptioned, gaps small). Likely cause: the light path's stacked-box
+joins (`cell_groups` with stacks on, via `cheap_groups.code_groups`, left edges within 6 pt, gap under 30 pt).
+
+Search (read-only, all forms' working copies): two or more groups side by side, each one column on 2+ lines, their
+boxes on the same lines: 534 places on 331 forms, mostly ordinary side-by-side questions. Narrowed to boxes with no
+caption of their own (80%+): 54 on 24 forms; 24 of their 28 pages looked at. Script: session scratchpad
+`lattice.py` + caption filter. Only bm__sd_245318 was validated; the rest never opened. Five kinds:
+
+- **Digit boxes taken as checkboxes and grouped by column** (the kind is wrong, not only the group): the Florida
+  F-1120 / DR-601G amount and FEIN cells. [bm__pb_4c0669d5f280](http://localhost:5005/#review/bm__pb_4c0669d5f280/22)
+  pages 1-2, [bm__pb_dc1b6bf60e40](http://localhost:5005/#review/bm__pb_dc1b6bf60e40/2),
+  [bm__pb_ddda72e56300](http://localhost:5005/#review/bm__pb_ddda72e56300/77).
+- **A table grouped by column** (as mg__pb_4062425c1219): [bm__sd_5915873](http://localhost:5005/#review/bm__sd_5915873/28),
+  13 groups on pages 1-4 (pages 3-4 not looked at).
+- **The Yes column and the No column** across two questions: [bm__sd_3514379](http://localhost:5005/#review/bm__sd_3514379/10).
+- **One question cut into a group per column**: [bm__mu_7bcf66ca35f9](http://localhost:5005/#review/bm__mu_7bcf66ca35f9/33)
+  (permit type, 4), [bm__mu_37a8b1076271](http://localhost:5005/#review/bm__mu_37a8b1076271/67) (2 of 4 columns,
+  the rest loose), [bm__mu_49ef95f32267](http://localhost:5005/#review/bm__mu_49ef95f32267/7),
+  [bm__sd_1941033](http://localhost:5005/#review/bm__sd_1941033/10) (third column loose),
+  [bm__sd_245318](http://localhost:5005/#review/bm__sd_245318/27),
+  [bm__sd_4579803](http://localhost:5005/#review/bm__sd_4579803/17),
+  [bm__sd_6226562](http://localhost:5005/#review/bm__sd_6226562/80),
+  [bm__sd_6251480](http://localhost:5005/#review/bm__sd_6251480/32),
+  [bm__sd_7245363](http://localhost:5005/#review/bm__sd_7245363/19) (military status in 2).
+- **"Check all that apply" lists grouped by column**: [bm__mu_528d0d5ae837](http://localhost:5005/#review/bm__mu_528d0d5ae837/41),
+  [bm__pb_32db64b1acd2](http://localhost:5005/#review/bm__pb_32db64b1acd2/37),
+  [bm__sd_4089521](http://localhost:5005/#review/bm__sd_4089521/22),
+  [bm__sd_4136718](http://localhost:5005/#review/bm__sd_4136718/27),
+  [bm__sd_5498533](http://localhost:5005/#review/bm__sd_5498533/14),
+  [bm__sd_7935334](http://localhost:5005/#review/bm__sd_7935334/53).
+- Right as they are: a Yes / No or Failed / Passed pair stacked in each cell (bm__mu_11387fc5ed2a p4,
+  bm__sd_6863854), side-by-side questions (lib__ds11 Sex / Citizen).
+
+The same day's audit (all fixed by Andrew unless said): column-down groups on fl__light_p_12 (boxes not fields,
+removed), fl__sd_2574447; groups across pages (bm__sd_2305749 Fall / Spring over four pages, bm__sd_1744610,
+bm__sd_1659642 6 + 9, bm__sd_2652608 2 + 6, bm__sd_3856391 1 + 6); two questions in one group (mg__pb_fccb8bf4f46b,
+fl__sd_2917738, bm__sd_4787516, bm__sd_5751592, bm__mu_11387fc5ed2a No / Yes / No, bm__sd_3450783, bm__sd_4889216,
+bm__sd_1137002, bm__sd_3856391, bm__sd_3864226). Not a problem: fin__pb_21b65d9f2580's "$" boxes (one question with
+the rest of the box's choices), bm__sd_3788717's "days" pairs.
+
+Fix ideas, not tried: no stacked join where the boxes have no caption of their own and sit in a table (row and column
+headers); no join across lines whose boxes line up with another group's on the same lines; digit cells (a row of
+touching boxes) never a choice.
+
+### Rows of a table left loose (2026-10-31)
+
+[je__p_17_fillable](http://localhost:5005/#review/je__p_17_fillable) page 2: 48 rows of Existing / Add / Delete, one
+row grouped by hand, the rest loose. The Groups tab's own finder (`group_finder`) makes only Yes / No sets and sets
+under a printed "check one"; the row rule (`cell_groups.proposals`, one line, no ruling line or item number between)
+is only in the mechanical pass, never run on this form. Rows 5-48 grouped by the row rule into the working copy
+(44 groups, 2026-10-31). Measured on 739 structure-validated forms, every group undone and rebuilt: 91% of the rule's
+groups are exactly Andrew's; on boxes he left loose it makes 44 groups on 25 forms, about half wrong ("tick any":
+You / Spouse on f1040 and MA-1, Debtor 1 / 2 on B 121, AL 2848-A's authorizations). Proposed, not made: the row rule
+in the Groups tab's finder for forms whose structure is not yet validated (the tab makes its groups as it opens, so on
+validated forms it would change saved structure).
+
 ### bm__sd_5428855: grids missed, or found as blocks
 
 (2026-10-27, Andrew; not looked into yet.) Grids the finder did not make, all four drawn by hand at 19:02 after run
@@ -430,6 +504,8 @@ BT1 / BT2 (2026-10-27): each party's Name / Address / Email / Signature and Comp
 - Wrong fields upstream break structure downstream: a missing field can hide a block (sd_4234345), a false one can
   turn a grid into blocks (mu_19df3dcf2619, Andrew's read). Field finding may be the first thing to fix.
 - Metadata trusted over the page: the publisher's radio fields kept whole (sd_537564).
+- Stacked boxes joined down a column (2026-10-31): tables grouped by column, one question cut per column, "check all"
+  lists grouped, even digit cells; 19 light-path forms, almost none reviewed yet.
 
 - Fixed distances keep missing (3, 4, 10, 10.9, 30 pt): the box model already scores the pairs these rules refuse
   (BT2-2's address 0.91).

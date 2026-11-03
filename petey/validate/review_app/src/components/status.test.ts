@@ -19,3 +19,15 @@ describe('statusOf', () => {
     expect(statusOf(e({ structure: { stale: true } })).k).toBe('recheck');
   });
 });
+
+describe('new fields to check', () => {
+  it('a form once fully checked with fields added since shows how many await a verdict', () => {
+    const s = statusOf(e({ new_fields: 7 }));
+    expect(s.k).toBe('newfields');
+    expect(s.t).toBe('new fields to check (7)');
+  });
+  it('validated and structure validated still come first', () => {
+    expect(statusOf(e({ new_fields: 2, checked: { validated: true } })).k).toBe('validated');
+    expect(statusOf(e({ new_fields: 2, structure: { stale: false } })).k).toBe('structure');
+  });
+});

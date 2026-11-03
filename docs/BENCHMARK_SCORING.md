@@ -48,9 +48,15 @@ means, not what kind of group a group is, not grids or blocks.
 - **So these are all the same answer:** a date drawn as one box, the same date in three boxes grouped together, and a
   comb found as one box or as its cells grouped.
 
-- **A match needs overlap.** A found answer matches a key answer when their boxes overlap by at least half of the area
-  the two cover together. Each key answer matches at most one found answer, best overlaps first. Type is ignored for
-  matching; it is scored separately.
+- **A match needs overlap, or the same place.** A found answer matches a key answer when their boxes overlap by at
+  least half of the area the two cover together. Short of that, two single fields still match when one box sits
+  mostly inside the other (80% of the smaller inside, the smaller at least a fifth of the larger), or when they share a
+  line (half their joint width in common, each box's middle inside the other's height). A text group (a date in three
+  boxes) matches by overlap alone, so one part of a date, or two answers joined, is not the value. Each key answer
+  matches at most one found answer, best overlaps first. Type is ignored for matching; it is scored separately. Why
+  (2026-11-02, question 15): a text field's height is arbitrary on a flat page, and a caption inside a box can be
+  dodged by the band below it or the band beside it; Claude Opus 5 on 40 pages found 72.6% of fields by overlap alone
+  against 88.2% with this rule, the extra matches checked by eye. The plain overlap score is reported alongside.
 
 ## The scores
 
@@ -92,10 +98,6 @@ From question 18 (2026-10-30 and 10-31). Andrew still wanted to look at the firs
 
 ## Open
 
-- **Box height (question 15).** A text field's height on a flat page is arbitrary (the underline, the cell, the line
-  spacing), but the overlap rule weighs it as much as width. On the light path's run, 7% of the key's text answers
-  were near misses, overlapping 30 to 50%, mostly because the found box was taller. Matching text fields on the same
-  line with half their width shared raised text matches from 76.6% to 82.5%. The calibration is to be decided.
 - **How a found text group is matched to a key one.** By area for now: one wide part (a long street line) can stand in
   for the whole value. The other option is to count the key fields it takes in.
 - **Text group coverage.** Text groups are in the key only where they were tagged on the Groups tab, so the key's
