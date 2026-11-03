@@ -3,7 +3,7 @@
 import { j, mapi, send } from '../lib/api';
 import type { Entry, ModeId } from '../lib/types';
 import { MODE_IDS } from '../lib/types';
-import { store } from '../lib/util';
+import { afterPaint, holdScroll, holdsPickerFocus, restoreScroll, store } from '../lib/util';
 import { MODES } from '../modes';
 import { flushNote } from './notes';
 import { entryOf, get, set } from './app';
@@ -51,8 +51,9 @@ export async function refreshList() {
   catch (e) { set({ listError: (e as Error).message }); }
 }
 
-/** The tab's data for the form open, read again; a tab opened meanwhile, or another form, takes over. */
-export async function loadMode() {
+/** The tab's data for the form open, read again; a tab opened meanwhile, or another form, takes over. `fresh`: a form
+ *  just opened, which stays on page 1 whatever the tab finds there */
+export async function loadMode(fresh = false) {
   const { mode: m, bid: form } = get();
   if (!form) return;
   const d = MODES[m];
@@ -68,7 +69,7 @@ export async function loadMode() {
   if (get().mode !== m || get().bid !== form) return;
   const pages = d.pages();
   let page = get().page;
-  if (!pages.some(p => p.page === page) || !d.pageLabel(page)) page = d.startPage() || pages[0]?.page || 1;
+  if (!pages.some(p => p.page === page) || (!fresh && !d.pageLabel(page))) page = d.startPage() || pages[0]?.page || 1;
   set({ page, loaded: { mode: m, bid: form }, loadError: null });
 }
 
@@ -80,10 +81,12 @@ async function leaveTab() {
 export async function setMode(m: ModeId) {
   if (!MODES[m] || m === get().mode) return;
   await leaveTab();
+  holdScroll(get().page);
   set({ mode: m });
   store('br_mode', m);
   setHash();
   if (get().bid) await loadMode();
+  afterPaint(() => restoreScroll(get().page));
 }
 
 export async function showHome(on: boolean) {
@@ -92,7 +95,6 @@ export async function showHome(on: boolean) {
   document.body.classList.toggle('home', on);
   setHash();
   if (!on) return;
-  set({ chatOpen: false });
   await flushNote();
   set({ notesOpen: false });
   await refreshList();
@@ -101,13 +103,17 @@ export async function showHome(on: boolean) {
 export async function openBlueprint(id: string) {
   if (!id) return;
   const wasHome = get().home.on;
+  const held = document.activeElement as HTMLElement | null;
+  if (holdsPickerFocus(held)) held!.blur();
   await showHome(false);
   if (wasHome && id === get().bid) { setHash(); await loadMode(); return; }
   await leaveTab();
   await flushNote();
-  set({ bid: id, loaded: null, loadError: null });
+  // another form opens on page 1 (Andrew, 2026-10-31: "can you make it so loading a new document automatically opens
+  // page 1?"), not on the page number the last one was on; a field link goes on to its field's page after
+  set({ bid: id, page: 1, loaded: null, loadError: null });
   setHash();
-  await loadMode();
+  await loadMode(true);
 }
 
 export function gotoPage(p: number) {
@@ -131,7 +137,8 @@ export function toggleWide() {
 export async function saveDraft() {
   await leaveTab();
   const d = entryOf(get().bid)?.draft; if (!d) return;
-  if (!confirm(`Write ${d.changes} change(s) into the blueprint?\n\n${d.log.slice(0, 40).join('\n')}${d.log.length > 40 ? `\n… ${d.log.length - 40} more` : ''}`)) return;
+  // no "write N changes?" question (Andrew, 2026-10-28: "can you get rid of the 'are you sure' gate for the save
+  // button?"); the one for a blueprint changed on disk meanwhile stays
   const bid = get().bid!;
   let out;
   try { out = await send('POST', mapi('draft', bid, '/save')); }

@@ -320,7 +320,7 @@ defects, at 5-6x the wall-clock. Not a judge. The local-model slot that remains 
 trained on loop-judged pairs (`runs/review_pairs.jsonl` now accumulates evidence, decision and loop outcome per
 reviewed field), not a general reader.
 
-## Relabel test: the current emitter against the committed blueprints (2026-09-29, `docs/RELABEL_PLAN_v1.md`, `eval/relabel_compare.py`)
+## Relabel test: the current emitter against the committed blueprints (2026-09-29, plan `docs/RELABEL_PLAN_v1.md` in git at ab5ca31, `eval/relabel_compare.py`)
 
 Five blanks relabeled from scratch into side copies (`--no-register --no-retrieval`, labeler `claude-sonnet-4-6`), each
 scored by the loop against the same cached ground truth as its committed counterpart, then one Haiku review round on the

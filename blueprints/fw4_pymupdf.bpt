@@ -232,10 +232,55 @@ fields:
     x_petey_identifiers:
       subject: exempt_from_withholding
       suffix: ind
+  sign_step_5:
+    x_petey_id: '1_18'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 100.0
+      - 677.34
+      - 448.13
+      - 699.84
+      widget_type: text
+      path: null
+    x_petey_printed:
+      source: field_add
+      when: '2026-11-01 15:06:00'
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-11-01 15:06:00'
+      geometry: selection
+      name_from: page text (left of the box)
+      caption: Sign Step Here 5
+    x_petey_identifiers:
+      subject: sign_step_5
+  true_correct_complete:
+    x_petey_id: '1_19'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 459.38
+      - 677.34
+      - 578.13
+      - 702.34
+      widget_type: text
+      path: null
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-11-01 15:06:00'
+      geometry: selection
+      name_from: page text (above the box)
+      caption: true, correct, and complete
+    x_petey_identifiers:
+      subject: true_correct_complete
   employer_name_and_address_txt:
     x_petey_id: '1_15'
     type: string
-    semantic_type: business_name
+    semantic_type: name_and_address
     widget:
       page: 1
       rect:
@@ -245,6 +290,23 @@ fields:
       - 756.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_12[0]
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: employer_name_and_address_txt
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: employer_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       subject: employer_name_and_address
       suffix: txt

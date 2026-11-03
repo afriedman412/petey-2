@@ -1,4 +1,4 @@
-// The tabs, in the order of their buttons and Shift+1..6.
+// Every tab's definition; the ones shown, in order, are lib/types.MODE_IDS.
 import type { ModeId } from '../lib/types';
 import type { ModeDef } from './types';
 import { review } from './review';

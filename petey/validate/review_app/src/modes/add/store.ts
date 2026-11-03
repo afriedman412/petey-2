@@ -17,8 +17,12 @@ export interface Proposal {
   name: string; name_source?: string; name_options: NameOption[]; twin?: string;
   type?: string | null; semantic_type?: string | null; pattern?: string | null; description?: string | null;
   caption?: string | null; page_class?: string | null; entity?: string | null; evidence: string[];
+  /** a text box expected to be hand-written (signature, initials, printed name): added tagged printed */
+  printed?: boolean;
   /** the page's own key for a proposal (React's key; never sent to the server) */
   _k?: number;
+  /** the suggestion it came from, and whether n / p brought it (its card gives way to the next one's) */
+  _sid?: string; _nav?: boolean;
   [more: string]: unknown;
 }
 export type Added = Proposal & { when: string };
@@ -27,33 +31,92 @@ export interface Removal { name: string; page: number; rect: Rect; when: string;
 export interface Plan { errors: string[]; skipped?: string[]; changes: string[]; applied?: string[]; apply_error?: string | null; entry?: Entry }
 export interface AddData {
   path: string; stale?: boolean; has_widgets?: boolean; finder: string; classifier: string; label_model: string;
-  pages: PageInfo[]; suggestions: Suggestion[]; fields: { name: string; page: number; rect: Rect }[];
+  pages: PageInfo[]; suggestions: Suggestion[];
+  /** underlines no field or suggestion covers (field_add.Context.lines): highlighted to click, not stepped through */
+  lines?: Suggestion[];
+  fields: { name: string; page: number; rect: Rect; choice?: boolean; printed?: boolean }[];
   field_specs?: Record<string, { x_petey_id?: string; type?: string; semantic_type?: string; description?: string }>;
   semantic_types: string[]; added: Added[]; dismissed: Dismissed[]; removed?: Removal[]; plan?: Plan | null;
 }
 
-interface State {
+export interface State {
   BP: AddData | null;
   props: Proposal[]; notes: string[]; curSid: string | null;
   added: Added[]; dismissed: Dismissed[]; removed: Removal[];
   picked: string | null; PLAN: Plan | null;
-  showFields: boolean; showSug: boolean; copies: boolean;
+  /** the blueprint's fields clicked to remove, collected as the additions are, until "remove all" */
+  rmPicks: string[];
+  showFields: boolean; showSug: boolean; showLines: boolean; copies: boolean;
   /** the proposals whose "ask the labeler" is waiting (by _k), and the finder running */
   asking: Record<number, boolean>; finderRunning: boolean;
 }
 
 export const useAdd = create<State>(() => ({
-  BP: null, props: [], notes: [], curSid: null, added: [], dismissed: [], removed: [], picked: null, PLAN: null,
-  showFields: true, showSug: true, copies: false, asking: {}, finderRunning: false,
+  BP: null, props: [], notes: [], curSid: null, added: [], dismissed: [], removed: [], picked: null, PLAN: null, rmPicks: [],
+  showFields: true, showSug: true, showLines: true, copies: false, asking: {}, finderRunning: false,
 }));
 const S = useAdd.getState, put = useAdd.setState;
+// a suggested name that comes to clash (a field saved, added or proposed since with that name) is made free at once
+useAdd.subscribe((s, prev) => {
+  if (s.props === prev.props && s.added === prev.added && s.BP === prev.BP && s.removed === prev.removed) return;
+  const props = freeSuggested(s);
+  if (props !== s.props) put({ props });
+});
+
+/** why proposal `i` cannot take `name`: a field of the blueprint has it ('blueprint'; one recorded for removal frees it),
+ *  or another addition does ('pending'); else null. The save refuses both ("'x' is already a field in the blueprint"),
+ *  so the card says so before "add this field" (Andrew, 2026-10-29: fin__pb_358ecead701f's third sort-code field took
+ *  the caption's name, sort_code, the first one's) */
+export function nameClash(name: string, i: number, st: Pick<State, 'BP' | 'added' | 'props' | 'removed'>): 'blueprint' | 'pending' | null {
+  if (!name) return null;
+  if (st.added.some(a => a.name === name) || st.props.some((q, k) => k !== i && q.name === name)) return 'pending';
+  const gone = new Set(st.removed.map(r => r.name));
+  const has = (st.BP?.fields || []).some(f => f.name === name) || Object.prototype.hasOwnProperty.call(st.BP?.field_specs || {}, name);
+  return has && !gone.has(name) ? 'blueprint' : null;
+}
+
+/** `name`, or the nearest free one (Andrew, 2026-10-31: "any suggested duplicate name should just be converted to a
+ *  non-clashing name, either by increasing the iteration value or by adding one"): a trailing number raised until free,
+ *  else _2 added; as field_add.free_name */
+export function freeName(name: string, taken: (n: string) => boolean): string {
+  if (!taken(name)) return name;
+  const m = name.match(/^(.*)_(\d+)$/);
+  const base = m ? m[1] : name;
+  let k = m ? +m[2] + 1 : 2;
+  while (taken(`${base}_${k}`)) k++;
+  return `${base}_${k}`;
+}
+/** the cards with each suggested name that clashes made free, oldest card first (the newest is on top, so from the
+ *  bottom up): a name the blueprint or an addition has, or an older card's (a name typed by hand is left, and its card
+ *  says it clashes); the same array when nothing clashes */
+export function freeSuggested(st: Pick<State, 'BP' | 'added' | 'props' | 'removed'>): Proposal[] {
+  let props = st.props, changed = false;
+  for (let i = props.length - 1; i >= 0; i--) {
+    const p = props[i];
+    if (!p.name || p.name_source === 'hand') continue;
+    const cur = { ...st, props: props.slice(i + 1) };         // the older card keeps the name, the newer one moves
+    if (!nameClash(p.name, -1, cur)) continue;
+    const name = freeName(p.name, n => nameClash(n, -1, cur) !== null);
+    props = props.map((q, k) => (k === i ? { ...q, name } : q));
+    changed = true;
+  }
+  return changed ? props : st.props;
+}
 
 const bid = () => app().bid!;
 let nextK = 1;
-const keyed = (ps: Proposal[]) => ps.map(p => ({ ...p, _k: nextK++ }));
-const bare = ({ _k: _, ...p }: Proposal): Proposal => p as Proposal;
+const keyed = (ps: Proposal[], sid?: string, nav = false) => ps.map(p => ({ ...p, _k: nextK++, ...(sid ? { _sid: sid, _nav: nav } : {}) }));
+const bare = ({ _k: _, _sid: _s, _nav: _n, ...p }: Proposal): Proposal => p as Proposal;
 
 export const isRemoved = (n: string | null) => !!n && S().removed.some(r => r.name === n);
+/** The picked box (card i, its box o) under a point on the page, if any. */
+export function pickedAt(props: Proposal[], page: number, [x, y]: [number, number]): { i: number; o: number } | null {
+  for (let i = 0; i < props.length; i++) {
+    const o = boxesOf(props[i]).findIndex(b => b.page === page && b.rect[0] <= x && x <= b.rect[2] && b.rect[1] <= y && y <= b.rect[3]);
+    if (o >= 0) return { i, o };
+  }
+  return null;
+}
 export const boxesOf = (p: Proposal) => p.kind === 'group' ? p.options.map(o => ({ page: o.page, rect: o.rect })) : [{ page: p.page, rect: (p.widget || p).rect }];
 const covered = (s: Suggestion) => S().added.some(a => boxesOf(a).some(b => b.page === s.page && overlap(b.rect, s.rect) >= 0.5));
 export function remaining(): Suggestion[] {
@@ -62,13 +125,30 @@ export function remaining(): Suggestion[] {
   const gone = new Set(dismissed.map(d => d.sid));
   return BP.suggestions.filter(s => !gone.has(s.sid) && (!s.copy || copies) && !covered(s));
 }
+/** the underlines still to click: those a field just added covers are gone (Andrew, 2026-10-28: "the underlines are
+ *  highlighted and you can click on one to create a field above it") */
+export const linesLeft = (): Suggestion[] => {
+  const gone = new Set(S().dismissed.map(d => d.sid));
+  return (S().BP?.lines || []).filter(s => !gone.has(s.sid) && !covered(s));
+};
 export const NAME_RE = /^[a-z0-9][a-z0-9_]*$/;
+const sameBoxes = (p: Proposal, q: Proposal) =>
+  boxesOf(p).some(b => boxesOf(q).some(c => c.page === b.page && overlap(b.rect, c.rect) >= 0.5));
+/** The cards after a proposal (Andrew, 2026-10-27: "when you select a field to add, it stays added"; a second click
+ *  replaced the first): new cards go on top of those waiting (2026-10-31: "can you put it on the top of the stack
+ *  instead of the bottom? (easier to click -> edit sequential boxes)"), n / p's card (`nav`) takes the place of the
+ *  last one n / p brought, and a box already waiting is not proposed twice (`dup`, the cards left out). */
+export function mergeProps(old: Proposal[], fresh: Proposal[], nav = false): { props: Proposal[]; dup: number } {
+  const keep = nav ? old.filter(p => !p._nav) : old;
+  const add = fresh.filter(p => !keep.some(q => sameBoxes(p, q)));
+  return { props: [...add, ...keep], dup: fresh.length - add.length };
+}
 
 // ------------------------------------------------------------------------------------------------------- loading
 export async function load(form: string) {
   const BP: AddData = await j(mapi('add', form));
-  curAt = null;
-  put({ BP, added: BP.added, dismissed: BP.dismissed, removed: BP.removed || [], props: [], notes: [], curSid: null, picked: null, PLAN: BP.plan || null });
+  curAt = null; undone.length = 0;
+  put({ BP, added: BP.added, dismissed: BP.dismissed, removed: BP.removed || [], props: [], notes: [], curSid: null, picked: null, rmPicks: [], PLAN: BP.plan || null });
 }
 
 // ------------------------------------------------------------------------------------------- moving and proposing
@@ -86,19 +166,27 @@ export async function gotoSuggestion(step: number) {
     const t = step > 0 ? by.find(s => before(at(s), k) > 0) || by[0] : [...by].reverse().find(s => before(at(s), k) < 0) || by[by.length - 1];
     i = list.indexOf(t);
   }
-  await proposeSid(list[i]);
+  await proposeSid(list[i], true);
 }
-export async function proposeSid(s: Suggestion) {
+export async function proposeSid(s: Suggestion, nav = false) {
   put({ curSid: s.sid }); curAt = s;
   if (s.page !== app().page) setApp({ page: s.page });
-  await propose({ page: s.page, sid: s.sid });
+  // a removed field's box with no widget or finder box behind it (field_add.with_removed): proposed as an area drawn
+  await propose(s.source === 'removed_box' ? { page: s.page, rect: s.rect } : { page: s.page, sid: s.sid }, nav, s.sid);
   scrollToSel('.ov.sug.cur');
 }
 let busy = false;
-async function propose(body: { page: number; sid?: string; rect?: Rect }) {
+async function propose(body: { page: number; sid?: string; rect?: Rect }, nav = false, from = body.sid) {
   if (busy) return; busy = true; put({ picked: null });
-  try { const r = await send('POST', mapi('add', bid(), '/propose'), { ...body, taken: S().added.map(a => a.name) }); put({ props: keyed(r.proposals), notes: r.notes }); }
-  catch (e) { put({ props: [], notes: ['proposal failed: ' + (e as Error).message] }); }
+  try {
+    const taken = [...S().added, ...S().props].map(a => a.name);
+    // the suggestions set aside are not there for a box drawn (Andrew, 2026-10-31: "un-suggest boxes so they don't get
+    // selected when I draw over them"), nor a box set aside for a click: sent along, as the record may not be saved yet
+    const r = await send('POST', mapi('add', bid(), '/propose'), { ...body, taken, dismissed: S().dismissed });
+    const { props, dup } = mergeProps(S().props, keyed(r.proposals, from, nav), nav);
+    put({ props, notes: [...(r.notes || []), ...(dup ? ['that box is proposed already'] : [])] });
+  }
+  catch (e) { put({ notes: ['proposal failed: ' + (e as Error).message] }); }
   busy = false;
 }
 
@@ -106,9 +194,16 @@ async function propose(body: { page: number; sid?: string; rect?: Rect }) {
 export function dragEnd(rect: Rect | null, s: [number, number], target: EventTarget | null) {
   const page = app().page;
   if (rect) { curAt = null; put({ curSid: null, picked: null }); propose({ page, rect }); return; }
+  // a click on a box already picked drops it (Andrew, 2026-10-28: "if you click a selected field it removes it"): a
+  // group's box leaves the group, the card goes with its last box
+  const hit = pickedAt(S().props, page, s);
+  if (hit) { if (S().props[hit.i].kind === 'group') dropOption(hit.i, hit.o); else skipProp(hit.i); put({ notes: [] }); return; }
   const d = target instanceof HTMLElement ? target.dataset : undefined;
-  if (d && d.sid) { const sg = S().BP!.suggestions.find(x => x.sid === d.sid); if (sg) { proposeSid(sg); return; } }
-  if (d && d.field) { curAt = null; put({ props: [], curSid: null, notes: [], picked: d.field }); return; }
+  if (d && d.sid) { const sg = [...S().BP!.suggestions, ...(S().BP!.lines || [])].find(x => x.sid === d.sid); if (sg) { proposeSid(sg); return; } }
+  // a field of the blueprint: collected to remove, or dropped from the collection; one already recorded for removal
+  // opens on its own, to keep it (Andrew, 2026-10-28: "let's collect fields to remove the same way we collect fields
+  // to add (with the same buttons)")
+  if (d && d.field) { curAt = null; if (isRemoved(d.field)) put({ curSid: null, notes: [], picked: d.field }); else toggleRmPick(d.field); return; }
   if (d && d.added !== undefined) { put({ notes: [`${S().added[+d.added].name} is recorded to be added (remove it from the list below)`] }); return; }
   curAt = null; put({ curSid: null }); propose({ page, rect: [s[0] - 1, s[1] - 1, s[0] + 1, s[1] + 1] });
 }
@@ -138,6 +233,41 @@ export function pickName(i: number, k: number) {
   });
 }
 export const skipProp = (i: number) => put({ props: S().props.filter((_, k) => k !== i) });
+/** the suggestions and underlines a card came from: the one clicked or stepped to, and those its box was drawn over */
+const shownOf = (p: Proposal): Suggestion[] => {
+  const sids = [...(p._sid ? [p._sid] : []), ...(Array.isArray(p.sids) ? (p.sids as string[]) : [])];
+  return [...remaining(), ...linesLeft()].filter(s => sids.includes(s.sid));
+};
+/** "not a field" on every card (Andrew, 2026-11-01: "every time I click on a field in add/remove, 'not a field' should
+ *  be available"; "'not a field' removes the outline from the add/remove layout. z brings it back"): the card goes, and
+ *  what it came from is set aside under Untracked (× puts one back): its suggestions or underline, else its own box,
+ *  which a click no longer proposes */
+const undone: { cards: Proposal[]; sids: string[] }[] = [];
+/** "untrack field" (Andrew, 2026-11-03: "let's change 'not a field' to 'untrack field'"): the cards at `is` set aside
+ *  as one step, so z brings them all back */
+function untrack(is: number[]) {
+  const cards = is.map(i => S().props[i]).filter(Boolean); if (!cards.length) return;
+  const now = localNow();
+  const out = cards.flatMap(p => {
+    const shown = shownOf(p);
+    return shown.length ? shown.map(s => ({ sid: s.sid, page: s.page, rect: s.rect, source: s.source, what: s.what, when: now }))
+      : boxesOf(p).map(b => ({ sid: `a${b.page}_${b.rect.map(Math.round).join('_')}`, page: b.page, rect: b.rect, source: 'area',
+        what: `the box of ${p.name || 'a card'}`, when: now }));
+  }).filter((d, k, all) => all.findIndex(o => o.sid === d.sid) === k);      // two cards over one suggestion: once
+  undone.push({ cards, sids: out.map(d => d.sid) });
+  put({ dismissed: [...S().dismissed, ...out], props: S().props.filter((_, k) => !is.includes(k)), notes: [], curSid: null });
+  save();
+}
+export const notAField = (i: number) => untrack([i]);
+/** "untrack all" above and below the cards (Andrew, 2026-11-03): every proposal card; fields collected to remove stay */
+export const untrackAll = () => untrack(S().props.map((_, i) => i));
+/** z: the last "untrack" undone, its outlines and its cards back */
+export function undoNotAField() {
+  const u = undone.pop();
+  if (!u) { put({ notes: ['nothing untracked to bring back'] }); return; }
+  put({ dismissed: S().dismissed.filter(d => !u.sids.includes(d.sid)), props: mergeProps(S().props, u.cards).props, notes: [] });
+  save();
+}
 
 const indexOfK = (k: number | undefined) => S().props.findIndex(p => p._k === k);
 // a text box made a checkbox, or back (2026-10-20): renamed (_ind) and typed again on the server
@@ -149,6 +279,14 @@ export async function switchKind(i: number, kind: string) {
     const at = indexOfK(k);                       // the card may have gone meanwhile (cancelled, added)
     if (at >= 0) editProp(at, () => ({ ...r.proposal, _k: k }));
   } catch (e) { put({ notes: ['could not change the box: ' + (e as Error).message] }); }
+}
+/** the card's kind in one pick (Andrew, 2026-10-31: "can you make the 'kind' field on the add card a dropdown that has
+ *  text, choice and printed?"): printed is a text box, tagged printed when added */
+export async function setKind(i: number, kind: 'text' | 'choice' | 'printed') {
+  const k = S().props[i]._k, want = kind === 'choice' ? 'option' : 'text';
+  if (S().props[i].kind !== want) await switchKind(i, want);
+  const at = indexOfK(k);
+  if (at >= 0) editProp(at, q => ({ ...q, printed: kind === 'printed' && q.kind === 'text' ? true : undefined }));
 }
 export async function askLabeler(i: number) {
   const k = S().props[i]._k!;
@@ -175,23 +313,69 @@ export function addProps(idx: number[]) {
   const now = localNow();
   const left = props.filter((_, i) => !idx.includes(i));
   put({ added: [...S().added, ...idx.map(i => ({ ...bare(props[i]), when: now }))], props: left });
-  if (!left.length) { put({ notes: [] }); save().then(() => { if (S().curSid && remaining().length) gotoSuggestion(1); else put({ curSid: null }); }); }
+  // the page stays where it is after an add (Andrew, 2026-10-28: "make it so adding a field doesn't automatically move to
+  // the next suggested field"); n / "next suggestion" go on from it (`curAt`)
+  if (!left.length) { put({ notes: [], curSid: null }); save(); }
   else save();
 }
-export function notAField() {
-  const s = S().BP!.suggestions.find(x => x.sid === S().curSid); if (!s) return;
-  put({ dismissed: [...S().dismissed, { sid: s.sid, page: s.page, rect: s.rect, source: s.source, what: s.what, when: localNow() }], props: [], notes: [] });
-  save().then(() => gotoSuggestion(1));
-}
-export const cancel = () => put({ props: [], notes: [], picked: null });
+export const cancel = () => put({ props: [], notes: [], picked: null, rmPicks: [] });
+/** the blueprint field picked to remove, put away; the cards waiting stay */
+export const closePicked = () => put({ picked: null });
 
 // ------------------------------------------------------------------------------------------------------ removing
+/** a field collected to remove goes on top of the pile, as a new add card does (Andrew, 2026-11-01: "can you also fix
+ *  it so remove cards are added to the pile at the top (like how add cards are)"): its key is drawn from the cards'
+ *  counter, so `pile` puts it above every card made before it */
+const rmKeys: Record<string, number> = {};
+export function toggleRmPick(name: string) {
+  const ps = S().rmPicks;
+  if (!ps.includes(name)) rmKeys[name] = nextK++;
+  put({ curSid: null, notes: [], picked: null, rmPicks: ps.includes(name) ? ps.filter(x => x !== name) : [name, ...ps] });
+}
+/** the add cards (in their order) and the remove cards, newest on top: each remove card above the first add card
+ *  made before it */
+export function pile(props: Proposal[], rmPicks: string[], keyOf: (n: string) => number = n => rmKeys[n] ?? 0):
+    ({ prop: Proposal; i: number } | { rm: string })[] {
+  const rms = [...rmPicks].sort((a, b) => keyOf(b) - keyOf(a)), out: ({ prop: Proposal; i: number } | { rm: string })[] = [];
+  props.forEach((p, i) => {
+    while (rms.length && keyOf(rms[0]) > (p._k ?? 0)) out.push({ rm: rms.shift()! });
+    out.push({ prop: p, i });
+  });
+  return out.concat(rms.map(rm => ({ rm })));
+}
+/** the collected fields (or `names` of them, one card's "remove this field") recorded for removal, in one save */
+export function removeAll(names = S().rmPicks) {
+  const { rmPicks, BP, removed } = S(); if (!names.length) return;
+  const now = localNow(), add = names.map(n => BP!.fields.find(x => x.name === n)).filter(f => f && !isRemoved(f.name))
+    .map(f => ({ name: f!.name, page: f!.page, rect: f!.rect, when: now, from: 'add' }));
+  put({ removed: [...removed, ...add], rmPicks: rmPicks.filter(n => !names.includes(n)) });
+  save();
+}
 export function toggleRemove() {
   const { picked, BP, removed } = S();
   if (!picked) return;
   if (isRemoved(picked)) put({ removed: removed.filter(r => r.name !== picked) });
   else { const f = BP!.fields.find(x => x.name === picked)!; put({ removed: [...removed, { name: picked, page: f.page, rect: f.rect, when: localNow(), from: 'add' }] }); }
   save();
+}
+
+/** a field of the blueprint made text, printed or a choice in place, in the working copy (Andrew, 2026-11-01: "can you
+ *  add the ability to flip a field from choice to text in add/remove (without deleting and re-adding the field)?");
+ *  one box only (field_add.flip_kind) */
+export const fieldKind = (name: string): 'text' | 'choice' | 'printed' | null => {
+  const bs = S().BP?.fields.filter(f => f.name === name) || [];
+  return bs.length !== 1 ? null : bs[0].choice ? 'choice' : bs[0].printed ? 'printed' : 'text';
+};
+export async function setFieldKind(name: string, kind: 'text' | 'choice' | 'printed') {
+  const form = bid();
+  try {
+    const r = await send('PUT', mapi('add', form, '/fieldkind'), { field: name, kind });
+    updateEntry(r.entry);
+    const d: AddData = await j(mapi('add', form));
+    put({ BP: d });
+    await syncSha();
+    if (r.changes?.length) toast(`Working copy: ${r.changes[0]}`);
+  } catch (e) { put({ notes: ['could not change the kind: ' + (e as Error).message] }); }
 }
 
 // ------------------------------------------------------------------------------------------- the lists below
@@ -233,17 +417,20 @@ export async function runFinder() {
 }
 
 // ---------------------------------------------------------------------------------------------------------- keys
-export const setShow = (p: Partial<Pick<State, 'showFields' | 'showSug' | 'copies'>>) => put(p);
+export const setShow = (p: Partial<Pick<State, 'showFields' | 'showSug' | 'showLines' | 'copies'>>) => put(p);
 export function key(e: KeyboardEvent): boolean {
-  const { props, curSid, picked, showFields, showSug } = S();
+  const { props, picked, showFields, showSug, showLines } = S();
   if (e.key === 'n') gotoSuggestion(1);
   else if (e.key === 'p') gotoSuggestion(-1);
   else if ((e.key === 'Enter' || e.key === 'a') && props.length) addAll();   // a: as Review's accept
-  else if (e.key === 'x' && curSid) notAField();
   else if (e.key === 'Escape') cancel();
+  else if (e.key === 'x' && props.length) notAField(0);   // the newest card, on top
+  else if (e.key === 'z') undoNotAField();
+  else if (e.key === 'd' && S().rmPicks.length) removeAll();
   else if (e.key === 'd' && picked) toggleRemove();
   else if (e.key === 'f') put({ showFields: !showFields });
   else if (e.key === 's') put({ showSug: !showSug });
+  else if (e.key === 'l') put({ showLines: !showLines });
   else return false;
   return true;
 }

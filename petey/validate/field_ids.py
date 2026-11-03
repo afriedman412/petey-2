@@ -72,10 +72,10 @@ def _rehash(bid: str, old: str, new: str) -> list[str]:
         if rec.get("blueprint_sha") == old:
             rec["blueprint_sha"] = new
             hit = True
-        ck = rec.get("checked")
-        if isinstance(ck, dict) and ck.get("blueprint_sha") == old:
-            ck["blueprint_sha"] = new
-            hit = True
+        for stamp in (rec.get("checked"), rec.get("structure")):
+            if isinstance(stamp, dict) and stamp.get("blueprint_sha") == old:
+                stamp["blueprint_sha"] = new
+                hit = True
         if hit:
             p.write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
             moved.append(tag)

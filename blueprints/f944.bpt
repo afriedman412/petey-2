@@ -28,6 +28,12 @@ fields:
     - part_by_maxlen:2
     x_petey_identifiers:
       subject: ein_prefix
+    x_petey_entity:
+      name: ein
+      entity_type: id_number
+      n: 1
+      source: group_review
+      when: '2026-11-01 14:58:20'
   ein_suffix:
     x_petey_id: '1_2'
     type: string
@@ -46,6 +52,12 @@ fields:
     - part_by_maxlen:7
     x_petey_identifiers:
       subject: ein_suffix
+    x_petey_entity:
+      name: ein
+      entity_type: id_number
+      n: 2
+      source: group_review
+      when: '2026-11-01 14:58:20'
   employer_nm:
     x_petey_id: '1_3'
     type: string
@@ -1048,6 +1060,12 @@ fields:
     x_petey_identifiers:
       subject: ein_prefix
       iteration: '2'
+    x_petey_entity:
+      name: ein_2
+      entity_type: id_number
+      n: 1
+      source: group_review
+      when: '2026-11-01 14:59:58'
   ein_suffix_2:
     x_petey_id: '2_3'
     type: string
@@ -1067,38 +1085,47 @@ fields:
     x_petey_identifiers:
       subject: ein_suffix
       iteration: '2'
-  tax_liability_less_than_2500_ind:
-    x_petey_id: '2_4'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 110.4000015258789
-      - 79.0
-      - 120.4000015258789
-      - 89.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].c2_1[0]
+    x_petey_entity:
+      name: ein_2
+      entity_type: id_number
+      n: 2
+      source: group_review
+      when: '2026-11-01 14:59:58'
+  tax_liability:
+    x_petey_id: '2_56'
+    type: category
+    values:
+    - tax_liability_less_than_2500_ind
+    - tax_liability_2500_or_more_ind
+    widgets:
+      tax_liability_less_than_2500_ind:
+        page: 2
+        rect:
+        - 110.4000015258789
+        - 79.0
+        - 120.4000015258789
+        - 89.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].c2_1[0]
+        on_state: '1'
+      tax_liability_2500_or_more_ind:
+        page: 2
+        rect:
+        - 110.4000015258789
+        - 97.0
+        - 120.4000015258789
+        - 107.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].c2_1[1]
+        on_state: '2'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 14:59:58'
+      from:
+      - tax_liability_less_than_2500_ind
+      - tax_liability_2500_or_more_ind
     x_petey_identifiers:
-      subject: tax_liability_less_than_2500
-      suffix: ind
-  tax_liability_2500_or_more_ind:
-    x_petey_id: '2_5'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 110.4000015258789
-      - 97.0
-      - 120.4000015258789
-      - 107.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].c2_1[1]
-    x_petey_identifiers:
-      subject: tax_liability_2500_or_more
-      suffix: ind
+      subject: tax_liability
   jan_tax_liability_amt:
     x_petey_id: '2_6'
     type: number
@@ -1527,22 +1554,45 @@ fields:
     x_petey_identifiers:
       subject: final_wages_paid
       suffix: dt
-  third_party_designee_yes_ind:
-    x_petey_id: '2_36'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 50.400001525878906
-      - 342.9989929199219
-      - 60.400001525878906
-      - 352.9989929199219
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].c2_3[0]
+  third_party_designee:
+    x_petey_id: '2_57'
+    type: category
+    values:
+    - third_party_designee_yes_ind
+    - third_party_designee_no_ind
+    widgets:
+      third_party_designee_yes_ind:
+        page: 2
+        rect:
+        - 50.400001525878906
+        - 342.9989929199219
+        - 60.400001525878906
+        - 352.9989929199219
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].c2_3[0]
+        on_state: '1'
+        caption: Yes. Designee’s name and phone number
+        x_petey_caption_source: page_text
+      third_party_designee_no_ind:
+        page: 2
+        rect:
+        - 50.400001525878906
+        - 375.9989929199219
+        - 60.400001525878906
+        - 385.9989929199219
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].c2_3[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 14:59:58'
+      from:
+      - third_party_designee_yes_ind
+      - third_party_designee_no_ind
     x_petey_identifiers:
-      subject: third_party_designee_yes
-      suffix: ind
+      subject: third_party_designee
   designee_nm:
     x_petey_id: '2_34'
     type: string
@@ -1589,22 +1639,30 @@ fields:
       path: topmostSubform[0].Page2[0].f2_30[0]
     x_petey_identifiers:
       subject: designee_pin
-  third_party_designee_no_ind:
-    x_petey_id: '2_38'
-    type: boolean
-    semantic_type: indicator
+  sign_name:
+    x_petey_id: '2_52'
+    type: string
     widget:
       page: 2
       rect:
-      - 50.400001525878906
-      - 375.9989929199219
-      - 60.400001525878906
-      - 385.9989929199219
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].c2_3[1]
+      - 145.0
+      - 424.21
+      - 351.25
+      - 469.84
+      widget_type: text
+      path: null
+    x_petey_printed:
+      source: field_add
+      when: '2026-11-01 14:59:26'
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-11-01 14:59:26'
+      geometry: selection
+      name_from: page text (left of the box)
+      caption: Sign name your here
     x_petey_identifiers:
-      subject: third_party_designee_no
-      suffix: ind
+      subject: sign_name
   signer_nm:
     x_petey_id: '2_39'
     type: string
@@ -1635,6 +1693,28 @@ fields:
       path: topmostSubform[0].Page2[0].f2_32[0]
     x_petey_identifiers:
       subject: signer_title
+  date_2:
+    x_petey_id: '2_53'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 143.5
+      - 473.59
+      - 238.0
+      - 492.59
+      widget_type: text
+      path: null
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-11-01 14:59:26'
+      geometry: selection
+      name_from: page text (left of the box)
+      caption: Date
+    x_petey_identifiers:
+      subject: date_2
   best_daytime_phone:
     x_petey_id: '2_41'
     type: string
@@ -1698,6 +1778,54 @@ fields:
     x_petey_identifiers:
       subject: preparer
       suffix: ptin
+  preparer_signature_2:
+    x_petey_id: '2_54'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 122.15
+      - 550.0
+      - 381.85
+      - 564.0
+      widget_type: text
+      path: null
+    x_petey_printed:
+      source: field_add
+      when: '2026-11-01 14:59:26'
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-11-01 14:59:26'
+      geometry: underline
+      name_from: page text (left of the box)
+      caption: Preparer’s signature
+    x_petey_identifiers:
+      iteration: '2'
+      suffix: signature
+      subject: preparer
+  date:
+    x_petey_id: '2_55'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 446.15
+      - 550.0
+      - 533.05
+      - 564.0
+      widget_type: text
+      path: null
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-11-01 14:59:26'
+      geometry: underline
+      name_from: page text (left of the box)
+      caption: Date
+    x_petey_identifiers:
+      subject: date
   preparer_signature:
     x_petey_id: '2_45'
     type: string
@@ -1713,6 +1841,9 @@ fields:
     x_petey_identifiers:
       subject: preparer
       suffix: signature
+    x_petey_printed:
+      source: signature_sweep
+      when: '2026-10-31 15:36:31'
   preparer_signature_dt:
     x_petey_id: '2_46'
     type: date
@@ -1833,6 +1964,12 @@ fields:
     x_petey_identifiers:
       subject: ein_prefix
       iteration: '3'
+    x_petey_entity:
+      name: ein_3
+      entity_type: id_number
+      n: 1
+      source: group_review
+      when: '2026-11-01 14:59:58'
   ein_suffix_3:
     x_petey_id: '3_4'
     type: string
@@ -1852,6 +1989,12 @@ fields:
     x_petey_identifiers:
       subject: ein_suffix
       iteration: '3'
+    x_petey_entity:
+      name: ein_3
+      entity_type: id_number
+      n: 2
+      source: group_review
+      when: '2026-11-01 14:59:58'
   payment_amt:
     x_petey_id: '3_1'
     type: number

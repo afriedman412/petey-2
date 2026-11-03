@@ -1,6 +1,6 @@
 // Grids (grid_check.py, 2026-10-16): every numbered grid, outlined in dots (option groups are dashed); one click checks
 // and validates one: the code check, then the resolver (the name-check model against the shared caption), then Jev for
-// a column it cannot settle, then Opus (its proposals land in the chat to tick). As in Groups (Andrew, 2026-10-22):
+// a column it cannot settle, then Opus (off since the chat went, 2026-11-03: the check stops with an error). As in Groups (Andrew, 2026-10-22):
 // drag on an empty part of the page to draw a grid, drag a grid onto another to combine them. A selected grid's card
 // lists its columns and rows, each with what its standardize button would do, or why there is nothing it can do ("it
 // often doesn't work and never says why clearly"): grid_check.preview, a dry run of every button.
@@ -11,13 +11,14 @@ import type { Entry, PageInfo } from '../../lib/types';
 import { fileStem, GROUP_COLORS, scrollToSel, type Rect } from '../../lib/util';
 import { gotoPage, loadMode, setMode, toast, updateEntry } from '../../state/actions';
 import { get as app } from '../../state/app';
-import { addGridTurn, type ChatOut } from '../../state/chat';
 
 export interface Cell { name: string; rect?: Rect | null; accepted?: boolean }
 export interface Table {
   id: string; page: number; bbox: Rect; rows: number; cols: number; cells: Cell[];
   accepted: number; body?: number | null; on_pattern?: boolean; why?: string; title?: string;
   source?: 'person' | 'combined' | 'edited' | string; from?: string[];
+  by?: 'names' | 'geometry' | 'both' | null;      // which test found a finder grid (2026-10-27)
+  jev?: number | null;                             // Jev's "is it a table" on a geometry-only grid
   dismissed?: boolean; aside_why?: string; reading?: 'rows' | 'cols' | string;
 }
 export interface GridsData { path: string; pages: PageInfo[]; tables: Table[] }
@@ -37,7 +38,7 @@ export interface Preview {
   error?: string; all?: Plan | null; keyed?: boolean; pos_axis?: 'col' | 'row'; positions: Position[]; lines: Line[];
   summary?: string; aside?: { row: number; why: string }[];
 }
-export interface Result { status: string; steps?: string[]; left?: string[]; entry?: Entry; proposals?: ChatOut; id?: string; cells?: number }
+export interface Result { status: string; steps?: string[]; left?: string[]; entry?: Entry; proposals?: unknown; id?: string; cells?: number }
 
 /** A column's wording or a row's label being edited in place: which, and what is typed. */
 export interface Editing { tid: string; kind: 'pos' | 'line'; at: number; val: string; typed: string }
@@ -66,7 +67,11 @@ const setResult = (tid: string, out: Result) => put({ results: { ...S().results,
 
 // ------------------------------------------------------------------------------------------------ the grids' words
 export const prov = (t: Table) => t.source === 'person' ? 'drawn by you' : t.source === 'combined' ? `combined from ${(t.from || []).join(' + ')}`
-  : t.source === 'edited' ? `the finder's ${(t.from || []).join(' + ')}, less fields another grid took` : 'found by the finder';
+  : t.source === 'edited' ? `the finder's ${(t.from || []).join(' + ')}, less fields another grid took`
+  // the geometric test is tentative (2026-10-27): a grid only it found says so, for keeping or "not a grid"
+  : t.by === 'geometry' ? `found by the finder (geometry only, tentative${t.jev != null ? `; Jev ${t.jev.toFixed(2)}` : ''})`
+  : t.by === 'both' ? 'found by the finder (names and geometry)'
+  : 'found by the finder';
 export const live = () => { const GD = S().GD; return GD ? GD.tables.filter(t => !t.dismissed) : []; };   // "not a grid": hidden, restorable
 export const onPage = (p: number) => live().filter(t => t.page === p);
 export const asidePage = (p: number) => { const GD = S().GD; return GD ? GD.tables.filter(t => t.dismissed && t.page === p) : []; };
@@ -211,7 +216,7 @@ export async function stop(tid: string) {
 }
 
 export async function run(tid: string): Promise<Result> {
-  const form = app().bid!, pg = app().page, token = {};
+  const form = app().bid!, token = {};
   setRun(tid, token); setBusy(tid, true);
   let out: Result;
   const cancelled = new Promise<Result>(res => cancels.set(tid, () => res({ status: 'cancelled' })));
@@ -222,8 +227,6 @@ export async function run(tid: string): Promise<Result> {
   if (S().runs[tid] !== token) { if (out.entry && app().bid === form) updateEntry(out.entry); return { status: 'cancelled' }; }
   setRun(tid, null); setBusy(tid, false); if (app().bid !== form) return out;
   setResult(tid, out); if (out.entry) updateEntry(out.entry);
-  // Opus: its proposals go to the chat, ticked, nothing applied
-  if (out.proposals) addGridTurn(form, `grids: ${tid} (Opus)`, pg, out.proposals);
   if (app().mode === 'grids') await loadMode(); else await setMode('grids');
   put({ selected: tid }); loadPreview(tid);
   const t = live().find(x => x.id === tid);

@@ -2,10 +2,11 @@
 // The tab's data and everything it does; Panel.tsx and Layer.tsx draw it.
 import { create } from 'zustand';
 import { j, mapi, send } from '../../lib/api';
-import type { Checked, PageInfo } from '../../lib/types';
+import type { Checked, PageInfo, Structure } from '../../lib/types';
 import { fileStem, localNow, PART_KEYS, scrollToSel, stdPrint, store, type PartKey, type Parts, type Rect } from '../../lib/util';
-import { loadMode, syncSha, toast, updateEntry } from '../../state/actions';
+import { loadMode, saveDraft, syncSha, toast, updateEntry } from '../../state/actions';
 import { entryOf, get as app, set as setApp, useApp } from '../../state/app';
+import { groupFromReview, ungroupFromReview } from '../groups/store';
 
 export type Tier = 'contested' | 'unknown' | 'single' | 'settled';
 export interface Why { kind: 'error' | 'suggestion'; text: string; fix?: { name?: string; type?: string; pattern?: string; options?: OptEdits } }
@@ -28,6 +29,7 @@ export interface RField {
   adjudication?: { verdict: string; proposed: string; reason?: string };
   claude?: { kind: string; from?: string; why?: string };
   identifiers?: Parts & { grid?: string }; identifiers_stored?: boolean; identifier_flags?: string[];
+  printed?: boolean | null;    // expected hand-written (signature, initials, printed name); null on a choice
   idx: number;
 }
 export interface Made {
@@ -40,7 +42,7 @@ export interface Made {
 export interface ReviewData {
   path: string; blank?: string | null; build?: { finder: string } | null; made?: Made | null;
   pages: PageInfo[]; fields: RField[]; verdicts: Record<string, Verdict>; semantic_types?: string[];
-  stale?: boolean; checked?: Checked | null; witness_error?: string | null; agent_running?: boolean; agent_todo?: number;
+  stale?: boolean; checked?: Checked | null; structure?: Structure | null; witness_error?: string | null; agent_running?: boolean; agent_todo?: number;
 }
 export interface Removal { name: string; page: number; rect: Rect; when: string; from: string }
 
@@ -57,6 +59,8 @@ interface State {
   unrevOnly: boolean; flagOnly: boolean; claudeOnly: boolean; order: string; clashOn: boolean; idsOpen: boolean;
   boxes: Boxes | null; boxesBase: string; note: string; noteBase: string;
   busy: Record<string, boolean>; justChecked: boolean;
+  /** checkboxes and group boxes Shift-clicked on the page, for g (`field\u0001on-state`) */
+  picks: string[];
 }
 
 let order0 = store('hr_order') || 'risk', claude0 = store('hr_claude') === '1';
@@ -66,7 +70,7 @@ export const useReview = create<State>(() => ({
   BP: null, bpFor: null, removed: [], selected: null, selOpt: null,
   unrevOnly: false, flagOnly: false, claudeOnly: claude0, order: order0, clashOn: false,
   idsOpen: store('ids_open') !== '0',
-  boxes: null, boxesBase: '', note: '', noteBase: '', busy: {}, justChecked: false,
+  boxes: null, boxesBase: '', note: '', noteBase: '', busy: {}, justChecked: false, picks: [],
 }));
 const S = useReview.getState, put = useReview.setState;
 
@@ -310,6 +314,34 @@ export async function removeField() {
   if (!verdictOf(f.name)) await putV({ [f.name]: { verdict: 'accept', note: 'removed' } });   // removing it is the fix
   next();
 }
+// printed (Andrew, 2026-10-31: "printed types should move to blueprints, they are fields"): a text field expected to
+// be hand-written, tagged on the field in the working copy (printed_fields.set_field)
+export async function togglePrinted() {
+  const f = fieldOf(S().selected); if (!f || f.printed == null) return;
+  try { await send('PUT', `/api/printed-field/${encodeURIComponent(app().bid!)}`, { field: f.name, on: !f.printed }); }
+  catch (e) { alert((e as Error).message); return; }
+  await reload();
+  toast(`${f.name}: ${f.printed ? 'not printed' : 'printed (hand-written)'}, in the working copy.`);
+}
+// the field's type on the card (Andrew, 2026-11-03: "let's have type be 'text, choice, printed' and it can be set from
+// the review page"; "field type determines semantic type. a choice shouldn't be able to be a string or a number"): the
+// blueprint's `type` is the card's semantic type, offered by field type, and `semantic_type` its semantic subtype
+export type FieldType = 'text' | 'choice' | 'printed';
+export const fieldTypeOf = (f: RField): FieldType => f.printed == null ? 'choice' : f.printed ? 'printed' : 'text';
+export const semanticTypes = (f: RField, t: FieldType = fieldTypeOf(f)): string[] =>
+  f.options.length > 1 ? ['category', 'multi_category'] : t === 'choice' ? ['boolean', 'category', 'multi_category'] : ['string', 'number', 'integer', 'date'];
+/** the field made text, choice or printed in the working copy at once, as Add / remove does (field_add.flip_kind): its
+ *  name, box and verdicts stay; a group of several boxes stays a choice */
+export async function setFieldType(t: FieldType) {
+  const f = fieldOf(S().selected); if (!f || t === fieldTypeOf(f)) return;
+  if (dirtyOf().any && !confirm('The card has changes not saved as a correction; changing the type reloads the field and drops them. Go on?')) return;
+  let r;
+  try { r = await send('PUT', mapi('add', app().bid!, '/fieldkind'), { field: f.name, kind: t }); }
+  catch (e) { alert((e as Error).message); return; }
+  updateEntry(r.entry);
+  await reload();
+  toast(r.changes?.length ? `Working copy: ${r.changes[0]}` : `${f.name}: already ${t}.`);
+}
 export async function keepField() {
   const f = fieldOf(S().selected); if (!f) return;
   put({ removed: S().removed.filter(r => r.name !== f.name) });
@@ -415,12 +447,33 @@ async function resetValidation() {
   updateEntry(out.entry); await loadMode();
   toast(`Validation reset: ${out.cleared} verdicts cleared (kept in ${String(out.backup).split('/').pop()}).`);
 }
+// the header's two whole-form accepts save the working copy into the blueprint after (Andrew, 2026-10-31: "just the
+// accept settled and accept structure buttons should save everything. not the individual accept buttons")
+const saveAfter = async () => { if (entryOf(app().bid)?.draft) await saveDraft(); };
 async function bulkAccept() {
   const BP = S().BP; if (!BP) return;
   const todo = BP.fields.filter(f => f.tier === 'settled' && !verdictOf(f.name));
-  if (!todo.length) { alert('No unreviewed settled fields.'); return; }
+  // nothing to settle: the header button is greyed out (Andrew, 2026-11-03: "unclickable if there's nothing to settle
+  // (instead of raising an error)"); clicked from another tab before Review loaded, a note and nothing done
+  if (!todo.length) { toast('No unreviewed settled fields.'); return; }
   if (!confirm(`Accept ${todo.length} settled field(s) without looking at them? Each is saved with the note "bulk: settled".`)) return;
   await putV(Object.fromEntries(todo.map(f => [f.name, { verdict: 'accept' as const, note: 'bulk: settled' }])));
+  await saveAfter();
+}
+
+// "accept structure" (Andrew, 2026-10-31: "since we are currently only looking at structure, in the service of building
+// the data set, let's encode that status"; replaces "accept all", which accepted every name unseen): the form is
+// STRUCTURE VALIDATED, its field verdicts untouched; accepting every name makes it VALIDATED
+async function acceptStructure() {
+  const bid = app().bid; if (!bid) return;
+  const s = entryOf(bid)?.structure, on = !(s && !s.stale);       // accepted already: clicking takes it back
+  let out;
+  try { out = await send('PUT', mapi('review', bid, '/structure'), { on }); }
+  catch (e) { alert((e as Error).message); return; }
+  updateEntry(out.entry); await loadMode();
+  if (!on) { toast('Structure no longer accepted.'); return; }
+  toast('Structure accepted. Accept every name to make it VALIDATED.');
+  await saveAfter();
 }
 
 // names two or more fields would have once saved corrections are applied (Andrew, 2026-10-13); each set gets its own
@@ -450,7 +503,7 @@ function toggleClashes() {
   const here = names.find(n => fieldOf(n)?.page === app().page);
   select(here || names[0]);
 }
-export const reviewActions = { toggleClashes, bulkAccept, resetValidation };
+export const reviewActions = { toggleClashes, bulkAccept, acceptStructure, resetValidation };
 
 /** What the header shows from Review: the clash count and the settled fields left. */
 export function useHeaderCounts() {
@@ -467,17 +520,42 @@ export function useHeaderCounts() {
   };
 }
 
+// g and u as in Groups (Andrew, 2026-10-28: "can we make u/g for ungroup/group work on the review tab?"): Shift-click
+// checkboxes or a group's boxes to pick them, g groups them; u takes the selected group apart. Each goes into the
+// working copy at once, as a drag does (groups/store.fromReview); z in Groups undoes.
+const SEP = '\u0001';
+export const pickKey = (field: string, opt: string | null) => field + SEP + (opt || '');
+export function togglePick(field: string, opt: string | null) {
+  const k = pickKey(field, opt), ps = S().picks;
+  put({ picks: ps.includes(k) ? ps.filter(x => x !== k) : [...ps, k] });
+}
+async function groupPicks() {
+  const ps = S().picks;
+  if (ps.length < 2) { toast('Shift-click two or more checkboxes (or boxes of a group) first, then g.'); return; }
+  const name = await groupFromReview(ps.map(k => { const [field, opt] = k.split(SEP); return { field, opt: opt || null }; }));
+  if (name) { put({ picks: [] }); select(name, false); }
+}
+async function ungroupSelected() {
+  const f = S().BP?.fields.find(x => x.name === S().selected);
+  if (!f || f.options.length < 2) { toast('Select a group first, then u.'); return; }
+  await ungroupFromReview(f.name);
+}
+
 // ---------------------------------------------------------------------------------------------------------- keys
 export function key(e: KeyboardEvent): boolean {
   const { selected } = S();
+  if (e.key === 'g') { groupPicks(); return true; }
+  if (e.key === 'u') { ungroupSelected(); return true; }
+  if (e.key === 'Escape' && S().picks.length) { put({ picks: [] }); return true; }
   if (e.key === 'a') setVerdict('accept');
   else if (e.key === 'f') setVerdict('flag');
   else if (e.key === 'e') { const el = document.getElementById('eName') as HTMLInputElement | null; if (el) { el.focus(); el.select(); } }
   else if (e.key === 'c') setVerdict(null);
   else if (e.key === 'd') { if (isRemoved(selected)) keepField(); else removeField(); }
+  else if (e.key === 'w') togglePrinted();
   else if (e.key === 'n' || e.key === 'ArrowRight') next(1);
   else if (e.key === 'p' || e.key === 'ArrowLeft') back();
-  else if (e.key === 'u') setFilter({ unrevOnly: !S().unrevOnly });
+  else if (e.key === 'U') setFilter({ unrevOnly: !S().unrevOnly });     // u ungroups since 2026-10-28
   else return false;
   return true;
 }

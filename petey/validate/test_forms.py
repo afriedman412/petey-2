@@ -1,6 +1,6 @@
 """The test forms: the five documents every comparison in this repo runs on.
 
-Chosen for the relabel test (docs/RELABEL_PLAN_v1.md, 2026-09-29), one per
+Chosen for the relabel test (docs/RELABEL_PLAN_v1.md, 2026-09-29; in git at ab5ca31), one per
 family, smallest first, and used since for every model sweep and reader
 change. Codified 2026-09-30 so a harness names a tier instead of re-listing
 blanks.

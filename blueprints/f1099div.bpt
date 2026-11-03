@@ -11,6 +11,45 @@ source_pages:
 description: ''
 instructions: ''
 fields:
+  group_p2:
+    x_petey_id: '2_33'
+    type: category
+    values:
+    - void_ind
+    - corrected_ind
+    widgets:
+      void_ind:
+        page: 2
+        rect:
+        - 187.1999969482422
+        - 25.0
+        - 196.1999969482422
+        - 34.0
+        widget_type: checkbox
+        path: topmostSubform[0].CopyA[0].CopyHeader[0].c1_1[0]
+        on_state: '1'
+        caption: VOID
+        x_petey_caption_source: page_text
+      corrected_ind:
+        page: 2
+        rect:
+        - 244.8000030517578
+        - 25.0
+        - 253.8000030517578
+        - 34.0
+        widget_type: checkbox
+        path: topmostSubform[0].CopyA[0].CopyHeader[0].c1_1[1]
+        on_state: '2'
+        caption: CORRECTED
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 16:04:11'
+      from:
+      - void_ind
+      - corrected_ind
+    x_petey_identifiers:
+      subject: group_p2
   calendar_yr:
     x_petey_id: '2_4'
     type: string
@@ -31,7 +70,7 @@ fields:
   payer_name_address_txt:
     x_petey_id: '2_1'
     type: string
-    semantic_type: business_name
+    semantic_type: name_and_address
     widget:
       page: 2
       rect:
@@ -41,6 +80,23 @@ fields:
       - 132.0009765625
       widget_type: text
       path: topmostSubform[0].CopyA[0].LeftCol[0].f1_2[0]
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: payer_name_address_txt
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: payer_name_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       subject: payer_name_address
       suffix: txt
@@ -586,40 +642,49 @@ fields:
       path: topmostSubform[0].Copy1[0].CopyHeader[0].CalendarYear[0].f2_1[0]
     x_petey_identifiers:
       subject: calendar_yr_2
-  void_ind_2:
-    x_petey_id: '3_1'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 187.1999969482422
-      - 25.0
-      - 196.1999969482422
-      - 34.0
-      widget_type: checkbox
-      path: topmostSubform[0].Copy1[0].CopyHeader[0].c2_1[0]
+  group_p3:
+    x_petey_id: '3_36'
+    type: category
+    values:
+    - void_ind_2
+    - corrected_ind_2
+    widgets:
+      void_ind_2:
+        page: 3
+        rect:
+        - 187.1999969482422
+        - 25.0
+        - 196.1999969482422
+        - 34.0
+        widget_type: checkbox
+        path: topmostSubform[0].Copy1[0].CopyHeader[0].c2_1[0]
+        on_state: '1'
+        caption: VOID
+        x_petey_caption_source: page_text
+      corrected_ind_2:
+        page: 3
+        rect:
+        - 244.8000030517578
+        - 25.0
+        - 253.8000030517578
+        - 34.0
+        widget_type: checkbox
+        path: topmostSubform[0].Copy1[0].CopyHeader[0].c2_1[1]
+        on_state: '2'
+        caption: CORRECTED
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 16:04:11'
+      from:
+      - void_ind_2
+      - corrected_ind_2
     x_petey_identifiers:
-      subject: void_ind_2
-  corrected_ind_2:
-    x_petey_id: '3_2'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 244.8000030517578
-      - 25.0
-      - 253.8000030517578
-      - 34.0
-      widget_type: checkbox
-      path: topmostSubform[0].Copy1[0].CopyHeader[0].c2_1[1]
-    x_petey_identifiers:
-      subject: corrected_ind_2
+      subject: group_p3
   payer_name_address:
     x_petey_id: '3_3'
     type: string
-    semantic_type: business_name
+    semantic_type: name_and_address
     widget:
       page: 3
       rect:
@@ -629,6 +694,23 @@ fields:
       - 132.0009765625
       widget_type: text
       path: topmostSubform[0].Copy1[0].LeftCol[0].f2_2[0]
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: payer_name_address
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: payer_name_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       subject: payer_name_address
   payer_tin_2:

@@ -1,15 +1,16 @@
 // Groups' sidebar: the selected unit's card, the suggestions, the groups on the page, the tray of loose boxes, the
-// combined text fields and what applying would change; and its bar (the counts and the buttons).
+// entities and what applying would change; and its bar (the counts and the buttons).
 import { useState } from 'react';
 import { dragProps, dropProps } from '../../lib/dnd';
 import { fileStem } from '../../lib/util';
 import { toast } from '../../state/actions';
 import { useApp } from '../../state/app';
 import {
-  applyPlan, askLabeler, baseOf, busyOn, colorOf, confirmUnit, dropped, groupPicked, groupSuggested, isGroup, isText,
-  item, label, looseText, mergeInto, moveItem, nameCheck, notGroup, onPage, optUnits, rename, rereadCaptions, rescanPage,
-  revert, select, separate, setDesc, setShowText, setType, setUnconfOnly, status, undo, ungroup, unitOf, useGroups,
-  type Target, type Unit,
+  applyPlan, askLabeler, baseOf, entityPicked, busyOn, clearPicked, colorOf, confirmUnit, dropped, groupPicked, groupSuggested, hoverProps, isConverted,
+  isGroup, isText, isTextItem, item, label, looseText, mergeInto, moveItem, nameCheck, notGroup, onPage, optUnits, rename,
+  ENTITY_TYPES, rereadCaptions, rescanPage, revert, select, separate, setDesc, setEntityType, setShowText, setType, setUnconfOnly,
+  status, toBool, toText,
+  undo, ungroup, unitOf, useGroups, type Target, type Unit,
 } from './store';
 
 const dropOn = (target: Target) => dropProps(['item', 'unit'], (kind, v) => dropped(kind, v, target));
@@ -39,16 +40,50 @@ function TextCard({ u }: { u: Unit }) {
   const bad = nameCheck(u), asking = busyOn(busy, u, 'label');
   return (
     <div className="gcur">
-      <h2>Combined text field of {u.items.length} <span className="badge new">new</span></h2>
+      <h2>Text group of {u.items.length} fields <Badge u={u} /></h2>
       <NameBox key={u.uid + '\n' + u.name} u={u} text />{' '}
       <button className="btn" id="gLabel" title="one call to the labeler with the words on this page" disabled={asking} onClick={() => askLabeler(u.uid)}>{asking ? 'asking…' : 'ask the labeler'}</button>
       {u.name_from === 'labeler' && <> <span className="help">(from the labeler)</span></>}
       {bad && <div className="warn">{bad}</div>}
+      <div className="frow"><label>type{' '}
+        <select id="gEntityType" value={u.entity_type || ''} onChange={e => setEntityType(u.uid, e.target.value)}
+          onKeyDown={e => e.stopPropagation()}>
+          <option value="">(none)</option>
+          {ENTITY_TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          {u.entity_type && !ENTITY_TYPES.some(([v]) => v === u.entity_type) && <option value={u.entity_type}>{u.entity_type.replace(/_/g, ' ')} (no longer offered)</option>}
+        </select></label></div>
       <DescBox key={u.uid + '\n' + (u.description || '')} u={u} />
       <ol>{u.items.map(id => { const it = item(id);
-        return <li key={id}>{it.field} <span className="help">{it.type || ''}{it.semantic_type ? '/' + it.semantic_type : ''}{it.path ? ' · ' + it.path.split('.').pop() : ''}</span></li>; })}</ol>
-      <div className="help">One text field over the union of these boxes, in place of the first. No path: the reader clips the page text, the filler splits over the widgets.</div>
+        return <li key={id} {...hoverProps(id)}>{it.field} <span className="help">{it.type || ''}{it.semantic_type ? '/' + it.semantic_type : ''}{it.path ? ' · ' + it.path.split('.').pop() : ''}</span></li>; })}</ol>
+      <div className="help">One value over these fields, in this order. The fields stay as they are (names, boxes, paths); each is tagged with the text group.</div>
       <div className="row"><button className="btn" id="gSplit" onClick={() => separate(u.uid)}>separate again</button></div>
+    </div>
+  );
+}
+
+// text fields picked (a click, Shift-click, an area): made checkboxes with one button (Andrew, 2026-10-27: "bring
+// them up in the side panel (either as a group or solo) and provide a button that says 'convert to bool'")
+function PickedText() {
+  const picked = useGroups(s => s.picked), units = useGroups(s => s.units);
+  const ids = [...picked].filter(id => isTextItem(id, units));
+  if (!ids.length) return null;
+  const one = ids.length === 1;
+  return (
+    <div className="fcard sect gcur" id="gPickedText">
+      <h4>Selected text field{one ? '' : 's'} <span className="help">{ids.length}</span></h4>
+      <ul>{ids.map(id => { const it = item(id);
+        return <li key={id} {...hoverProps(id)}><code>{it.field}</code> <span className="help">→ {it.ind_name || it.field + '_ind'}{it.type ? ` · now ${it.type}${it.semantic_type ? '/' + it.semantic_type : ''}` : ''}</span></li>; })}</ul>
+      <div className="frow">
+        {!one && <button className="btn ok" id="gEntity" title="make the selected text fields one text group (g)" onClick={() => entityPicked()}>make text group ({ids.length})</button>}
+        {!one && <select id="gEntityPick" value="" title="make the selected text fields one text group of this type"
+          onChange={e => entityPicked(e.target.value)} onKeyDown={e => e.stopPropagation()}>
+          <option value="">make text group of type…</option>
+          {ENTITY_TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+        </select>}
+        <button className="btn ok" id="gToBool" onClick={() => toBool(ids)}>convert to bool</button>
+        <button className="btn" onClick={clearPicked}>clear</button>
+      </div>
+      <div className="help">Each becomes a checkbox (boolean, indicator) on its own box, its suffix made _ind. {one ? '' : 'They stay selected: g makes them one group. '}It goes into the working copy with the regrouping; z undoes.</div>
     </div>
   );
 }
@@ -87,18 +122,19 @@ function Current({ u }: { u?: Unit }) {
           <span className="gkind">
             <label><input type="radio" name="ty" value="category" checked={u.type === 'category'} onChange={() => setType(u.uid, 'category')} /> one of</label>
             <label><input type="radio" name="ty" value="multi_category" checked={u.type === 'multi_category'} onChange={() => setType(u.uid, 'multi_category')} /> any of</label>
-            {u.items.length === 1 && <span className="warn">a group of one option</span>}
           </span>
         </> : <>
           <span className="lbl">Box</span>
-          <span className="help">a {first.widget_type} field of its own{first.appearances ? `, drawn in ${first.appearances} places` : ''}. Confirm it if it stands alone; drag it onto its group or onto another loose box if not.</span>
+          <span className="help">{isConverted(first.id, units) ? <>the text field <code>{first.field}</code> made a checkbox{first.converted ? ' (applied)' : '; it changes when the regrouping is applied'}. </>
+            : <>a {first.widget_type} field of its own{first.appearances ? `, drawn in ${first.appearances} places` : ''}. </>}
+            Confirm it if it stands alone; drag it onto its group or onto another loose box if not.</span>
         </>}
         {group && <>
           <span className="lbl">Options<br /><span className="help">key · caption</span></span>
           <span className="otable">{u.items.map(id => { const it = item(id);
             return (
-              <span key={id} className="orow">
-                <input className="okey" value={it.key !== null ? it.key : it.field} readOnly
+              <span key={id} className="orow" {...hoverProps(id)}>
+                <input className="okey" value={it.key !== null ? it.key : it.kind === 'text' ? (it.ind_name || it.field) : it.field} readOnly
                   title={`the value extraction returns for this box${it.on_state ? '; the PDF stores ' + it.on_state : ''}${it.page !== page ? ' (page ' + it.page + ')' : ''}`} />
                 <input className="ocap" value={label(id, units)} readOnly placeholder="no caption" title="the text printed at this box" />
               </span>);
@@ -110,6 +146,7 @@ function Current({ u }: { u?: Unit }) {
         {group && !u.locked && <button className="btn" id="gCaps" disabled={reading} onClick={() => rereadCaptions(u.uid)}
           title="read each box's printed caption again (one call to the review agent with the page image, a few seconds); captions from the PDF's form data or set by hand stay">{reading ? 'reading…' : 're-read captions'}</button>}
         {b && status(u) !== 'as blueprint' && <button className="btn" id="gRevert" title="put this unit back as the blueprint has it" onClick={() => revert(u.uid)}>back to blueprint</button>}
+        {!group && isConverted(first.id, units) && <button className="btn" id="gToText" title="make it a text field again" onClick={() => toText(u.uid)}>back to text</button>}
         {group && !isText(u) && !u.locked && <button className="btn" id="gUngroup" title="every box of this group loose again (u); the finder will not group these boxes again; z undoes" onClick={ungroup}>ungroup</button>}
         {group && !u.locked && (
           <select id="gMergeTo" value="" title="move this group's boxes into another group, on any page (a question that runs onto the next page)"
@@ -131,9 +168,9 @@ function Chip({ id, u }: { id: string; u: Unit }) {
   return (
     <span className={'gchip' + (orphan ? ' orphan' : '') + (u.uid === selected ? ' sel' : '')} data-item={id}
       title={`${it.field}${it.key !== null ? ' · ' + it.key : ''}${it.on_state ? ' · on ' + it.on_state : ''}`}
-      onClick={() => select(cu.uid)} {...dragProps('item', id, !u.locked)} {...drop}>
+      onClick={() => select(cu.uid)} {...hoverProps(id)} {...dragProps('item', id, !u.locked)} {...drop}>
       <span className="gl">{orphan ? u.name : label(id, units)}{it.page !== page && <> <span className="help">p{it.page}</span></>}</span>
-      {!orphan && !u.locked && <span className="x" title={isText(u) ? 'take it out of the combined field' : 'take it out of the group'}
+      {!orphan && !u.locked && <span className="x" title={isText(u) ? 'take it out of the text group' : 'take it out of the group'}
         onClick={e => { e.stopPropagation(); moveItem(id, { tray: true }); }}>×</span>}
     </span>
   );
@@ -145,7 +182,7 @@ function UnitCard({ g }: { g: Unit }) {
   return (
     <div className={'gcard' + (g.uid === selected ? ' sel' : '') + (g.confirmed ? ' ok' : '')} data-unit={g.uid}
       style={{ '--c': colorOf(g, units, page) } as React.CSSProperties} {...(g.locked ? {} : dropOn({ unit: g.uid }))}>
-      <h3 onClick={() => select(g.uid)}><span className="grip" title={`drag the whole ${isText(g) ? 'combined field' : 'group'}`} {...dragProps('unit', g.uid, !g.locked)}>⠿</span>{g.name} <Badge u={g} /></h3>
+      <h3 onClick={() => select(g.uid)}><span className="grip" title={`drag the whole ${isText(g) ? 'text group' : 'group'}`} {...dragProps('unit', g.uid, !g.locked)}>⠿</span>{g.name} <Badge u={g} /></h3>
       <div className="gchips">{g.items.map(id => <Chip key={id} id={id} u={g} />)}</div>
     </div>
   );
@@ -163,7 +200,7 @@ function Suggestions() {
     <div className="gsugg"><h4>Suggested groups on page {page} ({sugg.length})</h4>
       {sugg.map(x => (
         <div key={x.i} className="gcard"><div className="help">{x.why}{x.name && <> · <code>{x.name}</code></>}</div>
-          <div className="gchips">{x.items.map((id, k) => <span key={id} className="gchip">{(x.captions || [])[k] || item(id).field} <span className="help">{item(id).field}</span></span>)}</div>
+          <div className="gchips">{x.items.map((id, k) => <span key={id} className="gchip" {...hoverProps(id)}>{(x.captions || [])[k] || item(id).field} <span className="help">{item(id).field}</span></span>)}</div>
           <div className="row">
             <button className="btn ok mini" onClick={() => groupSuggested(BP.suggested![x.i])}>group them</button>
             <button className="btn mini" title="these boxes are not one question: the suggestion stays away" onClick={() => notGroup(x.i)}>not a group</button>
@@ -200,15 +237,16 @@ export function Panel() {
     <>
       <div className="help">{BP.path}{BP.info.stale && <> <span className="stale">· the saved grouping predates this file; rebased onto it</span></>}{BP.info.applied && ` · last applied ${BP.info.applied.when}`}</div>
       {notes.length > 0 && <div className="warn">{notes.map((n, i) => <span key={i}>{i ? <br /> : null}{n}</span>)}</div>}
+      <PickedText />
       <Current u={u} />
       <Suggestions />
       <div><h4>Groups on page {page} ({groups.length}) · drop a box on a group to add it</h4>
         {groups.length ? groups.map(g => <UnitCard key={g.uid} g={g} />) : <p className="help">none</p>}</div>
-      <div className="tray" id="tray" {...dropOn({ tray: true })}><h4>Loose boxes on page {page} ({loose.length}) · drop a box here to take it out of its group or combined field; drop one loose box on another to group them</h4>
+      <div className="tray" id="tray" {...dropOn({ tray: true })}><h4>Loose boxes on page {page} ({loose.length}) · drop a box here to take it out of its group; drop one loose box on another to group them</h4>
         <div className="gchips">{loose.map(o => <Chip key={o.uid} id={o.items[0]} u={o} />)}</div></div>
-      <div><h4>Combined text fields on page {page} ({combos.length})</h4>
+      <div><h4>Text groups on page {page} ({combos.length})</h4>
         {combos.map(g => <UnitCard key={g.uid} g={g} />)}
-        <p className="help">{showText ? `Drag a teal text box onto another to combine them into one bigger text field (${nLoose} text fields on this page).` : 'Text fields are hidden; press t to show them.'}</p></div>
+        <p className="help">{showText ? `Drag a teal text field onto another to make them one text group: one value over several fields, a date, a name, a signature and its date (${nLoose} text fields on this page). The fields stay as they are.` : 'Text fields are hidden; press Shift+T to show them.'}</p></div>
       <Changes />
     </>
   );
@@ -220,7 +258,7 @@ export function Bar() {
   if (BP) {
     const ou = optUnits(units), n = ou.length, ok = ou.filter(x => x.confirmed).length, g = ou.filter(isGroup).length, t = units.filter(isText).length;
     progress = <>
-      <b>{ok}</b> of {n} confirmed · {g} groups, {n - g} loose{t ? ` · ${t} text combined` : ''}
+      <b>{ok}</b> of {n} confirmed · {g} groups, {n - g} loose{t ? ` · ${t} text group${t === 1 ? '' : 's'}` : ''}
       {PLAN && <> · <b>{PLAN.changes.length}</b> change{PLAN.changes.length === 1 ? '' : 's'}{PLAN.errors.length > 0 && <> <span className="stale">({PLAN.errors.length} to fix)</span></>}</>}
       {/* the apply button in the bar as well as under the change list (2026-10-13: saved groups that never reached the
           blueprint, because the only button sat at the bottom of the sidebar) */}

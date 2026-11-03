@@ -28,6 +28,12 @@ fields:
     - part_by_maxlen:2
     x_petey_identifiers:
       subject: employer_ein_prefix
+    x_petey_entity:
+      name: employer_ein
+      entity_type: id_number
+      n: 1
+      source: group_review
+      when: '2026-11-01 16:15:47'
   employer_ein_suffix:
     x_petey_id: '1_2'
     type: string
@@ -46,6 +52,12 @@ fields:
     - part_by_maxlen:7
     x_petey_identifiers:
       subject: employer_ein_suffix
+    x_petey_entity:
+      name: employer_ein
+      entity_type: id_number
+      n: 2
+      source: group_review
+      when: '2026-11-01 16:15:47'
   employer_nm:
     x_petey_id: '1_3'
     type: string
@@ -1142,6 +1154,12 @@ fields:
     x_petey_identifiers:
       subject: employer
       suffix: ein
+    x_petey_entity:
+      name: employer_ein_2
+      entity_type: id_number
+      n: 1
+      source: group_review
+      when: '2026-11-01 16:16:17'
   employer_ein_2:
     x_petey_id: '2_3'
     type: string
@@ -1160,38 +1178,59 @@ fields:
     - part_by_maxlen:7
     x_petey_identifiers:
       subject: employer_ein_2
-  less_than_2500_deposit_ind:
-    x_petey_id: '2_4'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 109.19999694824219
-      - 106.998046875
-      - 119.19999694824219
-      - 116.998046875
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].c2_1[0]
+    x_petey_entity:
+      name: employer_ein_2
+      entity_type: id_number
+      n: 2
+      source: group_review
+      when: '2026-11-01 16:16:17'
+  group_p2:
+    x_petey_id: '2_39'
+    type: category
+    values:
+    - less_than_2500_deposit_ind
+    - monthly_schedule_depositor_ind
+    - semiweekly_schedule_depositor_ind
+    widgets:
+      less_than_2500_deposit_ind:
+        page: 2
+        rect:
+        - 109.19999694824219
+        - 106.998046875
+        - 119.19999694824219
+        - 116.998046875
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].c2_1[0]
+        on_state: '1'
+      monthly_schedule_depositor_ind:
+        page: 2
+        rect:
+        - 109.19999694824219
+        - 155.99700927734375
+        - 119.19999694824219
+        - 165.99700927734375
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].c2_1[1]
+        on_state: '2'
+      semiweekly_schedule_depositor_ind:
+        page: 2
+        rect:
+        - 109.19999694824219
+        - 270.9990234375
+        - 119.19999694824219
+        - 280.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].c2_1[2]
+        on_state: '3'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-01 16:16:17'
+      from:
+      - less_than_2500_deposit_ind
+      - monthly_schedule_depositor_ind
+      - semiweekly_schedule_depositor_ind
     x_petey_identifiers:
-      subject: less_than_2500_deposit
-      suffix: ind
-  monthly_schedule_depositor_ind:
-    x_petey_id: '2_5'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 109.19999694824219
-      - 155.99700927734375
-      - 119.19999694824219
-      - 165.99700927734375
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].c2_1[1]
-    x_petey_identifiers:
-      subject: monthly_schedule_depositor
-      suffix: ind
+      subject: group_p2
   tax_liability_month1_amt:
     x_petey_id: '2_6'
     type: number
@@ -1336,22 +1375,6 @@ fields:
     x_petey_identifiers:
       subject: total_liability_quarter_2
       suffix: amt
-  semiweekly_schedule_depositor_ind:
-    x_petey_id: '2_14'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 109.19999694824219
-      - 270.9990234375
-      - 119.19999694824219
-      - 280.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].c2_1[2]
-    x_petey_identifiers:
-      subject: semiweekly_schedule_depositor
-      suffix: ind
   business_closed_ind:
     x_petey_id: '2_15'
     type: boolean
@@ -1483,6 +1506,30 @@ fields:
       path: topmostSubform[0].Page2[0].f2_12[0]
     x_petey_identifiers:
       subject: designee_pin
+  sign_name:
+    x_petey_id: '2_35'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 108.13
+      - 509.21
+      - 325.0
+      - 552.34
+      widget_type: text
+      path: null
+    x_petey_printed:
+      source: field_add
+      when: '2026-11-01 16:15:52'
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-11-01 16:15:52'
+      geometry: selection
+      name_from: page text (left of the box)
+      caption: Sign name your here
+    x_petey_identifiers:
+      subject: sign_name
   signer_nm:
     x_petey_id: '2_22'
     type: string
@@ -1515,6 +1562,29 @@ fields:
     x_petey_identifiers:
       subject: signer_title
       suffix: txt
+  p2_text_107_563:
+    x_petey_id: '2_36'
+    type: string
+    semantic_type: text
+    widget:
+      page: 2
+      rect:
+      - 107.5
+      - 563.59
+      - 187.5
+      - 579.59
+      widget_type: text
+      path: null
+    label_source: placeholder
+    needs_review: true
+    x_petey_added:
+      source: field_add
+      when: '2026-11-01 16:16:01'
+      geometry: selection
+      name_from: placeholder
+      caption: / /
+    x_petey_identifiers:
+      subject: p2_text_107_563
   signer_daytime_phone_num:
     x_petey_id: '2_24'
     type: string
@@ -1578,6 +1648,54 @@ fields:
     x_petey_identifiers:
       subject: preparer
       suffix: ptin
+  preparer_signature:
+    x_petey_id: '2_37'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 122.0
+      - 635.59
+      - 382.0
+      - 651.59
+      widget_type: text
+      path: null
+    x_petey_printed:
+      source: field_add
+      when: '2026-11-01 16:16:01'
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-11-01 16:16:01'
+      geometry: selection
+      name_from: page text (left of the box)
+      caption: Preparer’s signature
+    x_petey_identifiers:
+      suffix: signature
+      subject: preparer
+  p2_text_446_635:
+    x_petey_id: '2_38'
+    type: string
+    semantic_type: text
+    widget:
+      page: 2
+      rect:
+      - 446.0
+      - 635.59
+      - 533.25
+      - 651.59
+      widget_type: text
+      path: null
+    label_source: placeholder
+    needs_review: true
+    x_petey_added:
+      source: field_add
+      when: '2026-11-01 16:16:01'
+      geometry: selection
+      name_from: placeholder
+      caption: / /
+    x_petey_identifiers:
+      subject: p2_text_446_635
   preparer_signature_txt:
     x_petey_id: '2_28'
     type: string
@@ -1594,6 +1712,9 @@ fields:
     x_petey_identifiers:
       subject: preparer_signature
       suffix: txt
+    x_petey_printed:
+      source: signature_sweep
+      when: '2026-10-31 15:36:31'
   preparer_signature_dt:
     x_petey_id: '2_29'
     type: date
@@ -1713,6 +1834,12 @@ fields:
     - part_by_maxlen:2
     x_petey_identifiers:
       subject: employer_ein_prefix_2
+    x_petey_entity:
+      name: employer_ein_3
+      entity_type: id_number
+      n: 1
+      source: group_review
+      when: '2026-11-01 16:16:25'
   employer_ein_suffix_2:
     x_petey_id: '3_4'
     type: string
@@ -1731,6 +1858,12 @@ fields:
     - part_by_maxlen:7
     x_petey_identifiers:
       subject: employer_ein_suffix_2
+    x_petey_entity:
+      name: employer_ein_3
+      entity_type: id_number
+      n: 2
+      source: group_review
+      when: '2026-11-01 16:16:25'
   payment_amt:
     x_petey_id: '3_1'
     type: number

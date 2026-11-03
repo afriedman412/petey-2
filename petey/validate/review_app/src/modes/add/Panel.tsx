@@ -1,10 +1,10 @@
 // Add / remove's sidebar: the blueprint's finder and suggestions left, the proposal cards (or the field picked to
-// remove), the notes, and the lists of what is to be added, removed, or is not a field; and its bar.
+// remove), the notes, and the lists of what is to be added, removed, or is untracked; and its bar.
 import type { KeyboardEvent } from 'react';
 import {
-  addAll, addProps, askLabeler, cancel, dropOption, goto, isRemoved, keepRemoved, NAME_RE, notAField, pickName, pickRemoved,
-  remaining, runFinder, save, setOptField, setPropField, setShow, skipProp, switchKind, toggleRemove, unAdd, unDismiss, useAdd,
-  gotoSuggestion, type Proposal,
+  addAll, addProps, askLabeler, cancel, closePicked, dropOption, goto, isRemoved, keepRemoved, linesLeft, NAME_RE, pickName, pickRemoved,
+  notAField, untrackAll, remaining, runFinder, save, setOptField, setPropField, setShow, skipProp, setKind, fieldKind, setFieldKind, pile, toggleRemove, toggleRmPick, removeAll, unAdd, unDismiss, useAdd,
+  gotoSuggestion, nameClash, type Proposal,
 } from './store';
 
 const TYPES = ['string', 'number', 'integer', 'date', 'boolean', 'category', 'multi_category'];
@@ -34,15 +34,16 @@ function Options({ p, i }: { p: Proposal; i: number }) {
 }
 
 function Card({ p, i }: { p: Proposal; i: number }) {
-  const { BP, added, props, asking } = useAdd();
+  const { BP, added, props, removed, asking } = useAdd();
   const sem = ['', ...BP!.semantic_types];
   const what = p.kind === 'group' ? `group of ${p.options.length} options` : p.kind === 'option' ? `${p.widget?.widget_type}` : 'text box';
-  const clash = added.some(a => a.name === p.name) || props.some((q, k) => k !== i && q.name === p.name);
+  const clash = nameClash(p.name || '', i, { BP, added, props, removed });
   return (
     <div className="acard">
       <h3>{what} on p{p.page} <span className="help">· {p.geometry} geometry</span></h3>
       <input type="text" value={p.name || ''} onChange={e => setPropField(i, 'name', e.target.value)} onKeyDown={cardKeys} />
       {!NAME_RE.test(p.name || '') ? <div className="err help">not a field name (lower case, digits, underscores)</div>
+        : clash === 'blueprint' ? <div className="err help">the blueprint already has a field named {p.name}; pick another name</div>
         : clash ? <div className="err help">another field has this name</div> : null}
       <div className="achips">
         {p.name_options.map((o, k) => (
@@ -50,10 +51,15 @@ function Card({ p, i }: { p: Proposal; i: number }) {
         <span className="achip" title={`one call to ${BP!.label_model} with this page's words`} onClick={() => askLabeler(i)}>{asking[p._k!] ? 'asking…' : 'ask the labeler'}</span>
       </div>
       <div className="grid">
+        {/* the kind on every one-box card, text, choice or printed in one pick (Andrew, 2026-10-31: "can you make the
+            'kind' field on the add card a dropdown that has text, choice and printed?"); what was under the box decides
+            it at first, and can be wrong */}
         {p.kind !== 'group' && <>
-          <label>box</label>
-          <select value={p.kind} title="what the page shows: what was under the box decides, and can be wrong" onChange={e => switchKind(i, e.target.value)}>
-            <option value="text">text box</option><option value="option">checkbox</option></select>
+          <label>kind</label>
+          <select id={`aKind${i}`} title="what the page shows: a box to write in, a box to tick, or a line to sign / write by hand"
+            value={p.kind === 'option' ? 'choice' : p.printed ? 'printed' : 'text'} onKeyDown={cardKeys}
+            onChange={e => setKind(i, e.target.value as 'text' | 'choice' | 'printed')}>
+            <option value="text">text</option><option value="choice">choice</option><option value="printed">printed</option></select>
         </>}
         <label>type</label>
         <select value={p.type || ''} onChange={e => setPropField(i, 'type', e.target.value)} onKeyDown={cardKeys}>{TYPES.map(t => <option key={t}>{t}</option>)}</select>
@@ -70,9 +76,23 @@ function Card({ p, i }: { p: Proposal; i: number }) {
       {p.kind === 'group' && <Options p={p} i={i} />}
       {p.page_class && <div className="help">classifier: {p.page_class}{p.entity ? ' for ' + p.entity : ''} (shown, not applied)</div>}
       <ul className="ev">{p.evidence.map((e, k) => <li key={k}>{e}</li>)}</ul>
-      <div className="arow"><button className="btn primary" onClick={() => addProps([i])}>add this field</button>
-        {props.length > 1 && <button className="btn" onClick={() => skipProp(i)}>leave out</button>}</div>
+      <div className="arow"><button className="btn primary" onClick={() => addProps([i])}>add this field</button>{' '}
+        <button className="btn" title="drop this one; the others stay" onClick={() => skipProp(i)}>cancel</button>
+        {' '}<button className="btn warn" title="untrack field: its outline comes off the page (x; z brings it back)" onClick={() => notAField(i)}>untrack field</button></div>
     </div>
+  );
+}
+
+/** a blueprint field's kind, flipped in place (2026-11-01); a field of several boxes says why it cannot be */
+function FieldKind({ name }: { name: string }) {
+  useAdd(s => s.BP);
+  const k = fieldKind(name);
+  if (!k) return <div className="help">a group of several boxes: its kind does not change here</div>;
+  return (
+    <div className="arow"><label>kind</label>{' '}
+      <select value={k} title="text, choice or printed, changed in the working copy: the name, id and box stay"
+        onChange={e => setFieldKind(name, e.target.value as 'text' | 'choice' | 'printed')}>
+        <option value="text">text</option><option value="choice">choice</option><option value="printed">printed</option></select></div>
   );
 }
 
@@ -83,10 +103,37 @@ function Picked({ name }: { name: string }) {
   return (
     <div className="acard"><h3>{f.x_petey_id && <><code className="fid">{f.x_petey_id}</code> </>}{name} <span className="help">· a field of the blueprint</span></h3>
       <div className="help">{f.type || ''}{f.semantic_type ? '/' + f.semantic_type : ''}{f.description ? ' · ' + f.description : ''}</div>
+      {!gone && <FieldKind name={name} />}
       {gone && <div className="rbanner">recorded for removal, not removed yet (see the list below)</div>}
       <div className="arow">{gone ? <button className="btn" id="aKeep" onClick={toggleRemove}>keep it</button>
         : <button className="btn warn" id="aRemove" onClick={toggleRemove}>remove this field</button>}{' '}
-        <button className="btn" id="cancel" onClick={cancel}>close</button></div></div>
+        <button className="btn" id="cancel" onClick={closePicked}>close</button></div></div>
+  );
+}
+
+/** add all / untrack all / remove all / cancel all, above the cards and below them (untrack all, Andrew 2026-11-03) */
+function AllButtons({ top = false }: { top?: boolean }) {
+  const { props, rmPicks } = useAdd(), n = props.length + rmPicks.length;
+  return (
+    <div className="arow">
+      {props.length > 1 && <><button className="btn primary" onClick={addAll}>add all {props.length}</button>{' '}
+        <button className="btn warn" id={top ? 'untrackAllTop' : 'untrackAll'} title="untrack every card: their outlines come off the page (z brings them back)" onClick={untrackAll}>untrack all {props.length}</button>{' '}</>}
+      {rmPicks.length > 0 && <><button className="btn warn" id={top ? 'rmAllTop' : 'rmAll'} onClick={() => removeAll()}>{rmPicks.length > 1 ? `remove all ${rmPicks.length}` : 'remove it'}</button>{' '}</>}
+      <button className="btn" id={top ? 'cancelTop' : 'cancel'} onClick={cancel}>{n > 1 ? 'cancel all' : 'cancel'}</button>
+    </div>
+  );
+}
+
+/** a field of the blueprint collected to remove; clicked again on the page, or "cancel", it leaves the collection */
+function RmCard({ name }: { name: string }) {
+  const BP = useAdd(s => s.BP)!;
+  const f = (BP.field_specs || {})[name] || {}, at = BP.fields.find(x => x.name === name);
+  return (
+    <div className="acard rmcard"><h3>{f.x_petey_id && <><code className="fid">{f.x_petey_id}</code> </>}{name} <span className="help">· to remove{at ? ` · p${at.page}` : ''}</span></h3>
+      <div className="help">{f.type || ''}{f.semantic_type ? '/' + f.semantic_type : ''}{f.description ? ' · ' + f.description : ''}</div>
+      <FieldKind name={name} />
+      <div className="arow"><button className="btn warn" onClick={() => removeAll([name])}>remove this field</button>{' '}
+        <button className="btn" onClick={() => toggleRmPick(name)}>cancel</button></div></div>
   );
 }
 
@@ -110,7 +157,7 @@ function Changes() {
 async function applyAdds() { await save(); }
 
 export function Panel() {
-  const { BP, props, notes, picked, curSid, added, removed, dismissed, copies, finderRunning } = useAdd();
+  const { BP, props, notes, picked, rmPicks, added, removed, dismissed, copies, finderRunning } = useAdd();
   if (!BP) return null;
   const left = remaining();
   return (
@@ -120,16 +167,16 @@ export function Panel() {
         {BP.finder !== 'cached' && <> <button className="btn" id="runFinder" title="step2flat on this blank, local CPU, cached afterwards" disabled={finderRunning} onClick={runFinder}>{finderRunning ? 'running (local CPU)…' : 'run it'}</button></>} · classifier map: {BP.classifier}</div>
       <div><b>{left.length}</b> suggestion{left.length === 1 ? '' : 's'} left <span className="help">({left.filter(s => s.source === 'widget').length} widgets, {left.filter(s => s.source === 'finder').length} finder boxes{BP.suggestions.some(s => s.copy) && !copies ? '; repeated copies hidden' : ''})</span>{' '}
         <button className="btn" id="nextSug" onClick={() => gotoSuggestion(1)}>next suggestion</button></div>
-      {props.length ? <>
-        {/* several proposals: "add all" above them too, not only after the last card (Andrew, 2026-10-23) */}
-        {props.length > 1 && <div className="arow"><button className="btn primary" onClick={addAll}>add all {props.length}</button></div>}
-        {props.map((p, i) => <Card key={p._k} p={p} i={i} />)}
-        <div className="arow">
-          {props.length > 1 && <><button className="btn primary" onClick={addAll}>add all {props.length}</button>{' '}</>}
-          {curSid && <><button className="btn warn" id="notField" title="record this suggestion as not a field" onClick={notAField}>not a field</button>{' '}</>}
-          <button className="btn" id="cancel" onClick={cancel}>cancel</button></div>
-      </> : picked ? <Picked name={picked} />
-        : <p className="help">Drag a box over an area of the page, click a box, or go to the next suggestion. Orange: suggestions (solid: an unclaimed widget; dashed: a finder box). Purple: fields the blueprint has (hover for the name; click one to remove it). Green: fields you have added; red dashed: fields to remove.</p>}
+      <div className="help" id="linesLeft"><b>{linesLeft().length}</b> underline{linesLeft().length === 1 ? '' : 's'} no field covers (cyan; click one to add a field over it)</div>
+      {picked && <Picked name={picked} />}
+      {props.length + rmPicks.length ? <>
+        {/* several proposals or fields to remove: the buttons above them too, not only after the last card (Andrew,
+            2026-10-23; 2026-10-28: "let's have the 'cancel all' button at the top and the bottom"; removals collected
+            as additions are, "with the same buttons") */}
+        {props.length + rmPicks.length > 1 && <AllButtons top />}
+        {pile(props, rmPicks).map(x => 'rm' in x ? <RmCard key={'r' + x.rm} name={x.rm} /> : <Card key={x.prop._k} p={x.prop} i={x.i} />)}
+        <AllButtons />
+      </> : !picked && <p className="help">Drag a box over an area of the page, click a box, or go to the next suggestion. Orange: suggestions (solid: an unclaimed widget; dashed: a finder box). Cyan: underlines no field covers. Purple: fields the blueprint has (hover for the name; click to collect them for removal). Green: fields you have added; red dashed: fields to remove.</p>}
       {notes.length > 0 && <div className="notes">{notes.map((n, k) => <div key={k}>{n}</div>)}</div>}
       <div><h4>To add ({added.length})</h4><div className="alist">{added.length ? added.map((x, i) => (
         <div key={i} onClick={() => goto(x.page)}><span>p{x.page} · {x.name} <span className="help">{x.kind === 'group' ? 'group' : x.type}</span></span>
@@ -138,7 +185,7 @@ export function Panel() {
       {removed.length > 0 && <div><h4>To remove ({removed.length})</h4><div className="alist">{removed.map((x, i) => (
         <div key={i} onClick={() => pickRemoved(i)}><span>p{x.page} · {x.name} <span className="help">from {x.from || '?'}</span></span>
           <span className="x" title="keep it" onClick={e => { e.stopPropagation(); keepRemoved(i); }}>×</span></div>))}</div></div>}
-      {dismissed.length > 0 && <div><h4>Not fields ({dismissed.length})</h4><div className="alist">{dismissed.map((x, i) => (
+      {dismissed.length > 0 && <div><h4>Untracked ({dismissed.length})</h4><div className="alist">{dismissed.map((x, i) => (
         <div key={i} onClick={() => goto(x.page)}><span>p{x.page} · {x.what || x.sid}</span>
           <span className="x" title="put it back" onClick={e => { e.stopPropagation(); unDismiss(i); }}>×</span></div>))}</div></div>}
       <Changes />
@@ -147,12 +194,13 @@ export function Panel() {
 }
 
 export function Bar() {
-  const { BP, added, removed, dismissed, showFields, showSug, copies } = useAdd();
+  const { BP, added, removed, dismissed, showFields, showSug, showLines, copies } = useAdd();
   return (
     <>
-      <span className="progress" id="progress">{BP && <><b>{added.length}</b> to add · <b>{removed.length}</b> to remove · <b>{dismissed.length}</b> not fields · <b>{remaining().length}</b> suggestions left</>}</span>{' '}
+      <span className="progress" id="progress">{BP && <><b>{added.length}</b> to add · <b>{removed.length}</b> to remove · <b>{dismissed.length}</b> untracked · <b>{remaining().length}</b> suggestions left</>}</span>{' '}
       <label className="help"><input type="checkbox" id="aFields" checked={showFields} onChange={e => setShow({ showFields: e.target.checked })} /> fields</label>{' '}
       <label className="help"><input type="checkbox" id="aSug" checked={showSug} onChange={e => setShow({ showSug: e.target.checked })} /> suggestions</label>{' '}
+      <label className="help"><input type="checkbox" id="aLines" checked={showLines} onChange={e => setShow({ showLines: e.target.checked })} /> underlines</label>{' '}
       <label className="help"><input type="checkbox" id="aCopies" checked={copies} onChange={e => setShow({ copies: e.target.checked })} /> repeated copies</label>
     </>
   );

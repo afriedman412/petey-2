@@ -142,7 +142,7 @@ function Card({ t }: { t: Table }) {
         <button className="btn" onClick={e => { stopHere(e); setAside(t.id, true); }}
           title="hidden and kept out of 'check all'; a finder's grid is recorded as its mistake, a combined one gives its parts back; restore below">not a grid</button>
       </div>
-      {res && <div className="gtres"><b>last: {res.status}</b>{res.status === 'proposed' ? ' · the proposals are in the chat' : ''}
+      {res && <div className="gtres"><b>last: {res.status}</b>
         <ul className="gtsteps">{(res.steps || []).map((st, i) => <li key={i} className={st.startsWith('not accepted') ? 'stale' : undefined}>{say(t, st)}</li>)}</ul></div>}
       {!pv ? <p className="help">reading its columns and rows…</p> : pv.error ? <p className="err">{pv.error}</p> : <>
         {pv.keyed && <p className="help">Rows named by label (applicant, spouse): standardize does not apply; check & validate settles them.</p>}

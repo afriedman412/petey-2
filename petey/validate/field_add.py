@@ -1,6 +1,6 @@
 """Field add (and remove): the Add / remove mode of the blueprint review page, for adding the fields a blueprint
 missed and removing the ones it should not have. Removing is recorded from this mode (click a field) or from Review
-(`removed` in the record); `--apply` drops those fields, and their boxes stay out of the suggestions afterwards.
+(`removed` in the record); `--apply` drops those fields, and their boxes are suggestions again afterwards (2026-10-28).
 
 Adding: draw a box over an area of the blank (or click a
 suggestion) and the page proposes the field(s) under it, with everything the documents already say about them:
@@ -22,6 +22,11 @@ Suggestions (outlined on the page, stepped through with n / p): widgets no field
 covers that the classifier did not call `none`. A suggestion can be dismissed as not a field; the dismissal is
 recorded with the rest, a fixture for the "not a field" question the witnesses cannot answer.
 
+Lines (2026-10-28, highlighted apart from the suggestions, not stepped through): the band above every underline no
+field or suggestion covers (`finder_addons.underline_rects`, read off the page when the form opens); a click on one,
+or just above an underline that no printed box encloses, proposes a text field over the band, named from the caption
+left of it or printed under the line.
+
     PYTHONPATH=. venv/bin/python -m petey.validate.field_add [--port 5007]     # then open http://127.0.0.1:5007/
     PYTHONPATH=. venv/bin/python -m petey.validate.field_add --summary
     PYTHONPATH=. venv/bin/python -m petey.validate.field_add --plan <id>       # what --apply would add
@@ -42,7 +47,7 @@ import json
 import re
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Iterable, Optional
 
 import pymupdf
 import yaml
@@ -54,8 +59,8 @@ from petey.paths import RUNS
 from petey.semantic_types import enrich_field, registered_names
 from petey.synth.boxes import CACHE_DIR as BOX_CACHE, FINDER_VERSION, find_boxes, overlap
 from petey.synth.classify import classify_form
-from petey.validate import field_ids
-from petey.validate.hand_review import _load, _sha, blueprint_paths, working_path
+from petey.validate import field_ids, printed_fields
+from petey.validate.hand_review import _load, _sha, blueprint_paths, page_sizes, working_path
 from petey.validate.retype import resolve_blank
 
 OUT = RUNS / "field_add"
@@ -64,6 +69,20 @@ LABEL_MODEL = auto_label.MODEL
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_]*$")     # spec 5.2 allows digits anywhere
 OPTION_WIDGETS = ("checkbox", "radiobutton")
 CLAIM = 0.5                     # overlap (of the smaller rect) at which a field covers a box
+SAME_BOX = 0.9                  # intersection over union at which an added box is a field's own box again
+# Jev's is-it-a-field score per finder box (`eval/flat_light.screen`), kept by blank and finder version: a finder box
+# scored under SCREEN_KEEP is not suggested (Andrew, 2026-11-01: on publisher-box blueprints the finder's uncovered
+# boxes were 92,570, about 1 in 5 real by eye; screened, 36,325). A box with no score is suggested as before.
+SCREEN_DIR = RUNS / "jev" / "is_field_screen"
+SCREEN_KEEP = 0.6
+
+
+def _iou(a, b) -> float:
+    ix = max(0.0, min(a[2], b[2]) - max(a[0], b[0]))
+    iy = max(0.0, min(a[3], b[3]) - max(a[1], b[1]))
+    inter = ix * iy
+    union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
+    return inter / union if union > 0 else 0.0
 _DROP = {"the", "a", "an", "your", "enter", "here", "please", "print", "type", "and", "or", "if", "any", "see",
          "instructions", "optional", "applicable", "check", "box", "this", "below", "above", "following"}
 _ITEM_NO = re.compile(r"^\s*(\(?\d{1,3}[a-z]?\)?[.:]?|\(?[a-z]\)[.:]?|[A-Z][.:])\s+")
@@ -85,6 +104,67 @@ def _slug(s: str) -> str:
 
 def _area(r) -> float:
     return max(0.0, r[2] - r[0]) * max(0.0, r[3] - r[1])
+
+
+ENCLOSE_ZOOM = 4                # px per pt the page is read at for a clicked box
+ENCLOSE_REACH = 150             # pt above and below the click searched; a box taller than twice this is not proposed
+INK = 200                       # gray level under which a pixel is a printed mark
+UNDER_GAP = 4.0                 # pt under an underline its own caption starts within
+LINE_REACH = 6.0                # pt above an underline's band a click still takes the line (a click that finds no box)
+ENCLOSE_PAD = 1.0               # pt the white inside is grown by, out to the printed outline (a checkbox widget covers
+                                # its square's outline: the inside alone was 56% of the widget's area on 109 corpus boxes)
+
+
+def enclosed_box(blank: Path, page: int, x: float, y: float) -> Optional[list[float]]:
+    """The printed box a click at (x, y) falls inside, read off the page (Andrew, 2026-10-27: "in the add/remove page you
+    click inside a small box and it automatically selects that box as a field to add", for fields neither the form layer
+    nor the finder has): the white area around the click filled out to the printed lines, its bounds in points. None
+    when the fill reaches the edge of the area searched (an open blank on an underline, the page margin)."""
+    import cv2
+    import numpy as np
+    doc = pymupdf.open(str(blank))
+    try:
+        pg = doc[page - 1]
+        clip = pymupdf.Rect(0, y - ENCLOSE_REACH, pg.rect.width, y + ENCLOSE_REACH) & pg.rect
+        pix = pg.get_pixmap(matrix=pymupdf.Matrix(ENCLOSE_ZOOM, ENCLOSE_ZOOM), clip=clip, colorspace=pymupdf.csGRAY)
+        words = [w[:4] for w in pg.get_text("words")]
+    finally:
+        doc.close()
+    img = np.frombuffer(pix.samples, np.uint8).reshape(pix.h, pix.w)
+    ink = (img < INK).astype(np.uint8)
+    ink = cv2.dilate(ink, np.ones((3, 3), np.uint8))          # close hairline gaps where two rules meet
+    px, py = int((x - clip.x0) * ENCLOSE_ZOOM), int((y - clip.y0) * ENCLOSE_ZOOM)
+    if not (0 <= px < pix.w and 0 <= py < pix.h):
+        return None
+    if ink[py, px]:                                             # on a printed mark: the nearest white pixel
+        ys, xs = np.nonzero(ink[max(py - 8, 0):py + 9, max(px - 8, 0):px + 9] == 0)
+        if not len(xs):
+            return None
+        k = np.argmin((xs - min(px, 8)) ** 2 + (ys - min(py, 8)) ** 2)
+        px, py = max(px - 8, 0) + int(xs[k]), max(py - 8, 0) + int(ys[k])
+    white = (1 - ink) * 255
+    mask = np.zeros((pix.h + 2, pix.w + 2), np.uint8)
+    _n, _img, _mask, (bx, by, bw, bh) = cv2.floodFill(white, mask, (px, py), 128, flags=4)
+    if bx <= 0 or by <= 0 or bx + bw >= pix.w or by + bh >= pix.h:
+        return None                                             # not enclosed: the fill got out
+    z, d = ENCLOSE_ZOOM, ENCLOSE_PAD
+    box = [clip.x0 + bx / z - d, clip.y0 + by / z - d, clip.x0 + (bx + bw) / z + d, clip.y0 + (by + bh) / z + d]
+    return [round(v, 2) for v in _past_caption(box, words, x, y)]
+
+
+def _past_caption(box: list[float], words: list, x: float, y: float) -> list[float]:
+    """A cell's printed caption left out of the field: when every word inside the box is above the click, the field
+    starts under them; when every one is left of it, after them (2026-10-27: 137 -> 153 of 223 corpus text fields
+    matched their widget)."""
+    ins = [w for w in words if w[0] >= box[0] - 0.5 and w[2] <= box[2] + 0.5 and w[1] >= box[1] - 0.5 and w[3] <= box[3] + 0.5]
+    if not ins:
+        return box
+    out = list(box)
+    if all(w[3] < y for w in ins):
+        out[1] = max(w[3] for w in ins) + 0.5
+    elif all(w[2] < x for w in ins):
+        out[0] = max(w[2] for w in ins) + 1
+    return out
 
 
 def _center_in(r, sel, pad: float = 0.5) -> bool:
@@ -130,6 +210,20 @@ def name_from(text: Optional[str], kind: str) -> Optional[str]:
 
 # ---------------------------------------------------------------- what the documents say about a blueprint's blank
 
+def screen_path(blank: Path) -> Path:
+    return SCREEN_DIR / (hashlib.sha256(blank.read_bytes() + b"\x00boxes\x00" + FINDER_VERSION.encode()).hexdigest()
+                         + ".json")
+
+
+def screen_scores(blank: Path) -> dict[str, float]:
+    """{finder box id: Jev's score} for the blank's boxes under this finder version, {} when none were screened."""
+    p = screen_path(blank)
+    try:
+        return {str(k): float(v) for k, v in json.loads(p.read_text(encoding="utf-8"))["scores"].items()}
+    except (OSError, ValueError, KeyError):
+        return {}
+
+
 def _finder_cached(blank: Path) -> bool:
     h = hashlib.sha256(blank.read_bytes() + b"\x00boxes\x00" + FINDER_VERSION.encode()).hexdigest()
     return (BOX_CACHE / f"{h}.json").exists()
@@ -152,6 +246,10 @@ def _norm_tip(t: Optional[str]) -> Optional[str]:
 
 
 def field_rects(bp: dict) -> list[dict]:
+    """Each box of each field: {name, page, rect, choice, printed} (choice: a checkbox, radio button or dropdown;
+    printed: a text box tagged hand-written, a signature, initials or a printed name; each drawn in its own colour on
+    the page, 2026-10-31)."""
+    from petey.validate.printed_fields import is_printed, is_text
     out = []
     for name, spec in (bp.get("fields") or {}).items():
         if not isinstance(spec, dict):
@@ -159,7 +257,8 @@ def field_rects(bp: dict) -> list[dict]:
         blocks = list((spec.get("widgets") or {}).values()) or ([spec["widget"]] if spec.get("widget") else [])
         for w in blocks:
             if w.get("rect") and w.get("page"):
-                out.append({"name": name, "page": int(w["page"]), "rect": [float(c) for c in w["rect"]]})
+                out.append({"name": name, "page": int(w["page"]), "rect": [float(c) for c in w["rect"]],
+                            "choice": not is_text(spec), "printed": is_printed(spec)})
     return out
 
 
@@ -178,12 +277,15 @@ class Context:
         self.widgets: list[dict] = []
         self.boxes: Optional[list[dict]] = None
         self.cmap: Optional[dict] = None
+        self.screen: dict[str, float] = {}
         self._words: dict[int, list] = {}
+        self._bands: Optional[list[tuple[int, list[float]]]] = None
+        self._lines: Optional[list[dict]] = None
         if not self.blank or not self.blank.exists():
             return
+        self.pages = page_sizes(self.bp, self.blank)
         doc = pymupdf.open(str(self.blank))
         try:
-            self.pages = [{"page": i, "w_pt": pg.rect.width, "h_pt": pg.rect.height} for i, pg in enumerate(doc, 1)]
             maxlen: dict[tuple, int] = {}
             for i, pg in enumerate(doc, 1):
                 for w in pg.widgets() or []:
@@ -243,12 +345,44 @@ class Context:
         out = []
         for b in boxes:
             c = cm.get(b["key"]) or {}
-            # a box the finder's minor version added (finder_addons: radio circles) has no class map entry: an option
-            out.append({**b, "sid": f"b{b['id']}", "class": c.get("class") or ("option" if b.get("addon") else None),
+            # a box the finder's minor version added (finder_addons) has no class map entry: a circle or square is an
+            # option; an added underline stays unclassified (unscreened, so shown only on a flat blank)
+            out.append({**b, "sid": f"b{b['id']}", "class": c.get("class") or (
+                "option" if b.get("addon") and b.get("kind") in ("checkbox", "radio") else None),
                         "label": c.get("label"),
                         "group": c.get("group"), "entity": c.get("entity"),
                         "claimed_by": self._claimed(b["page"], b["rect"])})
         self.boxes = out
+        self.screen = screen_scores(self.blank)
+        self._lines = None                               # the lines leave out what the suggestions now show
+
+    def bands(self) -> list[tuple[int, list[float]]]:
+        """(page, rect) of the band above every line to write on (`finder_addons.underline_rects`: drawn rules and
+        typed underscore runs), read off the page now (~0.03 s a page), nothing cached on disk."""
+        if self._bands is None:
+            from petey.synth.finder_addons import underline_rects
+            self._bands = []
+            if self.blank and self.blank.exists():
+                doc = pymupdf.open(str(self.blank))
+                try:
+                    for i, pg in enumerate(doc, 1):
+                        self._bands += [(i, [round(v, 2) for v in r]) for r in underline_rects(pg)]
+                finally:
+                    doc.close()
+        return self._bands
+
+    def lines(self) -> list[dict]:
+        """The underlines no field covers, highlighted on the page to click (Andrew, 2026-10-28: "the underlines are
+        highlighted and you can click on one to create a field above it"; "there are other fields to find besides
+        signatures"), less those a suggestion already shows. Kept apart from the suggestions, so n / p skip them."""
+        if self._lines is None:
+            sugg = self.suggestions()
+            self._lines = [{"sid": f"u{pg}_{round(r[0])}_{round(r[3])}", "source": "underline", "page": pg, "rect": r,
+                            "kind": "text", "what": "an underline no field covers"}
+                           for pg, r in self.bands()
+                           if not self._claimed(pg, r)
+                           and not any(s["page"] == pg and overlap(s["rect"], r) >= CLAIM for s in sugg)]
+        return self._lines
 
     def words(self, page: int) -> list[tuple]:
         if page not in self._words:
@@ -276,18 +410,24 @@ class Context:
                 continue
             if any(w["page"] == b["page"] and overlap(w["rect"], b["rect"]) >= CLAIM for w in free_w):
                 continue
+            jev = self.screen.get(str(b["id"]))
+            if jev is not None and jev < SCREEN_KEEP:
+                continue
             out.append({"sid": b["sid"], "source": "finder", "page": b["page"], "rect": b["rect"],
                         "what": f"finder {b['kind']} box" + (f", classifier: {b['class']}" if b.get("class")
-                                                             else ", not screened by the classifier")})
+                                                             else ", not screened by the classifier")
+                                + (f", Jev {jev:.2f}" if jev is not None else "")})
         out.sort(key=lambda s: _order(s["page"], s["rect"]))
         return out
 
 
 # ---------------------------------------------------------------- proposals: an area -> field(s)
 
-def _text_caption(words: list[tuple], r, sel) -> tuple[Optional[str], Optional[str]]:
+def _text_caption(words: list[tuple], r, sel, under: bool = False) -> tuple[Optional[str], Optional[str]]:
     """Printed words that name a text box at `r`: words the drawn area takes in outside the box; the box's own
-    words (a cell's printed label); words just left on its line; the line just above it."""
+    words (a cell's printed label); words just left on its line; for the band above an underline (`under`), the row
+    printed right under the line (UNDER_GAP: "Signature of Applicant" under a signature line, where the row above is
+    the line before's); the line just above it."""
     def txt(ws):
         return clean_caption(" ".join(w[4] for w in ws))
     inbox = lambda w: _center_in(w[:4], r, pad=1)
@@ -308,6 +448,14 @@ def _text_caption(words: list[tuple], r, sel) -> tuple[Optional[str], Optional[s
         edge = w[0]
     if left and txt(left):
         return txt(left), "page text (left of the box)"
+    if under:
+        below = [w for w in words if r[3] - 1 <= w[1] <= r[3] + UNDER_GAP
+                 and min(w[2], r[2]) - max(w[0], r[0]) > 0.5 * (w[2] - w[0])]
+        if below:
+            y = min(w[1] for w in below)
+            row = sorted((w for w in below if abs(w[1] - y) < 3), key=lambda w: w[0])
+            if txt(row):
+                return txt(row), "page text (under the line)"
     above = [w for w in words if r[1] - 16 <= w[3] <= r[1] + 3 and min(w[2], r[2]) - max(w[0], r[0]) > 0.3 * (w[2] - w[0])]
     if above:
         y = max(w[3] for w in above)
@@ -325,6 +473,20 @@ def _box_info(ctx: Context, page: int, rect) -> Optional[dict]:
             if s > score:
                 best, score = b, s
     return best if score >= CLAIM else None
+
+
+def free_name(name: str, taken) -> str:
+    """`name`, or the nearest free one (Andrew, 2026-10-31: "any suggested duplicate name should just be converted to
+    a non-clashing name, either by increasing the iteration value or by adding one"): a trailing number raised until
+    free (x_line_2 -> x_line_3), else _2 added (sort_code -> sort_code_2). A field's iteration ends its name
+    (docs/NAMING.md), so a number inside it (line_12_amt) is left alone."""
+    if name not in taken:
+        return name
+    m = re.match(r"^(.*)_(\d+)$", name)
+    base, k = (m.group(1), int(m.group(2)) + 1) if m else (name, 2)
+    while f"{base}_{k}" in taken:
+        k += 1
+    return f"{base}_{k}"
 
 
 def _named(p: dict, candidates: list[tuple[Optional[str], str]], kind: str, taken: set[str],
@@ -363,9 +525,7 @@ def _named(p: dict, candidates: list[tuple[Optional[str], str]], kind: str, take
             o["types"] = {"type": "boolean", "semantic_type": "indicator"}
         else:
             o["types"] = {"type": p.get("type") or "category"}
-        base, k = o["name"], 2
-        while o["name"] in taken:
-            o["name"], k = f"{base}_{k}", k + 1
+        o["name"] = free_name(o["name"], taken)
     p["name"], p["name_source"], p["name_options"] = opts[0]["name"], opts[0]["source"], opts
     for k in ("type", "semantic_type", "pattern"):
         p.pop(k, None)
@@ -409,10 +569,7 @@ def switch_kind(p: dict, kind: str, taken: set[str] = frozenset()) -> dict:
         return {"type": "boolean", "semantic_type": "indicator"} if kind == "option" else enrich_field(n, "text")
     opts, seen, now = [], set(), {}
     for o in p.get("name_options") or [{"name": p["name"], "source": p.get("name_source") or "hand"}]:
-        n = renamed(o["name"])
-        base, k = n, 2
-        while n in taken:
-            n, k = f"{base}_{k}", k + 1
+        n = free_name(renamed(o["name"]), taken)
         now[o["name"]] = n
         if n not in seen:
             seen.add(n)
@@ -424,6 +581,81 @@ def switch_kind(p: dict, kind: str, taken: set[str] = frozenset()) -> dict:
     q["name"] = p["name"] if p.get("name_source") == "hand" else now.get(p["name"], renamed(p["name"]))
     q.update(typed(q["name"]))
     return q
+
+
+KIND_EDIT = "x_petey_kind_edit"
+
+
+def kind_of(spec: dict) -> str:
+    """text, printed or choice, as the Add / remove card's kind shows it."""
+    if not printed_fields.is_text(spec):
+        return "choice"
+    return "printed" if printed_fields.is_printed(spec) else "text"
+
+
+def flip_kind(spec: dict, name: str, kind: str, now: str) -> Optional[str]:
+    """One field of the blueprint made text, printed or a choice in place (Andrew, 2026-11-01: "can you add the
+    ability to flip a field from choice to text in add/remove (without deleting and re-adding the field)?"): its name,
+    id, box and records stay; the type follows the kind as `switch_kind` types a proposal (a choice a boolean
+    `indicator`, text typed from its name). A form path of the other kind (a checkbox widget's path on a field made
+    text) is set aside in `x_petey_kind_edit`, the page showing what the form layer does not, and comes back when the
+    field is flipped back. One box only: a group of several boxes is not one text field."""
+    if kind not in ("text", "printed", "choice"):
+        raise ValueError(f"unknown kind {kind!r}")
+    w = spec.get("widget")
+    if not w or spec.get("widgets"):
+        raise ValueError(f"{name} is a group of several boxes: only a one-box field changes kind")
+    was = kind_of(spec)
+    if was == kind:
+        return None
+    rec = dict(spec.get(KIND_EDIT) or {})
+    if (was == "choice") != (kind == "choice"):           # the box itself changes kind, not just the printed tag
+        held = rec.pop("path", None), rec.pop("widget_type", None)
+        if w.get("path"):
+            rec["path"], rec["widget_type"] = w["path"], w.get("widget_type")
+            w["path"] = None
+        if kind == "choice":
+            w["widget_type"] = held[1] if held[0] else "checkbox"
+            if held[0]:
+                w["path"] = held[0]
+            if rec.get("on_state"):
+                w["on_state"] = rec.pop("on_state")
+            if rec.get("values"):
+                spec["values"] = rec.pop("values")
+            for k in ("pattern", printed_fields.TAG):
+                spec.pop(k, None)
+            spec.update({"type": "boolean", "semantic_type": "indicator"})
+        else:
+            w["widget_type"] = "text"
+            if w.get("on_state"):                         # a choice's on-state and options, kept for a flip back
+                rec["on_state"] = w.pop("on_state")
+            if spec.get("values"):
+                rec["values"] = spec["values"]
+            if held[0]:
+                w["path"] = held[0]
+            for k in ("semantic_type", "pattern", "values"):
+                spec.pop(k, None)
+            spec.update({"type": "string"}, **enrich_field(name[:-4] if name.endswith("_ind") else name, "text"))
+    if kind == "printed":
+        spec[printed_fields.TAG] = {"source": "field_add", "when": now}
+    elif kind == "text":
+        spec.pop(printed_fields.TAG, None)
+    rec.update({"from": rec.get("from", was), "when": now})
+    spec[KIND_EDIT] = rec
+    return f"{name}: {was} -> {kind}"
+
+
+def set_field_kind(bid: str, field: str, kind: str, real: Optional[Path] = None) -> list[str]:
+    """Add / remove's kind on a field of the blueprint, in the working copy (`flip_kind`)."""
+    now = time.strftime("%Y-%m-%d %H:%M:%S")
+
+    def edit(bp):
+        spec = (bp.get("fields") or {}).get(field)
+        if not isinstance(spec, dict):
+            raise KeyError(field)
+        ln = flip_kind(spec, field, kind, now)
+        return [ln] if ln else []
+    return printed_fields.write(bid, edit, "add", real)
 
 
 def _twins(ctx: Context, cands: list[dict], evidence: list[str]) -> list[tuple[str, str]]:
@@ -455,13 +687,15 @@ def _text_proposal(ctx: Context, c: dict, src: str, sel, taken: set[str]) -> dic
             evidence.append(f"max length {c['maxlen']}")
     elif src == "finder":
         evidence.append(f"finder {c.get('kind')} box (confidence {c.get('conf')})")
+    elif src == "underline":
+        evidence.append("an underline on the page: the band above it is the field's box")
     else:
         evidence.append("no widget or finder box here: the drawn box is the field's box")
     cls_cap = (box or {}).get("label")
     if box and box.get("class"):
         evidence.append(f"classifier: {box['class']}" + (f" for {box['entity']}" if box.get("entity") else "")
                         + (f", caption {cls_cap!r}" if cls_cap else ""))
-    cap, cap_src = _text_caption(ctx.words(page), rect, sel)
+    cap, cap_src = _text_caption(ctx.words(page), rect, sel, under=src == "underline")
     if cap:
         evidence.append(f"{cap_src}: {cap!r}")
     tip = c.get("tooltip")
@@ -574,18 +808,38 @@ def _options_proposal(ctx: Context, cands: list[tuple[dict, str]], sel, taken: s
     return p
 
 
+def line_at(ctx: Context, page: int, x: float, y: float) -> Optional[list[float]]:
+    """The band above the underline a click is on, inside the band or up to LINE_REACH pt above it; the nearest when
+    lines are stacked."""
+    best = None
+    for pg, r in ctx.bands():
+        if pg == page and r[0] - 2 <= x <= r[2] + 2 and r[1] - LINE_REACH <= y <= r[3] + 2:
+            d = 0.0 if r[1] <= y <= r[3] else min(abs(y - r[1]), abs(y - r[3]))
+            if best is None or d < best[0]:
+                best = (d, r)
+    return list(best[1]) if best else None
+
+
 def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Optional[str] = None,
-            taken_extra: set[str] = frozenset()) -> dict:
+            taken_extra: set[str] = frozenset(), dismissed: Iterable = ()) -> dict:
     """Proposed field(s) for a drawn area (`rect`) or a suggestion (`sid`), with notes on what the area holds
-    that a field already covers."""
+    that a field already covers. A suggestion set aside as not a field (`dismissed`: ids, or the page's entries with
+    their boxes; and the record's) is not there for a box drawn or a click (Andrew, 2026-10-31: "I want to be able to
+    un-suggest boxes so they don't get selected when I draw over them"): the area drawn is the field. Setting aside
+    does nothing else: a click there reads the page as if the suggestion was never made, a printed box inside a
+    larger box set aside included (Andrew, 2026-11-02: "'not a field' should just remove that pre-identified field
+    from the add/remove layout. and nothing else")."""
     taken = ctx.names | set(taken_extra)
+    aside_ = [d if isinstance(d, dict) else {"sid": d} for d in dismissed] + (load_record(ctx.bid).get("dismissed") or [])
+    gone = {d.get("sid") for d in aside_}
     notes: list[str] = []
     sel = None
     if sid:
-        c = next((w for w in ctx.widgets if w["sid"] == sid), None) or next((b for b in ctx.boxes or [] if b["sid"] == sid), None)
+        c = next((w for w in ctx.widgets if w["sid"] == sid), None) or next((b for b in ctx.boxes or [] if b["sid"] == sid), None) \
+            or next((u for u in ctx.lines() if u["sid"] == sid), None)
         if c is None:
             return {"proposals": [], "notes": [f"no suggestion {sid}"]}
-        cands = [(c, "widget" if sid.startswith("w") else "finder")]
+        cands = [(c, "widget" if sid.startswith("w") else "underline" if sid.startswith("u") else "finder")]
         page = c["page"]
     else:
         sel = [float(v) for v in rect]
@@ -593,8 +847,8 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
         def hit(r):
             return (sel[0] >= r[0] - 1 and sel[2] <= r[2] + 1 and sel[1] >= r[1] - 1 and sel[3] <= r[3] + 1) if point \
                 else (_center_in(r, sel) or overlap(r, sel) >= 0.6 and _area(r) <= _area(sel) * 1.5)
-        ws = [w for w in ctx.widgets if w["page"] == page and hit(w["rect"])]
-        bs = [b for b in ctx.boxes or [] if b["page"] == page and hit(b["rect"])]
+        ws = [w for w in ctx.widgets if w["page"] == page and hit(w["rect"]) and w.get("sid") not in gone]
+        bs = [b for b in ctx.boxes or [] if b["page"] == page and hit(b["rect"]) and b.get("sid") not in gone]
         if point:                                          # a click: the smallest thing under it
             ws = sorted(ws, key=lambda w: _area(w["rect"]))[:1]
             bs = sorted(bs, key=lambda b: _area(b["rect"]))[:1] if not ws else []
@@ -615,14 +869,31 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
                 continue
             cands.append((b, "finder"))
         if not cands:
-            if ws or bs:
+            # a box drawn is always a field (Andrew, 2026-10-31: "in general you should just let a box be drawn anywhere
+            # and become a field. overlapping boxes are common"): what is under it already a field, or set aside by the
+            # classifier, is only a note, and the area drawn is the field. A click on such a thing still proposes nothing
+            if (ws or bs) and point:
                 return {"proposals": [], "notes": notes}
             w_, h_ = sel[2] - sel[0], sel[3] - sel[1]
+            geom = "selection"
+            if point and ctx.blank:                        # a click on nothing known: the printed box around it
+                x, y = (sel[0] + sel[2]) / 2, (sel[1] + sel[3]) / 2
+                box = enclosed_box(ctx.blank, page, x, y)
+                if box is not None:
+                    notes.append("the printed box around the click")
+                elif (box := line_at(ctx, page, x, y)) is not None:
+                    if ctx._claimed(page, box):
+                        return {"proposals": [], "notes": [f"the underline here is already field {ctx._claimed(page, box)}"]}
+                    geom = "underline"                     # or the line the click is on or just above
+                    notes.append("the band above the underline at the click")
+                if box is not None:
+                    sel = box
+                    w_, h_ = sel[2] - sel[0], sel[3] - sel[1]
             if w_ < 3 or h_ < 3:
                 return {"proposals": [], "notes": ["nothing here; drag a box over the area to make a field of it"]}
             small_square = w_ <= 16 and h_ <= 16 and abs(w_ - h_) <= 4
             c = {"page": page, "rect": [round(v, 2) for v in sel], "kind": "checkbox" if small_square else "text"}
-            cands = [(c, "selection")]
+            cands = [(c, geom)]
             if ctx.widgets:
                 notes.append("this blank has a form layer but no widget here: a filler cannot type into this box")
     # a radio kid brings its unclaimed siblings (one AcroForm field, one group)
@@ -717,6 +988,8 @@ def spec_of(p: dict, now: str) -> dict:
                           "widget_type": w["widget_type"], "path": w.get("path")}
         if w.get("on_state"):
             spec["widget"]["on_state"] = w["on_state"]
+        if p.get("printed") and p["kind"] == "text":     # the card's kind "printed" (2026-10-31), as Review's w tags it
+            spec[printed_fields.TAG] = {"source": "field_add", "when": p.get("when") or now}
     if p.get("description"):
         spec["description"] = p["description"]
     src = p.get("name_source") or "hand"
@@ -741,9 +1014,9 @@ def _first_rect(spec: dict) -> Optional[tuple]:
 
 def plan(bp: dict, added: list[dict], removed: list[dict] = ()) -> dict:
     """`{changes, errors, skipped, fields}`: the blueprint's fields less the removed ones, with the added ones
-    inserted, each after the field that precedes it in reading order. An added field whose box a field now covers is
-    skipped (added since, by another route); a removal of a field that is no longer there is skipped too. An added
-    field may take the name of a removed one."""
+    inserted, each after the field that precedes it in reading order. An added field may overlap fields (2026-10-31:
+    noted in its change line); one whose box is a field's own box again is skipped (added since, by another route); a
+    removal of a field that is no longer there is skipped too. An added field may take the name of a removed one."""
     errors, changes, skipped = [], [], []
     fields = dict(bp.get("fields") or {})
     for r in removed:
@@ -755,28 +1028,31 @@ def plan(bp: dict, added: list[dict], removed: list[dict] = ()) -> dict:
             skipped.append(f"{r.get('name')}: already not in the blueprint")
     rects = field_rects({"fields": fields})
     now = time.strftime("%Y-%m-%d %H:%M:%S")
-    names = [p["name"] for p in added]
-    for n in sorted({n for n in names if names.count(n) > 1}):
-        errors.append(f"two added fields are both named {n!r}")
     new: list[tuple[str, dict]] = []
+    used = set(fields)                              # names taken so far: the blueprint's, then each addition's
     for p in added:
         if not NAME_RE.match(p.get("name") or ""):
             errors.append(f"{p.get('name')!r} is not a field name (lower case, digits, underscores)")
             continue
-        if p["name"] in fields:
-            errors.append(f"{p['name']!r} is already a field in the blueprint")
-            continue
         box = p["rect"] if p["kind"] != "group" else p["options"][0]["rect"]
-        hit = next((f["name"] for f in rects if f["page"] == p["page"] and overlap(box, f["rect"]) >= CLAIM), None)
-        if hit:
-            skipped.append(f"{p['name']}: its box is now field {hit}")
+        # overlapping a field is fine (2026-10-31, "overlapping boxes are common"); only the same box again is not
+        # (an addition saved twice, or one a rename made a field meanwhile: je__i_129 2026-10-25)
+        same = next((f["name"] for f in rects if f["page"] == p["page"] and _iou(box, f["rect"]) >= SAME_BOX), None)
+        if same:
+            skipped.append(f"{p['name']}: the same box is field {same}")
             continue
+        if p["name"] in used:                       # a clash is renamed, not refused (2026-10-31)
+            free = free_name(p["name"], used)
+            changes.append(f"{p['name']} is taken: added as {free}")
+            p = {**p, "name": free}
+        used.add(p["name"])
+        over = next((f["name"] for f in rects if f["page"] == p["page"] and overlap(box, f["rect"]) >= CLAIM), None)
         spec = spec_of(p, now)
         new.append((p["name"], spec))
         what = (f"group of {len(p['options'])} ({', '.join(o['key'] for o in p['options'])})" if p["kind"] == "group"
                 else spec["type"] + (f"/{spec['semantic_type']}" if spec.get("semantic_type") else ""))
         changes.append(f"add {p['name']} on p{p['page']}: {what}; {p.get('geometry')} geometry, name from "
-                       f"{p.get('name_source')}")
+                       f"{p.get('name_source')}" + (f"; overlaps field {over}" if over else ""))
     if errors:
         return {"changes": changes, "errors": errors, "skipped": skipped, "fields": None}
     order = [(n, _first_rect(s)) for n, s in fields.items() if isinstance(s, dict)]
@@ -810,6 +1086,7 @@ def apply(bid: str) -> dict:
     pl = plan(bp, added, removed)
     if pl["errors"]:
         raise SystemExit(f"{bid}: not applied:\n  " + "\n  ".join(pl["errors"]))
+    freed = removed_boxes(bp, removed)                   # read before the fields go
     for s in pl["skipped"]:
         print(f"  skipped {s}")
     if pl["changes"]:
@@ -821,7 +1098,7 @@ def apply(bid: str) -> dict:
     now = time.strftime("%Y-%m-%d %H:%M:%S")
     rec.setdefault("applied", []).append({"when": now, "sha_before": rec.get("blueprint_sha"), "sha_after": _sha(p),
                                           "changes": pl["changes"], "skipped": pl["skipped"]})
-    rec["removed_applied"] = (rec.get("removed_applied") or []) + removed    # their boxes stay out of the suggestions
+    rec["removed_applied"] = (rec.get("removed_applied") or []) + freed      # their boxes are suggestions again (with_removed)
     rec["added"], rec["removed"], rec["blueprint_sha"], rec["updated"] = [], [], _sha(p), now
     record_path(bid).write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"{bid}: wrote {p}")
@@ -831,6 +1108,39 @@ def apply(bid: str) -> dict:
 
 
 # ---------------------------------------------------------------- server
+
+
+def removed_boxes(bp: dict, removed: list[dict]) -> list[dict]:
+    """Each removal once for every box of the field it removes: a removal names the field by its first box only, and
+    a Yes / No pair removed came back with its Yes box alone, the No box gone with nothing to click (Andrew,
+    2026-10-31, bm__pb_2b940fceba30 p2 question 1). A removal of a field no longer there is kept as it was sent."""
+    out = []
+    for r in removed:
+        spec = (bp.get("fields") or {}).get(r.get("name"))
+        boxes = field_rects({"fields": {r["name"]: spec}}) if spec else []
+        out += [{**r, "page": b["page"], "rect": b["rect"]} for b in boxes] or [r]
+    return out
+
+
+def with_removed(sugg: list[dict], fields: list[dict], rec: dict) -> list[dict]:
+    """The suggestions with removed fields' boxes back in them once the removal is in the working copy (Andrew,
+    2026-10-28: "when you remove a field, it should revert to orange instead of disappearing entirely"): a widget or
+    finder box there is a suggestion again of itself; where none is (screened out, or a box drawn by hand) the removed
+    field's own box is one (`source` "removed_box", proposed as a drawn area). A removal not yet applied keeps its box
+    out: the field is still there, drawn to be removed."""
+    pending = [r for r in rec.get("removed") or [] if r.get("rect")]
+    out = [x for x in sugg if not any(r["page"] == x["page"] and overlap(r["rect"], x["rect"]) >= CLAIM for r in pending)]
+    for r in rec.get("removed_applied") or []:
+        if not r.get("rect") or not r.get("page"):
+            continue
+        taken = [x for x in out if x["page"] == r["page"]] + [f for f in fields if f.get("page") == r["page"] and f.get("rect")]
+        if any(overlap(r["rect"], x["rect"]) >= CLAIM for x in taken):
+            continue
+        out.append({"sid": f"r{r['page']}_{round(r['rect'][0])}_{round(r['rect'][1])}", "source": "removed_box", "page": r["page"], "rect": r["rect"],
+                    "what": f"the box of {r.get('name') or 'a removed field'} (removed)"})
+    out.sort(key=lambda x: _order(x["page"], x["rect"]))
+    return out
+
 
 class State:
     def __init__(self) -> None:
@@ -858,11 +1168,9 @@ class State:
     def detail(self, bid: str) -> dict:
         c = self.ctx(bid)
         rec = load_record(bid)
-        gone = [r for r in (rec.get("removed") or []) + (rec.get("removed_applied") or []) if r.get("rect")]
-        sugg = [x for x in c.suggestions()                  # a removed field's box is not a missing field
-                if not any(r["page"] == x["page"] and overlap(r["rect"], x["rect"]) >= CLAIM for r in gone)]
+        sugg = with_removed(c.suggestions(), c.fields, rec)
         return {"id": bid, "path": str(self.paths[bid]), "blank": str(c.blank) if c.blank else None, "sha": c.sha,
-                "pages": c.pages, "fields": c.fields, "suggestions": sugg,
+                "pages": c.pages, "fields": c.fields, "suggestions": sugg, "lines": c.lines(),
                 "field_specs": {k: {x: v.get(x) for x in ("type", "semantic_type", "description", "x_petey_id") if v.get(x)}
                                 for k, v in (c.bp.get("fields") or {}).items() if isinstance(v, dict)},
                 "finder": "cached" if c.boxes is not None else "not run",

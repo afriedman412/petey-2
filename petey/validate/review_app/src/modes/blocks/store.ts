@@ -286,10 +286,12 @@ export async function blockDetect() {
   catch (e) { alert((e as Error).message); return; }
   await loadMode();
   const lab = Object.entries(out.by_labels || {}).flatMap(([t, ns]) => (ns as number[]).map(n => `${t}-${n}`)), emp = Object.entries(out.empty || {});
+  const mod = Object.entries(out.by_model || {}).flatMap(([t, ns]) => (ns as number[]).map(n => `${t}-${n}`));
   const grew = Object.entries(out.grew || {}).map(([t, v]) => { const ns = v as string[];
     return `${t} took in ${ns.length} field${ns.length === 1 ? '' : 's'} repeating in all its blocks (${ns.slice(0, 4).join(', ')}${ns.length > 4 ? ', …' : ''})`; });
   toast((grew.length ? grew.join('; ') + '. ' : '') + (out.n ? 'Found ' + Object.entries(out.found).map(([t, ns]) => (ns as number[]).map(n => `${t}-${n}`).join(', ')).join('; ') + '.'
     + (lab.length ? ` By their printed labels: ${lab.join(', ')}.` : '')
+    + (mod.length ? ` By the box model (layout drifted): ${mod.join(', ')}.` : '')
     + (emp.length ? ` With empty positions (drag the missing fields onto them): ${emp.map(([b, k]) => `${b} (${k})`).join(', ')}.` : '')
     : 'No new copies of a block type on this page.'));
 }
@@ -351,6 +353,20 @@ export async function blockOut(code: string) {
   try { out = await send('POST', mapi('blocks', bid(), '/out'), { block: code }); }
   catch (e) { alert((e as Error).message); return; }
   put({ selBlock: null });
+  await loadMode();
+  toast(out.said.join('; ') + '.');
+}
+
+// "cancel" on a type (Andrew, 2026-10-27: "a 'cancel' button to the block type (to dismiss all blocks of a given type,
+// behind a warning message)"): the type and its blocks go, the fields stay as they are
+export async function typeOut(tid: string) {
+  const y = (S().GD?.types || []).find(t => t.id === tid); if (!y) return;
+  const n = y.blocks.length;
+  if (!confirm(`Dismiss all ${n} block${n === 1 ? '' : 's'} of ${tid}${y.label ? ` (${y.label})` : ''}?\n\nThe type and its blocks go; the fields stay, with the names they have now. This cannot be undone.`)) return;
+  let out;
+  try { out = await send('POST', mapi('blocks', bid(), '/tout'), { type: tid }); }
+  catch (e) { alert((e as Error).message); return; }
+  if (y.blocks.some(b => b.code === S().selBlock)) put({ selBlock: null });
   await loadMode();
   toast(out.said.join('; ') + '.');
 }

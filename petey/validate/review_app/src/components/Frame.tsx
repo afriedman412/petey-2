@@ -1,11 +1,23 @@
 // The frame around the tabs: the mode bar and tabs, the page buttons, the sidebar (with its "show" toggles and the
 // view buttons), the help menu and the toast.
 import { useEffect, useRef, useState, type KeyboardEvent as RKeyboardEvent } from 'react';
-import type { ModeId } from '../lib/types';
+import { MODE_IDS } from '../lib/types';
 import { store } from '../lib/util';
 import { gotoPage, setMode, setZoom, toggleWide } from '../state/actions';
-import { set, useApp, type ShowKey } from '../state/app';
+import { copyText } from '../lib/dnd';
+import { set, useApp, useEntry, type ShowKey } from '../state/app';
 import { MODES } from '../modes';
+import { loadIgnored, pageId, reasonsUsed, setIgnored, useIgnored } from '../state/ignored';
+import { fillSame, loadSame, sameLabel, useSame } from '../state/same';
+
+// the page's reference (file_p3) before the tab's counts, on every tab: click to copy it (Andrew, 2026-10-27)
+function PageRef() {
+  const { bid, page } = useApp();
+  const form = useEntry()?.form || (bid || '').split('__').pop();
+  if (!form) return null;
+  const ref = `${form}_p${page}`;
+  return <code className="fid" id="pageref" style={{ cursor: 'pointer' }} title="click to copy the page reference (file_page)" onClick={() => copyText(ref)}>{ref}</code>;
+}
 
 export function ModeBar() {
   const { mode, bid, loaded } = useApp();
@@ -13,9 +25,9 @@ export function ModeBar() {
   const ready = !!bid && loaded?.mode === mode && loaded.bid === bid;
   return (
     <div id="modebarRow">
-      <div id="modebar">{ready ? <d.Bar /> : <span className="progress" id="progress" />}</div>
+      <div id="modebar"><PageRef />{ready ? <d.Bar /> : <span className="progress" id="progress" />}</div>
       <span className="tabs" id="tabs">
-        {(Object.keys(MODES) as ModeId[]).map((m, i) => (
+        {MODE_IDS.map((m, i) => (
           <button key={m} className={m === mode ? 'on' : ''} title={`Shift+${i + 1}`} onClick={() => setMode(m)}>{MODES[m].name}</button>
         ))}
       </span>
@@ -23,7 +35,9 @@ export function ModeBar() {
   );
 }
 
-// p7 (not validated / total) of what the tab works on (Andrew, 2026-10-22); a page with nothing left in green.
+// p7 (not validated / total) of what the tab works on (Andrew, 2026-10-22); a page with nothing left in green. Every
+// page on every tab, a page with no field at all greyed (Andrew, 2026-10-27: "instead of only showing the pages that
+// have the relevant fields, can you show all the pages? and can you color the pages that have NO fields differently").
 // Drawn anew for each tab: each tab's useData calls its own hooks, and React wants the same hooks on every draw.
 export function Pages() {
   const mode = useApp(s => s.mode);
@@ -33,15 +47,75 @@ function PagesOf() {
   const { mode, page, bid, loaded } = useApp();
   const d = MODES[mode];
   d.useData();
+  const ign = useIgnored(s => s.rec);
+  useEffect(() => { loadIgnored(); }, []);
   if (!bid || loaded?.mode !== mode || loaded.bid !== bid) return <div className="pages" id="pages" />;
   return (
     <div className="pages" id="pages">
       {d.pages().map(p => {
-        const lab = d.pageLabel(p.page); if (!lab) return null;
-        const done = typeof lab !== 'string' && lab.done;
-        return <button key={p.page} className={(p.page === page ? 'on' : '') + (done ? ' done' : '')} onClick={() => gotoPage(p.page)}>{typeof lab === 'string' ? lab : lab.text}</button>;
+        const lab = d.pageLabel(p.page) || `p${p.page}`;
+        const done = typeof lab !== 'string' && lab.done, empty = p.fields === 0, ig = ign[pageId(bid, p.page)];
+        return <button key={p.page} className={(p.page === page ? 'on' : '') + (done ? ' done' : '') + (empty ? ' empty' : '') + (ig ? ' ignored' : '')}
+          title={[empty && 'no fields on this page', ig && `ignored: ${ig.reason}`].filter(Boolean).join('; ') || undefined}
+          onClick={() => gotoPage(p.page)}>{typeof lab === 'string' ? lab : lab.text}</button>;
       })}
+      <SamePage bid={bid} page={page} />
+      <IgnorePage bid={bid} page={page} />
     </div>
+  );
+}
+
+// "fill from" an identical page (Andrew, 2026-10-31: "can you try to leverage existing pages to fill in the info on
+// identical pages"; "everything should carry over"): shown on a page that has one holding fields, this form's copies
+// first; the fill goes into the working copy, a field here that is not on the source kept and flagged.
+function SamePage({ bid, page }: { bid: string; page: number }) {
+  const { pages, busy } = useSame();
+  const [pick, setPick] = useState(0);
+  useEffect(() => { loadSame(bid); }, [bid]);
+  useEffect(() => { setPick(0); }, [bid, page]);
+  const rows = pages[String(page)] || [];
+  if (!rows.length) return null;
+  const s = rows[Math.min(pick, rows.length - 1)];
+  return (
+    <span className="samepg" id="samePage" title="this page is the same page as these: fill it from one (fields, kinds, groups, blocks, grids, names and verdicts), into the working copy">
+      <span className="lab">same as</span>
+      {rows.length > 1
+        ? <select value={pick} onChange={e => setPick(+e.target.value)}>{rows.map((r, i) => <option key={i} value={i}>{sameLabel(r)}</option>)}</select>
+        : <span className="one">{sameLabel(s)}</span>}
+      <button disabled={busy} onClick={() => fillSame(page, s)}>{busy ? 'filling…' : 'fill from it'}</button>
+    </span>
+  );
+}
+
+// "ignore this page" (Andrew, 2026-10-31): the page open left out of the benchmark, with a reason (required; the
+// reasons used before are offered). An ignored page's button is struck through; "take back" puts it back in.
+// The reason starts as "too few fields", selected so typing replaces it (Andrew, 2026-10-31).
+const DEFAULT_REASON = 'too few fields';
+function IgnorePage({ bid, page }: { bid: string; page: number }) {
+  const { rec, open } = useIgnored();
+  const [reason, setReason] = useState(DEFAULT_REASON);
+  const pid = pageId(bid, page), ig = rec[pid];
+  useEffect(() => { useIgnored.setState({ open: false }); setReason(DEFAULT_REASON); }, [pid]);
+  if (ig) return (
+    <span className="ignorepg" id="ignorePage">
+      <span className="why" title={`ignored ${ig.when}`}>p{page} ignored: {ig.reason}</span>
+      <button className="mini" onClick={() => setIgnored(pid, false)} title="put this page back in the benchmark">take back</button>
+    </span>
+  );
+  if (!open) return (
+    <span className="ignorepg" id="ignorePage">
+      <button onClick={() => useIgnored.setState({ open: true })} title="leave this page out of the benchmark, with a reason">ignore page</button>
+    </span>
+  );
+  const go = () => { if (reason.trim()) setIgnored(pid, true, reason).then(ok => ok && setReason(DEFAULT_REASON)); };
+  return (
+    <span className="ignorepg" id="ignorePage">
+      <input autoFocus onFocus={e => e.currentTarget.select()} list="ignoreReasons" placeholder={`why ignore p${page}?`} value={reason} onChange={e => setReason(e.target.value)}
+        onKeyDown={e => { if (e.key === 'Enter') go(); else if (e.key === 'Escape') useIgnored.setState({ open: false }); }} />
+      <datalist id="ignoreReasons">{reasonsUsed(rec).map(r => <option key={r} value={r} />)}</datalist>
+      <button disabled={!reason.trim()} onClick={go}>ignore</button>
+      <button onClick={() => useIgnored.setState({ open: false })}>cancel</button>
+    </span>
   );
 }
 
@@ -127,7 +201,7 @@ export function Sidebar() {
 }
 
 // the help menu (2026-10-07): every key hint lives here, not in the bars and buttons; the current tab first
-const GLOBAL_KEYS: [string, string][] = [['Shift+1 / 2 / 3 / 4 / 5 / 6', 'Review / Groups / Add / remove / Grids / Blocks / Audit'], ['1-9', 'go to that page'], ['+ / -', 'zoom in / out'], ['?', 'this help']];
+const GLOBAL_KEYS: [string, string][] = [['Shift+1 / 2 / 3 / 4 / 5 / 6', 'Review / Groups / Add / remove / Grids / Blocks / Audit'], ['1-9', 'go to that page'], ['+ / -', 'zoom in / out'], ['t', 'hide / show the tabs on the page'], ['?', 'this help']];
 function Keys({ rows }: { rows: [string, string][] }) {
   return <table><tbody>{rows.map(([k, d]) => (
     <tr key={k}><td>{k.split(' / ').map((x, i) => <span key={i}>{i ? ' / ' : ''}<kbd>{x}</kbd></span>)}</td><td>{d}</td></tr>))}</tbody></table>;

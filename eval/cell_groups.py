@@ -11,7 +11,8 @@ its row is not also joined to the boxes above and below (stacked Yes / No questi
 is left alone when its boxes line up in columns with another row's and the captions differ: a table of separate
 items (ACORD 125 attachments, Form 1004 amenities), not one question's options; rows that repeat the same captions
 (You / Spouse per line) still group. Stacked lists and column questions are not grouped here (2026-10-15: wrong as
-often as right; the question's heading has to be read across ruled rows).
+often as right; the question's heading has to be read across ruled rows), except one question's options wrapped into
+side-by-side columns under one heading (`_column_joins`, 2026-10-31).
 
 Scored on the validated forms against Andrew's blueprints: each loose box of the generated copy (belongs_to_fixture
 before copy) belongs in the validated one to a group or stands alone. Pairs: of the box pairs the rule puts in one
@@ -153,19 +154,152 @@ def groups(bp: dict, blank: Path, stacks: bool = True) -> list[set[str]]:
                 if a in in_row and b in in_row and rfind(a) != rfind(b) and cap[a] != cap[b]:
                     col[rfind(a)] += 1
                     col[rfind(b)] += 1
+            row_kept = set()
             for a, b in links["row"]:
                 if col[rfind(a)] < 2:
                     parent[find(a)] = find(b)
+                    row_kept |= {a, b}
             if stacks:
                 for a, b in links["stack"]:      # a box with a row partner answers its own row's question
                     if a not in in_row and b not in in_row:
                         parent[find(a)] = find(b)
+                for a, b in _column_joins(names, boxes, row_kept, rl, allw, words):
+                    parent[find(a)] = find(b)
     finally:
         doc.close()
     g = collections.defaultdict(set)
     for n in boxes:
         g[find(n)].add(n)
     return [s for s in g.values() if len(s) > 1]
+
+
+def _line_caption(words: list, r, stop_x: float) -> str:
+    """The words printed right of the box on its line, up to `stop_x` (lower case)."""
+    cy = (r[1] + r[3]) / 2
+    right = sorted((w for w in words if abs((w[1] + w[3]) / 2 - cy) <= 4 and r[2] - 1 <= w[0] < stop_x),
+                   key=lambda w: w[0])
+    return " ".join(w[4] for w in right).lower()
+
+
+def _column_joins(names: list[str], boxes: dict, row_kept: set[str], rl: list, allw: list,
+                  stop: list) -> list[tuple[str, str]]:
+    """One question's options wrapped into side-by-side columns (Andrew, 2026-10-31: "groups of choice fields that are
+    far apart but should all be connected"; the FAFSA's federal benefits question, three columns 190-210 pt apart, came
+    out as three groups: its rows line up like a table's, so the row rule leaves them, and no stack crosses columns).
+    A column is 2+ boxes of one size on one left edge, each under 40 pt below the last and not starting another
+    question (`breaks`), none held by a row group, each with its own caption. Two columns are joined, all their boxes,
+    when their top boxes sit on one line and are one size, no box stands between them, no ruling line, printed item
+    number or question mark sits between them, nothing else is printed between a left box's caption and the right
+    column (CBP 3461's Name:, a fee schedule's amounts) and no caption runs past it, no caption repeats within a
+    column or across the two (Yes / No columns), and the right column has no heading of its own (a printed line, not a
+    caption, starting at its edge just above its top box: Loan Type / Amortization Type).
+    Measured 2026-10-31 on 714 saved blueprints, every group broken apart and rebuilt: of the groups the rule changed,
+    143 are one saved group, 11 join saved groups (9 one question saved split; bm__sd_1506275's diagnostic criteria
+    beside its work-related question; one through a stack the row rule chained under a heading), 4 take in loose boxes;
+    on the validated forms (`main`) +6 pairs, all right. Returns pairs to join."""
+    lines = collections.defaultdict(list)
+    for w in allw:
+        lines[(w[5], w[6])].append(w)
+    ext = []                                      # printed lines, split where words stand 15 pt apart (two headings
+    for ws in lines.values():                     # on one baseline: Loan Type ... Amortization Type)
+        ws.sort(key=lambda w: w[0])
+        seg = [ws[0]]
+        for w in ws[1:] + [None]:
+            if w is not None and w[0] - seg[-1][2] < 15:
+                seg.append(w)
+                continue
+            ext.append((seg[0][0], min(v[1] for v in seg), seg[-1][2], max(v[3] for v in seg)))
+            seg = [w]
+
+    def is_caption(e) -> bool:                    # starts just right of a box on its line
+        cy = (e[1] + e[3]) / 2
+        return any(abs((boxes[m]["rect"][1] + boxes[m]["rect"][3]) / 2 - cy) <= 6
+                   and boxes[m]["rect"][2] - 1 <= e[0] <= boxes[m]["rect"][2] + 10 for m in names)
+    heads = [(e[0], e[3]) for e in ext if not is_caption(e)]
+    def label_left(e) -> bool:                    # a printed line with no box left of it on or just above its line
+        return not any(boxes[m]["rect"][2] <= e[0] + 2 and boxes[m]["rect"][1] < e[3] and boxes[m]["rect"][3] > e[1] - 30
+                       for m in names)
+
+    def breaks(q, r) -> bool:
+        """Box r, below q on one left edge, starts another question: a ruling line between them, a printed line
+        between them over the boxes ("6. Hair color" under the eye colours), or a heading or label printed from left
+        of r with no box before it ("B This return/report is:", "Purpose of Account")."""
+        if any(_cross(((q[0] + q[2]) / 2, (q[1] + q[3]) / 2), ((r[0] + r[2]) / 2, (r[1] + r[3]) / 2),
+                      (s[0], s[1]), (s[2], s[3])) for s in rl):
+            return True
+        for e in ext:
+            cy = (e[1] + e[3]) / 2
+            if q[3] < cy < r[1] and e[0] < r[2] - 2 and e[2] > r[0] + 2:
+                return True
+            if q[3] - 1 < cy <= r[3] and e[0] < r[2] and label_left(e) and not any(
+                    abs(s[0] - s[2]) < 1 and min(e[2], r[0]) - 1 <= s[0] <= r[0] and min(s[1], s[3]) <= cy <= max(s[1], s[3])
+                    for s in rl):                 # not across a ruled panel edge (FFL 7CR p10)
+                return True
+        return False
+
+    def crowded(n, x: float) -> bool:             # more printed between its caption and x (CBP 3461: Name:, fees)
+        r = boxes[n]["rect"]
+        cy = (r[1] + r[3]) / 2
+        return sum(1 for e in ext if abs((e[1] + e[3]) / 2 - cy) <= 6 and e[0] >= r[2] - 1 and e[2] <= x) > 1
+
+    def runs_into(n, x: float) -> bool:           # its caption's line runs on past x (1040's nonresident box)
+        r = boxes[n]["rect"]
+        cy = (r[1] + r[3]) / 2
+        return any(abs((e[1] + e[3]) / 2 - cy) <= 6 and r[2] - 1 <= e[0] <= r[2] + 10 and e[2] > x for e in ext)
+
+    free = sorted((n for n in names if n not in row_kept), key=lambda n: boxes[n]["rect"][1])
+    cols: list[list[str]] = []
+    for n in free:
+        r = boxes[n]["rect"]
+        for c in cols:
+            q = boxes[c[-1]]["rect"]
+            if abs(q[0] - r[0]) < 6 and 0 <= r[1] - q[3] < 40 and abs((q[2] - q[0]) - (r[2] - r[0])) < 2.5 \
+                    and not breaks(q, r):
+                c.append(n)
+                break
+        else:
+            cols.append([n])
+
+    def caption(n) -> str:                        # up to the next box on its line
+        r = boxes[n]["rect"]
+        cy = (r[1] + r[3]) / 2
+        nxt = [boxes[m]["rect"][0] for m in names
+               if boxes[m]["rect"][0] > r[2] and abs((boxes[m]["rect"][1] + boxes[m]["rect"][3]) / 2 - cy) < 4]
+        return _line_caption(allw, r, min(nxt, default=10_000))
+    cols = [c for c in cols if len(c) >= 2]
+    if len(cols) < 2:
+        return []
+    out = []
+    for a in cols:
+        ta = boxes[a[0]]["rect"]
+        for b in cols:
+            tb = boxes[b[0]]["rect"]
+            if b is a or tb[0] <= ta[2] + 40 or abs(ta[1] - tb[1]) >= 4:
+                continue
+            if abs((ta[2] - ta[0]) - (tb[2] - tb[0])) > 2.5:
+                continue
+            lo_y, hi_y = ta[1], max(boxes[a[-1]]["rect"][3], boxes[b[-1]]["rect"][3])
+            if any(ta[2] < boxes[n]["rect"][0] < tb[0] - 6 and boxes[n]["rect"][1] < hi_y and boxes[n]["rect"][3] > lo_y
+                   for n in names):
+                continue
+            ca = ((ta[0] + ta[2]) / 2, (ta[1] + ta[3]) / 2)
+            cb = ((tb[0] + tb[2]) / 2, (tb[1] + tb[3]) / 2)
+            if any(_cross(ca, cb, (s[0], s[1]), (s[2], s[3])) for s in rl):
+                continue
+            if any(abs(s[0] - s[2]) < 1 and ta[2] < s[0] < tb[0] and min(s[1], s[3]) < hi_y and max(s[1], s[3]) > lo_y
+                   for s in rl):
+                continue
+            if any(ca[0] < (w[0] + w[2]) / 2 < cb[0] and abs((w[1] + w[3]) / 2 - ca[1]) < 6 for w in stop):
+                continue
+            if any(tb[1] - 30 < y1 <= tb[1] + 1 and tb[0] - 15 < x0 < tb[2] + 15 for x0, y1 in heads):
+                continue
+            if any(runs_into(n, tb[0]) or crowded(n, tb[0]) for n in a):
+                continue
+            capa, capb = [caption(n) for n in a], [caption(n) for n in b]
+            if not all(capa + capb) or len(set(capa)) < len(a) or len(set(capb)) < len(b) or set(capa) & set(capb):
+                continue
+            out += list(zip(a, a[1:])) + list(zip(b, b[1:])) + [(a[0], b[0])]
+    return out
 
 
 def group_name(members: list[str]) -> str:

@@ -138,3 +138,17 @@ def test_grid_cells_are_accepted_on_the_checks_own_test_and_a_refusal_says_why(m
     put.clear()
     monkeypatch.setattr(grid_naming, "resolve", lambda *a, **k: {"status": "unsure", "why": "column 1 split", "renames": {}})
     assert app.accept_grid("t", 3, names, refused) == [] and refused == [{"grid": "p3-G2", "why": "column 1 split"}]
+
+
+def test_a_grid_the_code_cannot_settle_raises_instead_of_asking_opus(monkeypatch):
+    """Andrew, 2026-11-03: the chat went; "anything that would have gone to opus via chat can raise an error now"."""
+    app = types.SimpleNamespace(refresh=lambda: None, entry=lambda bid: {}, accept_grid=lambda *a: [])
+    tab = br.Grids(app)
+    monkeypatch.setattr(br.Grids, "_apply", lambda self, bid: lambda edits: {"changes": edits})
+
+    def unsettled(bid, tid, *, accept, apply, ask_opus):
+        return {"status": "proposed", "proposals": ask_opus(1, tid, ["Jev: 2 columns unclear"])}
+    monkeypatch.setattr(grid_check, "check", unsettled)
+    with pytest.raises(RuntimeError, match="Opus step went with the chat"):
+        tab.check("je__x", "p1-G1")
+    assert not tab.running

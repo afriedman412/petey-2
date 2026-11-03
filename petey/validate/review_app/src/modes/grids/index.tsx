@@ -43,7 +43,7 @@ export const grids: ModeDef = {
     tips: ['Drag on an empty part of the page, or Shift+drag anywhere, to draw a grid: the fields whose middle is inside become one.',
       'Drag a grid onto another on the same page to combine them; "not a grid" on the combined one gives them back.',
       'A selected grid lists its columns and rows. Click a column\'s wording, or a row\'s label or number, to edit it: Enter renames every cell of that column or row (as Claude\'s changes, nothing accepted). Each standardize or renumber button says how many renames it makes (hover for them); where there is nothing it can do, the reason is under it. A column whose cells split evenly between wordings has a picker: choose one, or type another.',
-      'Check & validate: already on pattern, its cells are accepted; out of order, the renames are applied as Claude\'s and the cells accepted; unclear, Opus proposes in the chat and you tick.'],
+      'Check & validate: already on pattern, its cells are accepted; out of order, the renames are applied as Claude\'s and the cells accepted; unclear, it stops with an error and the grid is left for you (the Opus step went with the chat, 2026-11-03).'],
   },
   load,
   pages: () => useGrids.getState().GD?.pages || [],

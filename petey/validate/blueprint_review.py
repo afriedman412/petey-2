@@ -43,13 +43,13 @@ from urllib.parse import unquote, urlparse
 import pymupdf
 
 from petey import web
-from petey.validate import draft, field_add, group_review, hand_review, run_audit
+from petey.validate import draft, field_add, group_review, hand_review, ignored_forms, ignored_pages, page_sweeps, printed_fields, run_audit, same_pages
 from petey.validate.retype import resolve_blank
 
 HTML_PATH = Path(__file__).with_suffix(".html")
 # the page in React (review_app/, 2026-10-26, Andrew: "let's build the current app in react ... I am spending a lot of
-# time tracking down bugs that I am pretty sure react wouldn't have"): built into review_app/dist and served at /next/
-# beside the old page at / until it does everything the old one does
+# time tracking down bugs that I am pretty sure react wouldn't have"): built into review_app/dist and served at / since
+# 2026-10-27 (the default; /next/ still works), the old page at /old/
 APP_DIR = Path(__file__).with_name("review_app")
 APP_DIST = APP_DIR / "dist"
 APP_SOURCES = ("src", "index.html", "package.json", "package-lock.json", "vite.config.ts", "tsconfig.json")
@@ -93,15 +93,7 @@ def until(fn, stopped, every: float = 0.2):
         ex.shutdown(wait=False)
 
 
-def page_sizes(bp: dict) -> list[dict]:
-    blank = resolve_blank(bp)
-    if not (blank and blank.exists()):
-        return []
-    doc = pymupdf.open(str(blank))
-    try:
-        return [{"page": i, "w_pt": pg.rect.width, "h_pt": pg.rect.height} for i, pg in enumerate(doc, start=1)]
-    finally:
-        doc.close()
+page_sizes = hand_review.page_sizes
 
 
 class Grids:
@@ -167,12 +159,14 @@ class Grids:
         return {**out, "entry": self.app.entry(bid)}
 
     def check(self, bid: str, tid: str) -> dict:
-        from petey.validate import form_chat, grid_check
+        from petey.validate import grid_check
         apply = self._apply(bid)
 
-        def ask_opus(page, tid, steps):                 # this grid only (form_chat.table_request, 2026-10-21)
-            req = form_chat.table_request(bid, tid, steps)
-            return {"request": req, **form_chat.ask(bid, [{"role": "user", "content": req}], only_pages=[page])}
+        def ask_opus(page, tid, steps):
+            # the Opus step put its proposals in the chat, which went from the page (Andrew, 2026-11-03: "anything that
+            # would have gone to opus via chat can raise an error now"); form_chat.table_request built its request
+            raise RuntimeError(f"{tid}: the code cannot settle this grid, and its Opus step went with the chat; "
+                               f"left for you ({'; '.join(steps[-2:]) or 'no steps'})")
         key = (bid, tid)
         self.stop.discard(key)
         self.running.add(key)
@@ -380,7 +374,7 @@ class Blocks:
         have = hand_review.load_verdicts(bid).get("verdicts") or {}
         ok, off, acc = [], [], []
         for i, b in enumerate(t["blocks"], 1):
-            res = block_types.validate_block(bid, bp, b[0])
+            res = block_types.validate_block(bid, bp, block_types._bid(b))   # its first box there (lib__i864 BT1-2's is empty)
             if res["ok"]:
                 ok.append(f"{tid}-{i}")
                 acc += [n for n in res["names"] if not (have.get(n) or {}).get("verdict")]
@@ -414,6 +408,11 @@ class Blocks:
         from petey.validate import block_types
         return block_types.remove_block(bid, hand_review._load(self.app.working(bid)), code)
 
+    def type_out(self, bid: str, tid: str) -> dict:
+        """A block type dismissed with all its blocks ("cancel" on the type)."""
+        from petey.validate import block_types
+        return block_types.remove_type(bid, tid)
+
 
 def name_parts(bid: str, field: str, new: str) -> dict:
     """A proposed name read into its parts, as the form's other names are (Andrew, 2026-10-25: '"improve name" should
@@ -433,6 +432,7 @@ def overlay(bp: dict, bid: str, verdicts: dict) -> dict:
     import sys
     from petey.validate import grid_naming
     from petey.validate import block_types, grid_check
+    from petey.validate.printed_fields import is_printed, is_text
     acc = {n for n, v in verdicts.items() if (v or {}).get("verdict") == "accept"}
     fields = []
     for n, sp in (bp.get("fields") or {}).items():
@@ -442,7 +442,9 @@ def overlay(bp: dict, bid: str, verdicts: dict) -> dict:
         rs = [{"page": w.get("page"), "rect": w.get("rect")} for w in ws if w.get("rect")]
         if rs:
             fields.append({"name": n, "id": str(sp.get("x_petey_id", "")), "page": rs[0]["page"], "rects": rs,
-                           "accepted": n in acc, "group": len(rs) > 1 and sp.get("type") in ("category", "multi_category")})
+                           "accepted": n in acc, "group": len(rs) > 1 and sp.get("type") in ("category", "multi_category"),
+                           # the fill every tab gives a field by its kind (2026-10-31)
+                           "kind": "printed" if is_printed(sp) else "text" if is_text(sp) else "choice"})
 
     def bbox(rs):
         return [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
@@ -465,7 +467,18 @@ def overlay(bp: dict, bid: str, verdicts: dict) -> dict:
                 blocks.append({"id": f"{y['id']}-{i}", "label": y.get("label") or "", "page": bs[0]["page"],
                                "bbox": bbox([x["rect"] for x in bs]),
                                "validated": all(name.get(c) in acc for c in b if c)})
-    return {"fields": fields, "grids": grids, "blocks": blocks}
+    # entities (Groups' tagged text fields, group_review.ENTITY_KEY), drawn wherever groups are (Andrew, 2026-10-28:
+    # "lets make the entities visible everywhere the groups are")
+    from petey.validate import group_review
+    specs = bp.get("fields") or {}
+    entities = []
+    for u in group_review.entity_units(bp):
+        rs = [{"page": specs[m]["widget"]["page"], "rect": specs[m]["widget"]["rect"]} for m in u["items"]
+              if (specs[m].get("widget") or {}).get("rect")]
+        if rs:
+            entities.append({"name": u["name"], "entity_type": u.get("entity_type"), "page": rs[0]["page"],
+                             "fields": u["items"], "rects": rs})
+    return {"fields": fields, "grids": grids, "blocks": blocks, "entities": entities}
 
 
 class App:
@@ -521,7 +534,8 @@ class App:
     def overlay(self, bid: str) -> dict:
         """What every tab can draw over the page besides its own (Andrew, 2026-10-22: "add block and grid overlays and
         validated fields to all views, so it's clear what is and isn't already accounted for"): {fields: [{name, id,
-        page, rects, accepted, group}], grids: [{id, page, bbox, validated}], blocks: [{id, page, bbox, validated}]}.
+        page, rects, accepted, group}], grids: [{id, page, bbox, validated}], blocks: [{id, page, bbox, validated}],
+        entities: [{name, entity_type, page, fields, rects}]}.
         Boxes only, nothing checked: cheap enough to read again after every change."""
         return overlay(hand_review._load(self.working(bid)), bid,
                        hand_review.load_verdicts(bid).get("verdicts") or {})
@@ -536,7 +550,8 @@ class App:
                 "add": {"added": len(rec.get("added") or []), "dismissed": len(rec.get("dismissed") or []),
                         "removed": len(rec.get("removed") or []),
                         "applied": sum(len(a.get("changes") or []) for a in rec.get("applied") or [])},
-                "passes": hand_review.passes_record().get(bid)}       # read fresh: the passes record changes on its own
+                "passes": hand_review.passes_record().get(bid),       # read fresh: the passes record changes on its own
+                "ignored": ignored_forms.load().get(bid)}             # the whole form set aside (2026-11-03)
 
     def apply_groups(self, bid: str) -> dict:
         """Groups' regrouping into the working copy (on leaving Groups, its apply button, or Save)."""
@@ -582,11 +597,27 @@ class App:
         self.refresh()
         return {**out, "applied": pl.get("changes") or [], "changes": [], "skipped": pl.get("skipped") or []}
 
+    def fill_same(self, bid: str, page: int, src: str, src_page: int) -> dict:
+        """"fill from" (2026-10-31): the page made what an identical page is, in the working copy (`same_pages.fill`)."""
+        if src not in self.paths:
+            raise KeyError(src)
+        out = same_pages.fill(bid, page, src, src_page, self.paths[bid])
+        self.refresh()
+        self.review._index[bid] = self.review._entry(bid)
+        return {**out, "entry": self.entry(bid)}
+
     def reset_verdicts(self, bid: str) -> dict:
         """The Review bar's "reset validation" (2026-10-22): every verdict cleared, the record kept aside."""
         out = hand_review.reset_verdicts(bid)
         self.review._index[bid] = self.review._entry(bid)
         return {**out, "entry": self.entry(bid)}
+
+    def accept_structure(self, bid: str, on: bool = True) -> dict:
+        """The header's "accept structure" (2026-10-31): the form's structure validated, names left to review; clicked
+        again (`on` false), taken back."""
+        out = hand_review.stamp_structure(bid, self.working(bid), self.paths[bid]) if on else hand_review.unstamp_structure(bid)
+        self.review._index[bid] = self.review._entry(bid)
+        return {"structure": out, "entry": self.entry(bid)}
 
     def put_verdicts(self, bid: str, body: dict) -> dict:
         out = self.review.put_verdicts(bid, body, on_pending=lambda: self.open_draft(bid))
@@ -825,6 +856,17 @@ def app_file(path: str, dist: Path = APP_DIST) -> Optional[Path]:
     return page if page.exists() else None
 
 
+def page_file(path: str, dist: Path = APP_DIST) -> Optional[Path]:
+    """The page a top-level path serves. Since 2026-10-27 the React page is the default at / (Andrew: "can you also make
+    the review app the default now"); the old page is at /old/, and at / as well while the React page is not built."""
+    if path in ("/old", "/old/", "/old/index.html"):
+        return HTML_PATH
+    if path in ("/", "/index.html"):
+        page = dist / "index.html"
+        return page if page.exists() else HTML_PATH
+    return None
+
+
 def restart() -> None:
     """The page's reboot button: replace this process with a fresh one on the same port, so edited code (this
     file, the modes' modules, the page) loads without going back to the terminal. The listening socket is not
@@ -873,14 +915,28 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return
         path = unquote(urlparse(self.path).path)
         parts = self._parts()
-        if path in ("/", "/index.html"):
-            return self._send(HTML_PATH.read_bytes(), "text/html; charset=utf-8")
+        page = page_file(path)
+        if page is not None:
+            return self._send(page.read_bytes(), "text/html; charset=utf-8")
         if path == "/next" or path.startswith("/next/"):
             f = app_file(path)
             if f is None:
                 return self._send(f"The React page is not built: {SERVED.get('app_build', '')}".encode(), "text/plain", 503)
             ctype = mimetypes.guess_type(f.name)[0] or "application/octet-stream"
             return self._send(f.read_bytes(), ctype + ("; charset=utf-8" if ctype.startswith("text/") or ctype.endswith("javascript") else ""))
+        if path in ("/printed", "/printed/"):            # the benchmark key's printed fields (2026-10-31)
+            return self._send(printed_fields.HTML_PATH.read_bytes(), "text/html; charset=utf-8")
+        if path == "/api/printed":
+            return self._route(printed_fields.sheet)
+        if len(parts) == 4 and parts[:3] == ["api", "printed", "png"]:
+            png = printed_fields.page_png(parts[3])
+            return self._send(png, "image/png") if png else self._send(b"no such page", "text/plain", 404)
+        if path in ("/sweep", "/sweep/"):                # manual sweeps of the key's pages (2026-10-31)
+            return self._send(page_sweeps.HTML_PATH.read_bytes(), "text/html; charset=utf-8")
+        if len(parts) == 3 and parts[:2] == ["api", "sweep"]:
+            return self._route(lambda: page_sweeps.sheet(parts[2]))
+        if path == "/api/ignored-pages":                  # pages left out of the benchmark (2026-10-31)
+            return self._route(ignored_pages.load)
         if path == "/api/blueprints":
             return self._json(APP.listing())
         if path == "/api/audit-batch":
@@ -894,22 +950,48 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._send(png, "image/png") if png else self._send(b"no such page", "text/plain", 404)
         if len(parts) == 4 and parts[:2] == ["api", "review"] and parts[3] == "removals":
             return self._route(lambda: {"removed": field_add.load_record(parts[2]).get("removed") or []}, parts[2])
+        if len(parts) == 3 and parts[:2] == ["api", "same"]:          # each page's identical pages (2026-10-31)
+            return self._route(lambda: {"pages": same_pages.same_pages(parts[2])}, parts[2])
         if len(parts) == 3 and parts[:2] == ["api", "overlay"]:       # what every tab draws besides its own
             return self._route(lambda: APP.overlay(parts[2]), parts[2])
         if len(parts) == 3 and parts[0] == "api" and parts[1] in MODES:
             mode, bid = parts[1], parts[2]
             state = getattr(APP, mode)
+            if mode == "groups" and "auto=0" in urlparse(self.path).query.split("&"):    # Review's g / u / drags
+                return self._route(lambda: state.detail(bid, auto=False), bid)
             return self._route(lambda: state.detail(bid), bid)
         self._send(b"not found", "text/plain", 404)
 
     def do_PUT(self):
         parts = self._parts()
+        if len(parts) == 4 and parts[:2] == ["api", "sweep"]:
+            body = self._body()
+            return self._route(lambda: page_sweeps.mark(parts[2], parts[3], str(body.get("verdict") or ""), str(body.get("reason") or "")))
+        if len(parts) == 3 and parts[:2] == ["api", "ignored-pages"]:
+            body = self._body()
+            return self._route(lambda: ignored_pages.put(parts[2], bool(body.get("ignore", True)), str(body.get("reason") or "")))
+        if len(parts) == 3 and parts[:2] == ["api", "ignored-forms"]:     # the header's "ignore" (2026-11-03)
+            body, bid = self._body(), parts[2]
+
+            def ignore():
+                ignored_forms.put(bid, bool(body.get("ignore", True)), str(body.get("reason") or ""))
+                return {"entry": APP.entry(bid)}
+            return self._route(ignore, bid)
+        if len(parts) == 3 and parts[:2] == ["api", "printed-field"]:    # the Review tab's printed toggle (2026-10-31)
+            body, bid = self._body(), parts[2]
+            return self._route(lambda: {"changes": printed_fields.set_field(bid, str(body.get("field") or ""),
+                                                                          bool(body.get("on")), APP.paths[bid])}, bid)
+        if len(parts) == 3 and parts[:2] == ["api", "printed"]:
+            body = self._body()
+            return self._route(lambda: printed_fields.confirm(parts[2], list(body.get("printed") or [])))
         if len(parts) != 4 or parts[0] != "api":
             return self._send(b"not found", "text/plain", 404)
         mode, bid, what = parts[1], parts[2], parts[3]
         body = self._body()
         if (mode, what) == ("review", "verdicts"):
             return self._route(lambda: APP.put_verdicts(bid, body), bid)
+        if (mode, what) == ("review", "structure"):         # "accept structure": STRUCTURE VALIDATED
+            return self._route(lambda: APP.accept_structure(bid, body.get("on", True) is not False), bid)
         if (mode, what) == ("review", "reset"):             # every verdict on the form cleared
             return self._route(lambda: APP.reset_verdicts(bid), bid)
         if (mode, what) == ("form", "note"):                 # the notes panel: one note per form
@@ -932,6 +1014,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: APP.save_add(bid, {"removed": body.get("removed") or []}), bid)
         if (mode, what) == ("add", "record"):
             return self._route(lambda: APP.save_add(bid, body), bid)
+        if (mode, what) == ("add", "fieldkind"):             # a field's kind flipped in place (2026-11-01)
+            return self._route(lambda: {"changes": field_add.set_field_kind(bid, str(body.get("field") or ""),
+                                                                            str(body.get("kind") or ""), APP.paths[bid]),
+                                        "entry": APP.entry(bid)}, bid)
         self._send(b"not found", "text/plain", 404)
 
     def do_POST(self):
@@ -948,6 +1034,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         body = self._body()
         if (mode, what) == ("draft", "save"):
             return self._route(lambda: APP.save_draft(bid, bool(body.get("force"))), bid)
+        if (mode, what) == ("same", "fill"):                  # "fill from" an identical page (2026-10-31)
+            return self._route(lambda: APP.fill_same(bid, int(body["page"]), str(body["form"]), int(body["from_page"])), bid)
         if (mode, what) == ("draft", "discard"):
             return self._route(lambda: APP.discard_draft(bid), bid)
         if (mode, what) == ("groups", "captions"):       # "re-read captions" on a group
@@ -958,7 +1046,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: APP.apply_groups(bid), bid)
         if (mode, what) == ("add", "propose"):
             return self._route(lambda: field_add.propose(APP.add.ctx(bid), int(body.get("page") or 1), body.get("rect"),
-                                                         body.get("sid"), set(body.get("taken") or [])), bid)
+                                                         body.get("sid"), set(body.get("taken") or []),
+                                                         body.get("dismissed") or []), bid)
         if (mode, what) == ("add", "kind"):              # the card's box: text box / checkbox, by hand
             return self._route(lambda: {"proposal": field_add.switch_kind(
                 body["proposal"], body["kind"], APP.add.ctx(bid).names | set(body.get("taken") or []))}, bid)
@@ -1018,6 +1107,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: APP.blocks.block_draw(bid, int(body["page"]), body["rect"]), bid)
         if (mode, what) == ("blocks", "out"):           # a block that is no longer one
             return self._route(lambda: APP.blocks.block_out(bid, body["block"]), bid)
+        if (mode, what) == ("blocks", "tout"):          # a block type dismissed with all its blocks (2026-10-27)
+            return self._route(lambda: APP.blocks.type_out(bid, body["type"]), bid)
         if (mode, what) == ("blocks", "confirm"):       # a block type's positions confirmed: parts, or wordings
             return self._route(lambda: APP.blocks.type_confirm(bid, body["type"],
                                                                list(body.get("slots") or body.get("wordings") or [])), bid)
@@ -1087,7 +1178,7 @@ def serve(port: int = 5005, mode: str = "review", open_browser: bool = True) -> 
     global APP
     SERVED.update(port=port, mode=mode)
     SERVED["app_build"] = build_app()
-    print(f"review_app (/next/): {SERVED['app_build']}")
+    print(f"review_app (/ and /next/; the old page at /old/): {SERVED['app_build']}")
     APP = App()
     print(f"blueprint review: {len(APP.paths)} blueprints")
     t0 = time.time()

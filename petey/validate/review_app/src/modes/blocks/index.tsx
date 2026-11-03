@@ -3,6 +3,7 @@
 // definition for the frame: an area dragged on the page is a block.
 import { Box } from '../../components/Box';
 import { copyText, dragProps, dropProps } from '../../lib/dnd';
+import { blockColor } from '../../lib/util';
 import { useApp } from '../../state/app';
 import type { ModeDef } from '../types';
 import { Bar, Panel } from './Panel';
@@ -13,11 +14,14 @@ function Layer() {
   const { GD, selBlock, hover } = useBlocks();
   if (!GD) return null;
   const out: React.ReactNode[] = [];
+  // as the "show blocks" layer counts them: the form's types with blocks, and those with one on this page
+  const types = (GD.types || []).filter(y => y.blocks.length).map(y => y.id);
+  const onPage = (GD.types || []).filter(y => y.blocks.some(b => b.page === page)).map(y => y.id);
   for (const y of GD.types || []) {
     for (const b of y.blocks.filter(b => b.page === page)) {
       const tag = `${y.id}-${b.n}${y.label ? ' ' + y.label : ''}`;
       out.push(
-        <Box key={'b' + b.code} className={'btb' + (b.code === selBlock ? ' sel' : '')} rect={b.bbox} pad={3} title={tag}
+        <Box key={'b' + b.code} className={'btb' + (b.code === selBlock ? ' sel' : '')} rect={b.bbox} pad={3} title={tag} color={blockColor(y.id, types, onPage)}
           onClick={e => { e.stopPropagation(); selectBlock(b); }}
           // dragged onto another block (Andrew, 2026-10-22, as in Groups): it becomes a block of that one's type;
           // a field dropped on it (Andrew, 2026-10-22: "can we drag fields on to a block to add them?")

@@ -2,10 +2,12 @@
 // questioned, the verdict and note, and the list of fields; and its bar (the counts and the agent's buttons).
 import { Fragment, type ReactNode } from 'react';
 import { PART_KEYS, type PartKey } from '../../lib/util';
+import { StatusIcons } from '../../components/StatusIcons';
 import { toast } from '../../state/actions';
+import { useEntry } from '../../state/app';
 import {
   applyCorrections, dirtyOf, fieldOf, fieldRef, fixCaptions, improveName, isRemoved, keepField, optList, ordered,
-  removeField, rereadCaptions, resetBoxes, reviewEdits, saveFix, saveNote, select, setBox, setFilter, setNote, setOpt,
+  removeField, rereadCaptions, resetBoxes, reviewEdits, saveFix, saveNote, select, setBox, setFilter, setNote, setOpt, fieldTypeOf, semanticTypes, setFieldType, type FieldType,
   setPart, setVerdict, TIER_LETTER, TIER_RANK, toggleIds, useFix, useReview, verdictOf,
   type Made, type RField, type Verdict,
 } from './store';
@@ -111,8 +113,9 @@ function FieldCard({ f, v }: { f: RField; v?: Verdict }) {
   const { boxes, idsOpen, busy, selOpt, BP } = useReview();
   if (!boxes || !BP) return null;
   const dirty = dirtyOf(), d = (k: string) => (dirty.keys.has(k) ? 'dirty' : undefined);
-  // an option group answers one of / any of its boxes: only category or multi_category (Andrew, 2026-10-07)
-  const types = f.options.length > 1 ? ['category', 'multi_category'] : ['string', 'number', 'integer', 'date', 'boolean', 'category', 'multi_category'];
+  // the field type (text / choice / printed) sets the semantic types offered (2026-11-03); an option group answers one
+  // of / any of its boxes: only category or multi_category (Andrew, 2026-10-07)
+  const ft = fieldTypeOf(f), types = semanticTypes(f, ft), group = f.options.length > 1;
   const dd = !f.options.length && (f.choices || []).length > 0;
   const ol = optList(f);
   const id = f.identifiers || {};
@@ -133,12 +136,17 @@ function FieldCard({ f, v }: { f: RField; v?: Verdict }) {
           <span className="lbl sub">in</span><span>{id.grid ? <>grid <code>{id.grid}</code></> : <i>in no kept grid</i>}<span className="help"> · {f.identifiers_stored ? 'parts stored on the field' : 'parts read from the name'}</span></span>
           {(f.identifier_flags || []).length > 0 && <><span className="lbl sub">read</span><span className="stale">{f.identifier_flags!.join('; ')}</span></>}
         </>}
-        <label htmlFor="eType">Type</label>
+        <label htmlFor="eKind">Type</label>
+        <select id="eKind" value={ft} disabled={group} onChange={e => setFieldType(e.target.value as FieldType)} onKeyDown={boxKeys}
+          title={group ? 'an option group of several boxes is a choice' : 'text, choice or printed (expected hand-written: a signature, initials, a printed name); changes the field in the working copy at once (w: printed on / off)'}>
+          {(['text', 'choice', 'printed'] as const).map(t => <option key={t}>{t}</option>)}
+        </select>
+        <label htmlFor="eType">Semantic type</label>
         <select id="eType" value={boxes.type} className={d('type')} onChange={e => setBox('type', e.target.value)} onKeyDown={boxKeys}>
-          {!types.includes(boxes.type) && <option value={boxes.type} disabled>{boxes.type} (not allowed for a group)</option>}
+          {!types.includes(boxes.type) && <option value={boxes.type} disabled>{boxes.type} (not offered for a {group ? 'group' : ft} field)</option>}
           {types.map(t => <option key={t}>{t}</option>)}
         </select>
-        <label htmlFor="eSem">Semantic type</label>
+        <label htmlFor="eSem">Semantic subtype</label>
         <input id="eSem" list="semList" placeholder="none" value={boxes.semantic_type} spellCheck={false} className={d('semantic_type')}
           onChange={e => setBox('semantic_type', e.target.value)} onKeyDown={boxKeys} />
         <label htmlFor="ePat">Pattern</label>
@@ -262,12 +270,16 @@ export function Panel() {
 
 export function Bar() {
   const { BP, justChecked } = useReview();
+  const ig = useEntry()?.ignored;
   if (!BP) return <span className="progress" id="progress" />;
   const n = BP.fields.length, acc = BP.fields.filter(f => verdictOf(f.name) === 'accept').length, flg = BP.fields.filter(f => verdictOf(f.name) === 'flag').length;
   const t: Record<string, number> = {}; BP.fields.forEach(f => { if (f.tier) t[f.tier] = (t[f.tier] || 0) + 1; });
   const tiers = Object.keys(TIER_RANK).filter(k => t[k]).map(k => `${k} ${t[k]}`).join(' · ');
   const c = BP.checked;
-  const ck = !c ? null : c.validated ? <span className="badge validated" title="every field has a verdict, none flagged, every correction applied">validated</span>
+  // V and S as on the home page (2026-11-03)
+  const sv = !!c?.validated, ss = !!BP.structure && !BP.structure.stale;
+  const st = ig ? <StatusIcons k="ignored" v={sv} s={ss} why={ig.reason} /> : sv || ss ? <StatusIcons v={sv} s={ss} /> : null;
+  const ck = !c || c.validated ? null
     : c.stale ? <span className="badge stalecheck">checked, file changed since</span>
     : <span className="badge checked" title={`every field has a verdict${c.flagged ? '; flags still need work' : ''}${c.pending ? '; corrections still to apply' : ''}`}>checked {(c.when || '').slice(0, 10)}{c.flagged ? `, ${c.flagged} flagged` : ''}{c.pending ? `, ${c.pending} to apply` : ''}</span>;
   const props = Object.values(BP.verdicts).filter(v => v.agent).length;
@@ -276,7 +288,7 @@ export function Bar() {
   const pending = Object.entries(BP.verdicts).filter(([nm, v]) => v.edit && !v.applied && names.has(nm)).length;
   return (
     <span className={'progress' + (justChecked ? ' justchecked' : '')} id="progress">
-      {ck}{ck ? ' ' : ''}<b>{acc}</b> accepted · <b>{flg}</b> flagged · <b>{n - acc - flg}</b> left of {n}
+      {st}{st ? ' ' : ''}{ck}{ck ? ' ' : ''}<b>{acc}</b> accepted · <b>{flg}</b> flagged · <b>{n - acc - flg}</b> left of {n}
       {tiers && <> <span className="help">({tiers})</span></>}
       {BP.witness_error && <> <span className="stale">witnesses failed: {BP.witness_error}</span></>}
       {BP.agent_running ? <> <span className="help">· the agent is reviewing your edits…</span></> : <>

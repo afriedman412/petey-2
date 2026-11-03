@@ -56,7 +56,8 @@ def find(blank: Path, entries: list[dict]) -> dict[int, dict]:
     path_of = {w["id"]: (w.get("path") or "") for w in entries}
     on_page = grid_check.fields_on_page(bp)
     found = []
-    for g in G.grids(bp, blocks=False):
+    # tables side by side found as one are cut apart first, as the Grids tab does (grid_check.side_by_side, 2026-10-27)
+    for g in (p for whole in G.grids(bp, blocks=False) for p in grid_check.side_by_side(bp, whole)):
         nrow, ncol = len({c["row"] for c in g}), len({c["col"] for c in g})
         if nrow < 2 or ncol < 2 or len(g) < 4 or grid_check.aside_why(g, on_page):
             continue                            # the Grids tab's set-asides: small, or covering more than it holds

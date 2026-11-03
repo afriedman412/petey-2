@@ -2,7 +2,7 @@
 // dragged. A drag is the frame's: the tab says whether a mousedown starts one and gets the area when it ends.
 import { useEffect, useRef, useState } from 'react';
 import { pngUrl } from '../lib/api';
-import { GROUP_COLORS, grow, hull, type Rect } from '../lib/util';
+import { blockColor, GROUP_COLORS, grow, hull, restoreScroll, type Rect } from '../lib/util';
 import { useApp } from '../state/app';
 import { MODES } from '../modes';
 import { Box, ScaleContext } from './Box';
@@ -13,6 +13,19 @@ function ShowLayer() {
   const own = MODES[mode].own;
   const on = (k: keyof typeof show) => show[k] && !own.includes(k);
   const out: React.ReactNode[] = [];
+  // the groups' colours, a field of a group or text group filled in its group's (Andrew, 2026-10-31: "can you make
+  // grouped fields have the same color as their group color?"), while groups are shown
+  const fill: Record<string, string> = {};
+  if (on('groups')) {
+    let gi = 0;
+    o.fields.forEach(f => { if (f.group) fill[f.name] = GROUP_COLORS[gi++ % GROUP_COLORS.length]; });
+    (o.entities || []).forEach(e => { const c = GROUP_COLORS[gi++ % GROUP_COLORS.length]; e.fields.forEach(n => { fill[n] = c; }); });
+  }
+  // every field filled by its kind, as on Review, on every tab but Add / remove (Andrew, 2026-10-31: "can you
+  // standardize that across all the tabs (except add/remove)"); Review fills its own boxes
+  if (mode !== 'review' && mode !== 'add') o.fields.forEach((f, i) => f.kind && f.rects.forEach((r, k) =>
+    r.page === page && out.push(<Box key={`k${i}-${k}`} className={'ovl kind ' + (f.kind === 'text' ? 'txt' : f.kind) + (fill[f.name] ? ' grp' : '')}
+      rect={r.rect} color={fill[f.name]} />)));
   if (on('valid')) o.fields.forEach((f, i) => f.accepted && f.rects.forEach((r, k) => r.page === page && out.push(<Box key={`v${i}-${k}`} className="ovl valid" rect={r.rect} />)));
   if (on('groups')) {
     let gi = 0;
@@ -21,11 +34,18 @@ function ShowLayer() {
       const c = GROUP_COLORS[gi++ % GROUP_COLORS.length], rs = f.rects.filter(r => r.page === page).map(r => r.rect);
       if (rs.length) out.push(<Box key={`g${i}`} className="ovl group" rect={grow(hull(rs), 3)} color={c} />);
     });
+    (o.entities || []).forEach((e, i) => {              // entities too, after the groups' colours (2026-10-28)
+      const c = GROUP_COLORS[gi++ % GROUP_COLORS.length], rs = e.rects.filter(r => r.page === page).map(r => r.rect);
+      if (rs.length) out.push(<Box key={`e${i}`} className="ovl group entity" rect={grow(hull(rs), 3)} color={c}
+        title={`${e.name} (text group${e.entity_type ? ': ' + e.entity_type.replace(/_/g, ' ') : ''}, ${e.fields.length} fields)`} />);
+    });
   }
   if (on('grids')) o.grids.forEach(g => g.page === page && out.push(
     <Box key={`t${g.id}`} className={'ovl grid' + (g.validated ? ' ok' : '')} rect={grow(g.bbox, 5)} color="#4fc3f7"><span>{g.id}{g.validated ? ' ✓' : ''}</span></Box>));
+  const typeOf = (id: string) => id.replace(/-\d+$/, ''), types = o.blocks.map(b => typeOf(b.id));
+  const onPage = o.blocks.filter(b => b.page === page).map(b => typeOf(b.id));
   if (on('blocks')) o.blocks.forEach(b => b.page === page && out.push(
-    <Box key={`b${b.id}`} className={'ovl blk' + (b.validated ? ' ok' : '')} rect={grow(b.bbox, 3)}><span>{b.id}{b.label ? ' ' + b.label : ''}{b.validated ? ' ✓' : ''}</span></Box>));
+    <Box key={`b${b.id}`} className={'ovl blk' + (b.validated ? ' ok' : '')} rect={grow(b.bbox, 3)} color={blockColor(typeOf(b.id), types, onPage)}><span>{b.id}{b.label ? ' ' + b.label : ''}{b.validated ? ' ✓' : ''}</span></Box>));
   return <>{out}</>;
 }
 
@@ -79,7 +99,8 @@ function PageOf() {
   const p = ready ? d.pages().find(x => x.page === page) : undefined;
   return (
     <div id="canvas" ref={canvas} className={d.drawable ? 'drawable' : ''} onMouseDown={onMouseDown}>
-      {bid && p && <img id="img" alt="" src={pngUrl(bid, page)} style={{ width: p.w_pt * zoom }} draggable={false} />}
+      {bid && p && <img id="img" alt="" src={pngUrl(bid, page)} style={{ width: p.w_pt * zoom }} draggable={false}
+        onLoad={() => restoreScroll(page, true)} />}
       {bid && p && (
         <ScaleContext.Provider value={zoom}>
           <ShowLayer />

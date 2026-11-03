@@ -125,6 +125,18 @@ def _stale(p: Path) -> bool:
 DPI = 110
 SOURCES = {"lib": BLUEPRINTS, "je": RUNS / "judge_eval" / "blueprints", "rl": RUNS / "relabel" / "blueprints",
            "fl": RUNS / "flat" / "blueprints",      # flat forms: page-made blueprints, path-less widgets
+           # the flat-structure benchmark's forms (Andrew, 2026-10-27: "can you load the benchmark pdfs under a new
+           # section in the review app?"): the business-like corpus set, runs/acquisition/safedocs/business_set.json
+           "bm": RUNS / "benchmark" / "blueprints",
+           # forms Andrew downloaded by hand for the benchmark (source_pdfs/manual_grabs), their own section (Andrew,
+           # 2026-10-28: "if so, can you put them in their own section?")
+           "mg": RUNS / "manual_grabs" / "blueprints",
+           # the finance forms scraped 2026-10-29 from banks', brokerages' and insurers' forms pages, their own section
+           # (Andrew, 2026-10-29: "can you put the new downloads in their own section" ... "just today's batch")
+           "fin": RUNS / "finance" / "blueprints",
+           # private-sector forms (Andrew, 2026-11-02: "can you create a new section called 'private' in the review
+           # app?"): the benchmark is about 78% government pages, and the goal is government at most 60-65%
+           "pv": RUNS / "private" / "blueprints",
            # the library before the naming standard's renames, kept to check against (Andrew, 2026-10-24: "let's keep
            # the old copies around so I can do a little more validation against old versions before we let them slide")
            "old": RUNS / "naming_2026-10-24" / "before"}
@@ -216,6 +228,27 @@ def load_verdicts(bid: str) -> dict:
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
 
 
+def page_sizes(bp: dict, blank: Optional[Path] = None) -> list[dict]:
+    """Every page of the blank: its size, and how many fields have a box on it (a field counts on each page it has a
+    box on). Every tab shows every page, those with no field drawn apart (Andrew, 2026-10-27: "instead of only showing
+    the pages that have the relevant fields, can you show all the pages? and can you color the pages that have NO
+    fields differently")."""
+    blank = blank or resolve_blank(bp)
+    if not (blank and blank.exists()):
+        return []
+    import pymupdf
+    n: collections.Counter = collections.Counter()
+    for spec in (bp.get("fields") or {}).values():
+        if isinstance(spec, dict):
+            n.update({w["page"] for w in witness._widgets(spec) if w.get("page") and w.get("rect")})
+    doc = pymupdf.open(str(blank))
+    try:
+        return [{"page": i, "w_pt": pg.rect.width, "h_pt": pg.rect.height, "fields": n[i]}
+                for i, pg in enumerate(doc, start=1)]
+    finally:
+        doc.close()
+
+
 def field_rows(bp: dict) -> list[dict]:
     rows = []
     for name, spec in (bp.get("fields") or {}).items():
@@ -247,9 +280,17 @@ def field_rows(bp: dict) -> list[dict]:
                       "before": rv.get("before")} if rv else None),
             "adjudication": spec.get("x_petey_adjudication"),
             "claude": claude_change(spec),
+            # expected to be hand-written (signature, initials, printed name), text fields only (2026-10-31)
+            "printed": _printed(spec),
         })
     rows.sort(key=lambda r: (r["page"], round(r["rects"][0]["rect"][1] / 6), r["rects"][0]["rect"][0]))
     return rows
+
+
+def _printed(spec: dict) -> Optional[bool]:
+    """True / False on a text field (printed or not), None on a choice: the Review tab's printed toggle."""
+    from petey.validate.printed_fields import is_printed, is_text
+    return is_printed(spec) if is_text(spec) else None
 
 
 def identifiers(bid: str, bp: dict) -> dict:
@@ -302,6 +343,55 @@ def checked(v: dict, p: Path, bp: dict) -> Optional[dict]:
     # saved correction is applied, and the file is the one that was checked
     return {"when": c.get("when"), "fields": len(names), "flagged": flagged, "pending": pending, "stale": stale,
             "validated": not stale and not flagged and not pending}
+
+
+def structure(v: dict, p: Path) -> Optional[dict]:
+    """`{when, stale}` once the form's structure is validated, else None (Andrew, 2026-10-31: "since we are currently
+    only looking at structure, in the service of building the data set, let's encode that status"): "accept structure"
+    on the review page says its fields, their kinds, groups, grids and blocks are right, names not looked at. Shown as
+    STRUCTURE VALIDATED until every name is accepted too (`checked` validated), which supersedes it. Stale when the
+    blueprint changed after it, as `checked` is (the page's own changes carry it along: `draft.follow`)."""
+    s = v.get("structure")
+    if not s:
+        return None
+    return {"when": s.get("when"), "by": s.get("by"), "stale": s.get("blueprint_sha") != _sha(p)}
+
+
+def structure_ok(v: dict, p: Path, bp: dict) -> bool:
+    """Validated in full, or its structure validated and the file unchanged since: what the benchmark key takes."""
+    c, s = checked(v, p, bp), structure(v, p)
+    return bool((c and c["validated"]) or (s and not s["stale"]))
+
+
+def stamp_structure(bid: str, p: Path, real: Path, by: str = "accept structure") -> dict:
+    """The form's structure validated against the file the page reads (`p`, its working copy if open)."""
+    with _VERDICT_LOCK:
+        rec = load_verdicts(bid) or {"blueprint": str(real), "form": real.stem, "verdicts": {}}
+        sha = _sha(p)
+        rec.setdefault("blueprint_sha", sha)
+        rec["structure"] = {"when": time.strftime("%Y-%m-%d %H:%M:%S"), "blueprint_sha": sha, "by": by}
+        OUT.mkdir(parents=True, exist_ok=True)
+        _write_verdicts(bid, rec)
+        return rec["structure"]
+
+
+def unstamp_structure(bid: str) -> None:
+    """"accept structure" clicked again: the form's structure no longer validated (Andrew, 2026-10-31)."""
+    with _VERDICT_LOCK:
+        rec = load_verdicts(bid)
+        if rec.pop("structure", None) is not None:
+            _write_verdicts(bid, rec)
+
+
+def new_to_check(v: dict, p: Path, bp: dict) -> Optional[int]:
+    """How many fields await a verdict on a form that was once fully checked (Andrew, 2026-11-02: "is there a way for
+    me to know what needs to be revisited?"): a sweep or an edit added or renamed fields after every field had its
+    verdict. None when the form was never fully checked, or is fully checked now."""
+    if not (v.get("checked") or v.get("was_checked")) or checked(v, p, bp):
+        return None
+    vs = v.get("verdicts") or {}
+    n = sum(1 for name in reviewable(bp) if not vs.get(name, {}).get("verdict"))
+    return n or None
 
 
 def _git(*args: str, cwd: Path = BLUEPRINTS.parent) -> str:
@@ -436,7 +526,8 @@ class State:
                 "accepted": sum(1 for n in fields if vs.get(n, {}).get("verdict") == "accept"),
                 "flagged": sum(1 for n in fields if vs.get(n, {}).get("verdict") == "flag"),
                 "stale": bool(v) and v.get("blueprint_sha") != _sha(p),
-                "checked": checked(v, p, bp),
+                "checked": checked(v, p, bp), "structure": structure(v, p),
+                "new_fields": new_to_check(v, p, bp),
                 "finder": (bp.get("x_petey_build") or {}).get("finder"),
                 "age": age(real, bp, self._git_here, self._git_origin),
                 # a library form run again through the current code (scripts/run_form.sh, form_run.py): the picker
@@ -480,15 +571,7 @@ class State:
         real = self.paths[bid]
         bp = _load(p)
         blank = resolve_blank(bp)
-        pages = []
-        if blank and blank.exists():
-            import pymupdf
-            doc = pymupdf.open(str(blank))
-            try:
-                for i, pg in enumerate(doc, start=1):
-                    pages.append({"page": i, "w_pt": pg.rect.width, "h_pt": pg.rect.height})
-            finally:
-                doc.close()
+        pages = page_sizes(bp, blank)
         self.sizes[bid] = pages
         v = load_verdicts(bid)
         rows = field_rows(bp)
@@ -509,7 +592,7 @@ class State:
                 "agent_running": _flag_agent().running(bid), "agent_todo": len(_flag_agent().todo(v)),
                 "semantic_types": __import__("petey.semantic_types", fromlist=["registered_names"]).registered_names(),
                 "witness_run": wit.get("run"), "witness_error": wit.get("error"), "made": made(real, bp),
-                "checked": checked(v, p, bp), "dpi": DPI}
+                "checked": checked(v, p, bp), "structure": structure(v, p), "dpi": DPI}
 
     def witnesses(self, bid: str, p: Path) -> dict:
         """Per-field witnesses and tier (`witness.py`), once per blueprint version; no API calls."""
@@ -584,6 +667,8 @@ class State:
         sha = _sha(p)
         out = {"blueprint": str(real), "form": real.stem, "blueprint_sha": sha, "build": bp.get("x_petey_build"),
                "updated": now, "verdicts": vs}
+        if cur.get("structure"):
+            out["structure"] = cur["structure"]          # "accept structure" stays through verdict saves
         # checked: every reviewable field has a verdict. The first moment that holds is kept (re-saving a note
         # does not move it); clearing a verdict, or completing it again on a changed file, starts over
         names = reviewable(bp)
@@ -592,6 +677,9 @@ class State:
             out["checked"] = (prev if prev.get("blueprint_sha") == sha else
                               {"when": now, "blueprint_sha": sha})
             out["checked"].update(fields=len(names), flagged=sum(1 for n in names if vs[n]["verdict"] == "flag"))
+        elif cur.get("checked") or cur.get("was_checked"):
+            # once fully checked, remembered through saves of a form with new fields (`new_to_check`)
+            out["was_checked"] = {"when": (cur.get("checked") or cur.get("was_checked") or {}).get("when")}
         OUT.mkdir(parents=True, exist_ok=True)
         _write_verdicts(bid, out)
         if self._index:

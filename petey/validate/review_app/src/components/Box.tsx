@@ -24,6 +24,12 @@ export function Box({ rect, pad = 0, min = 5, color, vars, style, children, ...r
   return <div {...rest} style={{ ...boxStyle(rect, s, pad, min), ...v, ...style } as CSSProperties}>{children}</div>;
 }
 
+/** A group's grab tab on its outline's top-left corner `at` (Groups, Review; 2026-10-27): drawn above the boxes, which
+ *  cover the rest of the outline (in Groups a text field's box covered the tab inside it). */
+export function GroupTab({ at, color, ...rest }: { at: [number, number]; color: string } & HTMLAttributes<HTMLSpanElement>) {
+  return <Box className="ghanchor" rect={[at[0], at[1], at[0], at[1]]} min={0} color={color}><span className="ghtab" {...rest} /></Box>;
+}
+
 /** A grid's or a block's outline in round dots (an SVG, so the dots are round at any size). */
 export function Dots({ w, h }: { w: number; h: number }) {
   return <svg width={w} height={h} className="gtsvg"><rect x={2} y={2} width={Math.max(0, w - 4)} height={Math.max(0, h - 4)} rx={4} /></svg>;

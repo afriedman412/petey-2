@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page sweeps</title>
+<style>
+:root {
+  --bg: #f6f6f4; --panel: #ffffff; --ink: #1d1d1b; --muted: #6b6b66; --line: #d9d9d4;
+  --text: rgba(60, 90, 160, 0.6); --choice: rgba(47, 125, 79, 0.75); --ignored: #c32f27;
+  --done: #2f7d4f; --accent: #2b5fd9;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #18181a; --panel: #222225; --ink: #ececea; --muted: #a0a09a; --line: #3a3a3e;
+    --text: rgba(120, 150, 230, 0.7); --choice: rgba(92, 191, 133, 0.8); --ignored: #f07a72;
+    --done: #5cbf85; --accent: #7a9cf0;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.4 -apple-system, system-ui, sans-serif; }
+header { position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line);
+  padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+header h1 { font-size: 15px; margin: 0; }
+.muted { color: var(--muted); }
+button, select, input { font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line);
+  border-radius: 6px; padding: 4px 10px; }
+button { cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.danger { border-color: var(--ignored); color: var(--ignored); }
+#reason { width: 220px; }
+main { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; padding: 16px; max-width: 1400px; margin: 0 auto; }
+@media (max-width: 800px) { main { grid-template-columns: 1fr; } #reason { width: 100%; } }
+.page { position: relative; background: #fff; border: 1px solid var(--line); line-height: 0; }
+.page img { width: 100%; display: block; }
+.box { position: absolute; border: 1.5px solid var(--text); pointer-events: none; }
+.box.choice { border-color: var(--choice); }
+aside { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px; align-self: start;
+  position: sticky; top: 64px; }
+aside h2 { font-size: 13px; margin: 0 0 8px; }
+.state { font-weight: 600; }
+.state.done { color: var(--done); }
+.state.ignored { color: var(--ignored); }
+kbd { border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; font-size: 12px; }
+a { color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Page sweeps</h1>
+  <select id="sweep" aria-label="Sweep"></select>
+  <select id="filter" aria-label="Pages to show">
+    <option value="todo">to look at</option>
+    <option value="all">all pages</option>
+    <option value="done">looked at</option>
+  </select>
+  <span id="progress" class="muted"></span>
+  <button id="prev" title="previous page (left arrow)">Previous</button>
+  <span id="where" class="muted"></span>
+  <button id="next" title="next page (right arrow)">Next</button>
+  <span id="actions"></span>
+</header>
+<main>
+  <div class="page" id="page"><img id="img" alt=""></div>
+  <aside>
+    <h2 id="title"></h2>
+    <div>State: <span id="state" class="state"></span></div>
+    <div class="muted" id="setname"></div>
+    <p id="why"></p>
+    <p><a id="form-link" target="_blank" rel="noopener">open this page on the review page</a></p>
+    <p class="muted" id="help"></p>
+  </aside>
+</main>
+<script>
+let D = null, view = [], at = 0;
+const $ = (id) => document.getElementById(id);
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+                set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+const LABEL = { ignore: "Ignore page", keep: "Keep", done: "Fields added" };
+const KEYS = { ignore: "i", keep: "k", done: "d" };
+
+async function load(sweep) {
+  const r = await fetch(`/api/sweep/${encodeURIComponent(sweep)}`);
+  if (!r.ok) { alert(await r.text()); return; }
+  D = await r.json();
+  store.set("sweep.sweep", sweep);
+  $("sweep").replaceChildren(...Object.entries(D.sweeps).map(([k, t]) => new Option(t, k, false, k === sweep)));
+  $("actions").replaceChildren(
+    ...(D.verdicts.includes("ignore") ? [Object.assign(document.createElement("input"), { id: "reason", value: D.reason,
+      title: "the reason the page is ignored", ariaLabel: "Reason" })] : []),
+    ...D.verdicts.map(v => { const b = document.createElement("button");
+      b.textContent = LABEL[v]; b.title = `${LABEL[v]} and go on (${KEYS[v]})`;
+      b.className = v === "ignore" ? "danger" : v === D.verdicts[0] ? "primary" : "";
+      b.onclick = () => mark(v); return b; }));
+  $("help").innerHTML = D.verdicts.map(v => `<kbd>${KEYS[v]}</kbd> ${LABEL[v].toLowerCase()}`).join(", ")
+    + ", <kbd>&larr;</kbd> <kbd>&rarr;</kbd> move. Blue: text fields; green: boxes."
+    + (sweep === "office" ? " Add the missing fields on the review page (Add / remove), then say \"fields added\"; \"keep\" when none are missing." : "")
+    + (sweep === "signature" ? " Add a field for each signature, initials or printed name line on the review page (Add / remove), mark it printed on Review (w), then say \"fields added\"; \"keep\" when none are missing." : "");
+  $("filter").value = store.get("sweep.filter") || "todo";
+  refilter(store.get(`sweep.page.${sweep}`));
+}
+
+function refilter(keep) {
+  const f = $("filter").value;
+  view = D.pages.filter(p => f === "all" || (f === "done") === (p.verdict !== null));
+  at = Math.max(0, view.findIndex(p => p.page_id === keep));
+  show();
+}
+
+function show() {
+  $("progress").textContent = `${D.pages.filter(p => p.verdict !== null).length} of ${D.pages.length} looked at`;
+  const p = view[at];
+  $("where").textContent = view.length ? `${at + 1} / ${view.length}` : "none";
+  if (!p) { $("page").replaceChildren($("img")); $("img").removeAttribute("src"); $("title").textContent = "Nothing here";
+            $("state").textContent = ""; $("why").textContent = ""; return; }
+  store.set(`sweep.page.${D.sweep}`, p.page_id);
+  $("title").textContent = `${p.form}, page ${p.page} (${p.fields.length} field${p.fields.length === 1 ? "" : "s"})`;
+  $("setname").textContent = p.set || "";
+  $("why").textContent = p.why;
+  $("state").textContent = p.ignored ? `ignored: ${p.ignored}` : p.verdict ? LABEL[p.verdict].toLowerCase() : "not looked at";
+  $("state").className = "state" + (p.ignored ? " ignored" : p.verdict ? " done" : "");
+  $("form-link").href = `/#review/${p.form}` + (p.fields.length ? `/${p.fields[0].id}` : "");
+  if ($("reason")) $("reason").value = p.ignored || D.reason;
+  $("img").src = `/api/printed/png/${encodeURIComponent(p.page_id)}`;
+  const [w, h] = p.size || [612, 792];
+  $("page").replaceChildren($("img"), ...p.fields.map(f => {
+    const b = document.createElement("div");
+    b.className = "box" + (f.kind === "choice" ? " choice" : "");
+    const [x0, y0, x1, y1] = f.rect;
+    Object.assign(b.style, { left: `${x0 / w * 100}%`, top: `${y0 / h * 100}%`,
+                             width: `${(x1 - x0) / w * 100}%`, height: `${(y1 - y0) / h * 100}%` });
+    return b;
+  }));
+}
+
+async function mark(verdict) {
+  const p = view[at];
+  if (!p) return;
+  const reason = verdict === "ignore" && $("reason") ? $("reason").value.trim() : "";
+  if (verdict === "ignore" && !reason) { $("reason").focus(); return; }
+  const r = await fetch(`/api/sweep/${encodeURIComponent(D.sweep)}/${encodeURIComponent(p.page_id)}`, {
+    method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ verdict, reason }) });
+  if (!r.ok) { alert(await r.text()); return; }
+  const out = await r.json();
+  p.verdict = out.verdict; p.ignored = out.ignored;
+  if ($("filter").value === "todo") { view.splice(at, 1); at = Math.min(at, view.length - 1); }
+  else at = Math.min(at + 1, view.length - 1);
+  show();
+  window.scrollTo(0, 0);
+}
+
+function move(d) { at = Math.max(0, Math.min(view.length - 1, at + d)); show(); window.scrollTo(0, 0); }
+$("prev").onclick = () => move(-1);
+$("next").onclick = () => move(1);
+$("sweep").onchange = () => load($("sweep").value);
+$("filter").onchange = () => { store.set("sweep.filter", $("filter").value); refilter(view[at]?.page_id); };
+document.addEventListener("keydown", (e) => {
+  if (["SELECT", "INPUT"].includes(e.target.tagName)) {
+    if (e.target.id === "reason" && e.key === "Enter") { e.preventDefault(); mark("ignore"); }
+    return;
+  }
+  const v = D && D.verdicts.find(v => KEYS[v] === e.key);
+  if (v) { e.preventDefault(); mark(v); }
+  else if (e.key === "ArrowRight") move(1);
+  else if (e.key === "ArrowLeft") move(-1);
+});
+load(new URLSearchParams(location.search).get("s") || store.get("sweep.sweep") || "few");
+</script>
+</body>
+</html>

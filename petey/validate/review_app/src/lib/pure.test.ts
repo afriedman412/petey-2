@@ -1,8 +1,8 @@
 // The page's pure helpers: the naming standard's printing, the home list's stages and duplicates.
 import { describe, expect, it } from 'vitest';
-import { descKey, findDups, statusOf } from '../components/home-data';
+import { descKey, findDups, SECTION_ORDER, sectionOf, statusOf } from '../components/home-data';
 import type { Entry } from './types';
-import { overlap, stdPrint } from './util';
+import { holdsPickerFocus, overlap, putScrollBack, stdPrint } from './util';
 
 describe('stdPrint', () => {
   it('prints the parts in the standard order, empty parts left out', () => {
@@ -23,12 +23,11 @@ describe('stdPrint', () => {
 const entry = (e: Partial<Entry>): Entry => ({ id: 'x', form: 'x', fields: 10, accepted: 0, flagged: 0, ...e });
 
 describe('statusOf', () => {
-  it('runs generated -> cleared -> in review -> validated', () => {
+  it('three statuses: everything short of a check is generated (2026-11-03)', () => {
     expect(statusOf(entry({})).k).toBe('generated');
-    expect(statusOf(entry({ passes: { when: '2026-10-15' } })).k).toBe('cleared');
-    expect(statusOf(entry({ passes: { when: '2026-10-15' }, accepted: 3, touched: '2026-10-16' })).k).toBe('progress');
-    expect(statusOf(entry({ accepted: 3, touched: '2026-10-16' })).k).toBe('generated');    // verdicts before the passes
-    expect(statusOf(entry({ checked: { flagged: 1 } })).k).toBe('work');
+    expect(statusOf(entry({ passes: { when: '2026-10-15' } })).k).toBe('generated');
+    expect(statusOf(entry({ passes: { when: '2026-10-15' }, accepted: 3, touched: '2026-10-16' })).k).toBe('generated');
+    expect(statusOf(entry({ checked: { flagged: 1 } })).k).toBe('generated');
     expect(statusOf(entry({ checked: { validated: true } })).k).toBe('validated');
   });
 });
@@ -54,5 +53,42 @@ describe('overlap', () => {
   it('is the share of the smaller box in common', () => {
     expect(overlap([0, 0, 10, 10], [5, 0, 15, 10])).toBeCloseTo(0.5);
     expect(overlap([0, 0, 10, 10], [20, 20, 30, 30])).toBe(0);
+  });
+});
+
+describe('holdsPickerFocus', () => {
+  it('the form menu and the home search let go of the keyboard once a form is open', () => {
+    expect(holdsPickerFocus({ id: 'pick' })).toBe(true);
+    expect(holdsPickerFocus({ id: 'hq' })).toBe(true);
+  });
+  it('a field being edited keeps it', () => {
+    expect(holdsPickerFocus({ id: 'eName' })).toBe(false);
+    expect(holdsPickerFocus(null)).toBe(false);
+  });
+});
+
+describe('putScrollBack', () => {
+  const stage = (scrollHeight: number) => ({ scrollTop: 0, scrollLeft: 0, scrollHeight, clientHeight: 800 });
+  it('puts the scroll back on the same page, done once the page is tall enough', () => {
+    const s = stage(2400);
+    expect(putScrollBack({ page: 3, top: 900, left: 40 }, 3, s)).toBe(true);
+    expect([s.scrollTop, s.scrollLeft]).toEqual([900, 40]);
+  });
+  it('keeps waiting while the image is not laid out yet', () => {
+    expect(putScrollBack({ page: 3, top: 900, left: 0 }, 3, stage(800))).toBe(false);
+  });
+  it('leaves the top alone when the new tab opened on another page', () => {
+    const s = stage(2400);
+    expect(putScrollBack({ page: 3, top: 900, left: 0 }, 1, s)).toBe(true);
+    expect(s.scrollTop).toBe(0);
+  });
+});
+
+describe('home sections', () => {
+  it('lists the benchmark forms first (2026-10-27)', () => {
+    const bm = sectionOf(entry({ source: 'bm' })), lib = sectionOf(entry({ source: 'lib' }));
+    expect(SECTION_ORDER[bm]).toBe(0);
+    expect(SECTION_ORDER[bm]).toBeLessThan(SECTION_ORDER[sectionOf(entry({ focus: 1 }))]);
+    expect(SECTION_ORDER[bm]).toBeLessThan(SECTION_ORDER[lib]);
   });
 });

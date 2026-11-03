@@ -1,4 +1,4 @@
-// Groups: confirm option groups, drag boxes to regroup; combine text fields (group_review.py).
+// Groups: confirm option groups, drag boxes to regroup; group text fields into entities (group_review.py).
 // The tab's data and everything it does; Panel.tsx and index.tsx draw it. An edit works on a copy of the units (the
 // old page's code, run on the copy) and puts the copy into the store; the undo stack keeps JSON snapshots as before.
 import { create } from 'zustand';
@@ -13,19 +13,35 @@ export interface Item {
   id: string; field: string; key: string | null; kind?: 'text'; page: number; rect: Rect;
   caption?: string | null; on_state?: string | null; path?: string | null; widget_type?: string | null;
   appearances?: number | null; type?: string | null; semantic_type?: string | null; description?: string | null;
+  /** a text field's name as a checkbox (its suffix made _ind, or _ind added; group_review.ind_name) */
+  ind_name?: string | null;
+  /** a text field made a checkbox and applied (x_petey_converted): shown as one not applied yet, so "back to text"
+   *  takes it back the same way (group_review.as_converted_items) */
+  converted?: boolean;
 }
-/** A group, a loose box (a group of one boolean), or a combined text field (`kind: text`). */
+/** A group, a loose box (a group of one boolean), or an entity of text fields (`kind: text`). */
 export interface Unit {
   uid: number; name: string; type: string; items: string[]; origin?: string | null; confirmed?: boolean;
   description?: string | null; locked?: string; kind?: 'text'; when?: string; name_from?: string;
   captions?: Record<string, string>;
+  /** an entity's type (ENTITY_TYPES; group_review.ENTITY_TYPES) */
+  entity_type?: string;
 }
+/** what an entity holds (Andrew, 2026-10-28: "sequential fields on a single line that can be combined logically"), as
+ *  group_review.ENTITY_TYPES; its fields stay as they are, tagged ("lets keep everything separate") */
+// the menu offers only the types in use (Andrew, 2026-11-03: "lets ditch the text field types we aren't using as well --
+// time, address, signature, money, name, other"; "I just meant from the menu options"); the server still reads them
+export const ENTITY_TYPES: [string, string][] = [
+  ['date', 'date'], ['phone', 'phone number'], ['id_number', 'ID number (SSN, EIN ...)'],
+];
 export interface Suggestion { page: number; items: string[]; why: string; name?: string | null; captions?: (string | null)[] }
 export interface Plan { changes: string[]; errors: string[] }
 export interface GroupsData {
   id: string; path: string; blank?: string | null; sha?: string; pages: PageInfo[];
   items: Record<string, Item>; units: Omit<Unit, 'uid'>[];
   base: { name: string; type: string; items: string[] }[];
+  /** the entities as the blueprint's tags have them */
+  entities?: { name: string; items: string[]; entity_type?: string }[];
   other_names: string[]; codes?: Record<string, string>;
   suggested?: Suggestion[]; auto_grouped?: { name: string; page: number }[];
   info: { stale?: boolean; applied?: { when: string } | null; updated?: string; suggest_error?: string };
@@ -48,11 +64,13 @@ interface State {
   notes: string[];
   /** "rescan page" running: the number of groups it rescans (0 when not) */
   rescanning: number;
+  /** the box hovered in the sidebar (an item id), lit on the page */
+  hover: string | null;
 }
 
 export const useGroups = create<State>(() => ({
   BP: null, units: [], selected: null, unconfOnly: false, showText: store('gr_text') !== '0',
-  undoStack: [], picked: new Set(), PLAN: null, busy: {}, notes: [], rescanning: 0,
+  undoStack: [], picked: new Set(), PLAN: null, busy: {}, notes: [], rescanning: 0, hover: null,
 }));
 const S = useGroups.getState, put = useGroups.setState;
 
@@ -63,7 +81,15 @@ export const item = (id: string) => S().BP!.items[id];
 export const unitOf = (id: string, us = S().units) => us.find(u => u.items.includes(id));
 export const unitByUid = (uid: number | null | undefined, us = S().units) => us.find(u => u.uid === uid);
 export const isText = (u?: Unit | null) => !!u && u.kind === 'text';
-export const isTextItem = (id: string) => item(id).kind === 'text';
+/** a text field still text: in no unit, or in an entity; one in an option unit is being made a checkbox */
+export const textIn = (id: string, us: Unit[], items: Record<string, Item>) => {
+  if (items[id]?.kind !== 'text') return false;
+  const u = us.find(x => x.items.includes(id));
+  return !u || u.kind === 'text';
+};
+export const isTextItem = (id: string, us = S().units) => textIn(id, us, S().BP!.items);
+/** a text field made a checkbox here (converting is applied with the regrouping) */
+export const isConverted = (id: string, us = S().units) => item(id).kind === 'text' && !isTextItem(id, us);
 export const optUnits = (us = S().units) => us.filter(u => !isText(u));
 export const isGroup = (u: Unit) => isText(u) || u.items.length > 1 || u.type !== 'boolean';
 const orderKey = (it: Item) => [it.page, Math.round(it.rect[1] / 6), it.rect[0]];
@@ -76,26 +102,37 @@ function sortUnits(us: Unit[], items = S().BP!.items) {
 export const onPage = (u: Unit, p = app().page) => u.items.some(id => item(id).page === p);
 export const label = (id: string, us = S().units) => {
   const it = item(id), u = unitOf(id, us), c = u && u.captions && u.captions[id];
-  return it.kind === 'text' ? it.field : (c || it.caption || (it.key ?? it.field));
+  if (it.kind === 'text') return textIn(id, us, S().BP!.items) ? it.field : (c || it.ind_name || it.field);   // converted: its _ind name
+  return c || it.caption || (it.key ?? it.field);
 };
 export const looseText = (p = app().page, us = S().units) =>
   Object.values(S().BP!.items).filter(it => it.kind === 'text' && it.page === p && !unitOf(it.id, us));
+// each group its own colour on its page; entities too, after the page's groups (Andrew, 2026-10-28: "make entities show
+// up highlighted by color like checkbox groups"), so a group keeps the colour it had
 export function colorOf(u: Unit, us = S().units, p = app().page) {
-  if (isText(u)) return 'var(--txt)';
-  if (!isGroup(u)) return 'var(--orphan)';
-  const gs = optUnits(us).filter(x => isGroup(x) && onPage(x, p)); const i = gs.indexOf(u);
+  if (!isText(u) && !isGroup(u)) return 'var(--orphan)';
+  const gs = [...optUnits(us).filter(x => isGroup(x) && onPage(x, p)), ...us.filter(x => isText(x) && onPage(x, p))];
+  const i = gs.indexOf(u);
   return PALETTE[(i < 0 ? 0 : i) % PALETTE.length];
 }
 export const baseOf = (u: Unit) => !isText(u) && u.origin ? S().BP!.base.find(b => b.name === u.origin) : null;
 export function status(u: Unit) {
+  if (isText(u)) {                       // an entity: as the blueprint's tags have it, or new / edited
+    const e = (S().BP!.entities || []).find(x => x.items.some(i => u.items.includes(i)));
+    if (!e) return 'new';
+    return e.name === u.name && (e.entity_type || '') === (u.entity_type || '') && e.items.join('|') === u.items.join('|') ? 'as blueprint' : 'edited';
+  }
   const b = baseOf(u); if (!b) return 'new';
   return b.name === u.name && b.type === u.type && [...b.items].sort().join('|') === [...u.items].sort().join('|') ? 'as blueprint' : 'edited';
 }
-/** `except`: the unit (by uid) whose own name does not count */
+/** `except`: the unit (by uid) whose own name does not count. Field names: an entity's fields keep theirs, and an
+ *  entity's own name is no field's (`entityNames`) */
 function takenNames(us: Unit[], except: number | null) {
-  const members = new Set(us.filter(isText).flatMap(u => u.items));      // combined text fields free their names
-  return new Set([...S().BP!.other_names.filter(n => !members.has(n)), ...us.filter(u => u.uid !== except).map(u => u.name)]);
+  return new Set([...S().BP!.other_names, ...us.filter(u => !isText(u) && u.uid !== except).map(u => u.name)]);
 }
+const entityNames = (us: Unit[], except: number | null) => new Set(us.filter(u => isText(u) && u.uid !== except).map(u => u.name));
+// every name a unit is given goes through here (Andrew, 2026-11-01: "no field or group should ever be given a name that
+// is already in use"): a name another unit or field has takes _2, _3, ...
 function uniqueName(us: Unit[], base: string, except: number | null) { const taken = takenNames(us, except); let n = base, k = 2; while (taken.has(n)) n = `${base}_${k++}`; return n; }
 function suggestName(us: Unit[], ids: string[]) {
   const parts = ids.map(id => item(id).field.split('_')), pre: string[] = [];
@@ -104,7 +141,7 @@ function suggestName(us: Unit[], ids: string[]) {
   if (!/^[a-z][a-z0-9_]*$/.test(base) || base.length < 3) base = `group_p${item(ids[0]).page}`;
   return uniqueName(us, base, null);
 }
-// a combined text field's name: the members' shared leading words without part / line numbers, plus a shared suffix
+// an entity's name: the members' shared leading words without part / line numbers, plus a shared suffix
 function suggestTextName(us: Unit[], ids: string[]) {
   const parts = ids.map(id => item(id).field.split('_')), pre: string[] = [];
   for (let i = 0; i < Math.min(...parts.map(p => p.length)); i++) { if (parts.every(p => p[i] === parts[0][i])) pre.push(parts[0][i]); else break; }
@@ -112,10 +149,12 @@ function suggestTextName(us: Unit[], ids: string[]) {
   const last = parts.map(p => p[p.length - 1]);
   const suffix = last.every(x => x === last[0]) && ['txt', 'nm', 'amt', 'dt', 'cd', 'num'].includes(last[0]) && pre[pre.length - 1] !== last[0] ? last[0] : null;
   let base = pre.join('_') + (suffix ? '_' + suffix : '');
-  if (!pre.length || !/^[a-z][a-z0-9_]*$/.test(base)) base = item(ids[0]).field + '_combined';
-  return uniqueName(us, base, null);
+  if (!pre.length || !/^[a-z][a-z0-9_]*$/.test(base)) base = item(ids[0]).field + '_entity';
+  const taken = entityNames(us, null); let n = base, k = 2; while (taken.has(n)) n = `${base}_${k++}`;
+  return n;
 }
 export function nameCheck(u: Unit) {
+  if (isText(u)) return !/^[a-z0-9][a-z0-9_]*$/.test(u.name) ? 'not a name (lower case, digits, underscores)' : entityNames(S().units, u.uid).has(u.name) ? 'another text group already has this name' : '';
   return !/^[a-z0-9][a-z0-9_]*$/.test(u.name) ? 'not a field name (lower case, digits, underscores)' : takenNames(S().units, u.uid).has(u.name) ? 'another field already has this name' : '';
 }
 export function note(msg: string) { put({ notes: [msg] }); }
@@ -125,6 +164,9 @@ export function note(msg: string) { put({ notes: [msg] }); }
 const draft = (): Unit[] => JSON.parse(JSON.stringify(S().units));
 const drop = (us: Unit[], u: Unit) => { const i = us.indexOf(u); if (i >= 0) us.splice(i, 1); };
 const strip = (us: Unit[]) => us.map(({ uid: _uid, ...u }) => u);
+/** the applied conversions taken back on the page, kept with the record so a reload shows them as text */
+export const toTextIds = (us: Unit[], items: Record<string, Item>) =>
+  Object.values(items).filter(it => it.converted && textIn(it.id, us, items)).map(it => it.id);
 
 // a step undone: the units before it, and the boxes it recorded as not a group (an ungroup), so the undo takes that
 // record back too (Andrew, 2026-10-26: else the finder never suggested the group again)
@@ -149,34 +191,56 @@ async function afterEdit(us: Unit[], selected = S().selected) {
   await save();
   schedulePlan();
 }
-function detach(us: Unit[], id: string) {
+// a box taken out of its unit; a group left with one box is a loose box (Andrew, 2026-10-31: "the ability to group
+// one field is confusing and not really useful")
+export function detach(us: Unit[], id: string) {
   const u = unitOf(id, us)!; u.items = u.items.filter(x => x !== id); u.confirmed = false;
-  if (!u.items.length || (isText(u) && u.items.length < 2)) drop(us, u);   // a combination of one is no combination
+  if (!u.items.length || (isText(u) && u.items.length < 2)) drop(us, u);   // an entity of one is no entity
+  else if (u.items.length === 1 && !u.locked) {                            // nor is a group of one: a loose box,
+    u.type = 'boolean';                                                     // a box of its own under its own name
+    const it = S().BP?.items[u.items[0]];
+    if (it && it.key === null) { u.name = it.kind === 'text' ? (it.ind_name || `${it.field}_ind`) : it.field; u.origin = it.field; }
+  }
   return u;
 }
 
 // select several boxes, then group them in one step (Andrew, 2026-10-07: instead of dragging each box): Shift- or
 // Cmd-click toggles a box, dragging across an area selects the option boxes in it (Shift+drag adds); "group selected"
 // or g makes them one group. They leave the units they were in; a unit emptied that way hands its name and place
-// to the new group. Option boxes only (text combining stays drag-and-drop).
+// to the new group. Option boxes only (entities stay drag-and-drop).
 export function togglePick(id: string) {
-  if (isTextItem(id)) return note('Only option boxes can be selected for grouping.');
+  if (isTextItem(id) && unitOf(id)) return note('That text field is part of a text group; take it out first to make it a checkbox.');
   const p = new Set(S().picked);
   if (p.has(id)) p.delete(id); else p.add(id);
   put({ picked: p });
 }
+/** a loose text field clicked: it alone is picked, for "convert to bool" (Andrew, 2026-10-27) */
+export function pickText(id: string) {
+  if (unitOf(id)) return note('That text field is part of a text group; take it out first to make it a checkbox.');
+  put({ picked: new Set([id]) });
+}
 export const clearPicked = () => put({ picked: new Set() });
+// an option hovered anywhere in the sidebar lights its box on the page (Andrew, 2026-10-27: "rolling over a group
+// option anywhere in the groups tab highlights the corresponding field")
+export const setHover = (id: string | null) => { if (S().hover !== id) put({ hover: id }); };
+export const hoverProps = (id: string) => ({ onMouseEnter: () => setHover(id), onMouseLeave: () => setHover(null) });
+// an area: the option boxes in it; an area with none, the loose text fields in it (when text fields are shown)
 export function selectArea(r: Rect, add: boolean) {
   const p = add ? new Set(S().picked) : new Set<string>(), page = app().page;
-  for (const it of Object.values(S().BP!.items)) {
-    const cx = (it.rect[0] + it.rect[2]) / 2, cy = (it.rect[1] + it.rect[3]) / 2;
-    if (it.page === page && it.kind !== 'text' && cx >= r[0] && cx <= r[2] && cy >= r[1] && cy <= r[3]) p.add(it.id);
-  }
-  put({ picked: p });
-  toast(`${p.size} box${p.size === 1 ? '' : 'es'} selected${p.size > 1 ? ': g groups them, Esc clears' : ''}`);
+  const inside = (it: Item) => { const cx = (it.rect[0] + it.rect[2]) / 2, cy = (it.rect[1] + it.rect[3]) / 2; return it.page === page && cx >= r[0] && cx <= r[2] && cy >= r[1] && cy <= r[3]; };
+  const all = Object.values(S().BP!.items).filter(inside);
+  let got = all.filter(it => !isTextItem(it.id));
+  if (!got.length && S().showText) got = all.filter(it => isTextItem(it.id) && !unitOf(it.id));
+  for (const it of got) p.add(it.id);
+  // the selection moves to what the drag took: the group selected before is no longer lit (Andrew, 2026-10-31: "that
+  // field stays highlighted (although the focus moves to the group)")
+  put({ picked: p, selected: null });
+  const text = [...p].some(id => isTextItem(id));
+  toast(`${p.size} ${text ? 'field' : 'box'}${p.size === 1 ? '' : (text ? 's' : 'es')} selected${text ? ': "convert to bool" makes them checkboxes' : p.size > 1 ? ': g groups them, Esc clears' : ''}`);
 }
 export function groupPicked() {
   const ids = [...S().picked].filter(id => S().BP!.items[id]);
+  if (ids.some(id => isTextItem(id))) return entityPicked();
   if (ids.length < 2) return note('Select two or more boxes first (Shift-click, or drag across an area).');
   const us = draft();
   if (ids.some(id => unitOf(id, us)?.locked)) return note('A selected box belongs to a locked group.');
@@ -188,7 +252,7 @@ export function groupPicked() {
   for (const id of ids) if (unitOf(id, us)) detach(us, id);
   const heir = [...from.keys()].filter(u => !us.includes(u) && isGroup(u)).sort((a, b) => from.get(b)! - from.get(a)!)[0];
   const g: Unit = {
-    uid: nextUid++, name: heir ? heir.name : suggestName(us, ids), type: heir && heir.type !== 'boolean' ? heir.type : 'category',
+    uid: nextUid++, name: heir ? uniqueName(us, heir.name, null) : suggestName(us, ids), type: heir && heir.type !== 'boolean' ? heir.type : 'category',
     items: ids, origin: heir ? heir.origin : null, confirmed: false,
   };
   us.push(g); put({ picked: new Set() });
@@ -196,8 +260,53 @@ export function groupPicked() {
   toast(`${ids.length} boxes grouped: ${g.name} (z undoes)`);
 }
 
-const MIX = 'text boxes combine only with text boxes; option boxes group only with option boxes';
-const PAGES = 'a combined text field stays on one page';
+// the picked text fields made one entity at once (Andrew, 2026-10-28: "I just want to be able to combine 9 fields at
+// once instead of doing them one click at a time"), as dragging them together one by one would; with its type when
+// one is picked on the card ("add the entity type dropdown on the 'selected text fields' card so everything can
+// happen in one step")
+export function entityPicked(entityType = '') {
+  const us = draft(), ids = [...S().picked].filter(id => S().BP!.items[id] && isTextItem(id, us) && !unitOf(id, us));
+  if (ids.length < 2) return note('Select two or more loose text fields first (Shift-click, or drag across an area).');
+  if (new Set(ids.map(id => item(id).page)).size > 1) return note(PAGES);
+  snapshot();
+  const u: Unit = { uid: nextUid++, kind: 'text', name: suggestTextName(us, ids), type: 'string', items: ids, origin: null, confirmed: false, when: localNow(),
+    ...(entityType ? { entity_type: entityType } : {}) };
+  us.push(u); put({ picked: new Set() });
+  afterEdit(us, u.uid);
+  toast(`${ids.length} text fields made one text group: ${u.name} (z undoes)`);
+}
+
+// text fields made checkboxes (Andrew, 2026-10-27: "click or select a text field(s) ... a button that says 'convert to
+// bool'"): each a loose checkbox under its name with the suffix _ind (group_review.ind_name), in an option unit, which
+// is what makes group_review.plan convert it; they stay picked, so g makes them one group
+export function toBool(ids = [...S().picked]) {
+  const us = draft();
+  const conv = ids.filter(id => S().BP!.items[id] && textIn(id, us, S().BP!.items) && !unitOf(id, us));
+  if (!conv.length) return note('Select one or more loose text fields first (click one, Shift-click for more).');
+  snapshot();
+  const made: Unit[] = [];
+  for (const id of conv) {
+    const it = item(id), base = it.ind_name || `${it.field}_ind`;
+    const taken = takenNames(us, null); taken.delete(it.field);          // its own text name is about to go
+    let n = base, k = 2; while (taken.has(n)) n = `${base}_${k++}`;
+    const u: Unit = { uid: nextUid++, name: n, type: 'boolean', items: [id], origin: id, confirmed: false };
+    us.push(u); made.push(u);
+  }
+  put({ picked: new Set(conv) });
+  afterEdit(us, made[0].uid);
+  toast(`${made.length} text field${made.length === 1 ? '' : 's'} made checkbox${made.length === 1 ? '' : 'es'}: ${made.map(u => u.name).join(', ')}${made.length > 1 ? ' (g groups them' : ' ('}${made.length > 1 ? ', ' : ''}z undoes)`);
+}
+/** a converted box back to a text field: before the change is applied, or after (an applied one in no unit is made
+ *  text by the plan: group_review.unconverted) */
+export function toText(uid: number) {
+  const us = draft(), u = unitByUid(uid, us);
+  if (!u || u.items.length !== 1 || !isConverted(u.items[0], us)) return;
+  snapshot(); drop(us, u);
+  afterEdit(us, optUnits(us).length ? optUnits(us)[0].uid : null);
+}
+
+const MIX = 'text fields group only with text fields; option boxes only with option boxes';
+const PAGES = 'a text group stays on one page';
 function moveText(id: string, target: Target) {
   const us = draft(), src = unitOf(id, us);
   if (target.inTray) target = { tray: true };               // anywhere in the tray means out
@@ -208,7 +317,7 @@ function moveText(id: string, target: Target) {
     if (!isTextItem(target.item)) return note(MIX);
     if (item(target.item).page !== item(id).page) return note(PAGES);
     t = unitOf(target.item, us);
-    if (!t) {                                             // loose onto loose: a new combined field
+    if (!t) {                                             // loose onto loose: a new entity
       snapshot(); if (src) detach(us, id);
       const u: Unit = { uid: nextUid++, kind: 'text', name: suggestTextName(us, [target.item, id]), type: 'string', items: [target.item, id], origin: null, confirmed: false, when: localNow() };
       us.push(u); return afterEdit(us, u.uid);
@@ -266,14 +375,14 @@ export async function notGroup(i: number) {
   put({ BP: { ...BP, suggested: (BP.suggested || []).filter((_, k) => k !== i) } });
 }
 // a box taken out of group `src`: a loose box of its own, under its field's name or the group's name and its key
-function looseOf(us: Unit[], src: Unit, id: string): Unit {
+export function looseOf(us: Unit[], src: Unit, id: string): Unit {
   const it = item(id), own = it.key === null;
   return {
-    uid: nextUid++, name: own ? it.field : uniqueName(us, `${src.name}_${String(it.key).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'option'}`, null),
+    uid: nextUid++, name: own ? uniqueName(us, it.kind === 'text' ? it.ind_name || `${it.field}_ind` : it.field, null) : uniqueName(us, `${src.name}_${String(it.key).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'option'}`, null),
     type: 'boolean', items: [id], origin: own ? it.field : null, confirmed: false,
   };
 }
-// u (Andrew, 2026-10-20): the selected group's boxes all loose; a combined text field separated again
+// u (Andrew, 2026-10-20): the selected group's boxes all loose; an entity taken apart again
 export function ungroup() {
   const us = draft(), u = unitByUid(S().selected, us);
   if (!u || !isGroup(u)) return note('Select a group first.');
@@ -293,7 +402,7 @@ export function moveUnit(uid: number, target: Target) {
     if (target.tray) return;
     if (target.item && !isTextItem(target.item)) return note(MIX);
     const t = target.item ? unitOf(target.item, us) : unitByUid(target.unit, us);
-    if (target.item && !t) {                              // a combined field onto a loose text box: take it in
+    if (target.item && !t) {                              // an entity onto a loose text field: take it in
       if (item(target.item).page !== item(s.items[0]).page) return note(PAGES);
       snapshot(); s.items.push(target.item); return afterEdit(us, s.uid);
     }
@@ -327,7 +436,7 @@ export function rename(uid: number, name: string, from: string | null = null) {
   afterEdit(us);
 }
 
-// the labeler names a group or combined field the way it names a field in Add (`field_add.labeler_name`): one call
+// the labeler names a group or an entity the way it names a field in Add (`field_add.labeler_name`): one call
 // with the page's words, the box (the hull of the unit's boxes on its first page) and, for a group, the captions
 // requests in flight per unit (2026-10-14: a redraw, e.g. picking 'any of', reset the button while the call ran)
 export const busyOn = (busy: State['busy'], u: Unit, k: 'label' | 'caps') => !!(busy[u.uid] || {})[k];
@@ -426,6 +535,10 @@ export function mergeInto(uid: number, toUid: number) {
   note(`${u.name} merged into ${t.name} (${t.items.length} boxes)`);
 }
 export function setDesc(uid: number, d: string) { const us = draft(), u = unitByUid(uid, us); if (!u || (u.description || '') === d) return; snapshot(); u.description = d; afterEdit(us); }
+export function setEntityType(uid: number, t: string) {
+  const us = draft(), u = unitByUid(uid, us); if (!u || (u.entity_type || '') === t) return;
+  snapshot(); if (t) u.entity_type = t; else delete u.entity_type; afterEdit(us);
+}
 export function setType(uid: number, type: string) { const us = draft(), u = unitByUid(uid, us); if (!u || u.type === type) return; snapshot(); u.type = type; u.confirmed = false; afterEdit(us); }
 export function separate(uid: number) {
   const us = draft(), u = unitByUid(uid, us); if (!u) return;
@@ -440,7 +553,7 @@ export function revert(uid: number) {
   for (const id of u.items.filter(id => !b.items.includes(id))) {
     const it = item(id); u.items = u.items.filter(x => x !== id);
     us.push({
-      uid: nextUid++, name: it.key === null ? it.field : uniqueName(us, `${u.name}_${it.key}`.toLowerCase().replace(/[^a-z0-9_]+/g, '_'), null),
+      uid: nextUid++, name: it.key === null ? uniqueName(us, it.field, null) : uniqueName(us, `${u.name}_${it.key}`.toLowerCase().replace(/[^a-z0-9_]+/g, '_'), null),
       type: 'boolean', items: [id], origin: it.key === null ? it.field : null, confirmed: false,
     });
   }
@@ -453,7 +566,7 @@ export function revert(uid: number) {
 // one save at a time, in order: each PUT waits for the one before
 let saving: Promise<void> = Promise.resolve();
 function save() {
-  const body = { units: strip(S().units) }, bid = app().bid!;
+  const body = { units: strip(S().units), to_text: toTextIds(S().units, S().BP!.items) }, bid = app().bid!;
   saving = saving.then(async () => {
     try {
       const out = await send('PUT', mapi('groups', bid, '/units'), body);
@@ -499,9 +612,77 @@ export async function leave() {
   catch (e) { toast('Groups not applied: ' + (e as Error).message); }
 }
 
+// a checkbox or a group dragged on Review's page (Andrew, 2026-10-27: "can we add dragging bools to combine to the
+// review page? and add dragging groups to combine to both?"): Groups' data read fresh for the form, the move made as
+// a drag here makes it, and put into the working copy at once, as leaving Groups does. A move the plan refuses is
+// taken back. The name of the group the boxes are in after it, or null.
+export interface ReviewBox { field: string; opt: string | null }
+/** Review's box (a field and its option's on-state, null for a checkbox or the group as a whole) as Groups' item */
+export function itemOf(b: ReviewBox, items: Record<string, Item> = S().BP!.items) {
+  const its = Object.values(items).filter(it => it.field === b.field && it.kind !== 'text');
+  return b.opt === null ? its[0] : its.find(it => it.key === b.opt);
+}
+export async function combineFromReview(what: ReviewBox, whole: boolean, onto: ReviewBox): Promise<string | null> {
+  return fromReview(async () => {
+    const a = itemOf(what), t = itemOf(onto);
+    if (!a || !t) { toast('Only checkboxes and option groups combine.'); return undefined; }
+    const src = unitOf(a.id);
+    if (whole && src) moveUnit(src.uid, { item: t.id }); else await moveItem(a.id, { item: t.id });
+    return t.id;
+  }, 'Nothing to combine.', 'combined');
+}
+// g and u on Review's page (Andrew, 2026-10-28: "can we make u/g for ungroup/group work on the review tab?"): the boxes
+// Shift-clicked there grouped, or the selected group taken apart (recorded as not a group), as g and u do here
+export async function groupFromReview(boxes: ReviewBox[]): Promise<string | null> {
+  return fromReview(() => {
+    const ids = boxes.map(b => itemOf(b)?.id).filter((x): x is string => !!x);
+    if (ids.length < boxes.length) { toast('Only checkboxes and option groups group.'); return undefined; }
+    put({ picked: new Set(ids) });
+    groupPicked();
+    return ids[0];
+  }, 'Nothing to group.', 'grouped');
+}
+export async function ungroupFromReview(field: string): Promise<string | null> {
+  return fromReview(() => {
+    const it = itemOf({ field, opt: null }), u = it && unitOf(it.id);
+    if (!u) { toast('Only option groups ungroup.'); return undefined; }
+    put({ selected: u.uid });
+    ungroup();
+    return null;
+  }, 'Nothing to ungroup.', 'ungrouped');
+}
+/** Groups' data read fresh, `edit` made as here, and put into the working copy at once, as leaving Groups does; taken
+ *  back when the plan refuses it. `edit` gives the box whose group's name to report (null: none), undefined to stop. */
+async function fromReview(edit: () => Promise<string | null | undefined> | string | null | undefined, nothing: string, done: string): Promise<string | null> {
+  const bid = app().bid!;
+  let before: Unit[] | null = null;
+  try {
+    await load(bid, false);                    // without the finder's groups: only this change goes in (2026-10-28)
+    const steps = S().undoStack.length;
+    before = S().units;
+    const at = await edit();
+    if (at === undefined) return null;
+    if (S().undoStack.length === steps) { toast(S().notes[0] || nothing); return null; }
+    const name = at ? unitOf(at)?.name || null : null;
+    await save();
+    clearTimeout(planTimer);
+    const pl: Plan = await send('POST', mapi('groups', bid, '/plan'), { units: strip(S().units) });
+    if (pl.errors.length) { put({ units: before }); await save(); toast(`Not ${done}: ${pl.errors[0]}`); return null; }
+    const out = await send('POST', mapi('groups', bid, '/apply'));
+    updateEntry(out.entry);
+    await loadMode();
+    toast(`${name ? name + ': ' : ''}${out.changes.length} change(s) went into the working copy.`);
+    return name;
+  } catch (e) {
+    if (before && S().BP?.id === bid) { put({ units: before }); await save(); }
+    toast(`Not ${done}: ` + (e as Error).message);
+    return null;
+  }
+}
+
 // ------------------------------------------------------------------------------------------- loading and moving
-export async function load(bid: string) {
-  const BP: GroupsData = await j(mapi('groups', bid));
+export async function load(bid: string, auto = true) {
+  const BP: GroupsData = await j(mapi('groups', bid) + (auto ? '' : '?auto=0'));   // auto: the finder's groups made
   const units: Unit[] = BP.units.map(u => ({ ...u, uid: nextUid++ }));
   let notes: string[] = [];
   const ag = BP.auto_grouped || [];
@@ -513,7 +694,7 @@ export async function load(bid: string) {
   const keep = same ? unitByUid(was.selected, was.units) : undefined;
   const sel = (keep && ou.find(u => u.name === keep.name)) || ou.find(u => u.items.some(id => BP.items[id]?.page === app().page)) || ou[0];
   const picked = new Set(same ? [...was.picked].filter(id => BP.items[id]) : []);
-  put({ BP, units, undoStack: [], PLAN: null, notes, picked, selected: sel ? sel.uid : null });
+  put({ BP, units, undoStack: [], PLAN: null, notes, picked, selected: sel ? sel.uid : null, hover: null });
   schedulePlan();
 }
 
@@ -558,7 +739,7 @@ export function key(e: KeyboardEvent): boolean {
   else if (e.key === 'z') undo();
   else if (e.key === 'u') ungroup();
   else if (e.key === 'U') setUnconfOnly(!S().unconfOnly);
-  else if (e.key === 't') setShowText(!S().showText);
+  else if (e.key === 'T') setShowText(!S().showText);
   else return false;
   return true;
 }

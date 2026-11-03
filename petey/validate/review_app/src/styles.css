@@ -10,7 +10,8 @@
   --ok:var(--green); --bad:var(--red);
   /* on the page image */
   --sel:#1a73e8; --accept:#1e8e3e; --flag:#c5221f; --none:#8a8a8a; --orphan:#9a9a9a; --over:rgba(26,115,232,.18);
-  --field:#8e24aa; --sug:#e37400; --added:#188038; --txt:#00838f;
+  --fill-text:rgba(255,214,0,.16); --fill-printed:rgba(0,172,193,.24); --fill-choice:rgba(233,30,99,.17);   /* fields by kind, every tab (2026-10-31) */
+  --field:#8e24aa; --sug:#e37400; --added:#188038; --txt:#00838f; --uline:#00b8d4;
 }
 * { box-sizing:border-box; }
 html { background:var(--bg); }
@@ -44,6 +45,12 @@ header select { max-width:520px; }
 /* one line (2026-10-13): the form menu gives way first, then the subtitle */
 header { flex-wrap:nowrap; gap:8px; } header > * { flex-shrink:0; }
 header #listorder { width:112px; }
+/* the whole form's verdict buttons as one joined cluster (2026-10-31) */
+header .btngroup { display:inline-flex; }
+header .btngroup .btn { border-radius:0; margin-left:-1px; }
+header .btngroup .btn:first-child { border-radius:5px 0 0 5px; margin-left:0; }
+header .btngroup .btn:last-child { border-radius:0 5px 5px 0; }
+header .btngroup .btn:hover:not(:disabled) { position:relative; z-index:1; }
 header #pick { flex:0 1 380px; min-width:140px; width:380px; }
 @media (max-width:1500px) { .brand .sub { display:none; } }
 header .ctl select { text-transform:none; letter-spacing:0; font-weight:400; font-size:.8rem; }
@@ -89,8 +96,8 @@ main { flex:1; display:flex; min-height:0; }
 .gttitle { font-weight:600; margin-bottom:3px; }
 .gtpos ol { margin:4px 0 0 18px; padding:0; font-size:12px; }
 .gtpos li { margin:2px 0; }
-.btb { position:absolute; z-index:2; border:2px dashed var(--accent); cursor:pointer; }      /* a block (block types): above the group outlines, below the layout editor's pickers */
-.btb.sel { border-width:3px; border-style:solid; background:color-mix(in srgb, var(--accent) 8%, transparent); }
+.btb { position:absolute; z-index:2; border:2px dashed var(--c, var(--accent)); cursor:pointer; }      /* a block (block types): above the group outlines, below the layout editor's pickers */
+.btb.sel { border-width:3px; border-style:solid; background:color-mix(in srgb, var(--c, var(--accent)) 8%, transparent); }
 .btlist { margin:8px 0; } .btrow { padding:4px 6px; border-left:3px solid transparent; cursor:pointer; }
 .btrow:hover { background:var(--hover, rgba(127,127,127,.08)); } .btrow.sel { border-left-color:var(--accent); background:var(--hover, rgba(127,127,127,.08)); }
 .btmore code.accd { color:var(--accept); }
@@ -113,7 +120,7 @@ main { flex:1; display:flex; min-height:0; }
 .btnames { border-collapse:collapse; font-size:11px; margin:4px 0 6px; } .btnames td { padding:1px 6px 1px 0; vertical-align:top; }
 .btnames code.accd { color:var(--accept); }
 .bttype { margin:4px 0; padding:4px 6px; border:1px solid var(--line, rgba(127,127,127,.3)); border-radius:4px; } .bttype input { width:95%; font:11px var(--mono, monospace); }
-.btb span { cursor:copy; position:absolute; left:4px; top:-14px; font:600 10px/1 var(--mono, monospace); color:var(--accent); background:var(--bg); padding:1px 3px; white-space:nowrap; }
+.btb span { cursor:copy; position:absolute; left:4px; top:-14px; font:600 10px/1 var(--mono, monospace); color:#fff; background:var(--c, var(--accent)); padding:1px 3px; border-radius:2px; white-space:nowrap; }   /* a chip in its type's colour (2026-10-28) */
 /* a grid's columns and rows (2026-10-22): one line each, what its button would do under it */
 .gax { margin-top:8px; } .gax h4 { margin:0 0 3px; }
 .gax-i { padding:2px 0 2px 8px; border-left:3px solid transparent; font-size:12px; }
@@ -130,27 +137,36 @@ main { flex:1; display:flex; min-height:0; }
 .ovl.valid { background:rgba(30,142,62,.16); border:1px solid rgba(30,142,62,.55); }
 .ovl.group { border:1.5px dashed var(--c); border-radius:3px; }
 .ovl.grid { border:2px dotted var(--c); border-radius:4px; } .ovl.grid.ok, .ovl.blk.ok { border-style:solid; border-width:1.5px; }
-.ovl.blk { border:2px dashed #d8572a; }
+.ovl.blk { border:2px dashed var(--c, #d8572a); }   /* its block type's colour (blockColor) */
+.ovl.blk span { color:#fff; background:var(--c, #d8572a); border-radius:2px; opacity:1; }
 .ovl span { position:absolute; left:2px; top:-12px; font:600 9px/1 var(--mono, monospace); color:var(--c, #d8572a); background:var(--bg); padding:1px 2px; white-space:nowrap; opacity:.85; }
 #showctl label { text-transform:none; letter-spacing:0; font-weight:500; color:var(--text-dim); cursor:pointer; }
 .pages button.done { color:var(--green); }
+.pages button.empty { background:transparent; border-style:dashed; color:var(--text-dim); opacity:.55; }  /* a page with no fields */
+.pages button.empty.on { opacity:1; }
+/* pages left out of the benchmark (2026-10-31): struck through; the open page's tag and its reason after the buttons */
+.pages button.ignored { text-decoration:line-through; color:var(--text-dim); }
+.pages .ignorepg { display:inline-flex; gap:4px; align-items:center; margin-left:auto; padding-left:12px; }
+.pages .ignorepg input { font:inherit; font-size:.78rem; padding:.2rem .5rem; width:260px; border:1px solid var(--border); background:var(--bg); color:var(--text); border-radius:5px; }
+/* identical pages (2026-10-31): "same as" with a picker and "fill from it", before "ignore page" */
+.pages .samepg { display:inline-flex; gap:4px; align-items:center; margin-left:auto; padding-left:12px; font-size:.78rem; color:var(--text-dim); }
+.pages .samepg + .ignorepg { margin-left:0; }
+.pages .samepg select { font:inherit; padding:.15rem .3rem; max-width:340px; border:1px solid var(--border); background:var(--bg); color:var(--text); border-radius:5px; }
+.pages .samepg .one { color:var(--text); }
+.pages .ignorepg .why { font-size:.78rem; color:var(--amber, var(--text-muted)); max-width:420px; overflow:hidden; text-overflow:ellipsis; }
 
 /* home (2026-10-15): every blueprint in one sortable table; the landing view, and the brand goes back to it */
 .brand { cursor:pointer; }
 #home { display:none; flex:1; overflow:auto; padding:14px 20px 40px; }
 body.home #home { display:block; }
-body.home main, body.home #modebar, body.home #chatBtn, body.home #gridBtn, body.home #clashBtn, body.home #zoomctl, body.home #showctl, body.home #wideBtn,
+body.home main, body.home #modebar, body.home #gridBtn, body.home #clashBtn, body.home #zoomctl, body.home #showctl, body.home #wideBtn,
 body.home #draftBar, body.home #notesBtn { display:none !important; }
-.hstats { display:flex; gap:22px; flex-wrap:wrap; margin:2px 0 14px; align-items:flex-end; }
-.hstage-l { font-size:.62rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--text-dim);
-            border-bottom:1px solid var(--border); padding-bottom:3px; margin-bottom:6px; }
-.hstage-t { display:flex; gap:10px; }
-.hstat { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:8px 14px; cursor:pointer; min-width:110px; }
-.hstat.on { border-color:var(--accent); background:var(--accent-dim); }
-.hstat b { display:block; font:400 1.5rem/1.1 'DM Serif Display', Georgia, serif; color:var(--text); }
-.hstat span { font-size:.66rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); }
+/* the counts as one line of text (2026-11-03) */
+.hcounts { margin:2px 0 12px; color:var(--text-muted); font-size:.82rem; }
+.hcounts b { color:var(--text); font-weight:600; }
 .hctl { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
 .hctl input { width:260px; }
+.hctl input[type=checkbox] { width:auto; }   /* the search box's width, not the checkboxes' (2026-10-31) */
 .hctl .help { margin-left:auto; }
 table.home { border-collapse:separate; border-spacing:0; width:100%; font-size:.8rem; }
 table.home th { position:sticky; top:-14px; z-index:1; background:var(--bg); text-align:left; font-size:.64rem; font-weight:700;
@@ -170,10 +186,15 @@ table.home .dim { color:var(--text-dim); }
 .pbar i { display:block; height:100%; } .pbar i.a { background:var(--accent); } .pbar i.f { background:var(--red); }
 .pill { display:inline-block; font-size:.66rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:1px 7px; border-radius:9px;
         border:1px solid var(--border); color:var(--text-dim); }
-.pill.validated { color:var(--green); border-color:rgba(134,239,172,.4); }
-.pill.work { color:var(--red); border-color:rgba(240,113,106,.4); }
-.pill.recheck, .pill.progress { color:var(--amber); border-color:rgba(247,181,56,.4); }
-.pill.cleared { color:var(--text); border-color:var(--text-dim); }
+.pill.validated { color:var(--green); border-color:rgba(134,239,172,.4); }   /* a grid's cells validated (Grids) */
+/* a form's status (2026-11-03): V validated, S structure validated, both when both */
+.vsicons { display:inline-flex; gap:3px; vertical-align:middle; }
+.vsic { display:inline-block; width:16px; height:16px; line-height:14px; text-align:center; font:700 10px/14px 'DM Sans', system-ui, sans-serif;
+        font-style:normal; border-radius:4px; border:1px solid; }
+.vsic.v { color:#000; background:var(--green); border-color:var(--green); }
+.vsic.s { color:var(--green); border-color:var(--green); background:transparent; }
+.vsic.i { color:var(--text-dim); border-color:var(--text-dim); background:transparent; }   /* ignored (2026-11-03) */
+header #ignoreForm.on { border-color:var(--text-dim); color:var(--text); }
 .pill.copy { color:var(--accent); border-color:rgba(216,87,42,.45); }
 /* Audit mode (run_audit): read-only tables, so the page image gives way and the panel takes the width */
 body.audit #left, body.audit #sidegrip { display:none; }
@@ -213,10 +234,6 @@ aside > * { flex-shrink:0; }
 body.audit #sidecol { flex:1; } body.audit #showbar { display:none; }
 #sidegrip { width:6px; margin-left:-3px; cursor:col-resize; flex-shrink:0; z-index:7; }
 #sidegrip:hover, #sidegrip.drag { background:var(--accent-dim); }
-/* the chat (form_chat.py): requests for batch edits to the open form; proposals ticked, then applied */
-#chat { position:fixed; right:16px; bottom:16px; width:460px; height:62vh; display:flex; flex-direction:column; z-index:60;
-        background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:0 8px 30px rgba(0,0,0,.5); }
-#chat[hidden] { display:none; }
 /* per-form notes (2026-10-15) */
 #notes { position:fixed; right:16px; top:96px; width:380px; display:flex; flex-direction:column; z-index:61; background:var(--surface);
          border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:0 8px 30px rgba(0,0,0,.45); }
@@ -227,19 +244,6 @@ body.audit #sidecol { flex:1; } body.audit #showbar { display:none; }
 #notesState { padding:0 10px 8px; }
 #notesBtn.has { border-color:var(--accent); color:var(--text); }
 table.home td.notes { max-width:220px; overflow:hidden; text-overflow:ellipsis; color:var(--text-dim); }
-#chat .chead { display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--border); }
-#chat .chead .help { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-#chatLog { flex:1; overflow:auto; padding:10px; display:flex; flex-direction:column; gap:8px; font-size:13px; }
-#chatLog .cq { align-self:flex-end; background:var(--accent-dim); border:1px solid var(--accent); border-radius:var(--r); padding:6px 9px; max-width:85%; white-space:pre-wrap; }
-#chatLog .ca { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r); padding:7px 9px; }
-#chatLog .cprop { margin:6px 0 0; padding:0; list-style:none; }
-#chatLog .cprop li { display:flex; gap:6px; align-items:flex-start; padding:3px 0; border-top:1px solid var(--border); }
-#chatLog .cprop code { color:var(--text); }
-#chatLog .cwhy { color:var(--text-dim); font-size:12px; }
-#chatLog .cerr { color:var(--red); font-size:12px; margin-top:4px; }
-#chatLog .cfoot { display:flex; gap:8px; align-items:center; margin-top:6px; color:var(--text-dim); font-size:12px; }
-#chat .cin { display:flex; gap:6px; padding:8px; border-top:1px solid var(--border); }
-#chat .cin textarea { flex:1; min-height:54px; resize:vertical; background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:var(--r); padding:6px; font:inherit; }
 #toast { position:fixed; left:16px; bottom:16px; background:var(--surface-2); color:var(--text); border:1px solid var(--border); padding:7px 14px;
   border-radius:var(--r); font-size:12px; opacity:0; transition:opacity .3s; pointer-events:none; z-index:10; }
 #toast.on { opacity:.97; }
@@ -254,6 +258,9 @@ code { color:var(--text); }
 .rv.accept { border-color:var(--accept); }
 .rv.flag { border-color:var(--flag); background:rgba(197,34,31,.06); }
 .rv.contested:not(.accept):not(.flag) { border-style:dashed; border-color:#c5221f; }
+/* a fill a kind, so what is a field shows at a glance (Andrew, 2026-10-31): text fields pale yellow, printed ones
+   (expected hand-written: signature, initials, printed name) pale cyan; boxes to tick none. Under the verdict's border */
+
 .rv.removed { border:2px dashed var(--flag); background:rgba(197,34,31,.18); }
 .rlist div.removed { text-decoration:line-through; color:var(--text-dim); }
 .rbanner { background:rgba(195,47,39,.14); border:1px solid rgba(195,47,39,.45); color:var(--red); padding:7px 10px; border-radius:var(--r); margin:8px 0; }
@@ -273,6 +280,7 @@ dl { display:grid; grid-template-columns:96px 1fr; gap:3px 8px; margin:8px 0; } 
 .verdict .btn.accept { border-color:rgba(134,239,172,.4); color:var(--green); } .verdict .btn.flag { border-color:rgba(240,113,106,.45); color:var(--red); }
 .verdict .btn.on.accept { background:var(--green); border-color:var(--green); color:#000; font-weight:700; }
 .verdict .btn.on.flag { background:var(--danger); border-color:var(--danger); color:#000; font-weight:700; }
+.verdict #vPrinted.on { background:var(--accent-dim); border-color:var(--accent); color:var(--text); font-weight:600; }  /* printed (2026-10-31) */
 textarea { width:100%; min-height:54px; resize:vertical; }
 .loop { background:var(--amber-dim); border:1px solid rgba(247,181,56,.28); padding:7px 10px; border-radius:var(--r); margin:8px 0; }
 .adj { background:var(--accent-dim); border:1px solid rgba(216,87,42,.3); padding:7px 10px; border-radius:var(--r); margin:8px 0; }
@@ -281,7 +289,6 @@ textarea { width:100%; min-height:54px; resize:vertical; }
 .rlist div:hover { background:var(--surface); }
 .rlist div.accept { border-left-color:var(--green); } .rlist div.flag { border-left-color:var(--red); } .rlist div.sel { background:var(--accent-dim); color:var(--text); }
 .badge.checked { background:var(--accent-dim); color:var(--text-muted); border:1px solid rgba(216,87,42,.35); }
-.badge.validated { background:var(--green); color:#000; border:1px solid var(--green); }
 .badge.stalecheck { background:var(--amber-dim); color:var(--amber); border:1px solid rgba(247,181,56,.3); }
 .tier { display:inline-block; min-width:1.1em; text-align:center; font-size:11px; font-weight:600; border-radius:3px; padding:0 3px; margin-right:4px; }
 .tier.contested { background:rgba(195,47,39,.2); color:var(--red); } .tier.unknown { background:var(--surface-2); color:var(--text-dim); }
@@ -324,6 +331,8 @@ details.raw { font-size:12px; } details.raw summary { cursor:pointer; color:var(
 .gi.sel { box-shadow:0 0 0 2px #fff, 0 0 0 5px var(--sel), 0 0 16px 5px rgba(26,115,232,.5); z-index:4; }
 .gi.locked { cursor:not-allowed; } .gi.dragging { opacity:.35; }
 .gi.picked { outline:2.5px solid var(--sel); outline-offset:2px; z-index:5; }
+/* the box of the option hovered in the Groups sidebar (2026-10-27), lit as Blocks lights a hovered name's field */
+.gi.hl { border-color:var(--accent); box-shadow:0 0 14px 5px color-mix(in srgb, var(--accent) 60%, transparent); z-index:6; }
 .over { outline:3px solid var(--accent) !important; background:var(--accent-dim) !important; }
 .gcard { border:1px solid var(--border); border-left:4px solid var(--c, var(--orphan)); border-radius:var(--r); padding:7px 10px; background:var(--surface); }
 .gcard.sel { box-shadow:0 0 0 1.5px var(--accent); } .gcard.ok { border-left-color:var(--green); }
@@ -353,6 +362,9 @@ details.raw { font-size:12px; } details.raw summary { cursor:pointer; color:var(
 .ov.field:hover { background:color-mix(in srgb, var(--field) 25%, transparent); }
 .ov.sug { border:2px solid var(--sug); background:color-mix(in srgb, var(--sug) 10%, transparent); cursor:pointer; }
 .ov.sug.finder { border-style:dashed; } .ov.sug.copy { opacity:.35; } .ov.sug.cur { box-shadow:0 0 0 2px var(--sel); }
+/* an underline no field covers: the band above it, its line drawn heavier (Add / remove, 2026-10-28) */
+.ov.line { border:1px dashed color-mix(in srgb, var(--uline) 70%, transparent); border-bottom:2.5px solid var(--uline); background:color-mix(in srgb, var(--uline) 12%, transparent); cursor:pointer; }
+.ov.line:hover { background:color-mix(in srgb, var(--uline) 28%, transparent); } .ov.line.cur { box-shadow:0 0 0 2px var(--sel); }
 .ov.added { border:2px solid var(--added); background:color-mix(in srgb, var(--added) 12%, transparent); cursor:pointer; }
 .ov.added .tag { position:absolute; left:0; top:-14px; font-size:10px; line-height:12px; background:#fff; color:var(--added); padding:0 3px; white-space:nowrap; pointer-events:none; }
 .ov.prop { border:2px solid var(--sel); background:color-mix(in srgb, var(--sel) 12%, transparent); pointer-events:none; }
@@ -373,6 +385,7 @@ details.raw { font-size:12px; } details.raw summary { cursor:pointer; color:var(
 .alist div:hover { background:var(--surface); } .alist .x { color:var(--text-dim); }
 
 .gi.text { border-width:1.5px; background:color-mix(in srgb, var(--c) 8%, transparent); }
+.gi.text:not(.loose) { border-width:2px; background:color-mix(in srgb, var(--c) 18%, transparent); }   /* an entity's fields, as a group's */
 .gi.text.loose { opacity:.85; }
 .gh.text { border-style:solid; border-width:2px; }
 
@@ -385,3 +398,75 @@ details.raw { font-size:12px; } details.raw summary { cursor:pointer; color:var(
 .btnames tr.hov td { background:var(--accent-dim); } .btnames code.ed { cursor:text; border-bottom:1px dashed var(--border); }
 .btnames .btpe { display:flex; flex-direction:column; gap:4px; padding:4px 0 6px; }
 .warn a { color:inherit; text-decoration:underline; }
+/* a group's grab tab on its top-left corner (Groups, Review): its boxes cover the rest of the hull (2026-10-27) */
+.ghanchor { position:absolute; z-index:6; pointer-events:none; }
+.ghanchor .ghtab { position:absolute; left:-1.5px; top:-9px; width:18px; height:9px; background:var(--c); border-radius:3px 3px 0 0; cursor:grab; pointer-events:auto;
+  background-image:repeating-linear-gradient(90deg, transparent 0 3px, rgba(255,255,255,.55) 3px 4px); background-clip:padding-box; }
+.gh.dragging, .ghtab.dragging { opacity:.4; }
+/* hidden tabs (t; a header button 2026-10-27 to 10-31): the labels and grab tabs on the page, not the boxes; .ovl span too, the grid
+   ids and block labels "show" draws on the other tabs, so they hide on every tab at once */
+body.notabs .ghtab, body.notabs .gtab .gtid, body.notabs .btb span, body.notabs .ov.added .tag, body.notabs .ovl span { display:none; }
+
+/* a box Shift-clicked on Review's page, for g (2026-10-28) */
+.rv.picked { box-shadow:0 0 0 2px var(--sel), 0 0 8px 2px color-mix(in srgb, var(--sel) 60%, transparent); }
+
+/* the home table's column picker (2026-10-31) */
+.hcols { position:relative; display:inline-block; }
+.hcols > summary { list-style:none; cursor:pointer; }
+.hcols > summary::-webkit-details-marker { display:none; }
+.hcols-menu { position:absolute; z-index:20; top:calc(100% + 4px); right:0; min-width:180px; display:flex; flex-direction:column; gap:4px;
+  padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:6px; box-shadow:0 6px 18px rgba(0,0,0,.35); }
+.hcols-menu label { display:flex; gap:6px; align-items:center; justify-content:flex-start; font-size:.8rem; white-space:nowrap; cursor:pointer;
+  text-transform:none; letter-spacing:0; color:var(--text); }
+.hcols-menu input { flex:none; width:auto; margin:0; }
+.hcols-menu .btn { margin-top:4px; align-self:flex-start; }
+
+/* fields filled by kind on every tab but Add / remove, whatever their verdict: the border says that (Andrew,
+   2026-10-31: "lets shade the field regardless of status, the red dashed outline is still indicative"; "can you give
+   choice fields their own color?"). Text pale yellow, printed (expected hand-written) pale cyan, choices (checkboxes,
+   radio buttons, dropdowns) pale rose. Last in the sheet, so a flag's or a removal's own fill gives way */
+.rv.txt, .ovl.kind.txt { background:var(--fill-text); }
+.rv.printed, .ovl.kind.printed { background:var(--fill-printed); }
+.rv.choice, .ovl.kind.choice { background:var(--fill-choice); }
+/* a field of a group or text group filled in its group's colour while groups show (Andrew, 2026-10-31) */
+.rv.grp, .ovl.kind.grp { background:color-mix(in srgb, var(--c) 30%, transparent); }
+.ovl.kind { pointer-events:none; border:none; }
+/* Add / remove: choices (checkboxes, radio buttons, dropdowns) filled rose under their own border, the blueprint's,
+   a proposal's or an addition's (Andrew, 2026-10-31) */
+.ov.field.choice, .ov.prop.choice, .ov.added.choice { background:var(--fill-choice); }
+.ov.field.printed, .ov.prop.printed, .ov.added.printed { background:var(--fill-printed); }   /* signatures (2026-10-31) */
+
+/* the filter menu (2026-11-03): show one kind, hide any of the validated kinds */
+.hfilter .hcols-menu { left:0; right:auto; }
+.hcols-menu .hm-l { font-size:.62rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--text-dim); margin-top:4px; }
+.hcols-menu .hm-l:first-child { margin-top:0; }
+.hcols > summary.btn.on { border-color:var(--accent); color:var(--text); }
+
+/* one row, never two (Andrew, 2026-11-03: "stop bumping buttons to the next row when there's overflow ... would rather
+   adjust the sizes of everything"): the header, the tab bar, the show bar and the home controls stay on one line; as
+   the window narrows the form menu gives way first, then gaps, text and padding scale down with the width and long
+   labels end in an ellipsis. The page buttons scroll instead (#pages). */
+header, #modebar, #modebarRow, #showbar, .hctl { flex-wrap:nowrap; }
+header { gap:clamp(3px, .5vw, 8px); padding-left:clamp(8px, 1.1vw, 16px); padding-right:clamp(8px, 1.1vw, 16px); }
+/* the shrink is shared by width times factor: the form menu takes nearly all of it until its minimum, then the rest */
+header > * { flex-shrink:.01; min-width:0; }
+header > .brand { flex-shrink:0; }
+header #pick { flex:0 1 380px; min-width:90px; }
+header #listorder { width:auto; max-width:112px; min-width:60px; }
+header .btngroup { min-width:0; }
+header .btn, #modebarRow .btn, #modebarRow .tabs button, #showbar .btn, .hctl .btn, .hctl select {
+  font-size:clamp(.64rem, .32rem + .45vw, .78rem); padding-left:clamp(.3rem, .1rem + .45vw, .75rem); padding-right:clamp(.3rem, .1rem + .45vw, .75rem);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+header .btngroup .btn { flex-shrink:.01; }
+#modebarRow { gap:clamp(6px, 1vw, 14px); padding-right:clamp(8px, 1.1vw, 16px); }
+#modebar { gap:clamp(6px, 1vw, 14px); padding-left:clamp(8px, 1.1vw, 16px); padding-right:0; overflow:hidden; }
+#modebar > * { min-width:0; flex-shrink:1; }
+#modebar .progress { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#modebarRow .tabs { flex-shrink:0; }
+#showbar { gap:clamp(4px, .6vw, 8px); }
+#showbar > *, #showbar .ctl { flex-wrap:nowrap; min-width:0; }
+#showbar .ctl { font-size:clamp(.58rem, .3rem + .38vw, .68rem); letter-spacing:.06em; white-space:nowrap; }
+.hctl { gap:clamp(4px, .7vw, 10px); }
+.hctl > * { flex-shrink:.01; min-width:0; }
+.hctl #hq { flex:0 1 260px; min-width:120px; width:auto; }
+.hctl select { flex:0 1 auto; max-width:300px; }

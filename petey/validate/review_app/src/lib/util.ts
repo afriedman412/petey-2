@@ -58,7 +58,36 @@ export const fileStem = (path: string) => String(path || '').split('/').pop()!.r
 export const plural = (n: number, one: string, many = one + 's') => `${n} ${n === 1 ? one : many}`;
 
 /** After React has drawn the change and the browser has laid it out (scrolling to a box just selected). */
+// the form pickers (the header's form menu, the home search): once a form is open they let go of the keyboard, or the
+// page keys (1-9 for pages, the tabs' keys) went to them (Andrew, 2026-10-27: "when you load a new doc, the keys to
+// switch pages dont work")
+export const PICKER_IDS = ['pick', 'hq'];
+export const holdsPickerFocus = (el: { id?: string } | null | undefined) => !!el && PICKER_IDS.includes(el.id || '');
+
 export const afterPaint = (fn: () => void) => requestAnimationFrame(() => requestAnimationFrame(fn));
+
+// the page keeps its scroll across a tab switch (Andrew, 2026-10-27: "when you change views, it reloads the top of the
+// page of the current file"): the image is gone while the new tab loads, so the stage falls back to the top; it is put
+// back once the image is laid out again, unless the new tab opened on another page
+export interface HeldScroll { page: number; top: number; left: number }
+export interface Scroller { scrollTop: number; scrollLeft: number; scrollHeight: number; clientHeight: number }
+let heldScroll: HeldScroll | null = null;
+export function holdScroll(page: number) {
+  const s = document.getElementById('stage');
+  heldScroll = s ? { page, top: s.scrollTop, left: s.scrollLeft } : null;
+}
+/** Put the held scroll back on `s`; true when it is done with (put back in full, or on another page). */
+export function putScrollBack(h: HeldScroll, page: number, s: Scroller) {
+  if (h.page !== page) return true;
+  s.scrollTop = h.top; s.scrollLeft = h.left;
+  return s.scrollHeight - s.clientHeight >= h.top;
+}
+/** After the tab has drawn (`final` once its image has loaded: nothing taller is coming). */
+export function restoreScroll(page: number, final = false) {
+  const h = heldScroll, s = document.getElementById('stage');
+  if (!h || !s) return;
+  if (putScrollBack(h, page, s) || final) heldScroll = null;
+}
 
 export function scrollToSel(selector: string, block: ScrollLogicalPosition = 'center') {
   afterPaint(() => {
@@ -68,4 +97,19 @@ export function scrollToSel(selector: string, block: ScrollLogicalPosition = 'ce
 }
 
 // one palette for the things drawn around boxes: option groups (Review, Groups) and tables / block groups (Grids, Blocks)
-export const GROUP_COLORS = ['#4fc3f7', '#ba68c8', '#81c784', '#ffb74d', '#f06292', '#4db6ac', '#9575cd', '#dce775'];
+export const GROUP_COLORS = ['#4fc3f7', '#ba68c8', '#81c784', '#ffb74d', '#f06292', '#4db6ac', '#9575cd'];
+
+// a block type's colour (Andrew, 2026-10-28: "every block type is a diff color ... most importantly it needs to be a
+// diff color than the 'unvalidated' outline"): none of the colours that already mean something on the page (orange
+// not yet accepted, green accepted, red flagged, grey in no block), each dark enough for the white page. By the type's
+// place among the form's types that have blocks, in number order (BT1, BT2, BT6, ...): one colour per type on every
+// page and tab. A form with more types than colours (6 of 709 forms with blocks) ranks the page's types instead, so
+// no page repeats a colour.
+export const BLOCK_COLORS = ['#0288d1', '#8e24aa', '#00897b', '#d81b60', '#3949ab', '#00acc1', '#37474f', '#795548'];
+const typeNum = (t: string) => { const m = /(\d+)$/.exec(t); return m ? +m[1] : Infinity; };
+const ranked = (ts: string[]) => [...new Set(ts)].sort((a, b) => typeNum(a) - typeNum(b) || a.localeCompare(b));
+export function blockColor(type: string, formTypes: string[], pageTypes: string[] = []): string {
+  let order = ranked(formTypes);
+  if (order.length > BLOCK_COLORS.length && pageTypes.length) order = ranked(pageTypes);
+  return BLOCK_COLORS[Math.max(0, order.indexOf(type)) % BLOCK_COLORS.length];
+}
