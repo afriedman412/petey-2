@@ -63,38 +63,45 @@ fields:
     x_petey_identifiers:
       subject: disregarded_entity
       suffix: nm
-  hybrid_treaty_claim_yes_ind:
-    x_petey_id: '1_5'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 511.20001220703125
-      - 314.0
-      - 519.2000122070312
-      - 322.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_2[0]
+  hybrid_treaty_claim:
+    x_petey_id: '1_14'
+    type: category
+    values:
+    - hybrid_treaty_claim_yes_ind
+    - hybrid_treaty_claim_no_ind
+    widgets:
+      hybrid_treaty_claim_yes_ind:
+        page: 1
+        rect:
+        - 511.20001220703125
+        - 314.0
+        - 519.2000122070312
+        - 322.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_2[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      hybrid_treaty_claim_no_ind:
+        page: 1
+        rect:
+        - 547.2000122070312
+        - 314.0
+        - 555.2000122070312
+        - 322.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_2[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-03 11:45:35'
+      from:
+      - hybrid_treaty_claim_yes_ind
+      - hybrid_treaty_claim_no_ind
     x_petey_identifiers:
-      subject: hybrid_treaty_claim_yes
-      suffix: ind
-  hybrid_treaty_claim_no_ind:
-    x_petey_id: '1_6'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 547.2000122070312
-      - 314.0
-      - 555.2000122070312
-      - 322.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_2[1]
-    x_petey_identifiers:
-      subject: hybrid_treaty_claim_no
-      suffix: ind
+      subject: hybrid_treaty_claim
   permanent_residence_address_line_1_txt:
     x_petey_id: '1_8'
     type: string
@@ -337,22 +344,59 @@ fields:
       path: topmostSubform[0].Page2[0].f2_8[0]
     x_petey_identifiers:
       subject: disregarded_entity_branch_giin
-  treaty_resident_of_ind:
-    x_petey_id: '2_11'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 66.79900360107422
-      - 350.0
-      - 74.79900360107422
-      - 358.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].c2_3[0]
+  treaty:
+    x_petey_id: '2_24'
+    type: category
+    values:
+    - treaty_resident_of_ind
+    - treaty_lob_derives_income_ind
+    - treaty_benefits_qualified_resident_ind
+    widgets:
+      treaty_resident_of_ind:
+        page: 2
+        rect:
+        - 66.79900360107422
+        - 350.0
+        - 74.79900360107422
+        - 358.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].c2_3[0]
+        on_state: '1'
+        caption: a
+        x_petey_caption_source: page_text
+      treaty_lob_derives_income_ind:
+        page: 2
+        rect:
+        - 66.79900360107422
+        - 373.99798583984375
+        - 74.79900360107422
+        - 381.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].c2_4[0]
+        on_state: '1'
+        caption: b
+        x_petey_caption_source: page_text
+      treaty_benefits_qualified_resident_ind:
+        page: 2
+        rect:
+        - 66.79900360107422
+        - 481.99798583984375
+        - 74.79900360107422
+        - 489.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].c2_6[0]
+        on_state: '1'
+        caption: c
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-03 11:45:35'
+      from:
+      - treaty_resident_of_ind
+      - treaty_lob_derives_income_ind
+      - treaty_benefits_qualified_resident_ind
     x_petey_identifiers:
-      subject: treaty_resident_of
-      suffix: ind
+      subject: treaty
   treaty_country_nm:
     x_petey_id: '2_12'
     type: string
@@ -369,22 +413,6 @@ fields:
     x_petey_identifiers:
       subject: treaty_country
       suffix: nm
-  treaty_lob_derives_income_ind:
-    x_petey_id: '2_13'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 66.79900360107422
-      - 373.99798583984375
-      - 74.79900360107422
-      - 381.99798583984375
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].c2_4[0]
-    x_petey_identifiers:
-      subject: treaty_lob_derives_income
-      suffix: ind
   lob_other_article_paragraph_txt:
     x_petey_id: '2_15'
     type: string
@@ -401,22 +429,6 @@ fields:
     x_petey_identifiers:
       subject: lob_other_article_paragraph
       suffix: txt
-  treaty_benefits_qualified_resident_ind:
-    x_petey_id: '2_16'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 66.79900360107422
-      - 481.99798583984375
-      - 74.79900360107422
-      - 489.99798583984375
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].c2_6[0]
-    x_petey_identifiers:
-      subject: treaty_benefits_qualified_resident
-      suffix: ind
   special_rates_article_paragraph_txt:
     x_petey_id: '2_17'
     type: string
@@ -529,38 +541,45 @@ fields:
     x_petey_identifiers:
       subject: sponsoring_entity
       suffix: nm
-  sponsored_investment_entity_ind:
-    x_petey_id: '2_24'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 66.80000305175781
-      - 625.9979858398438
-      - 74.80000305175781
-      - 633.9979858398438
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].c2_7[0]
-    x_petey_identifiers:
-      subject: sponsored_investment_entity
-      suffix: ind
-  sponsored_controlled_foreign_corp_ind:
+  sponsored:
     x_petey_id: '2_25'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 66.80000305175781
-      - 674.0
-      - 74.80000305175781
-      - 682.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page2[0].c2_8[0]
+    type: category
+    values:
+    - sponsored_investment_entity_ind
+    - sponsored_controlled_foreign_corp_ind
+    widgets:
+      sponsored_investment_entity_ind:
+        page: 2
+        rect:
+        - 66.80000305175781
+        - 625.9979858398438
+        - 74.80000305175781
+        - 633.9979858398438
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].c2_7[0]
+        on_state: '1'
+        caption: Check
+        x_petey_caption_source: page_text
+      sponsored_controlled_foreign_corp_ind:
+        page: 2
+        rect:
+        - 66.80000305175781
+        - 674.0
+        - 74.80000305175781
+        - 682.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page2[0].c2_8[0]
+        on_state: '2'
+        caption: • Has
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-03 11:45:35'
+      from:
+      - sponsored_investment_entity_ind
+      - sponsored_controlled_foreign_corp_ind
     x_petey_identifiers:
-      subject: sponsored_controlled_foreign_corp
-      suffix: ind
+      subject: sponsored
   part_v_certified_deemed_compliant_nonregistering_local_bank_ind:
     x_petey_id: '3_1'
     type: boolean
@@ -673,102 +692,112 @@ fields:
     x_petey_identifiers:
       subject: part_x_owner_documented_ffi
       suffix: ind
-  part_x_24b_owner_documented_ffi_certification_ind:
+  part_x:
     x_petey_id: '4_1'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 66.80000305175781
-      - 73.9990234375
-      - 74.80000305175781
-      - 81.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page4[0].c4_1[0]
+    type: category
+    values:
+    - part_x_24b_owner_documented_ffi_certification_ind
+    - part_x_24c_auditors_letter_certification_ind
+    - part_x_24d_trust_no_contingent_beneficiaries_ind
+    widgets:
+      part_x_24b_owner_documented_ffi_certification_ind:
+        page: 4
+        rect:
+        - 66.80000305175781
+        - 73.9990234375
+        - 74.80000305175781
+        - 81.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page4[0].c4_1[0]
+        on_state: '1'
+        caption: b
+        x_petey_caption_source: page_text
+      part_x_24c_auditors_letter_certification_ind:
+        page: 4
+        rect:
+        - 66.80000305175781
+        - 217.9990234375
+        - 74.80000305175781
+        - 225.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page4[0].c4_1[1]
+        on_state: '2'
+        caption: c
+        x_petey_caption_source: page_text
+      part_x_24d_trust_no_contingent_beneficiaries_ind:
+        page: 4
+        rect:
+        - 66.79900360107422
+        - 289.9989929199219
+        - 74.79900360107422
+        - 297.9989929199219
+        widget_type: checkbox
+        path: topmostSubform[0].Page4[0].c4_2[0]
+        on_state: '1'
+        caption: d
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-03 11:45:35'
+      from:
+      - part_x_24b_owner_documented_ffi_certification_ind
+      - part_x_24c_auditors_letter_certification_ind
+      - part_x_24d_trust_no_contingent_beneficiaries_ind
     x_petey_identifiers:
-      subject: part_x_24b_owner_documented_ffi_certification
-      suffix: ind
-  part_x_24c_auditors_letter_certification_ind:
+      subject: part_x
+  part_xi:
     x_petey_id: '4_2'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 66.80000305175781
-      - 217.9990234375
-      - 74.80000305175781
-      - 225.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page4[0].c4_1[1]
+    type: category
+    values:
+    - part_xi_25a_restricted_distributor_certification_ind
+    - part_xi_25b_distribution_agreement_prohibition_ind
+    - part_xi_25c_current_distribution_agreement_prior_sales_ind
+    widgets:
+      part_xi_25a_restricted_distributor_certification_ind:
+        page: 4
+        rect:
+        - 66.80000305175781
+        - 325.9989929199219
+        - 74.80000305175781
+        - 333.9989929199219
+        widget_type: checkbox
+        path: topmostSubform[0].Page4[0].c4_3[0]
+        on_state: '1'
+        caption: 25a
+        x_petey_caption_source: page_text
+      part_xi_25b_distribution_agreement_prohibition_ind:
+        page: 4
+        rect:
+        - 66.79900360107422
+        - 530.0
+        - 74.79900360107422
+        - 538.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page4[0].c4_4[0]
+        on_state: '1'
+        caption: b
+        x_petey_caption_source: page_text
+      part_xi_25c_current_distribution_agreement_prior_sales_ind:
+        page: 4
+        rect:
+        - 66.79900360107422
+        - 566.0
+        - 74.79900360107422
+        - 574.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page4[0].c4_4[1]
+        on_state: '2'
+        caption: c
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-03 11:45:35'
+      from:
+      - part_xi_25a_restricted_distributor_certification_ind
+      - part_xi_25b_distribution_agreement_prohibition_ind
+      - part_xi_25c_current_distribution_agreement_prior_sales_ind
     x_petey_identifiers:
-      subject: part_x_24c_auditors_letter_certification
-      suffix: ind
-  part_x_24d_trust_no_contingent_beneficiaries_ind:
-    x_petey_id: '4_3'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 66.79900360107422
-      - 289.9989929199219
-      - 74.79900360107422
-      - 297.9989929199219
-      widget_type: checkbox
-      path: topmostSubform[0].Page4[0].c4_2[0]
-    x_petey_identifiers:
-      subject: part_x_24d_trust_no_contingent_beneficiaries
-      suffix: ind
-  part_xi_25a_restricted_distributor_certification_ind:
-    x_petey_id: '4_4'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 66.80000305175781
-      - 325.9989929199219
-      - 74.80000305175781
-      - 333.9989929199219
-      widget_type: checkbox
-      path: topmostSubform[0].Page4[0].c4_3[0]
-    x_petey_identifiers:
-      subject: part_xi_25a_restricted_distributor_certification
-      suffix: ind
-  part_xi_25b_distribution_agreement_prohibition_ind:
-    x_petey_id: '4_5'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 66.79900360107422
-      - 530.0
-      - 74.79900360107422
-      - 538.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page4[0].c4_4[0]
-    x_petey_identifiers:
-      subject: part_xi_25b_distribution_agreement_prohibition
-      suffix: ind
-  part_xi_25c_current_distribution_agreement_prior_sales_ind:
-    x_petey_id: '4_6'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 66.79900360107422
-      - 566.0
-      - 74.79900360107422
-      - 574.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page4[0].c4_4[1]
-    x_petey_identifiers:
-      subject: part_xi_25c_current_distribution_agreement_prior_sales
-      suffix: ind
+      subject: part_xi
   part_xii_nonreporting_iga_ffi_ind:
     x_petey_id: '5_1'
     type: boolean
@@ -869,38 +898,45 @@ fields:
     x_petey_identifiers:
       subject: trustee_or_sponsor
       suffix: nm
-  trustee_is_us_ind:
-    x_petey_id: '5_7'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 5
-      rect:
-      - 117.19999694824219
-      - 134.0
-      - 125.19999694824219
-      - 142.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page5[0].BulletedList1[0].Bullet2[0].c5_3[0]
+  trustee_is:
+    x_petey_id: '5_10'
+    type: category
+    values:
+    - trustee_is_us_ind
+    - trustee_is_foreign_ind
+    widgets:
+      trustee_is_us_ind:
+        page: 5
+        rect:
+        - 117.19999694824219
+        - 134.0
+        - 125.19999694824219
+        - 142.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page5[0].BulletedList1[0].Bullet2[0].c5_3[0]
+        on_state: '1'
+        caption: U.S
+        x_petey_caption_source: page_text
+      trustee_is_foreign_ind:
+        page: 5
+        rect:
+        - 153.1999969482422
+        - 134.0
+        - 161.1999969482422
+        - 142.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page5[0].BulletedList1[0].Bullet2[0].c5_3[1]
+        on_state: '2'
+        caption: Foreign
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-03 11:45:35'
+      from:
+      - trustee_is_us_ind
+      - trustee_is_foreign_ind
     x_petey_identifiers:
-      subject: trustee_is_us
-      suffix: ind
-  trustee_is_foreign_ind:
-    x_petey_id: '5_8'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 5
-      rect:
-      - 153.1999969482422
-      - 134.0
-      - 161.1999969482422
-      - 142.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page5[0].BulletedList1[0].Bullet2[0].c5_3[1]
-    x_petey_identifiers:
-      subject: trustee_is_foreign
-      suffix: ind
+      subject: trustee_is
   part_xiii_foreign_govt_central_bank_ind:
     x_petey_id: '5_9'
     type: boolean
@@ -917,137 +953,151 @@ fields:
     x_petey_identifiers:
       subject: part_xiii_foreign_govt_central_bank
       suffix: ind
-  intl_org_section_7701a18_ind:
-    x_petey_id: '5_10'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 5
-      rect:
-      - 66.80000305175781
-      - 229.99798583984375
-      - 74.80000305175781
-      - 237.99798583984375
-      widget_type: checkbox
-      path: topmostSubform[0].Page5[0].c5_5[0]
-    x_petey_identifiers:
-      subject: intl_org_section_7701a18
-      suffix: ind
-  intl_org_other_criteria_ind:
+  intl_org:
     x_petey_id: '5_11'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 5
-      rect:
-      - 66.80000305175781
-      - 242.0
-      - 74.80000305175781
-      - 250.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page5[0].c5_5[1]
+    type: category
+    values:
+    - intl_org_section_7701a18_ind
+    - intl_org_other_criteria_ind
+    widgets:
+      intl_org_section_7701a18_ind:
+        page: 5
+        rect:
+        - 66.80000305175781
+        - 229.99798583984375
+        - 74.80000305175781
+        - 237.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page5[0].c5_5[0]
+        on_state: '1'
+        caption: 28a
+        x_petey_caption_source: page_text
+      intl_org_other_criteria_ind:
+        page: 5
+        rect:
+        - 66.80000305175781
+        - 242.0
+        - 74.80000305175781
+        - 250.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page5[0].c5_5[1]
+        on_state: '2'
+        caption: b
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-03 11:45:35'
+      from:
+      - intl_org_section_7701a18_ind
+      - intl_org_other_criteria_ind
     x_petey_identifiers:
-      subject: intl_org_other_criteria
-      suffix: ind
-  exempt_retirement_plan_ind_29a:
+      subject: intl_org
+  exempt_retirement_plan_ind:
     x_petey_id: '5_12'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 5
-      rect:
-      - 66.80000305175781
-      - 361.9989929199219
-      - 74.80000305175781
-      - 369.9989929199219
-      widget_type: checkbox
-      path: topmostSubform[0].Page5[0].c5_6[0]
+    type: category
+    values:
+    - exempt_retirement_plan_ind_29a
+    - exempt_retirement_plan_ind_29b
+    - exempt_retirement_plan_ind_29c
+    widgets:
+      exempt_retirement_plan_ind_29a:
+        page: 5
+        rect:
+        - 66.80000305175781
+        - 361.9989929199219
+        - 74.80000305175781
+        - 369.9989929199219
+        widget_type: checkbox
+        path: topmostSubform[0].Page5[0].c5_6[0]
+        on_state: '1'
+        caption: 29a
+        x_petey_caption_source: page_text
+      exempt_retirement_plan_ind_29b:
+        page: 5
+        rect:
+        - 66.80000305175781
+        - 422.0
+        - 74.80000305175781
+        - 430.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page5[0].c5_6[1]
+        on_state: '2'
+        caption: b
+        x_petey_caption_source: page_text
+      exempt_retirement_plan_ind_29c:
+        page: 5
+        rect:
+        - 66.80000305175781
+        - 613.9990234375
+        - 74.80000305175781
+        - 621.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page5[0].c5_6[2]
+        on_state: '3'
+        caption: c
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-03 11:45:35'
+      from:
+      - exempt_retirement_plan_ind_29a
+      - exempt_retirement_plan_ind_29b
+      - exempt_retirement_plan_ind_29c
     x_petey_identifiers:
-      subject: exempt_retirement_plan
-      suffix: ind
-      iteration: 29a
-  exempt_retirement_plan_ind_29b:
-    x_petey_id: '5_13'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 5
-      rect:
-      - 66.80000305175781
-      - 422.0
-      - 74.80000305175781
-      - 430.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page5[0].c5_6[1]
+      subject: exempt_retirement_plan_ind
+  part_xv:
+    x_petey_id: '6_11'
+    type: category
+    values:
+    - part_xv_d_pension_plan_401a_cert_ind
+    - part_xv_e_retirement_income_entity_cert_ind
+    - part_xv_f_govt_sponsored_retirement_entity_cert_ind
+    widgets:
+      part_xv_d_pension_plan_401a_cert_ind:
+        page: 6
+        rect:
+        - 66.80000305175781
+        - 62.0
+        - 74.80000305175781
+        - 70.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page6[0].c5_6[0]
+        on_state: '4'
+        caption: d
+        x_petey_caption_source: page_text
+      part_xv_e_retirement_income_entity_cert_ind:
+        page: 6
+        rect:
+        - 66.80000305175781
+        - 85.99798583984375
+        - 74.80000305175781
+        - 93.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page6[0].c5_6[1]
+        on_state: '5'
+        caption: e
+        x_petey_caption_source: page_text
+      part_xv_f_govt_sponsored_retirement_entity_cert_ind:
+        page: 6
+        rect:
+        - 66.80000305175781
+        - 121.99798583984375
+        - 74.80000305175781
+        - 129.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page6[0].c5_6[2]
+        on_state: '6'
+        caption: f
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-03 11:45:35'
+      from:
+      - part_xv_d_pension_plan_401a_cert_ind
+      - part_xv_e_retirement_income_entity_cert_ind
+      - part_xv_f_govt_sponsored_retirement_entity_cert_ind
     x_petey_identifiers:
-      subject: exempt_retirement_plan
-      suffix: ind
-      iteration: 29b
-  exempt_retirement_plan_ind_29c:
-    x_petey_id: '5_14'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 5
-      rect:
-      - 66.80000305175781
-      - 613.9990234375
-      - 74.80000305175781
-      - 621.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page5[0].c5_6[2]
-    x_petey_identifiers:
-      subject: exempt_retirement_plan
-      suffix: ind
-      iteration: 29c
-  part_xv_d_pension_plan_401a_cert_ind:
-    x_petey_id: '6_1'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 66.80000305175781
-      - 62.0
-      - 74.80000305175781
-      - 70.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page6[0].c5_6[0]
-    x_petey_identifiers:
-      subject: part_xv_d_pension_plan_401a_cert
-      suffix: ind
-  part_xv_e_retirement_income_entity_cert_ind:
-    x_petey_id: '6_2'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 66.80000305175781
-      - 85.99798583984375
-      - 74.80000305175781
-      - 93.99798583984375
-      widget_type: checkbox
-      path: topmostSubform[0].Page6[0].c5_6[1]
-    x_petey_identifiers:
-      subject: part_xv_e_retirement_income_entity_cert
-      suffix: ind
-  part_xv_f_govt_sponsored_retirement_entity_cert_ind:
-    x_petey_id: '6_3'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 66.80000305175781
-      - 121.99798583984375
-      - 74.80000305175781
-      - 129.99798583984375
-      widget_type: checkbox
-      path: topmostSubform[0].Page6[0].c5_6[2]
-    x_petey_identifiers:
-      subject: part_xv_f_govt_sponsored_retirement_entity_cert
-      suffix: ind
+      subject: part_xv
   part_xvi_wholly_owned_exempt_beneficial_owners_cert_ind:
     x_petey_id: '6_4'
     type: boolean
@@ -1214,22 +1264,45 @@ fields:
     x_petey_identifiers:
       subject: part_xxii_nonprofit_organization
       suffix: ind
-  part_xxiii_publicly_traded_nffe_ind:
-    x_petey_id: '7_4'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 7
-      rect:
-      - 66.80000305175781
-      - 314.0
-      - 74.80000305175781
-      - 322.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page7[0].c7_3[0]
+  part_xxiii:
+    x_petey_id: '7_11'
+    type: category
+    values:
+    - part_xxiii_publicly_traded_nffe_ind
+    - part_xxiii_nffe_affiliate_publicly_traded_ind
+    widgets:
+      part_xxiii_publicly_traded_nffe_ind:
+        page: 7
+        rect:
+        - 66.80000305175781
+        - 314.0
+        - 74.80000305175781
+        - 322.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page7[0].c7_3[0]
+        on_state: '1'
+        caption: 37a
+        x_petey_caption_source: page_text
+      part_xxiii_nffe_affiliate_publicly_traded_ind:
+        page: 7
+        rect:
+        - 66.80000305175781
+        - 361.9989929199219
+        - 74.80000305175781
+        - 369.9989929199219
+        widget_type: checkbox
+        path: topmostSubform[0].Page7[0].c7_3[1]
+        on_state: '2'
+        caption: b
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-03 11:45:35'
+      from:
+      - part_xxiii_publicly_traded_nffe_ind
+      - part_xxiii_nffe_affiliate_publicly_traded_ind
     x_petey_identifiers:
-      subject: part_xxiii_publicly_traded_nffe
-      suffix: ind
+      subject: part_xxiii
   publicly_traded_securities_exchange_nm:
     x_petey_id: '7_5'
     type: string
@@ -1246,22 +1319,6 @@ fields:
     x_petey_identifiers:
       subject: publicly_traded_securities_exchange
       suffix: nm
-  part_xxiii_nffe_affiliate_publicly_traded_ind:
-    x_petey_id: '7_6'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 7
-      rect:
-      - 66.80000305175781
-      - 361.9989929199219
-      - 74.80000305175781
-      - 369.9989929199219
-      widget_type: checkbox
-      path: topmostSubform[0].Page7[0].c7_3[1]
-    x_petey_identifiers:
-      subject: part_xxiii_nffe_affiliate_publicly_traded
-      suffix: ind
   affiliated_publicly_traded_entity_nm:
     x_petey_id: '7_7'
     type: string
@@ -1326,54 +1383,59 @@ fields:
     x_petey_identifiers:
       subject: part_xxv_active_nffe
       suffix: ind
-  part_xxvi_passive_nffe_ind:
-    x_petey_id: '7_11'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 7
-      rect:
-      - 66.80000305175781
-      - 661.9979858398438
-      - 74.80000305175781
-      - 669.9979858398438
-      widget_type: checkbox
-      path: topmostSubform[0].Page7[0].c7_6[0]
-    x_petey_identifiers:
-      subject: part_xxvi_passive_nffe
-      suffix: ind
-  passive_nffe_no_substantial_us_owners_ind:
+  group_p7:
     x_petey_id: '7_12'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 7
-      rect:
-      - 66.80000305175781
-      - 710.0
-      - 74.80000305175781
-      - 718.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page7[0].c7_7[0]
+    type: category
+    values:
+    - part_xxvi_passive_nffe_ind
+    - passive_nffe_no_substantial_us_owners_ind
+    - passive_nffe_substantial_us_owners_provided_ind
+    widgets:
+      part_xxvi_passive_nffe_ind:
+        page: 7
+        rect:
+        - 66.80000305175781
+        - 661.9979858398438
+        - 74.80000305175781
+        - 669.9979858398438
+        widget_type: checkbox
+        path: topmostSubform[0].Page7[0].c7_6[0]
+        on_state: '1'
+        caption: 40a
+        x_petey_caption_source: page_text
+      passive_nffe_no_substantial_us_owners_ind:
+        page: 7
+        rect:
+        - 66.80000305175781
+        - 710.0
+        - 74.80000305175781
+        - 718.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page7[0].c7_7[0]
+        on_state: '1'
+        caption: b
+        x_petey_caption_source: page_text
+      passive_nffe_substantial_us_owners_provided_ind:
+        page: 7
+        rect:
+        - 66.80000305175781
+        - 721.9990234375
+        - 74.80000305175781
+        - 729.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page7[0].c7_7[1]
+        on_state: '2'
+        caption: c
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-03 11:45:35'
+      from:
+      - part_xxvi_passive_nffe_ind
+      - passive_nffe_no_substantial_us_owners_ind
+      - passive_nffe_substantial_us_owners_provided_ind
     x_petey_identifiers:
-      subject: passive_nffe_no_substantial_us_owners
-      suffix: ind
-  passive_nffe_substantial_us_owners_provided_ind:
-    x_petey_id: '7_13'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 7
-      rect:
-      - 66.80000305175781
-      - 721.9990234375
-      - 74.80000305175781
-      - 729.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page7[0].c7_7[1]
-    x_petey_identifiers:
-      subject: passive_nffe_substantial_us_owners_provided
-      suffix: ind
+      subject: group_p7
   part_xxvii_excepted_inter_affiliate_ffi_ind:
     x_petey_id: '8_1'
     type: boolean

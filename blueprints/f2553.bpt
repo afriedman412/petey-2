@@ -112,38 +112,45 @@ fields:
     x_petey_identifiers:
       subject: state_of_incorporation
       suffix: cd
-  changed_name_ind:
-    x_petey_id: '1_7'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 482.3999938964844
-      - 218.00201416015625
-      - 490.3999938964844
-      - 226.00201416015625
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_1[0]
+  changed:
+    x_petey_id: '1_29'
+    type: category
+    values:
+    - changed_name_ind
+    - changed_address_ind
+    widgets:
+      changed_name_ind:
+        page: 1
+        rect:
+        - 482.3999938964844
+        - 218.00201416015625
+        - 490.3999938964844
+        - 226.00201416015625
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_1[0]
+        on_state: '1'
+        caption: name or
+        x_petey_caption_source: page_text
+      changed_address_ind:
+        page: 1
+        rect:
+        - 532.7999877929688
+        - 218.0009765625
+        - 540.7999877929688
+        - 226.0009765625
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_2[0]
+        on_state: '1'
+        caption: address
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-03 11:27:51'
+      from:
+      - changed_name_ind
+      - changed_address_ind
     x_petey_identifiers:
-      subject: changed_name
-      suffix: ind
-  changed_address_ind:
-    x_petey_id: '1_8'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 532.7999877929688
-      - 218.0009765625
-      - 540.7999877929688
-      - 226.0009765625
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_2[0]
-    x_petey_identifiers:
-      subject: changed_address
-      suffix: ind
+      subject: changed
   election_effective_tax_year_beginning_dt:
     x_petey_id: '1_9'
     type: date
@@ -162,38 +169,73 @@ fields:
     x_petey_identifiers:
       subject: election_effective_tax_year_beginning
       suffix: dt
-  calendar_year_ind:
-    x_petey_id: '1_10'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 75.19999694824219
-      - 278.25
-      - 83.19999694824219
-      - 286.25
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_3[0]
+  group_p1:
+    x_petey_id: '1_30'
+    type: category
+    values:
+    - calendar_year_ind
+    - fiscal_year_ind
+    - fifty_two_53_week_year_december_ind
+    - fifty_two_53_week_year_other_month_ind
+    widgets:
+      calendar_year_ind:
+        page: 1
+        rect:
+        - 75.19999694824219
+        - 278.25
+        - 83.19999694824219
+        - 286.25
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_3[0]
+        on_state: '1'
+        caption: Calendar year
+        x_petey_caption_source: page_text
+      fiscal_year_ind:
+        page: 1
+        rect:
+        - 75.19999694824219
+        - 290.25201416015625
+        - 83.19999694824219
+        - 298.25201416015625
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_3[1]
+        on_state: '2'
+        caption: Fiscal year ending (month and day)
+        x_petey_caption_source: page_text
+      fifty_two_53_week_year_december_ind:
+        page: 1
+        rect:
+        - 75.19999694824219
+        - 302.2510070800781
+        - 83.19999694824219
+        - 310.2510070800781
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_3[2]
+        on_state: '3'
+        caption: (3)
+        x_petey_caption_source: page_text
+      fifty_two_53_week_year_other_month_ind:
+        page: 1
+        rect:
+        - 75.19999694824219
+        - 314.25
+        - 83.19999694824219
+        - 322.25
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_3[3]
+        on_state: '4'
+        caption: (4)
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-03 11:27:51'
+      from:
+      - calendar_year_ind
+      - fiscal_year_ind
+      - fifty_two_53_week_year_december_ind
+      - fifty_two_53_week_year_other_month_ind
     x_petey_identifiers:
-      subject: calendar_year
-      suffix: ind
-  fiscal_year_ind:
-    x_petey_id: '1_11'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 75.19999694824219
-      - 290.25201416015625
-      - 83.19999694824219
-      - 298.25201416015625
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_3[1]
-    x_petey_identifiers:
-      subject: fiscal_year
-      suffix: ind
+      subject: group_p1
   fiscal_year_ending_month_day_txt:
     x_petey_id: '1_12'
     type: string
@@ -211,38 +253,6 @@ fields:
     x_petey_identifiers:
       subject: fiscal_year_ending_month_day
       suffix: txt
-  fifty_two_53_week_year_december_ind:
-    x_petey_id: '1_13'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 75.19999694824219
-      - 302.2510070800781
-      - 83.19999694824219
-      - 310.2510070800781
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_3[2]
-    x_petey_identifiers:
-      subject: fifty_two_53_week_year_december
-      suffix: ind
-  fifty_two_53_week_year_other_month_ind:
-    x_petey_id: '1_14'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 75.19999694824219
-      - 314.25
-      - 83.19999694824219
-      - 322.25
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_3[3]
-    x_petey_identifiers:
-      subject: fifty_two_53_week_year_other_month
-      suffix: ind
   fifty_two_53_week_year_month_reference_txt:
     x_petey_id: '1_15'
     type: string
@@ -453,6 +463,32 @@ fields:
     x_petey_identifiers:
       subject: late_election_reason_line_9
       suffix: txt
+  p1_text_86_730:
+    x_petey_id: '1_31'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 86.15
+      - 730.0
+      - 309.85
+      - 744.0
+      widget_type: text
+      path: null
+    x_petey_printed:
+      source: field_add
+      when: '2026-11-03 11:27:56'
+    label_source: placeholder
+    needs_review: true
+    x_petey_added:
+      source: field_add
+      when: '2026-11-03 11:27:56'
+      geometry: underline
+      name_from: placeholder
+      caption: ▲
+    x_petey_identifiers:
+      subject: p1_text_86_730
   officer_title_txt:
     x_petey_id: '1_28'
     type: string
@@ -469,6 +505,28 @@ fields:
     x_petey_identifiers:
       subject: officer_title
       suffix: txt
+  date:
+    x_petey_id: '1_32'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 503.75
+      - 730.0
+      - 576.25
+      - 744.0
+      widget_type: text
+      path: null
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-11-03 11:27:56'
+      geometry: underline
+      name_from: page text (under the line)
+      caption: Date
+    x_petey_identifiers:
+      subject: date
   corporation_nm_2:
     x_petey_id: '2_1'
     type: string
@@ -505,7 +563,7 @@ fields:
   shareholder_1_nm_address:
     x_petey_id: '2_3'
     type: string
-    semantic_type: person_name
+    semantic_type: name_and_address
     widget:
       page: 2
       rect:
@@ -515,6 +573,23 @@ fields:
       - 371.9989929199219
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Part1[0].Row1[0].f2_03[0]
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: shareholder_1_nm_address
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: shareholder_1_nm_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       block_prefix: shareholder
       block_iteration: '1'
@@ -643,7 +718,7 @@ fields:
   shareholder_2_nm_address:
     x_petey_id: '2_10'
     type: string
-    semantic_type: person_name
+    semantic_type: name_and_address
     widget:
       page: 2
       rect:
@@ -653,6 +728,23 @@ fields:
       - 432.0
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Part1[0].Row2[0].f2_10[0]
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: shareholder_2_nm_address
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: shareholder_2_nm_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       block_prefix: shareholder
       block_iteration: '2'
@@ -780,7 +872,7 @@ fields:
   shareholder_3_nm_address:
     x_petey_id: '2_17'
     type: string
-    semantic_type: person_name
+    semantic_type: name_and_address
     widget:
       page: 2
       rect:
@@ -790,6 +882,23 @@ fields:
       - 492.0010070800781
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Part1[0].Row3[0].f2_17[0]
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: shareholder_3_nm_address
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: shareholder_3_nm_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       block_prefix: shareholder
       block_iteration: '3'
@@ -918,7 +1027,7 @@ fields:
   shareholder_4_nm_address:
     x_petey_id: '2_24'
     type: string
-    semantic_type: person_name
+    semantic_type: name_and_address
     widget:
       page: 2
       rect:
@@ -928,6 +1037,23 @@ fields:
       - 552.0020141601562
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Part1[0].Row4[0].f2_24[0]
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: shareholder_4_nm_address
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: shareholder_4_nm_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       block_prefix: shareholder
       block_iteration: '4'
@@ -1056,7 +1182,7 @@ fields:
   shareholder_5_nm_address:
     x_petey_id: '2_31'
     type: string
-    semantic_type: person_name
+    semantic_type: name_and_address
     widget:
       page: 2
       rect:
@@ -1066,6 +1192,23 @@ fields:
       - 612.0029907226562
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Part1[0].Row5[0].f2_31[0]
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: shareholder_5_nm_address
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: shareholder_5_nm_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       block_prefix: shareholder
       block_iteration: '5'
@@ -1194,7 +1337,7 @@ fields:
   shareholder_6_nm_address:
     x_petey_id: '2_38'
     type: string
-    semantic_type: person_name
+    semantic_type: name_and_address
     widget:
       page: 2
       rect:
@@ -1204,6 +1347,23 @@ fields:
       - 672.0040283203125
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Part1[0].Row6[0].f2_38[0]
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: shareholder_6_nm_address
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: shareholder_6_nm_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       block_prefix: shareholder
       block_iteration: '6'
@@ -1332,7 +1492,7 @@ fields:
   shareholder_7_nm_address:
     x_petey_id: '2_45'
     type: string
-    semantic_type: person_name
+    semantic_type: name_and_address
     widget:
       page: 2
       rect:
@@ -1342,6 +1502,23 @@ fields:
       - 732.0050048828125
       widget_type: text
       path: topmostSubform[0].Page2[0].Table_Part1[0].Row7[0].f2_45[0]
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: shareholder_7_nm_address
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: shareholder_7_nm_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       block_prefix: shareholder
       block_iteration: '7'
@@ -1499,54 +1676,53 @@ fields:
       path: topmostSubform[0].Page3[0].f3_02[0]
     x_petey_identifiers:
       subject: employer_ein_2
-  new_corporation_adopting_tax_yr_ind:
-    x_petey_id: '3_3'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 75.1969985961914
-      - 109.9990234375
-      - 83.1969985961914
-      - 117.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page3[0].c3_1[0]
+  group_p3:
+    x_petey_id: '3_15'
+    type: category
+    values:
+    - new_corporation_adopting_tax_yr_ind
+    - existing_corporation_retaining_tax_yr_ind
+    - existing_corporation_changing_tax_yr_ind
+    widgets:
+      new_corporation_adopting_tax_yr_ind:
+        page: 3
+        rect:
+        - 75.1969985961914
+        - 109.9990234375
+        - 83.1969985961914
+        - 117.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page3[0].c3_1[0]
+        on_state: '1'
+      existing_corporation_retaining_tax_yr_ind:
+        page: 3
+        rect:
+        - 75.1969985961914
+        - 122.0009765625
+        - 83.1969985961914
+        - 130.0009765625
+        widget_type: checkbox
+        path: topmostSubform[0].Page3[0].c3_1[1]
+        on_state: '2'
+      existing_corporation_changing_tax_yr_ind:
+        page: 3
+        rect:
+        - 75.1969985961914
+        - 134.0
+        - 83.1969985961914
+        - 142.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page3[0].c3_1[2]
+        on_state: '3'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-03 11:27:27'
+      from:
+      - new_corporation_adopting_tax_yr_ind
+      - existing_corporation_retaining_tax_yr_ind
+      - existing_corporation_changing_tax_yr_ind
     x_petey_identifiers:
-      subject: new_corporation_adopting_tax_yr
-      suffix: ind
-  existing_corporation_retaining_tax_yr_ind:
-    x_petey_id: '3_4'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 75.1969985961914
-      - 122.0009765625
-      - 83.1969985961914
-      - 130.0009765625
-      widget_type: checkbox
-      path: topmostSubform[0].Page3[0].c3_1[1]
-    x_petey_identifiers:
-      subject: existing_corporation_retaining_tax_yr
-      suffix: ind
-  existing_corporation_changing_tax_yr_ind:
-    x_petey_id: '3_5'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 75.1969985961914
-      - 134.0
-      - 83.1969985961914
-      - 142.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page3[0].c3_1[2]
-    x_petey_identifiers:
-      subject: existing_corporation_changing_tax_yr
-      suffix: ind
+      subject: group_p3
   natural_business_yr_ind:
     x_petey_id: '3_6'
     type: boolean
@@ -1595,38 +1771,45 @@ fields:
     x_petey_identifiers:
       subject: business_purpose_fiscal_yr
       suffix: ind
-  irs_conference_yes_ind:
-    x_petey_id: '3_9'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 58.599998474121094
-      - 445.99798583984375
-      - 66.5999984741211
-      - 453.99798583984375
-      widget_type: checkbox
-      path: topmostSubform[0].Page3[0].c3_5[0]
+  irs_conference:
+    x_petey_id: '3_16'
+    type: category
+    values:
+    - irs_conference_yes_ind
+    - irs_conference_no_ind
+    widgets:
+      irs_conference_yes_ind:
+        page: 3
+        rect:
+        - 58.599998474121094
+        - 445.99798583984375
+        - 66.5999984741211
+        - 453.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page3[0].c3_5[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      irs_conference_no_ind:
+        page: 3
+        rect:
+        - 101.7969970703125
+        - 446.0010070800781
+        - 109.7969970703125
+        - 454.0010070800781
+        widget_type: checkbox
+        path: topmostSubform[0].Page3[0].c3_5[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-03 11:27:27'
+      from:
+      - irs_conference_yes_ind
+      - irs_conference_no_ind
     x_petey_identifiers:
-      subject: irs_conference_yes
-      suffix: ind
-  irs_conference_no_ind:
-    x_petey_id: '3_10'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 101.7969970703125
-      - 446.0010070800781
-      - 109.7969970703125
-      - 454.0010070800781
-      widget_type: checkbox
-      path: topmostSubform[0].Page3[0].c3_5[1]
-    x_petey_identifiers:
-      subject: irs_conference_no
-      suffix: ind
+      subject: irs_conference
   backup_section_444_election_ind:
     x_petey_id: '3_11'
     type: boolean
@@ -1726,7 +1909,7 @@ fields:
   income_beneficiary_nm_address:
     x_petey_id: '4_3'
     type: string
-    semantic_type: person_name
+    semantic_type: name_and_address
     widget:
       page: 4
       rect:
@@ -1736,6 +1919,23 @@ fields:
       - 144.0
       widget_type: text
       path: topmostSubform[0].Page4[0].f4_03[0]
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: income_beneficiary_nm_address
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: income_beneficiary_nm_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       subject: income_beneficiary_nm_address
   income_beneficiary_ssn:
@@ -1758,7 +1958,7 @@ fields:
   trust_nm_address:
     x_petey_id: '4_5'
     type: string
-    semantic_type: entity_name
+    semantic_type: name_and_address
     widget:
       page: 4
       rect:
@@ -1768,6 +1968,23 @@ fields:
       - 191.9990234375
       widget_type: text
       path: topmostSubform[0].Page4[0].f4_05[0]
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: trust_nm_address
+        type: string
+        semantic_type: entity_name
+        pattern: null
+      to:
+        name: trust_nm_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       subject: trust_nm_address
   trust_ein:
@@ -1805,6 +2022,52 @@ fields:
     x_petey_identifiers:
       subject: stock_transfer
       suffix: dt
+  signature_of_income_beneficiary_signature_title:
+    x_petey_id: '4_8'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 35.75
+      - 238.0
+      - 396.25
+      - 252.0
+      widget_type: text
+      path: null
+    x_petey_printed:
+      source: field_add
+      when: '2026-11-03 11:28:19'
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-11-03 11:28:19'
+      geometry: underline
+      name_from: page text (under the line)
+      caption: Signature of income beneficiary or signature and title of legal
+    x_petey_identifiers:
+      subject: signature_of_income_beneficiary_signature_title
+  date_2:
+    x_petey_id: '4_9'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 4
+      rect:
+      - 417.35
+      - 238.0
+      - 576.25
+      - 252.0
+      widget_type: text
+      path: null
+    label_source: page_caption
+    x_petey_added:
+      source: field_add
+      when: '2026-11-03 11:28:19'
+      geometry: underline
+      name_from: page text (under the line)
+      caption: Date
+    x_petey_identifiers:
+      subject: date_2
 x_petey_dedup_log:
   duplicate_labels_reassigned: 5
   collisions:
