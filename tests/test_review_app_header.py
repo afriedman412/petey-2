@@ -37,7 +37,7 @@ def test_ignore_page_reason_starts_as_too_few_fields():
 def test_accept_structure_replaces_accept_all():
     assert "'structure accepted' : 'accept structure'" in HEADER and ">accept all</button>" not in HEADER
     home = (SRC / "components" / "home-data.ts").read_text()
-    assert "{ k: 'structure', t: 'structure validated' }" in home
+    assert "structure: 'structure validated'" in home
 
 
 def test_home_has_a_column_picker_kept_per_browser():
@@ -47,11 +47,41 @@ def test_home_has_a_column_picker_kept_per_browser():
     assert "hidden?: string[];" in (SRC / "state" / "app.ts").read_text()   # saved with the other home settings
 
 
-def test_home_counts_fold_away_and_structure_validated_can_be_hidden():
+def test_home_counts_are_one_line_and_the_filter_is_a_menu():
+    """Andrew, 2026-11-03: the "review status" tiles "can just be text, no need for buttons"; "filtering should be done
+    with a dropdown where the 'hide' buttons are now" with a hide part for validated, structure validated and both; the
+    "N of M · click a row to open it" line: "don't need this"."""
     home = (SRC / "components" / "Home.tsx").read_text()
-    assert 'id="hstatsTab"' in home and "{!H.hideStats && <div className=\"hstats\">" in home
-    assert 'id="hideStruct"' in home and "statusOf(b).k === 'structure'" in home
-    assert "hideStats?: boolean; hideStruct?: boolean;" in (SRC / "state" / "app.ts").read_text()
+    assert "<Counts list={inSection} dups={dups} />" in home and "<Filter />" in home
+    assert "hstats" not in home and "hideStruct" not in home and "click a row to open it" not in home
+    data = (SRC / "components" / "home-data.ts").read_text()
+    assert "export const HIDE: [StatusK, string][] = [['validated', 'validated'], ['structure', 'structure validated'], ['both', 'both'], ['ignored', 'ignored']];" in data
+    assert "hide?: string[];" in (SRC / "state" / "app.ts").read_text()
+
+
+def test_status_is_a_v_and_an_s_icon():
+    """Andrew, 2026-11-03: "change the validation status to a little V icon and/or a little S icon ... no need for
+    both, it just shows both icons"."""
+    icons = (SRC / "components" / "StatusIcons.tsx").read_text()
+    assert '{v && <i className="vsic v"' in icons and '{s && <i className="vsic s"' in icons
+    assert "cell: b => <StatusIcons {...statusOf(b)} />" in (SRC / "components" / "Home.tsx").read_text()
+    assert "<StatusIcons v={sv} s={ss} />" in (SRC / "modes" / "review" / "Panel.tsx").read_text()
+
+
+def test_no_chat():
+    """Andrew, 2026-11-03: "let's get rid of chat"."""
+    assert 'id="chatBtn"' not in HEADER and "chatOpen" not in (SRC / "state" / "app.ts").read_text()
+    assert not (SRC / "state" / "chat.ts").exists() and "<Chat />" not in (SRC / "App.tsx").read_text()
+
+
+def test_bars_stay_on_one_row():
+    """Andrew, 2026-11-03: "stop bumping buttons to the next row when there's overflow ... would rather adjust the
+    sizes of everything"; the page buttons scroll instead."""
+    css = (SRC / "styles.css").read_text()
+    last = css[css.rindex("header, #modebar, #modebarRow, #showbar, .hctl { flex-wrap:nowrap; }"):]
+    assert "header > * { flex-shrink:.01; min-width:0; }" in last and "text-overflow:ellipsis" in last
+    assert "flex-wrap:wrap" not in last
+    assert "#pages { display:flex; gap:4px; padding:6px 16px; border-bottom:1px solid var(--border); background:var(--surface); overflow-x:auto;" in css
 
 
 def test_text_and_printed_fields_are_filled_on_review():
@@ -111,9 +141,46 @@ def test_not_a_field_is_on_every_card_and_z_brings_it_back():
     # Andrew, 2026-11-01: "every time I click on a field in add/remove, 'not a field' should be available";
     # "'not a field' removes the outline from the add/remove layout. z brings it back"
     panel, store = (SRC / "modes" / "add" / "Panel.tsx").read_text(), (SRC / "modes" / "add" / "store.ts").read_text()
-    assert "sidsOf" not in panel and "onClick={() => notAField(i)}>not a field</button>" in panel
-    assert "dismissed: [...S().dismissed, ...out]" in store                   # listed under Not fields, × puts it back
+    # renamed "untrack field", with "untrack all" above and below the cards (Andrew, 2026-11-03)
+    assert "sidsOf" not in panel and "onClick={() => notAField(i)}>untrack field</button>" in panel
+    assert "id={top ? 'untrackAllTop' : 'untrackAll'}" in panel and "onClick={untrackAll}>untrack all {props.length}</button>" in panel
+    assert "<h4>Untracked ({dismissed.length})</h4>" in panel
+    assert "dismissed: [...S().dismissed, ...out]" in store                   # listed under Untracked, × puts it back
+    assert "untrackAll = () => untrack(S().props.map((_, i) => i))" in store  # every card, as one step z undoes
+    assert "mergeProps(S().props, u.cards)" in store
     assert "source: 'area'" in store                                         # a card with nothing behind it: its box
     assert "!gone.has(s.sid) && !covered(s)" in store                         # an underline set aside leaves the page
     assert "e.key === 'x' && props.length) notAField(0)" in store and "e.key === 'z') undoNotAField()" in store
     assert "nav, s.sid);" in store                                           # a removed field's box: the card knows it
+
+
+def test_home_has_no_flagged_to_look_at_or_page_check_columns():
+    """Andrew, 2026-11-03: "we don't need flagged, 'to look at', 'page check' on the index"."""
+    home = (SRC / "components" / "Home.tsx").read_text()
+    for k in ("flagged", "queue", "check"):
+        assert f"{{ k: '{k}'," not in home
+
+
+def test_the_card_has_type_semantic_type_and_subtype_and_no_printed_button():
+    """Andrew, 2026-11-03: type "text, choice, printed" set from the review page ("so ditch the 'printed' check under
+    verdict"), semantic type by field type, the old semantic type dropdown "to semantic subtype"."""
+    panel = (SRC / "modes" / "review" / "Panel.tsx").read_text()
+    assert 'id="vPrinted"' not in panel
+    assert '<label htmlFor="eKind">Type</label>' in panel and "setFieldType(e.target.value as FieldType)" in panel
+    assert '<label htmlFor="eType">Semantic type</label>' in panel and '<label htmlFor="eSem">Semantic subtype</label>' in panel
+    assert "mapi('add', app().bid!, '/fieldkind')" in (SRC / "modes" / "review" / "store.ts").read_text()
+
+
+def test_accept_settled_is_greyed_out_with_nothing_to_settle():
+    """Andrew, 2026-11-03: "make 'accept settled' unclickable if there's nothing to settle (instead of raising an
+    error)"."""
+    assert 'id="bulk" disabled={!bid || (counts.loaded && !counts.settledLeft)}' in HEADER
+    store = (SRC / "modes" / "review" / "store.ts").read_text()
+    body = store[store.index("async function bulkAccept"):store.index("\n}\n", store.index("async function bulkAccept"))]
+    assert "alert(" not in body
+
+
+def test_the_notes_panel_keeps_its_place():
+    """2026-11-03: taking the chat's styles out took the notes panel's with them (it lost its place top right)."""
+    css = (SRC / "styles.css").read_text()
+    assert "#notes { position:fixed; right:16px; top:96px; width:380px;" in css and "#notesIn {" in css

@@ -43,7 +43,7 @@ from urllib.parse import unquote, urlparse
 import pymupdf
 
 from petey import web
-from petey.validate import draft, field_add, group_review, hand_review, ignored_pages, page_sweeps, printed_fields, run_audit, same_pages
+from petey.validate import draft, field_add, group_review, hand_review, ignored_forms, ignored_pages, page_sweeps, printed_fields, run_audit, same_pages
 from petey.validate.retype import resolve_blank
 
 HTML_PATH = Path(__file__).with_suffix(".html")
@@ -159,12 +159,14 @@ class Grids:
         return {**out, "entry": self.app.entry(bid)}
 
     def check(self, bid: str, tid: str) -> dict:
-        from petey.validate import form_chat, grid_check
+        from petey.validate import grid_check
         apply = self._apply(bid)
 
-        def ask_opus(page, tid, steps):                 # this grid only (form_chat.table_request, 2026-10-21)
-            req = form_chat.table_request(bid, tid, steps)
-            return {"request": req, **form_chat.ask(bid, [{"role": "user", "content": req}], only_pages=[page])}
+        def ask_opus(page, tid, steps):
+            # the Opus step put its proposals in the chat, which went from the page (Andrew, 2026-11-03: "anything that
+            # would have gone to opus via chat can raise an error now"); form_chat.table_request built its request
+            raise RuntimeError(f"{tid}: the code cannot settle this grid, and its Opus step went with the chat; "
+                               f"left for you ({'; '.join(steps[-2:]) or 'no steps'})")
         key = (bid, tid)
         self.stop.discard(key)
         self.running.add(key)
@@ -548,7 +550,8 @@ class App:
                 "add": {"added": len(rec.get("added") or []), "dismissed": len(rec.get("dismissed") or []),
                         "removed": len(rec.get("removed") or []),
                         "applied": sum(len(a.get("changes") or []) for a in rec.get("applied") or [])},
-                "passes": hand_review.passes_record().get(bid)}       # read fresh: the passes record changes on its own
+                "passes": hand_review.passes_record().get(bid),       # read fresh: the passes record changes on its own
+                "ignored": ignored_forms.load().get(bid)}             # the whole form set aside (2026-11-03)
 
     def apply_groups(self, bid: str) -> dict:
         """Groups' regrouping into the working copy (on leaving Groups, its apply button, or Save)."""
@@ -967,6 +970,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if len(parts) == 3 and parts[:2] == ["api", "ignored-pages"]:
             body = self._body()
             return self._route(lambda: ignored_pages.put(parts[2], bool(body.get("ignore", True)), str(body.get("reason") or "")))
+        if len(parts) == 3 and parts[:2] == ["api", "ignored-forms"]:     # the header's "ignore" (2026-11-03)
+            body, bid = self._body(), parts[2]
+
+            def ignore():
+                ignored_forms.put(bid, bool(body.get("ignore", True)), str(body.get("reason") or ""))
+                return {"entry": APP.entry(bid)}
+            return self._route(ignore, bid)
         if len(parts) == 3 and parts[:2] == ["api", "printed-field"]:    # the Review tab's printed toggle (2026-10-31)
             body, bid = self._body(), parts[2]
             return self._route(lambda: {"changes": printed_fields.set_field(bid, str(body.get("field") or ""),

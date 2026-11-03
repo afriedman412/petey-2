@@ -95,7 +95,6 @@ export async function showHome(on: boolean) {
   document.body.classList.toggle('home', on);
   setHash();
   if (!on) return;
-  set({ chatOpen: false });
   await flushNote();
   set({ notesOpen: false });
   await refreshList();

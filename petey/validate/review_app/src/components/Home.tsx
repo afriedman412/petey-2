@@ -5,8 +5,9 @@ import type { Entry } from '../lib/types';
 import { openBlueprint } from '../state/actions';
 import { setHome, useApp } from '../state/app';
 import {
-  findDups, homeMatch, HSTAGES, SECTION_ORDER, SECTION_SHORT, SECTIONS, sectionOf, STATUS_ORDER, statusOf, type Dups,
+  findDups, HIDE, homeMatch, SECTION_ORDER, SECTION_SHORT, SECTIONS, sectionOf, SHOW, STATUS_ORDER, statusOf, type Dups,
 } from './home-data';
+import { StatusIcons } from './StatusIcons';
 
 type Col = { k: string; head: string; sort: (b: Entry) => string | number; cell: (b: Entry) => ReactNode; num?: boolean; tip?: string };
 const dim = (s: string = '—') => <span className="dim">{s}</span>;
@@ -30,16 +31,10 @@ const cols = (dups: Dups): Col[] => [
       const a = b.fields ? 100 * b.accepted / b.fields : 0, f = b.fields ? 100 * b.flagged / b.fields : 0;
       return <><span className="pbar"><i className="a" style={{ width: `${a}%` }} /><i className="f" style={{ width: `${f}%` }} /></span>{b.accepted + b.flagged}<span className="dim">/{b.fields}</span></>;
     }, tip: 'fields with a verdict (orange accepted, red flagged)' },
-  { k: 'flagged', head: 'flagged', sort: b => b.flagged, cell: b => b.flagged || dim('0'), num: true },
-  { k: 'queue', head: 'to look at', sort: b => b.focus ?? -1, cell: b => b.focus ?? dim(), num: true, tip: 'review-queue count (focus.json): fields to look at' },
-  { k: 'check', head: 'page check', sort: b => b.check_errors ?? b.page_check_flags ?? -1, num: true, tip: 'page check: errors / suggestions',
-    cell: b => b.check_errors == null ? (b.page_check_flags == null ? dim() : b.page_check_flags)
-      : <>{b.check_errors}<span className="dim"> / {b.check_suggestions}</span></> },
+  // flagged, "to look at" and "page check" went 2026-11-03 (Andrew: "we don't need flagged, 'to look at', 'page check' on the index")
   { k: 'groups', head: 'groups', sort: b => b.groups?.groups ?? -1, cell: b => b.groups ? b.groups.groups : '—', num: true, tip: 'option groups in the blueprint' },
-  { k: 'status', head: 'stage', sort: b => STATUS_ORDER[statusOf(b).k],
-    cell: b => { const s = statusOf(b), p = b.passes;
-      return <span className={`pill ${s.k}`} title={p ? `cleared ${p.when}: ${(p.steps || []).join(', ')}` : 'not cleared: the automated passes have not run'}>{s.t}</span>; },
-    tip: 'generated (the generation pipeline) -> cleared (the automated passes) -> validated (the manual check)' },
+  { k: 'status', head: 'status', sort: b => STATUS_ORDER[statusOf(b).k], cell: b => <StatusIcons {...statusOf(b)} />,
+    tip: 'V validated (every name accepted), S structure validated (fields, kinds, groups, grids and blocks accepted); neither is generated; I ignored (the whole form set aside)' },
   { k: 'copy', head: 'unsaved', sort: b => b.draft ? b.draft.changes : -1,
     cell: b => b.draft ? <span className="pill copy" title={'working copy made ' + b.draft.made}>{b.draft.changes} change{b.draft.changes === 1 ? '' : 's'}</span> : '',
     tip: 'a working copy with changes not saved into the blueprint yet' },
@@ -49,7 +44,7 @@ const cols = (dups: Dups): Col[] => [
 ];
 
 export function Home() {
-  const { list, home: H, mode, bid } = useApp();
+  const { list, home: H, bid } = useApp();
   const q = useRef<HTMLInputElement>(null);
   const dups = useMemo(() => findDups(list), [list]);
   const ALL = useMemo(() => cols(dups), [dups]);
@@ -59,9 +54,9 @@ export function Home() {
   // domain: null is any, '' the forms at the top of source_pdfs
   const inSection = list.filter(b => (!H.section || sectionOf(b) === H.section) && (H.domain == null || (b.collection ?? '') === H.domain));
   const qs = H.q.trim().toLowerCase();
-  // hide validated (Andrew, 2026-10-15; with both, 2026-11-01), hide structure validated (2026-10-31); their tiles still show them
-  const rows = inSection.filter(b => homeMatch(b, H.status, dups) && !(H.hideVal && !['validated', 'both'].includes(H.status) && ['validated', 'both'].includes(statusOf(b).k))
-    && !(H.hideStruct && H.status !== 'structure' && statusOf(b).k === 'structure')
+  // the filter menu: one kind shown, any of the validated kinds hidden (2026-11-03)
+  const hide = H.hide || [];
+  const rows = inSection.filter(b => homeMatch(b, H.status, dups, hide)
     && (!qs || [b.form, b.id, b.collection, b.note?.text, b.desc?.text].some(s => String(s ?? '').toLowerCase().includes(qs))));
   const col = ALL.find(c => c.k === H.sort) || ALL[1], dir = H.asc ? 1 : -1;
   const cmp = (x: string | number, y: string | number) => typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y));
@@ -70,23 +65,11 @@ export function Home() {
   const dn: Record<string, number> = {};
   for (const b of list) if (!H.section || sectionOf(b) === H.section) dn[b.collection ?? ''] = (dn[b.collection ?? ''] || 0) + 1;
   const doms = Object.entries(dn).sort((a, b) => a[0].localeCompare(b[0]));
-  const filtered = H.q || H.section || H.domain != null || H.status;
+  const filtered = !!(H.q || H.section || H.domain != null || H.status || hide.length);
   return (
     <div id="home">
-      {/* the counts by stage, a tab that folds away (Andrew, 2026-10-31: "make the number blocks at the top just a
-          review tab that can be hidden"); a tile still filters the table */}
-      <button className={'hstats-tab' + (H.hideStats ? '' : ' open')} id="hstatsTab" onClick={() => setHome({ hideStats: !H.hideStats })}
-        title={H.hideStats ? 'show the counts by review stage' : 'hide the counts'}>review status {H.hideStats ? '▸' : '▾'}
-        {H.hideStats && H.status && <span className="help"> · showing {HSTAGES.flatMap(([, t]) => t).find(([k]) => k === H.status)?.[1] || H.status}</span>}</button>
-      {!H.hideStats && <div className="hstats">{HSTAGES.map(([label, tiles], i) => (
-        <div className="hstage" key={i}><div className="hstage-l">{label || ' '}</div>
-          <div className="hstage-t">{tiles.map(([k, t]) => (
-            <div key={k} className={'hstat' + (H.status === k ? ' on' : '')} onClick={() => setHome({ status: H.status === k ? '' : k })}>
-              <b>{inSection.filter(b => homeMatch(b, k, dups)).length}</b><span>{t}</span>
-            </div>))}
-          </div>
-        </div>))}
-      </div>}
+      {/* the counts (2026-11-03: "the 'review status' dropdown can just be text"); the filter menu picks */}
+      <Counts list={inSection} dups={dups} />
       <div className="hctl">
         <input id="hq" ref={q} type="text" placeholder="search form, id, description, domain, notes (/)" value={H.q}
           onChange={e => setHome({ q: e.target.value })}
@@ -99,12 +82,9 @@ export function Home() {
           <option value="*">all domains</option>
           {doms.map(([d, n]) => <option key={d} value={d}>{d === '' ? '(top of source_pdfs)' : d} ({n})</option>)}
         </select>
-        <label className="ctl"><input type="checkbox" checked={H.hideVal} onChange={e => setHome({ hideVal: e.target.checked })} /> hide validated</label>
-        <label className="ctl"><input type="checkbox" id="hideStruct" checked={!!H.hideStruct} onChange={e => setHome({ hideStruct: e.target.checked })} /> hide structure validated</label>
+        <Filter />
         <Columns all={ALL} hidden={hidden} />
-        {filtered && <button className="btn" onClick={() => setHome({ q: '', section: '', status: '', domain: null })}>clear filters</button>}
-        <span className="help">{rows.length} of {list.length} · click a row to open it in {mode}
-          {bid && <> · <a href="#" onClick={e => { e.preventDefault(); openBlueprint(bid); }}>back to {list.find(b => b.id === bid)?.form || bid}</a></>}</span>
+        {filtered && <button className="btn" onClick={() => setHome({ q: '', section: '', status: '', domain: null, hide: [] })}>clear filters</button>}
       </div>
       <table className="home">
         <thead><tr>{COLS.map(c => (
@@ -124,7 +104,7 @@ export function Home() {
 // which columns the table shows (Andrew, 2026-10-31: "can you add a dropdown to control which columns show up on the
 // index page"): a checkbox a column, kept per browser with the other home settings; the form column always shows (it
 // is the link). Closes on a click outside it or Escape.
-function Columns({ all, hidden }: { all: Col[]; hidden: Set<string> }) {
+function useMenu() {
   const ref = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     const close = (e: MouseEvent | KeyboardEvent) => {
@@ -134,6 +114,11 @@ function Columns({ all, hidden }: { all: Col[]; hidden: Set<string> }) {
     document.addEventListener('mousedown', close); document.addEventListener('keydown', close);
     return () => { document.removeEventListener('mousedown', close); document.removeEventListener('keydown', close); };
   }, []);
+  return ref;
+}
+
+function Columns({ all, hidden }: { all: Col[]; hidden: Set<string> }) {
+  const ref = useMenu();
   const toggle = (k: string) => setHome({ hidden: hidden.has(k) ? [...hidden].filter(x => x !== k) : [...hidden, k] });
   const n = all.filter(c => c.k !== 'form' && hidden.has(c.k)).length;
   return (
@@ -143,6 +128,46 @@ function Columns({ all, hidden }: { all: Col[]; hidden: Set<string> }) {
         {all.filter(c => c.k !== 'form').map(c => (
           <label key={c.k} title={c.tip}><input type="checkbox" checked={!hidden.has(c.k)} onChange={() => toggle(c.k)} /> {c.head}</label>))}
         {n > 0 && <button className="btn" onClick={() => setHome({ hidden: [] })}>show all</button>}
+      </div>
+    </details>
+  );
+}
+
+// the counts as one line of text: every blueprint, then how many are generated (neither icon), validated (V) and
+// structure validated (S); a form with both counts under both; ignored forms count only as ignored
+function Counts({ list, dups }: { list: Entry[]; dups: Dups }) {
+  const st = list.map(statusOf);
+  const n = (f: (i: number) => boolean) => st.filter((_, i) => f(i)).length;
+  const both = n(i => st[i].k === 'both');
+  return (
+    <div className="hcounts" id="hcounts">
+      <b>{list.length}</b> blueprints: <b>{n(i => st[i].k === 'generated')}</b> generated
+      · <StatusIcons v s={false} /> <b>{n(i => st[i].v && st[i].k !== 'ignored')}</b> · <StatusIcons v={false} s /> <b>{n(i => st[i].s && st[i].k !== 'ignored')}</b>
+      {both > 0 && <span className="dim"> ({both} with both)</span>}
+      {' '}· <StatusIcons k="ignored" v={false} s={false} /> <b>{n(i => st[i].k === 'ignored')}</b> ignored
+      · <b>{list.filter(b => b.draft).length}</b> unsaved copies · <b>{list.filter(b => dups[b.id]).length}</b> possible duplicates
+    </div>
+  );
+}
+
+// the filter menu (2026-11-03, where the "hide" checkboxes were): show one kind, hide any of the validated kinds
+// (exact: "validated" is V without S, "both" V and S) or the ignored forms. A hidden kind still shows when it is the one picked to show.
+function Filter() {
+  const H = useApp(s => s.home);
+  const ref = useMenu();
+  const hide = H.hide || [];
+  const toggle = (k: string) => setHome({ hide: hide.includes(k) ? hide.filter(x => x !== k) : [...hide, k] });
+  const showing = SHOW.find(([k]) => k === H.status)?.[1];
+  return (
+    <details className="hcols hfilter" id="hfilter" ref={ref}>
+      <summary className={'btn' + (H.status || hide.length ? ' on' : '')}>{H.status ? `show: ${showing}` : 'filter'}{hide.length ? ` · ${hide.length} hidden` : ''}</summary>
+      <div className="hcols-menu">
+        <div className="hm-l">show</div>
+        {SHOW.map(([k, t]) => (
+          <label key={k}><input type="radio" name="hshow" checked={H.status === k} onChange={() => setHome({ status: k })} /> {t}</label>))}
+        <div className="hm-l">hide</div>
+        {HIDE.map(([k, t]) => (
+          <label key={k}><input type="checkbox" checked={hide.includes(k)} onChange={() => toggle(k)} /> {t}</label>))}
       </div>
     </details>
   );

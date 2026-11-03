@@ -29,10 +29,10 @@ export interface Unit {
 }
 /** what an entity holds (Andrew, 2026-10-28: "sequential fields on a single line that can be combined logically"), as
  *  group_review.ENTITY_TYPES; its fields stay as they are, tagged ("lets keep everything separate") */
+// the menu offers only the types in use (Andrew, 2026-11-03: "lets ditch the text field types we aren't using as well --
+// time, address, signature, money, name, other"; "I just meant from the menu options"); the server still reads them
 export const ENTITY_TYPES: [string, string][] = [
-  ['date', 'date'], ['time', 'time'], ['address_line_1', 'address line 1'], ['address_line_2', 'address line 2'], ['full_address', 'full address'],
-  ['signature_complex', 'signature complex'], ['phone', 'phone number'], ['id_number', 'ID number (SSN, EIN ...)'],
-  ['money', 'money (dollars | cents)'], ['name', 'name'], ['other', 'other'],
+  ['date', 'date'], ['phone', 'phone number'], ['id_number', 'ID number (SSN, EIN ...)'],
 ];
 export interface Suggestion { page: number; items: string[]; why: string; name?: string | null; captions?: (string | null)[] }
 export interface Plan { changes: string[]; errors: string[] }

@@ -13,36 +13,34 @@ export const SECTION_SHORT: Record<string, string> = {
 export const sectionOf = (x: Entry): string => x.focus != null ? 'focus' : x.launch ? 't' + x.launch : x.rerun ? 'rerun' : (x.source || '');
 export const SECTION_ORDER: Record<string, number> = Object.fromEntries(Object.keys(SECTIONS).map((k, i) => [k, i]));
 
-// one status per form, the worst first. The pipeline (Andrew, 2026-10-16): generated (the generation pipeline and its
-// loops) -> cleared (the automated passes, recorded by eval/passes_record.py) -> validated (the manual check: in
-// review, needs work, changed since check, validated). A form is in review only once cleared, with verdicts made after
-// that; without the passes it is generated, unless it was fully checked before they existed.
-export type Status = { k: 'both' | 'validated' | 'structure' | 'work' | 'newfields' | 'recheck' | 'progress' | 'cleared' | 'generated'; t: string };
+// one status per form (Andrew, 2026-11-03: "we only need 3 statuses: validated, structure validated and generated"):
+// VALIDATED = every name accepted, STRUCTURE VALIDATED = "accept structure" (fields, kinds, groups, grids, blocks), shown
+// as a V and an S icon, a form with both showing both; GENERATED = everything else, never looked at fully or changed
+// since its check (cleared, in review, needs work, changed since check, new fields to check went into it; why
+// still says which). IGNORED (2026-11-03, the header's "ignore": a whole form too messy, filled in or otherwise not
+// usable now) comes before them all; its reason is the why.
+export type StatusK = 'generated' | 'structure' | 'validated' | 'both' | 'ignored';
+export type Status = { k: StatusK; v: boolean; s: boolean; why?: string };
 export function statusOf(b: Entry): Status {
   const c = b.checked;
-  // both (Andrew, 2026-11-01: "I can't currently see forms that are fully validated that I've also marked structural
-  // validated"): every name accepted and "accept structure" on the same file
-  if (c && c.validated) return b.structure && !b.structure.stale ? { k: 'both', t: 'both' } : { k: 'validated', t: 'validated' };
-  // STRUCTURE VALIDATED (2026-10-31): "accept structure", names still to review; VALIDATED supersedes it
-  if (b.structure && !b.structure.stale) return { k: 'structure', t: 'structure validated' };
-  if (c && (c.flagged || c.pending)) return { k: 'work', t: 'needs work' };
-  // once fully checked, then fields added or renamed (a sweep, an edit) still to check (Andrew, 2026-11-02: "is there
-  // a way for me to know what needs to be revisited?")
-  if (b.new_fields) return { k: 'newfields', t: `new fields to check (${b.new_fields})` };
-  if ((c && c.stale) || b.structure?.stale) return { k: 'recheck', t: 'changed since check' };
-  const reviewed = !!b.passes && (b.accepted + b.flagged) > 0 && (b.touched || '') > (b.passes.when || '');
-  if (reviewed) return { k: 'progress', t: 'in review' };
-  if (b.passes) return { k: 'cleared', t: 'cleared' };
-  return { k: 'generated', t: 'generated' };
+  const v = !!c?.validated, s = !!b.structure && !b.structure.stale;
+  if (b.ignored) return { k: 'ignored', v, s, why: b.ignored.reason };
+  if (v || s) return { k: v && s ? 'both' : v ? 'validated' : 'structure', v, s };
+  const why = c && (c.flagged || c.pending) ? `needs work: ${[c.flagged && `${c.flagged} flagged`, c.pending && `${c.pending} to apply`].filter(Boolean).join(', ')}`
+    // once fully checked, then fields added or renamed (a sweep, an edit) still to check (2026-11-02)
+    : b.new_fields ? `${b.new_fields} new field${b.new_fields === 1 ? '' : 's'} to check`
+    : (c && c.stale) || b.structure?.stale ? 'changed since its check'
+    : (b.accepted + b.flagged) > 0 ? `${b.accepted + b.flagged} of ${b.fields} fields reviewed` : undefined;
+  return { k: 'generated', v, s, why };
 }
-export const STATUS_ORDER: Record<Status['k'], number> = { generated: 0, cleared: 1, progress: 2, work: 3, newfields: 4, recheck: 5, structure: 6, validated: 7, both: 8 };
+export const STATUS_ORDER: Record<StatusK, number> = { generated: 0, structure: 1, validated: 2, both: 3, ignored: 4 };
+export const STATUS_TEXT: Record<StatusK, string> = { generated: 'generated', structure: 'structure validated', validated: 'validated', both: 'validated + structure validated', ignored: 'ignored' };
 
-export const HSTAGES: [string | null, [string, string][]][] = [
-  [null, [['', 'blueprints']]],
-  ['automated', [['generated', 'generated'], ['cleared', 'cleared']]],
-  ['validation (manual)', [['progress', 'in review'], ['work', 'needs work'], ['newfields', 'new fields to check'], ['recheck', 'changed since check'], ['structure', 'structure validated'], ['validated', 'validated'], ['both', 'both']]],
-  [null, [['copy', 'unsaved copies'], ['dup', 'possible duplicates']]],
-];
+// the home filter (2026-11-03: "filtering should be done with a dropdown"): show one kind, and hide any of the
+// validated ones or the ignored ones ("ignored should be another status that can be hidden or shown by the filter"). The kinds are exact: "validated" is V without S, "both" is V and S.
+export const SHOW: [string, string][] = [['', 'all'], ['generated', 'generated'], ['structure', 'structure validated'], ['validated', 'validated'],
+  ['both', 'both'], ['ignored', 'ignored'], ['copy', 'unsaved copies'], ['dup', 'possible duplicates']];
+export const HIDE: [StatusK, string][] = [['validated', 'validated'], ['structure', 'structure validated'], ['both', 'both'], ['ignored', 'ignored']];
 
 // possible duplicates (Andrew, 2026-10-15: "so we can figure out what duplicates we have"): the same blank file, or
 // the same description once years, revision dates and punctuation are left out (2024 / 2025 editions of one form)
@@ -72,5 +70,7 @@ export function findDups(list: Entry[]): Dups {
   return of;
 }
 
-export const homeMatch = (b: Entry, st: string, dups: Dups) =>
-  st === 'copy' ? !!b.draft : st === 'dup' ? !!dups[b.id] : !st || statusOf(b).k === st;
+export const homeMatch = (b: Entry, st: string, dups: Dups, hide: string[] = []) => {
+  const k = statusOf(b).k;
+  return (st === 'copy' ? !!b.draft : st === 'dup' ? !!dups[b.id] : !st || k === st) && (k === st || !hide.includes(k));
+};

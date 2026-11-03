@@ -82,7 +82,7 @@ def test_a_combined_field_takes_an_entity_type():
     out = json.loads(res.stdout.strip().splitlines()[-1])
     assert out["errors"] == []
     assert out["shown"] == "date"                                        # the saved type on the card
-    assert out["choices"][0] == "" and "id_number" in out["choices"] and out["choices"][-1] == "other"
+    assert out["choices"] == ["", "date", "phone", "id_number"]          # the types in use only (2026-11-03)
     assert out["saved"][-2:] == [["id_number"], [None]]                  # a pick saved; (none) takes it off
     assert out["button"] == "make text group (4)"
     assert out["made"] == [["a_1", "a_2", "a_3", "a_4"]]                 # four fields, one entity, one click

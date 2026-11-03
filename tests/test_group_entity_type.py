@@ -92,3 +92,14 @@ def test_a_tagged_blueprint_with_no_record_shows_its_entities(tmp_path, monkeypa
         {"kind": "text", "name": "dob2", "type": "string", "items": ["dob_month", "dob_day"]}]}))
     _, units, _ = gr.current_units("x", {"fields": f}, gr._sha(p))
     assert [u["name"] for u in units if u.get("kind") == "text"] == ["dob2"]
+
+
+def test_the_menu_offers_only_the_types_in_use():
+    """Andrew, 2026-11-03: "lets ditch the text field types we aren't using as well -- time, address, signature, money,
+    name, other"; "I just meant from the menu options": the server still reads every type."""
+    import re
+    from pathlib import Path
+    src = (Path(__file__).resolve().parents[1] / "petey/validate/review_app/src/modes/groups/store.ts").read_text()
+    menu = re.search(r"export const ENTITY_TYPES: \[string, string\]\[\] = \[(.*?)\];", src, re.S).group(1)
+    assert re.findall(r"\['(\w+)',", menu) == ["date", "phone", "id_number"]
+    assert "money" in gr.ENTITY_TYPES and "other" in gr.ENTITY_TYPES

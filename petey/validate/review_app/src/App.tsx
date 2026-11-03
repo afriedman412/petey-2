@@ -5,7 +5,7 @@ import { Canvas } from './components/Canvas';
 import { HelpMenu, ModeBar, Pages, Sidebar, Toast } from './components/Frame';
 import { Header } from './components/Header';
 import { focusHomeSearch, Home } from './components/Home';
-import { Chat, Notes } from './components/Panels';
+import { Notes } from './components/Panels';
 import { MODE_IDS } from './lib/types';
 import { checkFresh, def, followLink, gotoPage, init, setMode, setZoom } from './state/actions';
 import { get, set, setTabsHidden, useApp } from './state/app';
@@ -61,7 +61,6 @@ export function App() {
       </main>
       <Toast />
       <Notes />
-      <Chat />
     </>
   );
 }

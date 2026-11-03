@@ -50,6 +50,7 @@ function TextCard({ u }: { u: Unit }) {
           onKeyDown={e => e.stopPropagation()}>
           <option value="">(none)</option>
           {ENTITY_TYPES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          {u.entity_type && !ENTITY_TYPES.some(([v]) => v === u.entity_type) && <option value={u.entity_type}>{u.entity_type.replace(/_/g, ' ')} (no longer offered)</option>}
         </select></label></div>
       <DescBox key={u.uid + '\n' + (u.description || '')} u={u} />
       <ol>{u.items.map(id => { const it = item(id);

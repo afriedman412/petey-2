@@ -192,7 +192,7 @@ def write_page_pdf(blank: Path, page: int, dst: Path) -> list[float]:
 def main() -> int:
     from petey.validate import compound_values as cv
     from petey.validate import hand_review as h
-    from petey.validate import ignored_pages
+    from petey.validate import ignored_forms, ignored_pages
     from petey.validate import printed_fields as pf
     from petey.validate.retype import resolve_blank
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
@@ -204,10 +204,13 @@ def main() -> int:
     todo = [(b, s) for b, s in candidates() if not args.forms or b in args.forms]
     index, skipped = [], collections.Counter()
     record = pf.load()
-    ignored = ignored_pages.load()
+    ignored, ignored_f = ignored_pages.load(), ignored_forms.load()
     proposed = json.loads(pf.CANDIDATES.read_text()) if pf.CANDIDATES.exists() else {}
     unconfirmed = 0
     for bid, sset in todo:
+        if bid in ignored_f:                             # the whole form ignored on the review page (2026-11-03)
+            skipped["form ignored"] += 1
+            continue
         v = h.load_verdicts(bid)
         if not v.get("verdicts") and not v.get("structure"):
             skipped["not reviewed"] += 1

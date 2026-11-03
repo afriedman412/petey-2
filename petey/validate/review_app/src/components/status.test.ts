@@ -1,33 +1,60 @@
-// the home list's status (Andrew, 2026-10-31): "accept structure" makes a form STRUCTURE VALIDATED, superseded by
-// VALIDATED once every name is accepted; a structure stamp on a changed file is "changed since check"
+// the home list's status (Andrew, 2026-11-03: "we only need 3 statuses: validated, structure validated and
+// generated"; "a little V icon and/or a little S icon"): V validated, S structure validated, both icons when both,
+// everything else generated with the reason kept for its tooltip
 import { describe, expect, it } from 'vitest';
 import type { Entry } from '../lib/types';
-import { statusOf } from './home-data';
+import { homeMatch, statusOf } from './home-data';
 
 const e = (x: Partial<Entry>) => ({ id: 'bm__x', source: 'bm', form: 'x', fields: 3, accepted: 0, flagged: 0, ...x }) as Entry;
 
 describe('statusOf', () => {
-  it('structure validated, then validated', () => {
-    expect(statusOf(e({ structure: { when: 'now', stale: false } })).k).toBe('structure');
-    expect(statusOf(e({ checked: { validated: true } })).k).toBe('validated');
+  it('structure validated, validated, and both icons on one form', () => {
+    expect(statusOf(e({ structure: { when: 'now', stale: false } }))).toMatchObject({ k: 'structure', v: false, s: true });
+    expect(statusOf(e({ checked: { validated: true } }))).toMatchObject({ k: 'validated', v: true, s: false });
+    expect(statusOf(e({ structure: { stale: false }, checked: { validated: true } }))).toMatchObject({ k: 'both', v: true, s: true });
   });
-  it('validated with its structure accepted is both', () => {
-    expect(statusOf(e({ structure: { stale: false }, checked: { validated: true } })).k).toBe('both');
+  it('a stale structure stamp drops the S', () => {
     expect(statusOf(e({ structure: { stale: true }, checked: { validated: true } })).k).toBe('validated');
+    expect(statusOf(e({ structure: { stale: true } }))).toMatchObject({ k: 'generated', why: 'changed since its check' });
   });
-  it('a stale structure stamp is changed since check', () => {
-    expect(statusOf(e({ structure: { stale: true } })).k).toBe('recheck');
+  it('needs work, new fields and changed since check are generated, with why', () => {
+    expect(statusOf(e({ checked: { flagged: 2 } }))).toMatchObject({ k: 'generated', why: 'needs work: 2 flagged' });
+    expect(statusOf(e({ new_fields: 7 }))).toMatchObject({ k: 'generated', why: '7 new fields to check' });
+    expect(statusOf(e({ checked: { stale: true } })).why).toBe('changed since its check');
+    expect(statusOf(e({})).why).toBeUndefined();
+  });
+  it('validated and structure validated come before new fields', () => {
+    expect(statusOf(e({ new_fields: 2, checked: { validated: true } })).k).toBe('validated');
+    expect(statusOf(e({ new_fields: 2, structure: { stale: false } })).k).toBe('structure');
   });
 });
 
-describe('new fields to check', () => {
-  it('a form once fully checked with fields added since shows how many await a verdict', () => {
-    const s = statusOf(e({ new_fields: 7 }));
-    expect(s.k).toBe('newfields');
-    expect(s.t).toBe('new fields to check (7)');
+describe('the filter', () => {
+  const g = e({}), v = e({ checked: { validated: true } }), s = e({ structure: { stale: false } }),
+    b = e({ checked: { validated: true }, structure: { stale: false } });
+  const shown = (st: string, hide: string[] = []) => [g, v, s, b].map(x => homeMatch(x, st, {}, hide));
+  it('shows one kind, exactly', () => {
+    expect(shown('')).toEqual([true, true, true, true]);
+    expect(shown('generated')).toEqual([true, false, false, false]);
+    expect(shown('validated')).toEqual([false, true, false, false]);
+    expect(shown('both')).toEqual([false, false, false, true]);
   });
-  it('validated and structure validated still come first', () => {
-    expect(statusOf(e({ new_fields: 2, checked: { validated: true } })).k).toBe('validated');
-    expect(statusOf(e({ new_fields: 2, structure: { stale: false } })).k).toBe('structure');
+  it('hides any of the validated kinds; the kind picked to show still shows', () => {
+    expect(shown('', ['validated', 'both'])).toEqual([true, false, true, false]);
+    expect(shown('', ['structure'])).toEqual([true, true, false, true]);
+    expect(shown('both', ['both'])).toEqual([false, false, false, true]);
+  });
+});
+
+describe('ignored (2026-11-03)', () => {
+  const ig = { reason: 'too messy', when: '2026-11-03 12:00:00' };
+  it('a whole form ignored is its own status, ahead of V and S, its reason the why', () => {
+    expect(statusOf(e({ ignored: ig }))).toMatchObject({ k: 'ignored', why: 'too messy' });
+    expect(statusOf(e({ ignored: ig, checked: { validated: true }, structure: { stale: false } })).k).toBe('ignored');
+  });
+  it('the filter shows or hides it', () => {
+    const f = e({ ignored: ig }), g = e({});
+    expect([f, g].map(x => homeMatch(x, 'ignored', {}))).toEqual([true, false]);
+    expect([f, g].map(x => homeMatch(x, '', {}, ['ignored']))).toEqual([false, true]);
   });
 });

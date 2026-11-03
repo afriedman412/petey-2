@@ -6,11 +6,11 @@ import { MODE_IDS } from '../lib/types';
 import { store, storeJson } from '../lib/util';
 
 export interface HomeState {
-  on: boolean; sort: string; asc: boolean; q: string; section: string; domain: string | null; status: string; hideVal: boolean;
+  on: boolean; sort: string; asc: boolean; q: string; section: string; domain: string | null; status: string;
   /** the table's columns left out (Andrew, 2026-10-31: "a dropdown to control which columns show up") */
   hidden?: string[];
-  /** the review-status counts folded away, and structure-validated rows hidden (2026-10-31) */
-  hideStats?: boolean; hideStruct?: boolean;
+  /** the statuses hidden in the filter menu (validated, structure, both; 2026-11-03) */
+  hide?: string[];
 }
 export type ShowKey = 'valid' | 'groups' | 'grids' | 'blocks';
 
@@ -32,13 +32,23 @@ export interface AppState {
   loadError: string | null;
   helpOpen: boolean;
   notesOpen: boolean;
-  chatOpen: boolean;
   /** the tabs drawn on the page hidden ("hide tabs" in the header, or t) */
   tabsHidden: boolean;
   toast: { msg: string; n: number } | null;
 }
 
 const savedMode = store('br_mode') as ModeId | null;
+
+// the home settings kept from before the three statuses (2026-11-03): a stage picked that is now part of generated
+// shows all, and the old "hide validated" / "hide structure validated" ticks carry into the filter's hide list
+function homeSaved(): Omit<HomeState, 'on'> {
+  const h = storeJson('br_home', { sort: 'section', asc: true, q: '', section: '', domain: null as string | null, status: '', hidden: [] as string[] }) as
+    Omit<HomeState, 'on'> & { hideVal?: boolean; hideStruct?: boolean; hideStats?: boolean };
+  const { hideVal, hideStruct, hideStats: _, ...rest } = h;
+  if (!['', 'generated', 'structure', 'validated', 'both', 'copy', 'dup'].includes(rest.status)) rest.status = '';
+  if (!rest.hide) rest.hide = [...(hideVal ? ['validated', 'both'] : []), ...(hideStruct ? ['structure'] : [])];
+  return rest;
+}
 
 export const useApp = create<AppState>(() => ({
   list: [],
@@ -48,7 +58,7 @@ export const useApp = create<AppState>(() => ({
   mode: savedMode && MODE_IDS.includes(savedMode) ? savedMode : 'review',
   page: 1,
   zoom: parseFloat(store('br_zoom') || '') || 1.6,
-  home: { ...storeJson('br_home', { sort: 'section', asc: true, q: '', section: '', domain: null as string | null, status: '', hideVal: false, hidden: [] as string[] }), on: false },
+  home: { ...homeSaved(), on: false },
   show: storeJson('br_show', { valid: true, groups: true, grids: true, blocks: true }),
   wide: store('br_wide') === '1',
   sideW: +(store('br_side_w') || 0) || 460,
@@ -57,7 +67,6 @@ export const useApp = create<AppState>(() => ({
   loadError: null,
   helpOpen: false,
   notesOpen: false,
-  chatOpen: false,
   tabsHidden: store('br_hidetabs') === '1',
   toast: null,
 }));

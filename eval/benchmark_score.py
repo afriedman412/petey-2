@@ -214,10 +214,11 @@ def main() -> int:
     ap.add_argument("--save", type=Path, help="per-page counts as JSON")
     args = ap.parse_args()
     index = json.loads((args.key / "index.json").read_text())
-    from petey.validate import ignored_pages
-    ignored = ignored_pages.load()
-    if dropped := [x for x in index if x["page_id"] in ignored]:   # ignored since the key was built
-        index = [x for x in index if x["page_id"] not in ignored]
+    from petey.validate import ignored_forms, ignored_pages
+    ignored, ignored_f = ignored_pages.load(), ignored_forms.load()
+    gone = lambda pid: pid in ignored or ignored_forms.page_form(pid) in ignored_f      # noqa: E731
+    if dropped := [x for x in index if gone(x["page_id"])]:   # pages or whole forms ignored since the key was built
+        index = [x for x in index if not gone(x["page_id"])]
         print(f"{len(dropped)} key pages ignored on the review page since the key was built: left out (rebuild the key)")
     tot, by_set, per = collections.Counter(), collections.defaultdict(collections.Counter), {}
     missing = 0

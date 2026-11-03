@@ -23,12 +23,11 @@ describe('stdPrint', () => {
 const entry = (e: Partial<Entry>): Entry => ({ id: 'x', form: 'x', fields: 10, accepted: 0, flagged: 0, ...e });
 
 describe('statusOf', () => {
-  it('runs generated -> cleared -> in review -> validated', () => {
+  it('three statuses: everything short of a check is generated (2026-11-03)', () => {
     expect(statusOf(entry({})).k).toBe('generated');
-    expect(statusOf(entry({ passes: { when: '2026-10-15' } })).k).toBe('cleared');
-    expect(statusOf(entry({ passes: { when: '2026-10-15' }, accepted: 3, touched: '2026-10-16' })).k).toBe('progress');
-    expect(statusOf(entry({ accepted: 3, touched: '2026-10-16' })).k).toBe('generated');    // verdicts before the passes
-    expect(statusOf(entry({ checked: { flagged: 1 } })).k).toBe('work');
+    expect(statusOf(entry({ passes: { when: '2026-10-15' } })).k).toBe('generated');
+    expect(statusOf(entry({ passes: { when: '2026-10-15' }, accepted: 3, touched: '2026-10-16' })).k).toBe('generated');
+    expect(statusOf(entry({ checked: { flagged: 1 } })).k).toBe('generated');
     expect(statusOf(entry({ checked: { validated: true } })).k).toBe('validated');
   });
 });

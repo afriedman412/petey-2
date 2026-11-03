@@ -323,6 +323,25 @@ export async function togglePrinted() {
   await reload();
   toast(`${f.name}: ${f.printed ? 'not printed' : 'printed (hand-written)'}, in the working copy.`);
 }
+// the field's type on the card (Andrew, 2026-11-03: "let's have type be 'text, choice, printed' and it can be set from
+// the review page"; "field type determines semantic type. a choice shouldn't be able to be a string or a number"): the
+// blueprint's `type` is the card's semantic type, offered by field type, and `semantic_type` its semantic subtype
+export type FieldType = 'text' | 'choice' | 'printed';
+export const fieldTypeOf = (f: RField): FieldType => f.printed == null ? 'choice' : f.printed ? 'printed' : 'text';
+export const semanticTypes = (f: RField, t: FieldType = fieldTypeOf(f)): string[] =>
+  f.options.length > 1 ? ['category', 'multi_category'] : t === 'choice' ? ['boolean', 'category', 'multi_category'] : ['string', 'number', 'integer', 'date'];
+/** the field made text, choice or printed in the working copy at once, as Add / remove does (field_add.flip_kind): its
+ *  name, box and verdicts stay; a group of several boxes stays a choice */
+export async function setFieldType(t: FieldType) {
+  const f = fieldOf(S().selected); if (!f || t === fieldTypeOf(f)) return;
+  if (dirtyOf().any && !confirm('The card has changes not saved as a correction; changing the type reloads the field and drops them. Go on?')) return;
+  let r;
+  try { r = await send('PUT', mapi('add', app().bid!, '/fieldkind'), { field: f.name, kind: t }); }
+  catch (e) { alert((e as Error).message); return; }
+  updateEntry(r.entry);
+  await reload();
+  toast(r.changes?.length ? `Working copy: ${r.changes[0]}` : `${f.name}: already ${t}.`);
+}
 export async function keepField() {
   const f = fieldOf(S().selected); if (!f) return;
   put({ removed: S().removed.filter(r => r.name !== f.name) });
@@ -434,10 +453,11 @@ const saveAfter = async () => { if (entryOf(app().bid)?.draft) await saveDraft()
 async function bulkAccept() {
   const BP = S().BP; if (!BP) return;
   const todo = BP.fields.filter(f => f.tier === 'settled' && !verdictOf(f.name));
-  if (todo.length) {
-    if (!confirm(`Accept ${todo.length} settled field(s) without looking at them? Each is saved with the note "bulk: settled".`)) return;
-    await putV(Object.fromEntries(todo.map(f => [f.name, { verdict: 'accept' as const, note: 'bulk: settled' }])));
-  } else if (!entryOf(app().bid)?.draft) { alert('No unreviewed settled fields.'); return; }
+  // nothing to settle: the header button is greyed out (Andrew, 2026-11-03: "unclickable if there's nothing to settle
+  // (instead of raising an error)"); clicked from another tab before Review loaded, a note and nothing done
+  if (!todo.length) { toast('No unreviewed settled fields.'); return; }
+  if (!confirm(`Accept ${todo.length} settled field(s) without looking at them? Each is saved with the note "bulk: settled".`)) return;
+  await putV(Object.fromEntries(todo.map(f => [f.name, { verdict: 'accept' as const, note: 'bulk: settled' }])));
   await saveAfter();
 }
 

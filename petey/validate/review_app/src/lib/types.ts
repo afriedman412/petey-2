@@ -23,6 +23,8 @@ export interface Entry {
   new_fields?: number | null;
   // "accept structure" (2026-10-31): fields, kinds, groups, grids and blocks right, names not looked at
   structure?: Structure | null;
+  // the whole form set aside, with a reason (the header's "ignore", 2026-11-03; ignored_forms.py)
+  ignored?: { reason: string; when: string } | null;
   age?: { when?: string; by?: string } | null;
   check_errors?: number | null;
   check_suggestions?: number | null;

@@ -2,19 +2,20 @@
 import { useEffect, useState } from 'react';
 import type { Entry } from '../lib/types';
 import { store } from '../lib/util';
-import { discardDraft, openBlueprint, reboot, saveDraft, setMode, showHome } from '../state/actions';
+import { send } from '../lib/api';
+import { discardDraft, openBlueprint, reboot, saveDraft, setMode, showHome, updateEntry } from '../state/actions';
 import { set, useApp, useEntry } from '../state/app';
 import { reviewActions, useHeaderCounts } from '../modes/review/store';
 import { runFinders } from '../modes/blocks/actions';
-import { SECTIONS, sectionOf } from './home-data';
+import { SECTIONS, sectionOf, statusOf } from './home-data';
 
 function pickerText(b: Entry) {
   // short (Andrew, 2026-10-13: the long rows widened the menu and pushed the header buttons onto a second line):
-  // fields, reviewed, VALIDATED; a * marks an unsaved working copy
+  // fields, reviewed, then V (validated) and S (structure validated) as on the home page (2026-11-03); a * marks an
+  // unsaved working copy
   const bits = [`${b.fields} fields`, `${b.accepted + b.flagged} reviewed`];
-  if (b.checked?.validated) bits.push('VALIDATED');
-  else if (b.structure && !b.structure.stale) bits.push('STRUCTURE VALIDATED');
-  return `${b.form}${b.draft ? ' *' : ''}  (${bits.join(', ')})`;
+  const st = statusOf(b), vs = st.k === 'ignored' ? 'I' : (st.v ? 'V' : '') + (st.s ? 'S' : '');
+  return `${b.form}${b.draft ? ' *' : ''}  (${bits.join(', ')})${vs ? '  ' + vs.split('').join(' ') : ''}`;
 }
 
 function Picker() {
@@ -61,7 +62,7 @@ function DraftBar() {
 }
 
 export function Header() {
-  const { bid, listOrder, mode, notesOpen, chatOpen, helpOpen } = useApp();
+  const { bid, listOrder, notesOpen, helpOpen } = useApp();
   const entry = useEntry();
   const counts = useHeaderCounts();
   const [rebootLabel, setRebootLabel] = useState<string | null>(null);
@@ -69,7 +70,6 @@ export function Header() {
   // the tabs on the page hidden (t, state/app.setTabsHidden; the header button went 2026-10-31)
   const tabsHidden = useApp(s => s.tabsHidden);
   useEffect(() => { document.body.classList.toggle('notabs', tabsHidden); }, [tabsHidden]);
-  const inReview = mode === 'review' && counts.loaded;
   // "accept structure" turns to "structure accepted" once clicked, and clicking it again takes it back (2026-10-31)
   const structOk = !!entry?.structure && !entry.structure.stale;
   return (
@@ -99,10 +99,10 @@ export function Header() {
       {/* the whole form's verdicts side by side (Andrew, 2026-10-31: "put 'accept all' 'accept settled' and 'reset
           validation' together") */}
       <span className="btngroup" id="verdictBtns">
-        <button className="btn" id="bulk" disabled={!bid || (inReview && !counts.settledLeft)}
+        <button className="btn" id="bulk" disabled={!bid || (counts.loaded && !counts.settledLeft)}
           title="accept every unreviewed field that two or more witnesses back and none disputes, then save the working copy into the blueprint (opens Review)"
           onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.bulkAccept(); }}>
-          {inReview ? `accept settled (${counts.settledLeft})` : 'accept settled'}
+          {counts.loaded ? `accept settled (${counts.settledLeft})` : 'accept settled'}
         </button>
         <button className={'btn' + (structOk ? ' ok on' : '')} id="acceptStructure" disabled={!bid}
           title={structOk ? "the form's structure is accepted (STRUCTURE VALIDATED); click to take that back"
@@ -112,10 +112,13 @@ export function Header() {
           title="clear every verdict on this form (accepted, flagged, notes), to check it again from scratch; the old record is kept aside (opens Review)"
           onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.resetValidation(); }}>reset validation</button>
       </span>
+      {/* the whole form set aside (Andrew, 2026-11-03: "a little button next to the 'reset validation' button"; "this is
+          for whole forms"): asks why; once ignored, clicking takes it back */}
+      <button className={'btn' + (entry?.ignored ? ' on' : '')} id="ignoreForm" disabled={!bid}
+        title={entry?.ignored ? `ignored ${entry.ignored.when}: ${entry.ignored.reason}\n\nclick to take it back` : 'set this whole form aside (too messy, filled in, not usable now), with a reason: the IGNORED status on the home page, left out of the benchmark'}
+        onClick={() => bid && toggleIgnored(bid, entry?.ignored)}>{entry?.ignored ? 'ignored' : 'ignore'}</button>
       <button className={'btn' + (entry?.note ? ' has' : '')} id="notesBtn" title="your notes on this form (saved as you type, shown on the home page)"
         onClick={() => set({ notesOpen: !notesOpen })}>{entry?.note ? 'notes •' : 'notes'}</button>
-      <button className="btn" id="chatBtn" title="ask for batch edits to this form in plain words; it proposes, you tick and apply (one Opus call per request)"
-        onClick={() => set({ chatOpen: !chatOpen })}>chat</button>
       <button className="btn" id="reboot" disabled={!!rebootLabel} title="restart the server so edited code loads (and this page, built again), then reload this page"
         onClick={() => reboot(setRebootLabel)}>{rebootLabel || 'reboot'}</button>
       <button className="btn" id="helpBtn" title="keyboard shortcuts and how this mode works"
@@ -125,3 +128,17 @@ export function Header() {
 }
 
 const get_mode = () => useApp.getState().mode;
+
+async function toggleIgnored(bid: string, now?: Entry['ignored']) {
+  let body;
+  if (now) {
+    if (!confirm(`Take back "ignored" on this form?\n\n(${now.reason})`)) return;
+    body = { ignore: false };
+  } else {
+    const reason = prompt('Why ignore this whole form?', 'too messy');
+    if (!reason || !reason.trim()) return;
+    body = { ignore: true, reason };
+  }
+  try { const out = await send<{ entry: Entry }>('PUT', `/api/ignored-forms/${encodeURIComponent(bid)}`, body); updateEntry(out.entry); }
+  catch (e) { alert((e as Error).message); }
+}
