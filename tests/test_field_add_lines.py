@@ -132,21 +132,25 @@ def test_a_box_drawn_over_a_suggestion_set_aside_is_the_area_drawn(tmp_path, mon
     assert p["geometry"] == "selection"
 
 
-def test_a_click_on_a_box_set_aside_proposes_nothing(tmp_path, monkeypatch):
-    """Andrew, 2026-11-01: "'not a field' removes the outline from the add/remove layout. z brings it back": a click
-    on a printed box or underline set aside proposes nothing; a box drawn there is still the field."""
+def test_a_click_inside_a_box_set_aside_is_the_page_there(tmp_path, monkeypatch):
+    """Andrew, 2026-11-02: "'not a field' should just remove that pre-identified field from the add/remove layout. and
+    nothing else": a click in a box set aside reads the page there, a printed checkbox inside a much larger box set
+    aside, and the underline set aside itself, as if nothing had been set aside."""
     monkeypatch.setattr(field_add, "OUT", tmp_path / "rec")
     ctx = _ctx(tmp_path, monkeypatch)
-    ctx.boxes = []
+    doc = pymupdf.open(str(ctx.blank))
+    doc[0].draw_rect(pymupdf.Rect(100, 500, 110, 510), color=(0, 0, 0), width=0.8)     # a printed checkbox
+    doc.saveIncr()
+    doc.close()
+    ctx.boxes = [{"id": 7, "sid": "b7", "page": 1, "rect": [90, 490, 300, 520], "kind": "text", "claimed_by": None}]
+    aside = [{"sid": "b7", "page": 1, "rect": [90, 490, 300, 520], "source": "finder"}]
+    (p,) = field_add.propose(ctx, 1, rect=[104, 504, 106, 506], dismissed=aside)["proposals"]
+    assert p["kind"] != "text" and 99 <= p["rect"][0] < 101 and 109 < p["rect"][2] <= 111
     band = _line(ctx, 200)["rect"]
     x, y = (band[0] + band[2]) / 2, (band[1] + band[3]) / 2
-    click = [x - 1, y - 1, x + 1, y + 1]
-    assert field_add.propose(ctx, 1, rect=click)["proposals"]
     aside = [{"sid": _line(ctx, 200)["sid"], "page": 1, "rect": band, "source": "underline"}]
-    r = field_add.propose(ctx, 1, rect=click, dismissed=aside)
-    assert r["proposals"] == [] and r["notes"] == ["set aside as not a field (z brings it back)"]
-    (p,) = field_add.propose(ctx, 1, rect=[band[0], band[1] - 2, band[2], band[3] + 2], dismissed=aside)["proposals"]
-    assert p["geometry"] == "selection"                                   # drawn: the field
+    (p,) = field_add.propose(ctx, 1, rect=[x - 1, y - 1, x + 1, y + 1], dismissed=aside)["proposals"]
+    assert p["geometry"] == "underline"
 
 
 def test_a_removed_fields_box_keeps_its_id():

@@ -750,13 +750,13 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
     """Proposed field(s) for a drawn area (`rect`) or a suggestion (`sid`), with notes on what the area holds
     that a field already covers. A suggestion set aside as not a field (`dismissed`: ids, or the page's entries with
     their boxes; and the record's) is not there for a box drawn or a click (Andrew, 2026-10-31: "I want to be able to
-    un-suggest boxes so they don't get selected when I draw over them"): the area drawn is the field. A click on the
-    box of anything set aside (an underline, a printed box, a removed field's box) proposes nothing (2026-11-01:
-    "'not a field' removes the outline from the add/remove layout. z brings it back")."""
+    un-suggest boxes so they don't get selected when I draw over them"): the area drawn is the field. Setting aside
+    does nothing else: a click there reads the page as if the suggestion was never made, a printed box inside a
+    larger box set aside included (Andrew, 2026-11-02: "'not a field' should just remove that pre-identified field
+    from the add/remove layout. and nothing else")."""
     taken = ctx.names | set(taken_extra)
     aside_ = [d if isinstance(d, dict) else {"sid": d} for d in dismissed] + (load_record(ctx.bid).get("dismissed") or [])
     gone = {d.get("sid") for d in aside_}
-    aside = [d["rect"] for d in aside_ if d.get("page") == page and d.get("rect")]
     notes: list[str] = []
     sel = None
     if sid:
@@ -812,8 +812,6 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
                     geom = "underline"                     # or the line the click is on or just above
                     notes.append("the band above the underline at the click")
                 if box is not None:
-                    if any(overlap(box, r) >= CLAIM for r in aside):
-                        return {"proposals": [], "notes": ["set aside as not a field (z brings it back)"]}
                     sel = box
                     w_, h_ = sel[2] - sel[0], sel[3] - sel[1]
             if w_ < 3 or h_ < 3:
