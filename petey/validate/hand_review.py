@@ -134,6 +134,9 @@ SOURCES = {"lib": BLUEPRINTS, "je": RUNS / "judge_eval" / "blueprints", "rl": RU
            # the finance forms scraped 2026-10-29 from banks', brokerages' and insurers' forms pages, their own section
            # (Andrew, 2026-10-29: "can you put the new downloads in their own section" ... "just today's batch")
            "fin": RUNS / "finance" / "blueprints",
+           # private-sector forms (Andrew, 2026-11-02: "can you create a new section called 'private' in the review
+           # app?"): the benchmark is about 78% government pages, and the goal is government at most 60-65%
+           "pv": RUNS / "private" / "blueprints",
            # the library before the naming standard's renames, kept to check against (Andrew, 2026-10-24: "let's keep
            # the old copies around so I can do a little more validation against old versions before we let them slide")
            "old": RUNS / "naming_2026-10-24" / "before"}

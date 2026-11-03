@@ -13,7 +13,9 @@ A page's key:
 What the guidelines say, as read here (docs/BENCHMARK_JUDGEMENT_QS.md, Decided):
 
     fields     every box of a validated blueprint on the page; a checkbox typed in a text box (a converted field) is
-               choice. The key stays as the publisher cut it (combs whole)
+               choice. The key stays as the publisher cut it (combs whole). Types follow the page (2026-11-01): an
+               option group's boxes are choice, and so is a text field drawn as a small square (5-16 pt, Y / N boxes
+               included), unless it is a comb's cell or in a text group (`as_seen`)
     printed    (2026-10-31, Andrew: "anything that is expected to be hand-written -- signatures, printed names, etc.")
                text fields tagged x_petey_printed on the blueprint (Andrew, 2026-10-31: "printed types should move
                to blueprints, they are fields"), set on the printed sheet or the Review tab; initials printed, signing
@@ -23,7 +25,8 @@ What the guidelines say, as read here (docs/BENCHMARK_JUDGEMENT_QS.md, Decided):
 
 Pages: forms the review page counts as validated (every field has a verdict, none flagged, file unchanged since) or
 as STRUCTURE VALIDATED ("accept structure", file unchanged since; 2026-10-31), in
-the benchmark's sets (library, first batch, business, government, municipal, big publishers, hand-picked, finance);
+the benchmark's sets (library, first batch, business, government, municipal, big publishers, hand-picked, finance,
+private);
 at most `PER_FORM` pages a form, those with the most fields, after the pages ignored on the review page are left out
 (petey.validate.ignored_pages, 2026-10-31). Nothing is written to the blueprints.
 
@@ -50,8 +53,8 @@ CHOICE = ("checkbox", "radiobutton")
 def _set_of(bid: str, business: set, gov: set) -> Optional[str]:
     if bid in business:
         return "business"
-    for pre, name in (("fin__", "finance"), ("mg__", "hand-picked"), ("bm__pb_", "big publishers"),
-                      ("bm__mu_", "municipal")):
+    for pre, name in (("fin__", "finance"), ("pv__", "private"), ("mg__", "hand-picked"),
+                      ("bm__pb_", "big publishers"), ("bm__mu_", "municipal")):
         if bid.startswith(pre):
             return name
     if bid in gov:
@@ -65,9 +68,54 @@ def _set_of(bid: str, business: set, gov: set) -> Optional[str]:
 
 def _kind(spec: dict, w: dict) -> str:
     from petey.validate.printed_fields import is_printed
-    if w.get("widget_type") in CHOICE or spec.get("type") == "boolean":
+    # an option group's boxes are choices however the publisher drew them (text widgets to type an X in)
+    if w.get("widget_type") in CHOICE or spec.get("type") == "boolean" or spec.get("widgets"):
         return "choice"
     return "printed" if is_printed(spec) else "text"
+
+
+SQUARE = (5.0, 16.0)       # points: a box this size each way, about square, looks like a checkbox on the page
+COMB_GAP = 3.0             # points: three or more such boxes this close along a line are a comb's cells
+
+
+def _square(r: list) -> bool:
+    w, h = r[2] - r[0], r[3] - r[1]
+    return SQUARE[0] <= w <= SQUARE[1] and SQUARE[0] <= h <= SQUARE[1] and 0.7 <= w / h <= 1.4
+
+
+def comb_cells(rects: dict[str, list]) -> set[str]:
+    """The ids among `rects` (small squares on one page) that sit in a run of three or more alike boxes along a line,
+    each within `COMB_GAP` of the next: a comb's cells, not checkboxes."""
+    out: set[str] = set()
+    ids = sorted(rects, key=lambda i: rects[i][0])
+    for i in ids:
+        run, last = [i], rects[i]
+        for j in ids:
+            r = rects[j]
+            if j in run or r[0] < last[2] - 1 or r[0] - last[2] > COMB_GAP:
+                continue
+            if abs((r[3] - r[1]) - (last[3] - last[1])) <= 1.5 and min(r[3], last[3]) - max(r[1], last[1]) >= \
+                    0.5 * (last[3] - last[1]):
+                run.append(j)
+                last = r
+        if len(run) >= 3:
+            out.update(run)
+    return out
+
+
+def as_seen(page: dict) -> int:
+    """Type by what the page shows (Andrew, 2026-11-01: "let's just make everything that looks like a checkbox a
+    checkbox"; a Y / N text box and a checkbox look the same): a text field drawn as a small square becomes choice,
+    unless it is a comb's cell or part of a text group. Printed fields keep their type. How many it changed."""
+    in_group = {f for g in page["groups"] for f in g}
+    sq = {f["id"]: f["rect"] for f in page["fields"] if f["kind"] == "text" and _square(f["rect"])}
+    keep = comb_cells({f["id"]: f["rect"] for f in page["fields"] if _square(f["rect"])}) | in_group
+    n = 0
+    for f in page["fields"]:
+        if f["id"] in sq and f["id"] not in keep:
+            f["kind"] = "choice"
+            n += 1
+    return n
 
 
 def page_keys(bp: dict, entities: list[dict] = ()) -> dict[int, dict]:
@@ -105,6 +153,8 @@ def page_keys(bp: dict, entities: list[dict] = ()) -> dict[int, dict]:
         for p, g in on.items():
             if len(g) >= 2:
                 out[p]["groups"].append(g)
+    for page in out.values():
+        as_seen(page)
     return dict(out)
 
 

@@ -18,3 +18,10 @@ def test_mg_is_a_source():
 def test_finance_batch_is_a_source():
     # Andrew, 2026-10-29: today's finance downloads in their own section
     assert h.SOURCES["fin"].parts[-2:] == ("finance", "blueprints")
+
+
+def test_private_section_is_a_source_and_a_benchmark_set():
+    # Andrew, 2026-11-02: "can you create a new section called 'private' in the review app?"
+    import benchmark_key as K
+    assert h.SOURCES["pv"].parts[-2:] == ("private", "blueprints")
+    assert K._set_of("pv__pb_0123456789ab", set(), set()) == "private"

@@ -121,6 +121,32 @@ class TestKey:
         assert keys[1]["groups"] == [["1.yes", "1.no"]]
         assert keys[2]["groups"] == [["4", "5"]]
 
+    def test_types_follow_the_page(self):
+        """2026-11-01: what looks like a checkbox is one (a Y / N text box, an option group drawn as text boxes);
+        comb cells, a text group's boxes and printed fields keep their type."""
+        def t(code, rect, **kw):
+            return {"x_petey_id": code, "type": "string", "widget": {"page": 1, "rect": rect, "widget_type": "text"},
+                    **kw}
+        fields = {
+            "yn": t("1", [10, 10, 20, 20]),                                   # a lone Y / N box
+            "opts": {"x_petey_id": "2", "type": "category", "widgets": {      # options drawn as text widgets
+                "a": {"page": 1, "rect": [10, 40, 30, 50], "widget_type": "text"},
+                "b": {"page": 1, "rect": [40, 40, 60, 50], "widget_type": "text"}}},
+            "c1": t("3", [100, 100, 110, 110]), "c2": t("4", [110, 100, 120, 110]),   # a comb of three cells
+            "c3": t("5", [120.5, 100, 130.5, 110]),
+            "mm": t("6", [10, 200, 20, 210]), "dd": t("7", [30, 200, 40, 210]),       # a date in two boxes
+            "ini": t("8", [10, 300, 20, 310], x_petey_printed={"source": "review"}),  # an initials box
+            "name": t("9", [10, 400, 200, 412])}
+        k = K.page_keys({"fields": fields}, entities=[{"fields": ["6", "7"]}])[1]
+        assert {f["id"]: f["kind"] for f in k["fields"]} == {
+            "1": "choice", "2.a": "choice", "2.b": "choice", "3": "text", "4": "text", "5": "text",
+            "6": "text", "7": "text", "8": "printed", "9": "text"}
+
+    def test_checkboxes_spaced_along_a_line_are_not_a_comb(self):
+        rects = {"a": [10, 10, 20, 20], "b": [40, 10, 50, 20], "c": [70, 10, 80, 20]}
+        assert K.comb_cells(rects) == set()
+        assert K.comb_cells({**rects, "d": [20, 10, 30, 20], "e": [30.5, 10, 40, 20]}) == {"a", "d", "e", "b"}
+
     def test_key_built_from_a_blueprint_scores_perfect_against_itself(self):
         for k in K.page_keys(self.BP, entities=[{"fields": ["4", "5"]}]).values():
             c = S.score_page(k, k)
