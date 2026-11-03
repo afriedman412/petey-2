@@ -1,9 +1,9 @@
 // Add / remove's sidebar: the blueprint's finder and suggestions left, the proposal cards (or the field picked to
-// remove), the notes, and the lists of what is to be added, removed, or is not a field; and its bar.
+// remove), the notes, and the lists of what is to be added, removed, or is untracked; and its bar.
 import type { KeyboardEvent } from 'react';
 import {
   addAll, addProps, askLabeler, cancel, closePicked, dropOption, goto, isRemoved, keepRemoved, linesLeft, NAME_RE, pickName, pickRemoved,
-  notAField, remaining, runFinder, save, setOptField, setPropField, setShow, skipProp, setKind, fieldKind, setFieldKind, pile, toggleRemove, toggleRmPick, removeAll, unAdd, unDismiss, useAdd,
+  notAField, untrackAll, remaining, runFinder, save, setOptField, setPropField, setShow, skipProp, setKind, fieldKind, setFieldKind, pile, toggleRemove, toggleRmPick, removeAll, unAdd, unDismiss, useAdd,
   gotoSuggestion, nameClash, type Proposal,
 } from './store';
 
@@ -78,7 +78,7 @@ function Card({ p, i }: { p: Proposal; i: number }) {
       <ul className="ev">{p.evidence.map((e, k) => <li key={k}>{e}</li>)}</ul>
       <div className="arow"><button className="btn primary" onClick={() => addProps([i])}>add this field</button>{' '}
         <button className="btn" title="drop this one; the others stay" onClick={() => skipProp(i)}>cancel</button>
-        {' '}<button className="btn warn" title="not a field: its outline comes off the page (x; z brings it back)" onClick={() => notAField(i)}>not a field</button></div>
+        {' '}<button className="btn warn" title="untrack field: its outline comes off the page (x; z brings it back)" onClick={() => notAField(i)}>untrack field</button></div>
     </div>
   );
 }
@@ -111,12 +111,13 @@ function Picked({ name }: { name: string }) {
   );
 }
 
-/** add all / remove all / cancel all, above the cards and below them */
+/** add all / untrack all / remove all / cancel all, above the cards and below them (untrack all, Andrew 2026-11-03) */
 function AllButtons({ top = false }: { top?: boolean }) {
   const { props, rmPicks } = useAdd(), n = props.length + rmPicks.length;
   return (
     <div className="arow">
-      {props.length > 1 && <><button className="btn primary" onClick={addAll}>add all {props.length}</button>{' '}</>}
+      {props.length > 1 && <><button className="btn primary" onClick={addAll}>add all {props.length}</button>{' '}
+        <button className="btn warn" id={top ? 'untrackAllTop' : 'untrackAll'} title="untrack every card: their outlines come off the page (z brings them back)" onClick={untrackAll}>untrack all {props.length}</button>{' '}</>}
       {rmPicks.length > 0 && <><button className="btn warn" id={top ? 'rmAllTop' : 'rmAll'} onClick={() => removeAll()}>{rmPicks.length > 1 ? `remove all ${rmPicks.length}` : 'remove it'}</button>{' '}</>}
       <button className="btn" id={top ? 'cancelTop' : 'cancel'} onClick={cancel}>{n > 1 ? 'cancel all' : 'cancel'}</button>
     </div>
@@ -184,7 +185,7 @@ export function Panel() {
       {removed.length > 0 && <div><h4>To remove ({removed.length})</h4><div className="alist">{removed.map((x, i) => (
         <div key={i} onClick={() => pickRemoved(i)}><span>p{x.page} · {x.name} <span className="help">from {x.from || '?'}</span></span>
           <span className="x" title="keep it" onClick={e => { e.stopPropagation(); keepRemoved(i); }}>×</span></div>))}</div></div>}
-      {dismissed.length > 0 && <div><h4>Not fields ({dismissed.length})</h4><div className="alist">{dismissed.map((x, i) => (
+      {dismissed.length > 0 && <div><h4>Untracked ({dismissed.length})</h4><div className="alist">{dismissed.map((x, i) => (
         <div key={i} onClick={() => goto(x.page)}><span>p{x.page} · {x.what || x.sid}</span>
           <span className="x" title="put it back" onClick={e => { e.stopPropagation(); unDismiss(i); }}>×</span></div>))}</div></div>}
       <Changes />
@@ -196,7 +197,7 @@ export function Bar() {
   const { BP, added, removed, dismissed, showFields, showSug, showLines, copies } = useAdd();
   return (
     <>
-      <span className="progress" id="progress">{BP && <><b>{added.length}</b> to add · <b>{removed.length}</b> to remove · <b>{dismissed.length}</b> not fields · <b>{remaining().length}</b> suggestions left</>}</span>{' '}
+      <span className="progress" id="progress">{BP && <><b>{added.length}</b> to add · <b>{removed.length}</b> to remove · <b>{dismissed.length}</b> untracked · <b>{remaining().length}</b> suggestions left</>}</span>{' '}
       <label className="help"><input type="checkbox" id="aFields" checked={showFields} onChange={e => setShow({ showFields: e.target.checked })} /> fields</label>{' '}
       <label className="help"><input type="checkbox" id="aSug" checked={showSug} onChange={e => setShow({ showSug: e.target.checked })} /> suggestions</label>{' '}
       <label className="help"><input type="checkbox" id="aLines" checked={showLines} onChange={e => setShow({ showLines: e.target.checked })} /> underlines</label>{' '}

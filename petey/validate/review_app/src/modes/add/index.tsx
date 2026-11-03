@@ -31,7 +31,7 @@ export const add: ModeDef = {
   own: [],
   drawable: true,
   help: {
-    keys: [['n', 'next suggestion'], ['p', 'previous suggestion'], ['a / Enter', 'add what is proposed'], ['x', 'not a field (the newest card): its outline comes off the page'], ['z', 'bring back the last one set aside as not a field'], ['click a picked box', 'drop it'],
+    keys: [['n', 'next suggestion'], ['p', 'previous suggestion'], ['a / Enter', 'add what is proposed'], ['x', 'untrack field (the newest card): its outline comes off the page'], ['z', 'bring back the last untracked (a card, or all of an untrack all)'], ['click a picked box', 'drop it'],
       ['click a field', 'collect it to remove (again: drop it)'], ['d', 'remove the collected fields (a red one clicked: keep it)'], ['Esc', 'cancel all (additions and removals)'], ['f', 'fields on / off'], ['s', 'suggestions on / off'], ['l', 'underlines on / off']],
     tips: ['Drag over an area of the page, or click a box, to propose a field; each one you pick stays until you add it or cancel it ("cancel" on its card, Esc for all).',
       'Click a purple field (one the blueprint has) to remove it.',

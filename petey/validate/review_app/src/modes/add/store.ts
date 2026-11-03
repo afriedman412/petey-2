@@ -240,24 +240,32 @@ const shownOf = (p: Proposal): Suggestion[] => {
 };
 /** "not a field" on every card (Andrew, 2026-11-01: "every time I click on a field in add/remove, 'not a field' should
  *  be available"; "'not a field' removes the outline from the add/remove layout. z brings it back"): the card goes, and
- *  what it came from is set aside under Not fields (× puts one back): its suggestions or underline, else its own box,
+ *  what it came from is set aside under Untracked (× puts one back): its suggestions or underline, else its own box,
  *  which a click no longer proposes */
-const undone: { card: Proposal; sids: string[] }[] = [];
-export function notAField(i: number) {
-  const p = S().props[i]; if (!p) return;
-  const now = localNow(), shown = shownOf(p);
-  const out = shown.length ? shown.map(s => ({ sid: s.sid, page: s.page, rect: s.rect, source: s.source, what: s.what, when: now }))
-    : boxesOf(p).map(b => ({ sid: `a${b.page}_${b.rect.map(Math.round).join('_')}`, page: b.page, rect: b.rect, source: 'area',
-      what: `the box of ${p.name || 'a card'}`, when: now }));
-  undone.push({ card: p, sids: out.map(d => d.sid) });
-  put({ dismissed: [...S().dismissed, ...out], props: S().props.filter((_, k) => k !== i), notes: [], curSid: null });
+const undone: { cards: Proposal[]; sids: string[] }[] = [];
+/** "untrack field" (Andrew, 2026-11-03: "let's change 'not a field' to 'untrack field'"): the cards at `is` set aside
+ *  as one step, so z brings them all back */
+function untrack(is: number[]) {
+  const cards = is.map(i => S().props[i]).filter(Boolean); if (!cards.length) return;
+  const now = localNow();
+  const out = cards.flatMap(p => {
+    const shown = shownOf(p);
+    return shown.length ? shown.map(s => ({ sid: s.sid, page: s.page, rect: s.rect, source: s.source, what: s.what, when: now }))
+      : boxesOf(p).map(b => ({ sid: `a${b.page}_${b.rect.map(Math.round).join('_')}`, page: b.page, rect: b.rect, source: 'area',
+        what: `the box of ${p.name || 'a card'}`, when: now }));
+  }).filter((d, k, all) => all.findIndex(o => o.sid === d.sid) === k);      // two cards over one suggestion: once
+  undone.push({ cards, sids: out.map(d => d.sid) });
+  put({ dismissed: [...S().dismissed, ...out], props: S().props.filter((_, k) => !is.includes(k)), notes: [], curSid: null });
   save();
 }
-/** z: the last "not a field" undone, its outline and its card back */
+export const notAField = (i: number) => untrack([i]);
+/** "untrack all" above and below the cards (Andrew, 2026-11-03): every proposal card; fields collected to remove stay */
+export const untrackAll = () => untrack(S().props.map((_, i) => i));
+/** z: the last "untrack" undone, its outlines and its cards back */
 export function undoNotAField() {
   const u = undone.pop();
-  if (!u) { put({ notes: ['nothing set aside to bring back'] }); return; }
-  put({ dismissed: S().dismissed.filter(d => !u.sids.includes(d.sid)), props: mergeProps(S().props, [u.card]).props, notes: [] });
+  if (!u) { put({ notes: ['nothing untracked to bring back'] }); return; }
+  put({ dismissed: S().dismissed.filter(d => !u.sids.includes(d.sid)), props: mergeProps(S().props, u.cards).props, notes: [] });
   save();
 }
 
