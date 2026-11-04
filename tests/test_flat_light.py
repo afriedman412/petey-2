@@ -162,3 +162,41 @@ def test_two_groups_in_one_block_copy_both_kept(tmp_path, monkeypatch):
     got = {n: sorted(w["rect"][1] for w in s["widgets"].values()) for n, s in bp["fields"].items()}
     assert sum(len(s["widgets"]) for s in bp["fields"].values()) == 4
     assert sorted(got.values()) == [[100, 100], [130, 130]] and "p1_b1_c1" in got
+
+
+def test_retype_uses_the_type_model_on_the_kept_boxes(tmp_path, monkeypatch):
+    """The light path's kept boxes take the type model's kind when it is fitted (2026-11-04); a radio the model keeps
+    a choice stays a radio."""
+    import pymupdf
+    from petey.validate import type_model as tm
+    monkeypatch.setattr(tm, "WEIGHTS", {"word_right": 6.0, "bias": -3.0})
+    monkeypatch.setattr(tm, "MEAN", {}); monkeypatch.setattr(tm, "STD", {}); monkeypatch.setattr(tm, "CUT", 0.5)
+    pdf = tmp_path / "p.pdf"
+    doc = pymupdf.open(); pg = doc.new_page(width=612, height=792)
+    pg.insert_text((52, 138), "Yes", fontsize=8)
+    doc.save(str(pdf)); doc.close()
+    kept = [{"id": "1", "page": 1, "rect": [40, 130, 48, 138], "kind": "radio"},
+            {"id": "2", "page": 1, "rect": [40, 150, 48, 158], "kind": "checkbox"},
+            {"id": "3", "page": 1, "rect": [100, 130, 108, 138], "kind": "text"}]
+    out = FL._retype(pdf, kept)
+    assert [b["kind"] for b in out] == ["radio", "text", "text"] and out[1]["retyped_from"] == "checkbox"
+    monkeypatch.setattr(tm, "WEIGHTS", None)
+    assert FL._retype(pdf, kept) == kept
+
+
+def test_tag_splits_writes_split_field_tags(tmp_path, monkeypatch):
+    """The light path's split values go on its blueprint as the Groups tab's tags (2026-11-04)."""
+    import pymupdf
+    from petey.validate import split_model as sm
+    from petey.validate.group_review import ENTITY_KEY
+    monkeypatch.setattr(sm, "WEIGHTS", None)
+    pdf = tmp_path / "p.pdf"
+    doc = pymupdf.open(); pg = doc.new_page(width=612, height=792)
+    pg.insert_text((220, 96), "Date (MM/DD/YYYY)", fontsize=8)
+    doc.save(str(pdf)); doc.close()
+    f = lambda i, r: {"type": "string", "x_petey_id": str(i), "widget": {"page": 1, "rect": r, "widget_type": "text"}}  # noqa: E731
+    bp = {"source_pages": [1], "fields": {"a": f(1, [220, 100, 250, 112]), "b": f(2, [255, 100, 285, 112]),
+                                          "c": f(3, [290, 100, 330, 112]), "n": f(4, [40, 100, 160, 112])}}
+    assert FL._tag_splits(pdf, bp) == 1
+    assert [bp["fields"][k].get(ENTITY_KEY, {}).get("n") for k in ("a", "b", "c", "n")] == [0, 1, 2, None]
+    assert bp["fields"]["a"][ENTITY_KEY]["entity_type"] == "date" and bp["fields"]["a"][ENTITY_KEY]["source"] == "light_split"

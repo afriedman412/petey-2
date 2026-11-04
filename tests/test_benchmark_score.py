@@ -171,7 +171,24 @@ class TestLightPrediction:
         assert {f["id"]: f["kind"] for f in p["fields"]} == {"p1_o1.opt1": "choice", "p1_o1.opt2": "choice",
                                                              "p1_f1": "text", "p1_f2": "text", "p1_f3": "choice"}
         assert p["groups"] == [["p1_o1.opt1", "p1_o1.opt2"], ["p1_f1", "p1_f2"]]
-        assert L.to_prediction(bp)["groups"] == [["p1_o1.opt1", "p1_o1.opt2"]]
+        assert L.to_prediction(bp, [])["groups"] == [["p1_o1.opt1", "p1_o1.opt2"]]
+
+    def test_split_field_tags_on_the_blueprint_are_its_splits(self):
+        """The light path tags its split values as Split Fields (2026-11-04); the prediction takes them from there."""
+        import benchmark_light as L
+        from petey.validate.group_review import ENTITY_KEY
+        tag = lambda k: {ENTITY_KEY: {"name": "split_1", "entity_type": "date", "n": k}}   # noqa: E731
+        bp = {"fields": {
+            "m": {"x_petey_id": "1", "type": "string", "widget": {"page": 1, "rect": [10, 40, 30, 50], "widget_type": "text"}, **tag(0)},
+            "d": {"x_petey_id": "2", "type": "string", "widget": {"page": 1, "rect": [32, 40, 52, 50], "widget_type": "text"}, **tag(1)},
+            "o": {"x_petey_id": "3", "type": "string", "widget": {"page": 1, "rect": [80, 40, 120, 50], "widget_type": "text"}}}}
+        assert L.to_prediction(bp)["groups"] == [["m", "d"]]
+
+    def test_a_field_tagged_printed_is_kind_printed(self):
+        import benchmark_light as L
+        bp = {"fields": {"sig": {"x_petey_id": "1", "type": "string", "x_petey_printed": {"source": "light_caption"},
+                                 "widget": {"page": 1, "rect": [10, 40, 90, 50], "widget_type": "text"}}}}
+        assert [f["kind"] for f in L.to_prediction(bp)["fields"]] == ["printed"]
 
 
 class TestPrinted:
@@ -308,7 +325,6 @@ class TestTuningSet:
     def test_light_runner_reads_and_writes_where_it_is_told(self, tmp_path, monkeypatch):
         import benchmark_light as BL
         import flat_light as FL
-        from petey.validate import compound_values as cv
         key, out = tmp_path / "dev_key", tmp_path / "dev_pred"
         (key / "pages").mkdir(parents=True)
         (key / "pages" / "a__p1.pdf").write_bytes(b"")
@@ -317,10 +333,9 @@ class TestTuningSet:
                                    "widget": {"page": 1, "rect": [1, 2, 30, 12], "widget_type": "text"},
                                    "x_petey_geometry": {"source": "finder", "jev_is_field": 0.9}}}}
         monkeypatch.setattr(FL, "build", lambda pdf, pid, workers: (seen.setdefault("pdf", pdf), (bp, {"tokens": 5,
-                            "finder_boxes": 1, "kept": 1}))[1])
-        monkeypatch.setattr(cv, "find", lambda b: [])
+                            "finder_boxes": 1, "kept": 1, "split_values": 0}))[1])
         r = BL.run_page("a__p1", key, out, keep=True)
-        assert seen["pdf"] == key / "pages" / "a__p1.pdf" and r["tokens"] == 5
-        assert (out / "light" / "a__p1.json").exists() and (out / "light_splits" / "a__p1.json").exists()
+        assert seen["pdf"] == key / "pages" / "a__p1.pdf" and r["tokens"] == 5 and r["splits"] == 0
+        assert (out / "light" / "a__p1.json").exists()                  # one arm (2026-11-04)
         kept = __import__("json").loads((out / "light_bp" / "a__p1.json").read_text())
         assert kept["fields"]["p1_f1"]["x_petey_geometry"]["jev_is_field"] == 0.9

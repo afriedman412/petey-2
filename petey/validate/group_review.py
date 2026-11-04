@@ -47,7 +47,7 @@ import yaml
 
 from petey.paths import RUNS
 from petey.label.captions import text_rects
-from petey.validate import field_ids
+from petey.validate import field_ids, split_types
 from petey.validate.hand_review import _load, _sha, blueprint_paths, page_sizes, working_path
 from petey.validate.retype import resolve_blank
 
@@ -62,8 +62,7 @@ NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_]*$")     # spec 5.2 allows digits anywh
 # written into its fields' `ENTITY_KEY` tags. One ID number for SSN, EIN, ITIN (2026-10-28: "just say 'ID value' and not
 # worry about what type it is"): only the grouping of the digits differs, and the page shows that
 ENTITY_KEY = "x_petey_entity"
-ENTITY_TYPES = ("date", "time", "address_line_1", "address_line_2", "full_address", "signature_complex", "phone",
-                "id_number", "money", "name", "other")
+ENTITY_TYPES = split_types.names()      # the taxonomy, petey/validate/split_types.py (2026-11-04)
 # full_address: the whole address on one line ("full address is when the whole address is on one line"); address lines
 # 1 and 2 when it is over two. No "contact info" (several values about one party: a block's job, and its phone would
 # be no phone entity, a field being in one entity only)

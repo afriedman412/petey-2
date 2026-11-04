@@ -4,7 +4,8 @@ can be combined logically", tagged on the Groups tab as an ENTITY with an entity
 Gathered before blocks are found, so a three-part name and a date are two slots of a block, not six fields whose
 spacing must match copy to copy.
 
-The types (`TYPES`, as the Groups tab's) and their parts in reading order (`PARTS`):
+The types and their parts come from the taxonomy `petey/validate/split_types.py` (`TYPES`, as the Groups tab's;
+`PARTS` in reading order), which also says which kinds count as split values:
 
     date               month / day / yr          time          hour / minute / ampm
     name               first / middle / last / suffix
@@ -20,7 +21,8 @@ two lines (its two lines are two).
 Three readings, each -> [{"kind": type, "page", "fields": [code, reading order], "parts": [part per field], "rect"}]:
 
     find(bp)         from the page alone (geometry and the blank's printed words, no names, no widget metadata, so
-                     it runs on the light path and before the labeler; see `find`)
+                     it runs on the light path and before the labeler; see `find`); reports dates, phones and ID numbers
+                     only (`FOUND`, Andrew 2026-11-04)
     from_tags(bp)    the entities tagged on the Groups tab (`group_review.ENTITY_KEY`): the answer key on the
                      benchmark's pages, whose names are positions
     from_names(bp)   the answer key on validated library blueprints: the part words in the fields' names
@@ -33,16 +35,10 @@ import re
 from typing import Optional
 
 from petey.validate import block_types as bt
+from petey.validate import split_types
 
-TYPES = ("date", "time", "address_line_1", "address_line_2", "full_address", "signature_complex", "phone",
-         "id_number", "money", "name", "other")          # group_review.ENTITY_TYPES
-PARTS = {
-    "date": ("month", "day", "yr"), "time": ("hour", "minute", "ampm"),
-    "name": ("first", "middle", "last", "suffix"), "phone": ("area", "prefix", "line"),
-    "address_line_1": ("street", "unit"), "address_line_2": ("city", "county", "state", "zip", "country"),
-    "full_address": ("street", "unit", "city", "county", "state", "zip", "country"),
-    "signature_complex": ("signature", "name", "title", "date"), "id_number": (), "money": ("dollars", "cents"),
-}
+TYPES = split_types.names()          # the taxonomy (petey/validate/split_types.py), as the Groups tab's dropdown
+PARTS = split_types.parts()          # each kind's parts in reading order
 _LINE_2 = set(PARTS["address_line_2"])
 
 LINE_GAP = 60.0       # pt: fields of one value on a line sit at most this far apart, edge to edge (names)
@@ -322,6 +318,53 @@ def _runs(boxes: list[dict]) -> list[list[dict]]:
     return out
 
 
+def _real_word(w) -> bool:
+    """A caption word: not a separator, a part word (MM, Day, City), an item number, underscores or a lone letter."""
+    t = w[4].lower().strip("():.,;-/_*")
+    return bool(t) and not set(w[4]) <= _SEPARATOR and not any(t in parts for parts in _PRINTED.values()) \
+        and not _ITEM.fullmatch(w[4].lower()) and not re.fullmatch(r"_+|\d+|[a-z]|\W+", t)
+
+
+def _phrases(ws: list) -> list[list]:
+    """Words left to right, in phrases (gaps over `PHRASE_GAP` start a new one)."""
+    out: list[list] = []
+    for w in sorted(ws, key=lambda w: w[0]):
+        if out and w[0] - out[-1][-1][2] <= PHRASE_GAP:
+            out[-1].append(w)
+        else:
+            out.append([w])
+    return out
+
+
+def _cut_at_captions(run: list[dict], words: list) -> list[list[dict]]:
+    """A run cut where a later field has a caption of its own (Andrew, 2026-11-04, "each has their own caption"): a
+    label printed between it and the field before it on their line, or a caption phrase with a real word starting
+    above it (a phrase that began over an earlier field spans the run: "Social Security Number" over three boxes).
+    Captions under the fields are not read: the next question's words and instructions sit there too (measured
+    2026-11-04 on the key: cutting on them lost right joins). Parts of one value have no captions of their own,
+    only separators and part words (MM / DD / YYYY, "( )", "-")."""
+    if len(run) < 2:
+        return [run]
+    y0 = min(b["rect"][1] for b in run)
+    above = [w for w in words if y0 - ABOVE <= (w[1] + w[3]) / 2 <= y0 + 1
+             and run[0]["rect"][0] - 2 <= w[0] <= run[-1]["rect"][2]]
+    cuts = set()
+    for k in range(1, len(run)):
+        b, prev = run[k], run[k - 1]
+        x0, x1 = b["rect"][0], b["rect"][2]
+        between = [w for w in words if prev["rect"][2] - 2 <= w[0] and w[2] <= x0 + 2
+                   and b["rect"][1] - 2 <= (w[1] + w[3]) / 2 <= b["rect"][3] + 2 and _real_word(w)]
+        if between or any(x0 - 2 <= ph[0][0] <= x1 - 2 and any(_real_word(w) for w in ph) for ph in _phrases(above)):
+            cuts.add(k)
+    out, cur = [], [run[0]]
+    for i, b in enumerate(run[1:], 1):
+        if i in cuts:
+            out.append(cur)
+            cur = []
+        cur.append(b)
+    return out + [cur]
+
+
 def _segments(run: list[dict], words: list, side: str = "above") -> list[list[dict]]:
     """A run cut where a caption starts over (`side` "above") or under ("below") one of its fields: the text line just
     above (below) the run, in phrases (words within `PHRASE_GAP` of each other), each phrase's first word starting the
@@ -522,9 +565,41 @@ def _signatures(bs: list[dict], words: list, taken: set, at: dict) -> list[dict]
     return out
 
 
-def find(bp: dict, pw=None) -> list[dict]:
+FOUND = split_types.counted()      # what `find` reports: the taxonomy's counted kinds (Andrew, 2026-11-04)
+
+
+def _model_on() -> bool:
+    from petey.validate import split_model as sm
+    return sm.WEIGHTS is not None
+
+
+def _chain_kind(seg: list[dict], words: list, page: list) -> str:
+    """A model-joined chain's kind: what one caption over it says (`_spanning`), else the separators printed between
+    its boxes (slashes a date, a bracket a phone, dashes an ID number), else "other" (not a counted kind)."""
+    sp = _spanning(seg, words, page)
+    if sp:
+        return sp[0]
+    x0, y0 = seg[0]["rect"][0], min(b["rect"][1] for b in seg)
+    x1, y1 = seg[-1]["rect"][2], max(b["rect"][3] for b in seg)
+    inside = " ".join(w[4] for w in words if w[0] >= x0 - 2 and w[2] <= x1 + 2 and w[1] >= y0 - 2 and w[3] <= y1 + 2)
+    left = " ".join(w[4] for w in _label_left(words, seg[0]["rect"]))
+    if "/" in inside:
+        return "date"
+    if left.endswith("(") or ")" in inside:
+        return "phone"
+    if "-" in inside or "–" in inside:
+        return "id_number"
+    return "other"
+
+
+def find(bp: dict, pw=None, kinds: Optional[tuple] = FOUND) -> list[dict]:
     """The form's entities from the page: [{kind, page, fields, parts, rect}], text fields only; nothing without a
-    blank (no printed words)."""
+    blank (no printed words). Only the `kinds` in `FOUND` are reported (the taxonomy's counted kinds, `split_types`;
+    Andrew, 2026-11-04: dates, phones and ID numbers are the split values that count, the rule of 2026-10-30; names, addresses, signature
+    lines, times and money are read along the way, since a run claimed by one of them is not free for another, but
+    left out). `kinds=None`: everything. With the split model fitted (`split_model.WEIGHTS`, 2026-11-04), a run's
+    values are the model's chains of adjacent boxes (after the part-word captions, `_by_own`), their kind from the
+    caption over them or the separators between them (`_chain_kind`); else the caption-cut rules below."""
     from petey.validate.same_box import PageWords
     pw = pw or PageWords(bp)
     boxes = _boxes(bp)
@@ -538,12 +613,22 @@ def find(bp: dict, pw=None) -> list[dict]:
         if not words:
             continue
         found = []
-        runs = _runs(bs)
+        runs = [seg for run in _runs(bs) for seg in _cut_at_captions(run, words)]
         for run in runs:
             got = _by_own(run, words, bs)
             for kind, fs, ps in got:
                 found.append(_value(kind, [b["code"] for b in fs], dict(zip([b["code"] for b in fs], ps)), at))
             if got:
+                continue
+            if _model_on():                       # the split model's chains (Andrew, 2026-11-04), kind by the cues
+                from petey.validate import split_model as sm
+                for seg in sm.chains(run, words, bs):
+                    kind = _chain_kind(seg, words, bs)
+                    codes = [b["code"] for b in seg]
+                    ps = PARTS.get(kind) or ()
+                    ps = list(ps[:len(codes)]) if kind in ("date", "phone", "time") and len(ps) >= len(codes) \
+                        else [str(i + 1) for i in range(len(codes))]
+                    found.append(_value(kind, codes, dict(zip(codes, ps)), at))
                 continue
             # the run cut by the captions over it or by those under it, whichever explains more fields
             best: list = []
@@ -558,4 +643,6 @@ def find(bp: dict, pw=None) -> list[dict]:
         found += _repeats(found, runs, taken, at)
         found += _signatures(bs, words, {c for v in found for c in v["fields"]}, at)
         out += found
+    if kinds is not None:
+        out = [v for v in out if v["kind"] in kinds]
     return sorted(out, key=lambda v: (v["page"], v["rect"][1], v["rect"][0]))

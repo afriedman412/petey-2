@@ -20,11 +20,14 @@ What the guidelines say, as read here (docs/BENCHMARK_JUDGEMENT_QS.md, Decided):
                text fields tagged x_petey_printed on the blueprint (Andrew, 2026-10-31: "printed types should move
                to blueprints, they are fields"), set on the printed sheet or the Review tab; initials printed, signing
                dates and titles text
-    groups     option groups of two or more boxes; Split Fields as tagged on the Groups tab (x_petey_entity). Library
-               forms validated before the tag existed carry none
+    groups     option groups of two or more boxes; Split Fields as tagged on the Groups tab (x_petey_entity) whose
+               kind counts in the taxonomy (petey/validate/split_types.py: dates, phones, ID numbers; 2026-11-04,
+               a tagged name or address is not a split value). Library forms validated before the tag existed
+               carry none
 
-Pages: forms the review page counts as validated (every field has a verdict, none flagged, file unchanged since) or
-as STRUCTURE VALIDATED ("accept structure", file unchanged since; 2026-10-31), in
+Pages: forms the review page counts as STRUCTURE VALIDATED ("accept structure", file unchanged since; 2026-10-31); a
+form validated (every name accepted) without it waits for its S (Andrew, 2026-11-04: "leave them out until they get an
+S"; "structural is all that matters for the benchmark"), in
 the benchmark's sets (library, first batch, business, government, municipal, big publishers, hand-picked, finance,
 private);
 at most `PER_FORM` pages a form, those with the most fields, after the pages ignored on the review page are left out
@@ -59,9 +62,20 @@ SPARE_MIN = 10
 CHOICE = ("checkbox", "radiobutton")
 
 
+def _manual_ids() -> set:
+    """The hand-picked forms' ids in the publishers' download list (sector "manual")."""
+    if not hasattr(_manual_ids, "ids"):
+        f = ROOT / "runs" / "acquisition" / "publishers" / "fetched.jsonl"
+        _manual_ids.ids = {r["url_id"] for r in map(json.loads, f.open()) if r.get("sector") == "manual"} if f.exists() else set()
+    return _manual_ids.ids
+
+
 def _set_of(bid: str, business: set, gov: set) -> Optional[str]:
     if bid in business:
         return "business"
+    # the 2026-11-03 evening section (nov3__pb_<id>) keeps each form's set: hand-picked or big publishers
+    if bid.startswith("nov3__pb_"):
+        return "hand-picked" if bid[len("nov3__pb_"):] in _manual_ids() else "big publishers"
     for pre, name in (("fin__", "finance"), ("pv__", "private"), ("mg__", "hand-picked"),
                       ("bm__pb_", "big publishers"), ("bm__mu_", "municipal")):
         if bid.startswith(pre):
@@ -125,6 +139,13 @@ def as_seen(page: dict) -> int:
             f["kind"] = "choice"
             n += 1
     return n
+
+
+def in_key(v: dict, p: Path) -> bool:
+    """The form's structure validated and the file unchanged since: the S, whatever its names (2026-11-04)."""
+    from petey.validate import hand_review as h
+    s = h.structure(v, p)
+    return bool(s and not s["stale"])
 
 
 def pick_pages(keys: dict[int, dict], spare: bool = False) -> list[int]:
@@ -222,6 +243,7 @@ def write_page_pdf(blank: Path, page: int, dst: Path) -> list[float]:
 
 def main() -> int:
     from petey.validate import compound_values as cv
+    from petey.validate import split_types
     from petey.validate import hand_review as h
     from petey.validate import ignored_fields, ignored_forms, ignored_pages
     from petey.validate import printed_fields as pf
@@ -251,10 +273,10 @@ def main() -> int:
             continue
         p = h.working_path(bid, paths)
         bp = h._load(p)
-        if not h.structure_ok(v, p, bp):                 # validated, or its structure validated (2026-10-31)
-            skipped["not validated"] += 1
+        if not in_key(v, p):
+            skipped["no structure check"] += 1
             continue
-        keys = page_keys(bp, cv.from_tags(bp))
+        keys = page_keys(bp, [e for e in cv.from_tags(bp) if split_types.counts(e["kind"])])
         for pg in [pg for pg in keys if f"{bid}__p{pg}" in ignored]:      # ignored on the review page, before the pick
             del keys[pg]
             skipped["pages ignored"] += 1

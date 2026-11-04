@@ -230,11 +230,12 @@ def _order(rect) -> tuple:
 def split_lines(raw: Path, boxes: list[dict], kept: list[dict], score: dict[str, float], workers: int,
                 use_jev: bool) -> tuple[list[dict], list[dict], int]:
     """(kept with lines holding several fields cut into them, the splits, input tokens): `line_split`, column rules
-    always, captions only with `use_jev` (one Jev call per page of captioned lines)."""
+    always, captions only with `use_jev` (one Jev question per captioned line, a picture each with every kept
+    box drawn: line_split.jev_jobs)."""
     plans = line_split.plan(raw, kept)
     if not use_jev:
         plans = [p for p in plans if p["how"] == "vertical"]
-    jev, tokens = (_ask_all(line_split.jev_jobs(raw, plans), workers) if any(p["how"] != "vertical" for p in plans)
+    jev, tokens = (_ask_all(line_split.jev_jobs(raw, plans, kept), workers) if any(p["how"] != "vertical" for p in plans)
                    else ({}, 0))
     kept, made = line_split.apply(boxes, kept, plans, jev)
     for b in kept:
@@ -243,11 +244,82 @@ def split_lines(raw: Path, boxes: list[dict], kept: list[dict], score: dict[str,
     return kept, made, tokens
 
 
+def _retype(raw: Path, kept: list[dict]) -> list[dict]:
+    """The kept boxes with the type model's kind (choice / text; `type_model`, trained on the tuning set) when the
+    model is fitted, else as the finder typed them. A box the finder called radio stays radio when the model keeps
+    it a choice."""
+    from petey.validate import type_model as tm
+    import pymupdf
+    if tm.WEIGHTS is None:
+        return kept
+    doc = pymupdf.open(str(raw))
+    try:
+        words = {pg: doc[pg - 1].get_text("words") for pg in {b["page"] for b in kept} if 1 <= pg <= len(doc)}
+    finally:
+        doc.close()
+    out = []
+    for b in kept:
+        page = [o for o in kept if o["page"] == b["page"]]
+        k = tm.kind(b, page, words.get(b["page"], []))
+        new = b["kind"] if (k == "choice" and b["kind"] in tm.MARK) else ("checkbox" if k == "choice" else "text")
+        out.append(b if new == b["kind"] else {**b, "kind": new, "retyped_from": b["kind"]})
+    return out
+
+
+def _tag_splits(raw: Path, bp: dict, source: str = "light_split") -> int:
+    """The page-only split detector's values (`compound_values.find`: dates, phones, ID numbers, with the split
+    model when fitted) written on the blueprint as Split Field tags (`group_review.ENTITY_KEY`, as the Groups tab
+    writes them: name, entity_type, n), so the review page shows them, extraction reads them and the benchmark takes
+    them off the blueprint (`benchmark_light.to_prediction`). Returns the number of values."""
+    from petey.validate import compound_values as cv
+    from petey.validate.group_review import ENTITY_KEY
+    import pymupdf
+
+    class _Words:
+        def __init__(self):
+            doc = pymupdf.open(str(raw))
+            try:
+                self._w = {pg: doc[pg - 1].get_text("words") for pg in bp["source_pages"] if 1 <= pg <= len(doc)}
+            finally:
+                doc.close()
+
+        def words(self, pg):
+            return self._w.get(pg, [])
+
+    by_code = {str(s.get("x_petey_id")): n for n, s in bp["fields"].items()}
+    values = cv.find(bp, _Words())
+    when = time.strftime("%Y-%m-%d %H:%M:%S")
+    for i, v in enumerate(values, 1):
+        for k, code in enumerate(v["fields"]):
+            n = by_code.get(str(code))
+            if n:
+                bp["fields"][n][ENTITY_KEY] = {"name": f"split_{i}", "entity_type": v["kind"], "n": k,
+                                               "source": source, "when": when}
+    return len(values)
+
+
+def _mark_printed(raw: Path, bp: dict) -> int:
+    """Tag the fields whose own caption says they are hand-written (`printed_caption`, source light_caption), the
+    page's words read from the raw PDF."""
+    from petey.validate import printed_caption
+    import pymupdf
+    doc = pymupdf.open(str(raw))
+    try:
+        words = {pg: doc[pg - 1].get_text("words") for pg in bp["source_pages"] if 1 <= pg <= len(doc)}
+        sizes = {pg: (doc[pg - 1].rect.width, doc[pg - 1].rect.height) for pg in words}
+    finally:
+        doc.close()
+    return printed_caption.mark(bp, lambda pg: words.get(pg, []), size_of=lambda pg: sizes.get(pg, (612.0, 792.0)))
+
+
 def build(raw: Path, form_id: str, *, workers: int = 6, boxes: list[dict] | None = None,
           preset_groups: list[set[str]] = (), split_jev: bool = True) -> tuple[dict, dict]:
     """(blueprint, info) for the raw PDF. `boxes` given (a fillable PDF's own widgets, for an answer-key starting point;
     2026-10-26) skips the finder, the screen and the line splits; `preset_groups` (stub names f<id>) are kept as groups.
-    `split_jev` False: lines are cut at column rules only, no Jev call for captioned lines."""
+    `split_jev` False: lines are cut at column rules only, no Jev call for captioned lines. The kept boxes are typed
+    by the type model (`type_model`, choice / text) when it is fitted; text fields whose own caption says sign /
+    signature / initials are tagged printed (`printed_caption`); split values (dates, phones, ID numbers) are tagged
+    as Split Fields (`_tag_splits`, 2026-11-04)."""
     t0 = time.time()
     given = boxes is not None
     if not given:
@@ -263,6 +335,8 @@ def build(raw: Path, form_id: str, *, workers: int = 6, boxes: list[dict] | None
     if not given:
         kept, splits, tok_split = split_lines(raw, boxes, kept, score, workers, split_jev)
     t_split = time.time() - t0 - t_find - t_screen
+    if not given:
+        kept = _retype(raw, kept)                 # the type model's kinds (2026-11-04), in place of the finder's shapes
     stub = _stub(raw, kept)
     grps, tok_groups = groups(raw, stub, workers, preset_groups)
     t_groups = time.time() - t0 - t_find - t_screen - t_split
@@ -351,7 +425,10 @@ def build(raw: Path, form_id: str, *, workers: int = 6, boxes: list[dict] | None
                             {"model": MODEL, "keep": line_split.JEV_SPLIT} if split_jev else None)},
                         "names": "position", "when": time.strftime("%Y-%m-%d %H:%M:%S")},
           "fields": fields}
-    info = {"finder_boxes": len(boxes), "kept": len(kept), "groups": len(grps),
+    printed = _mark_printed(raw, bp)              # Part A (2026-11-04): hand-written fields by their own captions
+    n_splits = _tag_splits(raw, bp)               # Part B (2026-11-04): split values as Split Field tags
+    info = {"finder_boxes": len(boxes), "kept": len(kept), "groups": len(grps), "printed": printed,
+            "split_values": n_splits,
             "tables": sum(len(st["tables"]) for st in struct.values()),
             "blocks": sum(len(st["blocks"]) for st in struct.values()),
             "tokens": tok_screen + tok_split + tok_groups, "tokens_screen": tok_screen, "tokens_split": tok_split,
