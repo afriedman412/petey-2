@@ -950,53 +950,53 @@ fields:
       block_iteration: '2'
       subject: email
     label_source: llm
-  more_than_two_plaintiffs:
-    x_petey_id: '2_25'
-    type: boolean
-    widget:
-      page: 2
-      rect:
-      - 63.0
-      - 305.9289855957031
-      - 72.0
-      - 314.9289855957031
-      widget_type: checkbox
-      path: SC-100[0].Page2[0].List1[0].Item1[0].Checkbox1[0]
-    description: Check here if more than two plaintiffs and attach form SC-100A.
-    x_petey_description_source: tooltip
-    label_source: llm
-  plaintiff_doing_business_under_fictitious_name:
-    x_petey_id: '2_26'
-    type: boolean
-    widget:
-      page: 2
-      rect:
-      - 63.0
-      - 319.7139892578125
-      - 72.0
-      - 328.7139892578125
-      widget_type: checkbox
-      path: SC-100[0].Page2[0].List1[0].Item1[0].Checkbox2[0]
-    description: Check here if either plaintiff listed above is doing business under
-      a fictitious name and attach form SC-103.
-    x_petey_description_source: tooltip
-    label_source: llm
-  plaintiff_is_licensee_or_deferred_deposit_originator:
-    x_petey_id: '2_27'
-    type: boolean
-    widget:
-      page: 2
-      rect:
-      - 63.0
-      - 333.4989929199219
-      - 72.0
-      - 342.4989929199219
-      widget_type: checkbox
-      path: SC-100[0].Page2[0].List1[0].Item1[0].Checkbox3[0]
-    description: Check here if any plaintiff is a “licensee” or “deferred deposit
-      originator” (payday lender) under Financial Code sections 23000 et seq.
-    x_petey_description_source: tooltip
-    label_source: llm
+  group_p2:
+    x_petey_id: '2_54'
+    type: category
+    values:
+    - more_than_two_plaintiffs
+    - plaintiff_doing_business_under_fictitious_name
+    - plaintiff_is_licensee_or_deferred_deposit_originator
+    widgets:
+      more_than_two_plaintiffs:
+        page: 2
+        rect:
+        - 63.0
+        - 305.9289855957031
+        - 72.0
+        - 314.9289855957031
+        widget_type: checkbox
+        path: SC-100[0].Page2[0].List1[0].Item1[0].Checkbox1[0]
+        on_state: '1'
+      plaintiff_doing_business_under_fictitious_name:
+        page: 2
+        rect:
+        - 63.0
+        - 319.7139892578125
+        - 72.0
+        - 328.7139892578125
+        widget_type: checkbox
+        path: SC-100[0].Page2[0].List1[0].Item1[0].Checkbox2[0]
+        on_state: '1'
+      plaintiff_is_licensee_or_deferred_deposit_originator:
+        page: 2
+        rect:
+        - 63.0
+        - 333.4989929199219
+        - 72.0
+        - 342.4989929199219
+        widget_type: checkbox
+        path: SC-100[0].Page2[0].List1[0].Item1[0].Checkbox3[0]
+        on_state: '1'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-02 22:37:36'
+      from:
+      - more_than_two_plaintiffs
+      - plaintiff_doing_business_under_fictitious_name
+      - plaintiff_is_licensee_or_deferred_deposit_originator
+    x_petey_identifiers:
+      subject: group_p2
   defendant_name:
     x_petey_id: '2_28'
     type: string
@@ -1314,38 +1314,42 @@ fields:
         semantic_type: zip
         pattern: ^\d{5}\-\d{4}$
       judged: 'kept: 1 -> 0'
-  more_than_one_defendant:
-    x_petey_id: '2_44'
-    type: boolean
-    widget:
-      page: 2
-      rect:
-      - 62.99700164794922
-      - 543.02099609375
-      - 71.99700164794922
-      - 552.02099609375
-      widget_type: checkbox
-      path: SC-100[0].Page2[0].List2[0].item2[0].Checkbox4[0]
-    description: Check here if your case is against more than one defendant and attach
-      form SC-100A.
-    x_petey_description_source: tooltip
-    label_source: llm
-  defendant_on_active_military_duty:
-    x_petey_id: '2_45'
-    type: boolean
-    widget:
-      page: 2
-      rect:
-      - 62.99700164794922
-      - 559.5440063476562
-      - 71.99700164794922
-      - 568.5440063476562
-      widget_type: checkbox
-      path: SC-100[0].Page2[0].List2[0].item2[0].Checkbox5[0]
-    description: 'Check here if any defendant is on active military duty and write
-      defendant’s name here:'
-    x_petey_description_source: tooltip
-    label_source: llm
+  group_p2_2:
+    x_petey_id: '2_55'
+    type: category
+    values:
+    - more_than_one_defendant
+    - defendant_on_active_military_duty
+    widgets:
+      more_than_one_defendant:
+        page: 2
+        rect:
+        - 62.99700164794922
+        - 543.02099609375
+        - 71.99700164794922
+        - 552.02099609375
+        widget_type: checkbox
+        path: SC-100[0].Page2[0].List2[0].item2[0].Checkbox4[0]
+        on_state: '1'
+      defendant_on_active_military_duty:
+        page: 2
+        rect:
+        - 62.99700164794922
+        - 559.5440063476562
+        - 71.99700164794922
+        - 568.5440063476562
+        widget_type: checkbox
+        path: SC-100[0].Page2[0].List2[0].item2[0].Checkbox5[0]
+        on_state: '1'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-11-02 22:37:36'
+      from:
+      - more_than_one_defendant
+      - defendant_on_active_military_duty
+    x_petey_identifiers:
+      iteration: '2'
+      subject: group_p2
   amount_owed:
     x_petey_id: '2_46'
     type: number
