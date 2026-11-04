@@ -597,6 +597,43 @@ class App:
         self.refresh()
         return {**out, "applied": pl.get("changes") or [], "changes": [], "skipped": pl.get("skipped") or []}
 
+    def tool_add(self, bid: str, which: str) -> dict:
+        """The header menu's "split multi-line boxes" / "add signatures" (2026-11-04, `form_tools`): the proposals
+        added to Add / remove's record and applied into the working copy, like a card accepted there."""
+        from petey.validate import form_tools
+        bp = hand_review._load(self.working(bid))
+        blank = resolve_blank(bp)
+        if which == "split":
+            added, removed, notes = form_tools.split_proposals(bp, blank)
+        else:
+            (added, notes), removed = form_tools.signature_proposals(bp, blank), []
+        if not added and not removed:
+            return {"notes": [], "entry": self.entry(bid)}
+        rec = field_add.load_record(bid)
+        out = self.save_add(bid, {"added": (rec.get("added") or []) + added,
+                                  "removed": (rec.get("removed") or []) + removed})
+        return {**out, "notes": notes}
+
+    def tool_text_groups(self, bid: str) -> dict:
+        """The header menu's "add text groups" (2026-11-04: "I'm fine with sending it to claude"): Claude's text
+        groups added to Groups' record as new units and applied into the working copy (`form_tools`)."""
+        from petey.validate import form_tools
+        p = self.open_draft(bid)
+        bp = hand_review._load(p)
+        units, notes = form_tools.text_group_proposals(bp, resolve_blank(bp), p.stem)
+        if not units:
+            return {"notes": [], "entry": self.entry(bid)}
+        sha = hand_review._sha(p)
+        _, current, info = group_review.current_units(bid, bp, sha)
+        if info["stale"] and not group_review.load_record(bid).get("boxes"):
+            raise ValueError("Groups' record was written against another version of the form; open Groups and save it first")
+        rec = group_review.load_record(bid)
+        rec.update({"blueprint": str(self.paths[bid]), "form": self.paths[bid].stem, "blueprint_sha": sha,
+                    "updated": time.strftime("%Y-%m-%d %H:%M:%S"), "units": current + units})
+        group_review.OUT.mkdir(parents=True, exist_ok=True)
+        group_review.record_path(bid).write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
+        return {**self.apply_groups(bid), "notes": notes}
+
     def fill_same(self, bid: str, page: int, src: str, src_page: int) -> dict:
         """"fill from" (2026-10-31): the page made what an identical page is, in the working copy (`same_pages.fill`)."""
         if src not in self.paths:
@@ -1123,6 +1160,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: APP.blocks.type_label(bid, body["type"], body.get("label") or ""), bid)
         if (mode, what) == ("blocks", "finders"):       # the whole form: SIA's blocks as new types
             return self._route(lambda: APP.blocks.run_finders(bid), bid)
+        if (mode, what) in (("tools", "split"), ("tools", "signatures")):     # the header menu's form tools
+            return self._route(lambda: APP.tool_add(bid, what), bid)
+        if (mode, what) == ("tools", "textgroups"):     # Claude's text groups, into Groups
+            return self._route(lambda: APP.tool_text_groups(bid), bid)
         if (mode, what) == ("blocks", "detect"):        # every block type's copies on a page found
             return self._route(lambda: APP.blocks.block_detect(bid, int(body["page"])), bid)
         if (mode, what) == ("blocks", "rescan"):        # blocks grown to the free fields repeating in them, then copies

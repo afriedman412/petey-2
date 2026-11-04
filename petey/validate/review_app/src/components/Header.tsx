@@ -1,9 +1,9 @@
 // The top bar: home, the form menu, the working copy's save / discard, the whole-form actions and the panels.
 import { useEffect, useState } from 'react';
-import type { Entry } from '../lib/types';
+import type { Entry, ModeId } from '../lib/types';
 import { store } from '../lib/util';
-import { send } from '../lib/api';
-import { discardDraft, openBlueprint, reboot, saveDraft, setMode, showHome, updateEntry } from '../state/actions';
+import { mapi, send } from '../lib/api';
+import { discardDraft, loadMode, openBlueprint, reboot, saveDraft, setMode, showHome, toast, updateEntry } from '../state/actions';
 import { set, useApp, useEntry } from '../state/app';
 import { reviewActions, useHeaderCounts } from '../modes/review/store';
 import { runFinders } from '../modes/blocks/actions';
@@ -66,7 +66,6 @@ export function Header() {
   const entry = useEntry();
   const counts = useHeaderCounts();
   const [rebootLabel, setRebootLabel] = useState<string | null>(null);
-  const [finding, setFinding] = useState(false);
   // the tabs on the page hidden (t, state/app.setTabsHidden; the header button went 2026-10-31)
   const tabsHidden = useApp(s => s.tabsHidden);
   useEffect(() => { document.body.classList.toggle('notabs', tabsHidden); }, [tabsHidden]);
@@ -90,12 +89,9 @@ export function Header() {
       </button>
       <DraftBar />
       <span className="spacer" />
-      {/* the form's whole-form actions in the top bar (Andrew, 2026-10-23); each opens the tab it works in */}
-      <button className="btn" id="hdrFinders" disabled={!bid || finding}
-        title="the whole form: the clear groups among the loose checkboxes first (Yes / No pairs, boxes under a printed 'check one' or 'check the applicable box'; new on the Groups tab, which also makes them as it opens; ungroup takes one apart), then the grid finder (a grid replaces the blocks inside it), then repeated blocks among the fields in no block and no grid (SIA), each saved as a new block type marked 'from the finder'. Opens Blocks. Keep what's right; 'not a block' on the rest"
-        onClick={async () => { if (get_mode() !== 'blocks') await setMode('blocks'); setFinding(true); try { await runFinders(); } finally { setFinding(false); } }}>
-        {finding ? 'running…' : 'run finders'}
-      </button>
+      {/* the form's whole-form actions in the top bar (Andrew, 2026-10-23); each opens the tab it works in. A menu since
+          2026-11-04 ("take the 'run finders' button and make it a dropdown", with the form tools beside it) */}
+      <FormTools bid={bid} />
       {/* the whole form's verdicts side by side (Andrew, 2026-10-31: "put 'accept all' 'accept settled' and 'reset
           validation' together") */}
       <span className="btngroup" id="verdictBtns">
@@ -128,6 +124,71 @@ export function Header() {
 }
 
 const get_mode = () => useApp.getState().mode;
+
+// the header's whole-form tools (Andrew, 2026-11-04: "take the 'run finders' button and make it a dropdown and then add
+// 'split multiline blocks', 'add signatures' and 'add text groups'"): each opens the tab whose record it adds to, so
+// what it did is there to check; all of it goes into the working copy (save keeps it, discard drops it)
+type ToolK = 'finders' | 'split' | 'signatures' | 'textgroups';
+const TOOLS: { k: ToolK; label: string; mode: ModeId; title: string }[] = [
+  { k: 'finders', label: 'run finders', mode: 'blocks',
+    title: "the whole form: the clear groups among the loose checkboxes first (Yes / No pairs, boxes under a printed 'check one' or 'check the applicable box'; new on the Groups tab, which also makes them as it opens; ungroup takes one apart), then the grid finder (a grid replaces the blocks inside it), then repeated blocks among the fields in no block and no grid (SIA), each saved as a new block type marked 'from the finder'. Opens Blocks. Keep what's right; 'not a block' on the rest" },
+  { k: 'split', label: 'split multi-line boxes', mode: 'add',
+    title: "every text box with printed lines inside it (drawn lines, rows of dots, or dotted lines in a scan) cut into one field per line, name_line_1, name_line_2, …; boxes with no printed lines, boxes in a grid and table cells stay as they are. Opens Add / remove" },
+  { k: 'signatures', label: 'add signatures', mode: 'add',
+    title: "a field over every printed signature box or line (a short caption with 'signature' or 'sign' in it: inside the box, beside it, or under the line) that no field covers, marked as handwritten. Opens Add / remove" },
+  { k: 'textgroups', label: 'add text groups', mode: 'groups',
+    title: "Claude reads each page and groups the fields on one line that make one value (a date, a phone or ID number in parts, a name, an address line, a signature with its date), each with its entity type. A few seconds a page. Opens Groups, where each can be taken apart" },
+];
+
+function toolNote(k: ToolK, out: { notes?: string[]; applied?: string[]; changes?: string[]; errors?: string[]; apply_error?: string }) {
+  const notes = out.notes || [];
+  const trouble = out.apply_error || (out.errors?.length ? out.errors.join('; ') : '');
+  if (trouble) return `Not applied: ${trouble}`;
+  const list = (xs: string[]) => xs.slice(0, 6).join(', ') + (xs.length > 6 ? ', …' : '');
+  if (k === 'split') return notes.length ? `Split ${notes.length} box${notes.length === 1 ? '' : 'es'} into lines: ${list(notes)}.` : 'No text box with printed lines inside it.';
+  if (k === 'signatures') return notes.length ? `Added ${notes.length} signature field${notes.length === 1 ? '' : 's'}: ${list(notes)}.` : 'No printed signature place without a field.';
+  return notes.length ? `${notes.length} text group${notes.length === 1 ? '' : 's'}: ${list(notes)}.` : 'No text groups found.';
+}
+
+function FormTools({ bid }: { bid: string | null }) {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState<ToolK | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, [open]);
+  const run = async (t: typeof TOOLS[number]) => {
+    setOpen(false);
+    if (!bid) return;
+    if (get_mode() !== t.mode) await setMode(t.mode);
+    setBusy(t.k);
+    try {
+      if (t.k === 'finders') { await runFinders(); return; }
+      let out;
+      try { out = await send('POST', mapi('tools', bid, '/' + t.k), {}); }
+      catch (e) { alert((e as Error).message); return; }
+      if (out.entry) updateEntry(out.entry);
+      await loadMode();
+      toast(toolNote(t.k, out));
+    } finally { setBusy(null); }
+  };
+  return (
+    <span className="toolsmenu" id="formTools">
+      <button className="btn" id="hdrFinders" disabled={!bid || !!busy} title="whole-form tools: run finders, split multi-line boxes, add signatures, add text groups"
+        onClick={e => { e.stopPropagation(); setOpen(!open); }}>
+        {busy ? `${TOOLS.find(t => t.k === busy)?.label}…` : 'run finders ▾'}
+      </button>
+      {open && (
+        <span className="menu" onClick={e => e.stopPropagation()}>
+          {TOOLS.map(t => <button key={t.k} className="btn" id={`tool-${t.k}`} title={t.title} onClick={() => run(t)}>{t.label}</button>)}
+        </span>
+      )}
+    </span>
+  );
+}
+
 
 async function toggleIgnored(bid: string, now?: Entry['ignored']) {
   let body;
