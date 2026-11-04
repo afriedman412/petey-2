@@ -294,3 +294,33 @@ class TestPrintedCandidates:
         assert P.name_says("applicant_signature") and P.name_says("witness_printed_nm") and P.name_says("initials")
         assert not P.name_says("signature_dt") and not P.name_says("spouse_middle_initial")
         assert not P.name_says("p2_f24")
+
+
+class TestTuningSet:
+    """`benchmark_key.py --spare` (2026-11-03): the tuning set is the same forms' other pages, never the key's."""
+
+    def test_spare_pages_are_the_ones_the_key_did_not_pick(self):
+        keys = {pg: {"fields": [{}] * n} for pg, n in {1: 40, 2: 12, 3: 55, 4: 9, 5: 30}.items()}
+        assert K.pick_pages(keys) == [3, 1]
+        assert K.pick_pages(keys, spare=True) == [5, 2]            # page 4: under SPARE_MIN fields
+        assert not set(K.pick_pages(keys)) & set(K.pick_pages(keys, spare=True))
+
+    def test_light_runner_reads_and_writes_where_it_is_told(self, tmp_path, monkeypatch):
+        import benchmark_light as BL
+        import flat_light as FL
+        from petey.validate import compound_values as cv
+        key, out = tmp_path / "dev_key", tmp_path / "dev_pred"
+        (key / "pages").mkdir(parents=True)
+        (key / "pages" / "a__p1.pdf").write_bytes(b"")
+        seen = {}
+        bp = {"fields": {"p1_f1": {"type": "string", "x_petey_id": "1",
+                                   "widget": {"page": 1, "rect": [1, 2, 30, 12], "widget_type": "text"},
+                                   "x_petey_geometry": {"source": "finder", "jev_is_field": 0.9}}}}
+        monkeypatch.setattr(FL, "build", lambda pdf, pid, workers: (seen.setdefault("pdf", pdf), (bp, {"tokens": 5,
+                            "finder_boxes": 1, "kept": 1}))[1])
+        monkeypatch.setattr(cv, "find", lambda b: [])
+        r = BL.run_page("a__p1", key, out, keep=True)
+        assert seen["pdf"] == key / "pages" / "a__p1.pdf" and r["tokens"] == 5
+        assert (out / "light" / "a__p1.json").exists() and (out / "light_splits" / "a__p1.json").exists()
+        kept = __import__("json").loads((out / "light_bp" / "a__p1.json").read_text())
+        assert kept["fields"]["p1_f1"]["x_petey_geometry"]["jev_is_field"] == 0.9

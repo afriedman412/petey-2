@@ -29,6 +29,10 @@ combining splits"; not blocks or grids):
 
 What a grouping is (option group, date, address) is not graded (2026-10-30).
 
+Ignored areas (2026-11-03): where the key leaves fields out (petey.validate.ignored_fields: stacked in one open area with
+no printed line between them), a system's boxes lying mostly (`IGNORED_SHARE`) inside those fields' boxes are left
+out too, so no method gains or loses there.
+
     PYTHONPATH=. venv/bin/python eval/benchmark_score.py <predictions dir> [--key runs/benchmark/key] [--iou 0.5]
 """
 from __future__ import annotations
@@ -42,6 +46,7 @@ from typing import Optional
 
 KEY = Path(__file__).resolve().parent.parent / "runs" / "benchmark" / "key"
 IOU = 0.5
+IGNORED_SHARE = 0.5
 
 
 def iou(a, b) -> float:
@@ -119,8 +124,22 @@ def units(page: dict) -> tuple[dict[str, str], dict[str, list], dict[str, str]]:
     return unit, {u: _union(rs) for u, rs in values.items()}, kind
 
 
+def drop_in_ignored(pred: dict, areas: list) -> dict:
+    """The prediction without its boxes lying mostly inside the key's ignored areas (and without them in its groups)."""
+    if not areas:
+        return pred
+    area = lambda r: max(0.0, r[2] - r[0]) * max(0.0, r[3] - r[1])  # noqa: E731
+    cut = lambda r, q: area([max(r[0], q[0]), max(r[1], q[1]), min(r[2], q[2]), min(r[3], q[3])])  # noqa: E731
+    inside = lambda r: area(r) > 0 and sum(cut(r, q) for q in areas) >= IGNORED_SHARE * area(r)  # noqa: E731
+    gone = {f["id"] for f in pred.get("fields") or [] if inside(f["rect"])}
+    if not gone:
+        return pred
+    return {**pred, "fields": [f for f in pred["fields"] if f["id"] not in gone],
+            "groups": [g for g in ([f for f in g if f not in gone] for g in pred.get("groups") or []) if len(g) >= 2]}
+
+
 def score_page(key: dict, pred: Optional[dict], at: float = IOU) -> collections.Counter:
-    pred = pred or {}
+    pred = drop_in_ignored(pred or {}, key.get("ignored") or [])
     c = collections.Counter()
     k_unit, k_vals, k_kind = units(key)
     p_unit, p_vals, p_kind = units(pred)

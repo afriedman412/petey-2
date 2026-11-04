@@ -28,9 +28,16 @@ as STRUCTURE VALIDATED ("accept structure", file unchanged since; 2026-10-31), i
 the benchmark's sets (library, first batch, business, government, municipal, big publishers, hand-picked, finance,
 private);
 at most `PER_FORM` pages a form, those with the most fields, after the pages ignored on the review page are left out
-(petey.validate.ignored_pages, 2026-10-31). Nothing is written to the blueprints.
+(petey.validate.ignored_pages, 2026-10-31). Fields ignored on a chosen page (petey.validate.ignored_fields, 2026-11-03:
+fields stacked in one open area with no printed line between them) leave the key, groups included; their boxes stay
+as the page's `"ignored": [[x0, y0, x1, y1], ...]`, where the scorer leaves a system's boxes out too. The pick is made
+before they are left out, so the pages stay the same. Nothing is written to the blueprints.
 
-    PYTHONPATH=. venv/bin/python eval/benchmark_key.py [--pdfs] [--forms ID ...]
+    PYTHONPATH=. venv/bin/python eval/benchmark_key.py [--pdfs] [--forms ID ...] [--spare]
+
+`--spare` (2026-11-03): the tuning set instead, in the same shape: the same validated forms' OTHER pages (past the
+`PER_FORM` picked for the key) with `SPARE_MIN` fields or more, written to runs/benchmark/dev_key. Andrew: the
+benchmark is for validation only; the light path is tuned on these.
 
 Writes runs/benchmark/key/<page id>.json and index.json; `--pdfs` also writes each page as its own flat PDF with no
 widgets and no metadata (runs/benchmark/key/pages/<page id>.pdf): the system's input.
@@ -46,7 +53,9 @@ from typing import Optional
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "runs" / "benchmark" / "key"
+DEV_OUT = ROOT / "runs" / "benchmark" / "dev_key"
 PER_FORM = 2
+SPARE_MIN = 10
 CHOICE = ("checkbox", "radiobutton")
 
 
@@ -116,6 +125,28 @@ def as_seen(page: dict) -> int:
             f["kind"] = "choice"
             n += 1
     return n
+
+
+def pick_pages(keys: dict[int, dict], spare: bool = False) -> list[int]:
+    """The key's pages of a form: the `PER_FORM` with the most fields (ties: the earlier page). `spare`: the rest, those
+    with `SPARE_MIN` fields or more (the tuning set)."""
+    order = sorted(keys, key=lambda pg: (-len(keys[pg]["fields"]), pg))
+    if not spare:
+        return order[:PER_FORM]
+    return [pg for pg in order[PER_FORM:] if len(keys[pg]["fields"]) >= SPARE_MIN]
+
+
+def drop_ignored(page: dict, ids) -> int:
+    """Leave the ignored fields out of a page's key (petey.validate.ignored_fields): out of its fields and groups (a
+    group left with one field is no group), their boxes kept as `ignored`. How many left."""
+    ids = {str(i) for i in ids}
+    gone = [f for f in page["fields"] if f["id"] in ids]
+    if not gone:
+        return 0
+    page["fields"] = [f for f in page["fields"] if f["id"] not in ids]
+    page["groups"] = [g for g in ([f for f in g if f not in ids] for g in page["groups"]) if len(g) >= 2]
+    page["ignored"] = page.get("ignored", []) + [f["rect"] for f in gone]
+    return len(gone)
 
 
 def page_keys(bp: dict, entities: list[dict] = ()) -> dict[int, dict]:
@@ -192,19 +223,22 @@ def write_page_pdf(blank: Path, page: int, dst: Path) -> list[float]:
 def main() -> int:
     from petey.validate import compound_values as cv
     from petey.validate import hand_review as h
-    from petey.validate import ignored_forms, ignored_pages
+    from petey.validate import ignored_fields, ignored_forms, ignored_pages
     from petey.validate import printed_fields as pf
     from petey.validate.retype import resolve_blank
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--forms", nargs="*", help="review ids (default: every validated form in the sets)")
     ap.add_argument("--pdfs", action="store_true", help="also write each page's flat PDF")
-    ap.add_argument("--out", type=Path, default=OUT)
+    ap.add_argument("--out", type=Path, help="default runs/benchmark/key (--spare: runs/benchmark/dev_key)")
+    ap.add_argument("--spare", action="store_true", help="the tuning set: the other pages of the same forms")
     args = ap.parse_args()
+    args.out = args.out or (DEV_OUT if args.spare else OUT)
     paths = h.blueprint_paths()
     todo = [(b, s) for b, s in candidates() if not args.forms or b in args.forms]
     index, skipped = [], collections.Counter()
     record = pf.load()
     ignored, ignored_f = ignored_pages.load(), ignored_forms.load()
+    ignored_fl = ignored_fields.load()
     proposed = json.loads(pf.CANDIDATES.read_text()) if pf.CANDIDATES.exists() else {}
     unconfirmed = 0
     for bid, sset in todo:
@@ -224,12 +258,13 @@ def main() -> int:
         for pg in [pg for pg in keys if f"{bid}__p{pg}" in ignored]:      # ignored on the review page, before the pick
             del keys[pg]
             skipped["pages ignored"] += 1
-        pages = sorted(keys, key=lambda pg: (-len(keys[pg]["fields"]), pg))[:PER_FORM]
+        pages = pick_pages(keys, args.spare)
         blank = resolve_blank(bp)
         for pg in sorted(pages):
             pid = f"{bid}__p{pg}"
             k = {"page_id": pid, "form": bid, "page": pg, "set": sset, "source_pdf": bp.get("source_pdf"),
                  "size": None, **keys[pg]}
+            skipped["fields ignored"] += drop_ignored(k, ignored_fl.get(pid, {}))
             if pid in proposed and pid not in record:
                 unconfirmed += 1
             if args.pdfs:

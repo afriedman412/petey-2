@@ -8,7 +8,12 @@ groups), handed in two ways:
 Predictions go to runs/benchmark/predictions/<arm>/<page id>.json, a line a page (Jev tokens, seconds) to
 runs/benchmark/predictions/light_log.jsonl; pages already done are skipped.
 
-    PYTHONPATH=. venv/bin/python eval/benchmark_light.py [--limit N] [--procs 4]
+    PYTHONPATH=. venv/bin/python eval/benchmark_light.py [--limit N] [--procs 4] [--key DIR --out DIR] [--keep]
+
+`--key` / `--out` (2026-11-03): another key in the same shape, e.g. the tuning set (runs/benchmark/dev_key, written
+by `benchmark_key.py --spare`) into runs/benchmark/dev_predictions. `--keep`: also each page's whole light-path
+blueprint (<out>/light_bp/<page id>.json: the Jev is-field score of every box, line splits), to look into what the
+light path got wrong and why.
     PYTHONPATH=. venv/bin/python eval/benchmark_score.py runs/benchmark/predictions/light
 """
 from __future__ import annotations
@@ -52,17 +57,20 @@ def to_prediction(bp: dict, splits: list[dict] = ()) -> dict:
     return {"fields": fields, "groups": groups}
 
 
-def run_page(pid: str) -> dict:
+def run_page(pid: str, key: Path = KEY, out: Path = OUT, keep: bool = False) -> dict:
     import flat_light as FL
     from petey.validate import compound_values as cv
-    pdf = KEY / "pages" / f"{pid}.pdf"
+    pdf = key / "pages" / f"{pid}.pdf"
     t0 = time.time()
     bp, info = FL.build(pdf, pid, workers=4)
     bp["source_pdf"] = str(pdf.resolve())               # the split detector reads the page's words from it
     splits = cv.find(bp)
     for arm, pred in (("light", to_prediction(bp)), ("light_splits", to_prediction(bp, splits))):
-        (OUT / arm).mkdir(parents=True, exist_ok=True)
-        (OUT / arm / f"{pid}.json").write_text(json.dumps(pred))
+        (out / arm).mkdir(parents=True, exist_ok=True)
+        (out / arm / f"{pid}.json").write_text(json.dumps(pred))
+    if keep:
+        (out / "light_bp").mkdir(parents=True, exist_ok=True)
+        (out / "light_bp" / f"{pid}.json").write_text(json.dumps(bp, default=str))
     return {"page_id": pid, "tokens": info["tokens"], "seconds": round(time.time() - t0, 1),
             "finder_boxes": info["finder_boxes"], "kept": info["kept"], "splits": len(splits)}
 
@@ -71,18 +79,23 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--limit", type=int)
     ap.add_argument("--procs", type=int, default=4)
+    ap.add_argument("--key", type=Path, default=KEY)
+    ap.add_argument("--out", type=Path, default=OUT)
+    ap.add_argument("--keep", action="store_true", help="also keep each page's light-path blueprint")
     args = ap.parse_args()
+    key, out = args.key, args.out
     from petey.validate.jev_page import PRICE
-    pids = [x["page_id"] for x in json.loads((KEY / "index.json").read_text())]
-    todo = [p for p in pids if not all((OUT / a / f"{p}.json").exists() for a in ARMS)]
+    pids = [x["page_id"] for x in json.loads((key / "index.json").read_text())]
+    todo = [p for p in pids if not all((out / a / f"{p}.json").exists() for a in ARMS)
+            or (args.keep and not (out / "light_bp" / f"{p}.json").exists())]
     before = len(pids) - len(todo)
     todo = todo[:args.limit]
-    log = OUT / "light_log.jsonl"
-    OUT.mkdir(parents=True, exist_ok=True)
+    log = out / "light_log.jsonl"
+    out.mkdir(parents=True, exist_ok=True)
     t0, done, tokens = time.time(), 0, 0
     print(f"{len(todo)} pages to run ({before} done before)", flush=True)
     with cf.ProcessPoolExecutor(args.procs) as ex, log.open("a") as fh:
-        futs = {ex.submit(run_page, p): p for p in todo}
+        futs = {ex.submit(run_page, p, key, out, args.keep): p for p in todo}
         for f in cf.as_completed(futs):
             try:
                 r = f.result()
