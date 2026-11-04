@@ -69,6 +69,12 @@ def test_links_strip_inner_whitespace_and_find_embedded_pdfs():
     assert "https://assets.dps.mn.gov/a/PS2000.pdf" in got
 
 
+def test_links_keep_spaces_inside_a_path():
+    # Kentucky courts (2026-11-03): a space in the folder and the file name is part of the address
+    page = _Page('<a href="/Legal-Forms/Legal Forms/AOC 105.pdf">AOC 105</a>')
+    assert [u for u, _ in M.links(page)] == ["https://dmv.example.gov/Legal-Forms/Legal%20Forms/AOC%20105.pdf"]
+
+
 def test_more_pdf_link_shapes():
     for u in ("https://dor.georgia.gov/document/document/mv-1/download", "https://mva.maryland.gov/media/1234",
               "https://dol.wa.gov/forms/view/420073", "https://www.dmv.ca.gov/portal/form/reg-343/"):
