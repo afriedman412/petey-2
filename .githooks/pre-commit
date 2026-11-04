@@ -1,0 +1,24 @@
+#!/bin/sh
+# Library saves and code never share a commit: a commit that stages files under
+# blueprints/ stages nothing else. Keeps each blueprint's history (its audit
+# trail) free of code changes, and the library splittable into its own repo.
+#
+# Installed by `make hooks`, which points core.hooksPath at .githooks/.
+
+staged=$(git diff --cached --name-only --diff-filter=ACDMRT)
+[ -z "$staged" ] && exit 0
+
+library=$(printf '%s\n' "$staged" | grep -c '^blueprints/')
+other=$(printf '%s\n' "$staged" | grep -vc '^blueprints/')
+
+if [ "$library" -gt 0 ] && [ "$other" -gt 0 ]; then
+	echo >&2
+	echo "pre-commit: blueprints and other files are staged together ($library blueprint, $other other)." >&2
+	echo "  Commit them separately: the library in one commit, everything else in another." >&2
+	echo >&2
+	echo "  Other files staged:" >&2
+	printf '%s\n' "$staged" | grep -v '^blueprints/' | head -10 | sed 's/^/    /' >&2
+	echo >&2
+	exit 1
+fi
+exit 0
