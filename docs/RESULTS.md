@@ -1700,3 +1700,106 @@ little for Petey: journal tables are well covered by other tools, and Indra atte
 The one plausible use is a gate for digital PDFs with a broken text layer (Indra's checks, its OCR as the fallback);
 how many of the 1,381 corpus PDFs have one was not measured. The benchmark runs lived in the session scratchpad and
 are gone; the prototype and its commits stay on `page-reader-prototype` (not pushed).
+
+## A prompted structure reviewer, replayed against Andrew's reviews (2026-11-04, `runs/review_replay/`)
+
+Andrew asked whether a frontier model could take over the manual structure reviews, for development only, not
+production. Before any fine-tuning, this measures how much a prompt alone catches.
+
+**The drafts.** Saving a review deletes the copy from before it (`draft.save`), so each reviewed page was rebuilt:
+the saved blueprint, minus the fields tagged `x_petey_added` source `field_add` (Andrew's additions), plus the
+boxes in `runs/field_add/<id>.json` `removed_applied` that he removed himself (`from` empty, `add` or `review`;
+mechanical-pass and Claude removals left out). That covers 1,116 structure-accepted forms: 1,071 tuning-set pages (255
+with edits) and 1,596 key pages (639 with edits). Not in the rebuilt drafts: bulk removals (dedupes, ignored fields)
+and the finder suggestions he dismissed. Sweep fields he kept are in them.
+
+**The reviewer.** Opus 5, effort high, one call per page (prompt `f6fdc100`, `runs/review_replay/replay.py`). It sees
+the page with every draft box outlined and numbered (`page_check.render`), plus each box's kind and pixel box, with
+no names. It is given the decided rules (`docs/BENCHMARK_JUDGEMENT_QS.md`: everything that could hold information,
+the three kinds, one line with several answers, splits only at printed rules, sign-and-date, combs, circle-one) and
+asked for two things: the boxes that are not fields, and the fields that have no box. A missing field counts as
+found when its box overlaps an addition by half the smaller box or one box's centre lies inside the other. When
+Andrew removed one of two identical boxes, a flag on the other copy counts as the catch.
+
+**Results.** 190 tuning-set pages (150 with edits, 40 without; key pages untouched), $10.54, 6.5 minutes:
+
+| Andrew's edit | raised by the reviewer |
+|---|---|
+| removed a junk box | 274 / 312 (88%) |
+| added a missing field | 201 / 217 (93%) |
+| kept a box (flagged anyway) | 34 / 4,753 (0.7%) |
+| its "missing here" suggestions that match no addition | 43 / 240 |
+| reshaped a box (split into lines, redrew it, re-added it as printed) | 7 / 202 |
+
+26 of the 38 missed removals are on three pages Andrew largely rebuilt (a table on
+[bm__pb_cbfe63aea33e](http://localhost:5005/#review/bm__pb_cbfe63aea33e) p2,
+[bm__mu_c9fc98d3eca6](http://localhost:5005/#review/bm__mu_c9fc98d3eca6) p1-2). Many of the unmatched suggestions are
+signature lines with no field ([lib__nj1040](http://localhost:5005/#review/lib__nj1040) p4,
+[lib__irs_941_x](http://localhost:5005/#review/lib__irs_941_x) p5,
+[lib__cms855b](http://localhost:5005/#review/lib__cms855b) p36): they may be fields missing from the saved
+blueprints, not reviewer errors, and Andrew has not judged them. Reshapes were not a fair test: the prompt says to
+ignore box sizes. Groups, kinds (printed), text-group splits and line splits were not tested.
+
+**Cost.** 0.2 cents a field reviewed (5,150 boxes), 5.5 cents a page on average (median 4.6, 90th percentile 7.9,
+the densest page 21.5), at Opus 5 list price ($5 / $25 per million tokens); most of it is input (1.39M in, 143k
+out). The Batch API halves it. Sonnet 5 (40% of the price) is untried.
+
+**Open (Andrew thinking it over, 2026-11-04).** Judge the 77 false flags (the real false-alarm rate, and perhaps
+misses in saved blueprints); add reshapes, groups and kinds to the prompt and measure each the same way; confirm on
+key pages once the prompt is settled; move the script into `eval/`.
+
+## The light path: CommonForms, a learned screen, what it misses, Jev typing (2026-11-03 / 04)
+
+Tuning set unless said otherwise (runs/benchmark/dev_key, tuning only; the benchmark key is for confirming). Per
+field, the benchmark scorer's match (`eval/benchmark_score.py`). Scratch scripts in session 1ae5d91f's scratchpad
+(`cf/`) unless a repo path is given.
+
+**CommonForms as a check (2026-11-03).** Its page names (`NNNNNNN-P.jpeg`) are CC-MAIN-2021-31 corpus files, and its
+labels are those PDFs' widgets exactly; `bm__sd_<n>` ids are corpus URL ids (map through
+runs/acquisition/safedocs/fetched*.jsonl). The paper reports no deduplication, no per-host caps and no leakage check;
+the split is by document only. Sample: one labelled test page per document, English (dictionary-word share >= 0.6),
+text layer, not rotated: 1,000 pages, 30,443 fields (runs/benchmark/cf_key; predictions runs/benchmark/cf_predictions).
+
+| | fields found P / R / F1 | mAP50-95 text / choice / signature |
+|---|---|---|
+| light path | 83.1 / 81.3 / 82.2 | 33.5 / 26.1 / 0 |
+| FFDNet-L | 93.1 / 92.1 / 92.6 | 71.5 / 63.7 / 3.0 (paper 71.4 / 78.1 / 93.5) |
+
+FFDNet finds 208 of 232 signature lines but types them text; on CommonForms' own images (120 pages) it does worse, so
+the gap to the paper is not the rendering. The light path's mAP is mostly box edges (AP50 61 / 65): not worth quoting.
+FFDNet was trained on 198 of the 323 corpus pages in our key; its F1 there 93.7 vs 91.4 on unseen ones (light 87.1 vs
+85.4): about half a point of the gap.
+
+**A learned is-field screen (2026-11-04, branch `light-screen`, `eval/field_screen.py`, not wired).** Gradient-boosted
+trees on every kept light box (Jev's score, size and shape, the words in and around it, rules and cells, neighbouring
+boxes), leave-one-domain-out (runs/benchmark/domains.json), on the 925-page tuning set: fields found F1 84.8 -> 87.3
+(P 81.2 -> 88.0, R 88.7 -> 86.6); a stricter Jev cut alone 84.7. Gain in 15 of 17 domains (employment -0.8,
+transport -0.2). Without the in-box text it ranks as well (not a number rule). Needs scikit-learn; a numpy port is
+open. It keeps code + Jev and adds a second pass after them (Andrew's 2026-11-04 objection was to replacing Jev).
+
+**What the light path misses and why it overshoots (2026-11-04, 1,071 pages, 33,206 key fields; Jev's answers from
+its cache only).** Missed 3,616 (10.9%): the finder proposed no box 2,034 (56%: text lines and cells 829, small
+checkboxes 404, larger choice boxes 330, short text 331, tall areas 140), Jev screened a real box out 1,293 (36%; most
+of them scored 0.4-0.6), one kept box over several fields 285 (8%, courts and tax), lost later 4. The worst 10% of
+pages hold 58% of the misses (lib__ca_courts_fl_160 p1 146, lib__f990pf p11 114, lib__f990 p3 / p4). The finder
+proposes 44,647 boxes, 14,145 of them junk (32%); Jev keeps 95.8% of the real ones and 39.4% of the junk (5,571
+through), ranking real above junk 90% of the time. The junk it passes is often confident (0.6-0.7: 1,539, 0.7-0.8:
+1,619, 0.8-0.9: 1,373, 0.9+: 1,040), so no cut fixes it (0.7 drops 1,539 junk for 1,386 real): fewer junk candidates
+or a better judge. Shown on the review page since 2026-11-04 (`eval/light_misses.py` ->
+runs/benchmark/dev_analysis/light_misses.json; the show bar's "light misses" / "light junk", the home filter
+"light-path misses"); rebuild the file after every tuning-set rebuild or light run.
+
+**Jev typing (2026-11-04, $0.75 for 27,651 boxes, 3 cents a thousand).** Every matched light box on 995 tuning pages
+(the saved blueprints, the finder's kinds), the type model out of fold (five folds by form; reproduces its 487),
+Jev asked "a checkbox or radio, or a place to write?" on the numbered page. Wrong: the finder's shape rule 669, the
+type model 487, Jev alone 641 (best cut 0.4). Jev is right on 374 of the model's 487 errors and wrong on 555 of its
+27,164 right calls; 113 fool both. Jev only where the model is unsure (0.1-0.98, 1,895 boxes): 338 wrong; a blend
+picked on other forms: 339 (-30%). By where the errors sit: text-group parts (628 boxes, 2.3%) finder 137 -> model 46
+-> with Jev 11; other fields 532 -> 441 -> 327. Typed right on the tuning set about 98.2 -> 98.8; the benchmark gain is
+not measured. Not wired.
+
+**Also 2026-11-04.** Tables and blocks off in the light path (`flat_light.STRUCTURE = False`, every field p1_f12 /
+p1_o2; nothing downstream reads place names); the line-split question with every field drawn committed (it was what
+every light run since 2026-11-03 used); the letter-O radio rule and the mark classifier scrapped (Andrew: "too much
+work for a specific form's problems"; old and new add-on rules gave the same 10,804 boxes on 300 pages, so no number
+moved).

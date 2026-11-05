@@ -365,6 +365,11 @@ doubles, so it is a re-calibration plus a slower screen: the local type model fi
 Why not a VLM: exact geometry from the page, reproducible and inspectable structure, the house definitions learned
 from the S forms; a VLM judges candidates (Jev's role), it does not replace the finder.
 
+**The Jev kind question, measured (2026-11-04 late, another session; `docs/RESULTS.md`, the light path section).**
+Alone Jev types worse than the type model (641 wrong vs 487 of 27,651), but it is right on 374 of the model's
+errors: asked only where the model is unsure, 338 wrong (-30%). Speed is no objection (Andrew: a blueprint is
+made once). Not wired; Andrew deciding.
+
 **TYPE MODEL trained + wired (uncommitted).** `petey/validate/type_model.py` (choice vs text over the kept boxes:
 size and shape, the finder's own kind, same-size company in the row and the column, a word right beside / before /
 over / under, separators and part labels, 100 learned beside-words) + `eval/type_train.py`. Tuning set: 27,651 matched

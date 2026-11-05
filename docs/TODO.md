@@ -13,6 +13,13 @@ In `docs/BENCHMARK_JUDGEMENT_QS.md` (2026-10-27): what a block is, what a grid i
 holding several fields, fields with no widget, combs, anchoring, near-duplicates, novelty, the forms that failed the
 cut. Scoring: `docs/BENCHMARK_SCORING.md`.
 
+## Prompted structure reviewer (2026-11-04, Andrew deciding)
+
+Replay of Andrew's structure reviews with Opus 5 and a prompt, no fine-tune: 88% of his removals and 93% of his
+additions raised, 0.7% of kept boxes flagged, 0.2 cents a field (`docs/RESULTS.md`, last section;
+`runs/review_replay/`). Possible next steps: judge the 77 false flags, add reshapes / groups / kinds to the prompt,
+confirm on key pages, move the script into `eval/`.
+
 ## Structure errors: collect, then one design (2026-10-27, Andrew: "lets start accumulating these errors and fixes and see if we can't do something more cohesive when we have them all")
 
 The cases found while reviewing the benchmark forms (option groups, grids, blocks) go into `docs/STRUCTURE_ERRORS.md`,
@@ -110,6 +117,20 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields before it
   four party blocks repeating the same on-states; the labeler kept only the first block (the rest added by hand
   2026-10-07). Page 3 `BOLType1` / `BOLType2` (4 boxes each) still missing. Fix: when one field name repeats the same
   on-states in separate blocks, one group per block.
+
+## Light path: open calls (2026-11-04, numbers in `docs/RESULTS.md`, the light path section)
+
+- **Jev typing:** wire it in where the type model is unsure (typed-right errors 487 -> about 338 on the tuning set),
+  confirmed once on the benchmark; or leave it. Andrew deciding.
+- **The learned screen** (branch `light-screen`): port to numpy and wire it after the Jev screen, or leave it.
+- **The finder's misses** (2,034 key fields with no box): picture sheets by kind, then candidates where they pay.
+- **Score the publisher widgets** as a method on the benchmark (how wrong widgets are; a floor, since the key started
+  from them). Next.
+- **Domain tags** for the newer forms: 7,506 tuning-set key fields are untagged.
+- **Retraining the type model:** `eval/type_train.py` reads the light results' kinds as the finder's, but `--derive`
+  now writes the type model's own kinds there, so a retrain would learn from its own answers. Read the finder's kinds
+  from the saved blueprints (`light_bp`, as the Jev typing test did) first. 76 of the newest tuning pages were run
+  without saved blueprints.
 
 ## Later (parked by Andrew)
 
