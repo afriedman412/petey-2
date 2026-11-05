@@ -158,10 +158,23 @@ def test_two_groups_in_one_block_copy_both_kept(tmp_path, monkeypatch):
     monkeypatch.setattr(FL, "groups", lambda raw, stub, workers, preset=(): ([{"f0", "f1"}, {"f2", "f3"}], 0))
     block = {"cells": [{"id": i, "block": 0, "slot": i} for i in range(4)]}
     monkeypatch.setattr(FL.S, "find", lambda raw, entries: {1: {"tables": [], "blocks": [block]}})
-    bp, _ = FL.build(pdf, "t", boxes=boxes)
+    bp, _ = FL.build(pdf, "t", boxes=boxes, structure=True)
     got = {n: sorted(w["rect"][1] for w in s["widgets"].values()) for n, s in bp["fields"].items()}
     assert sum(len(s["widgets"]) for s in bp["fields"].values()) == 4
     assert sorted(got.values()) == [[100, 100], [130, 130]] and "p1_b1_c1" in got
+
+
+def test_tables_and_blocks_off_by_default(tmp_path, monkeypatch):
+    # Andrew, 2026-11-04: "let's deactivate tables and blocks -- we aren't using them right now"
+    pdf = tmp_path / "blank.pdf"
+    doc = pymupdf.open()
+    doc.new_page(width=612, height=792)
+    doc.save(str(pdf))
+    boxes = [{"id": str(i), "page": 1, "rect": [100, 100 + 30 * i, 300, 112 + 30 * i], "kind": "text"} for i in range(2)]
+    monkeypatch.setattr(FL, "groups", lambda raw, stub, workers, preset=(): ([], 0))
+    monkeypatch.setattr(FL.S, "find", lambda raw, entries: (_ for _ in ()).throw(AssertionError("structure.find ran")))
+    bp, info = FL.build(pdf, "t", boxes=boxes)
+    assert sorted(bp["fields"]) == ["p1_f1", "p1_f2"] and info["tables"] == info["blocks"] == 0
 
 
 def test_retype_uses_the_type_model_on_the_kept_boxes(tmp_path, monkeypatch):

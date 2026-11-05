@@ -66,6 +66,8 @@ BOX_CACHE = None     # a scratch finder cache when a finder_experiment patch is 
 OUT = RUNS / "flat" / "blueprints"
 MARK = {"checkbox", "radio"}
 PATCH = None         # the finder_experiment patch the boxes were found under
+STRUCTURE = False    # tables and repeated blocks (step 4) found and named by; off (Andrew, 2026-11-04: "let's
+                     # deactivate tables and blocks -- we aren't using them right now"): every field p1_f12 / p1_o2
 
 
 def _ask_all(jobs: list, workers: int) -> tuple[dict, int]:
@@ -313,13 +315,15 @@ def _mark_printed(raw: Path, bp: dict) -> int:
 
 
 def build(raw: Path, form_id: str, *, workers: int = 6, boxes: list[dict] | None = None,
-          preset_groups: list[set[str]] = (), split_jev: bool = True) -> tuple[dict, dict]:
+          preset_groups: list[set[str]] = (), split_jev: bool = True,
+          structure: bool | None = None) -> tuple[dict, dict]:
     """(blueprint, info) for the raw PDF. `boxes` given (a fillable PDF's own widgets, for an answer-key starting point;
     2026-10-26) skips the finder, the screen and the line splits; `preset_groups` (stub names f<id>) are kept as groups.
     `split_jev` False: lines are cut at column rules only, no Jev call for captioned lines. The kept boxes are typed
     by the type model (`type_model`, choice / text) when it is fitted; text fields whose own caption says sign /
     signature / initials are tagged printed (`printed_caption`); split values (dates, phones, ID numbers) are tagged
-    as Split Fields (`_tag_splits`, 2026-11-04)."""
+    as Split Fields (`_tag_splits`, 2026-11-04). `structure` (default `STRUCTURE`, off): find tables and blocks and
+    name their fields by place."""
     t0 = time.time()
     given = boxes is not None
     if not given:
@@ -342,7 +346,7 @@ def build(raw: Path, form_id: str, *, workers: int = 6, boxes: list[dict] | None
     t_groups = time.time() - t0 - t_find - t_screen - t_split
     entries = [{"id": int(b["id"]), "page": b["page"], "rect": b["rect"], "path": None,
                 "widget_type": stub["fields"][f"f{b['id']}"]["widget"]["widget_type"]} for b in kept]
-    struct = S.find(raw, entries)
+    struct = S.find(raw, entries) if (STRUCTURE if structure is None else structure) else {}
     # each kept box's place: ("g", page, table k, row, col) or ("b", page, block k, copy, slot)
     place: dict[str, tuple] = {}
     for page, st in struct.items():
@@ -423,7 +427,8 @@ def build(raw: Path, form_id: str, *, workers: int = 6, boxes: list[dict] | None
                         "screen": {"model": MODEL, "keep": KEEP}, "groups": "yes_no + cell_groups + Jev joins, repeated answers split",
                         "line_splits": None if given else {"column_rules": True, "captions": (
                             {"model": MODEL, "keep": line_split.JEV_SPLIT} if split_jev else None)},
-                        "names": "position", "when": time.strftime("%Y-%m-%d %H:%M:%S")},
+                        "names": "position", "tables_blocks": bool(struct),
+                        "when": time.strftime("%Y-%m-%d %H:%M:%S")},
           "fields": fields}
     printed = _mark_printed(raw, bp)              # Part A (2026-11-04): hand-written fields by their own captions
     n_splits = _tag_splits(raw, bp)               # Part B (2026-11-04): split values as Split Field tags
