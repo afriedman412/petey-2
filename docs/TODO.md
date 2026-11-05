@@ -2,54 +2,16 @@
 
 Edited in place; the history is `git log --follow -- docs/TODO.md`. Priorities are Andrew's; the ordering is a
 proposal. Numbers and context: `docs/RESULTS.md`, `petey/validate/defect_taxonomy.py`; terms: `docs/GLOSSARY.md`.
-Done items are removed, not kept (cleaned 2026-11-01: everything built, decided or validated since came out).
+Done items are removed, not kept (cleaned 2026-11-01 and 2026-11-04: everything built, decided or validated since
+came out; on 2026-11-04 the printed-metadata check (printed is signatures and initials only, the sheet retired for the
+S), lines of one answer (`_line_N` fields split at printed rules, the "split multi-line boxes" tool) and the
+ca_courts_dv_110 re-save, validated 2026-11-02).
 
 ## Flat-structure benchmark: open judgement calls
 
 In `docs/BENCHMARK_JUDGEMENT_QS.md` (2026-10-27): what a block is, what a grid is (grids by geometry), one line
 holding several fields, fields with no widget, combs, anchoring, near-duplicates, novelty, the forms that failed the
 cut. Scoring: `docs/BENCHMARK_SCORING.md`.
-
-## Printed fields: check them against the publisher's widgets (2026-10-31, Andrew: "a key indicator of what is supposed to be printed and what isn't is metadata (or lack thereof) ... I can't tell whether the title/date etc fields that are next to signature fields are understood to be handwritten")
-
-The idea: where the publisher left no widget, the answer was meant to be handwritten; where they made a text widget, it
-was meant to be typed. Read-only check (2026-10-31, the 1,097 key pages, text fields against the fillable original):
-
-- 1,010 pages have a fillable original; 87 (54 municipal) were flat from the start and carry no metadata.
-
-- Signature widget: 192 fields, all already candidates. A sure sign.
-
-- No widget: 153 fields on 43 pages, 126 of them not candidates. They include the cases captions can't call: notary
-  entries ("day of", "commission expires"), "/ DATE" and "(SEAL) DATE" beside signatures, an "X" signature line. Noise:
-  office-use boxes ("CT DMV USE") and YES / NO answer boxes.
-
-- Text widget: 674 candidates, 282 captioned as signatures (il1040 paid preparer's signature, form10 witness
-  signature). A widget does not rule out a signature.
-
-- On the one page confirmed then (bm__pb_0048f3cb5dda p2) Andrew marked all 7 no-widget fields printed, plus two
-  signature lines that have text widgets (58, 59).
-
-Bug found: `eval/benchmark_printed.py`'s `originals()` maps the business set by its old fl__sd_* ids; those blueprints
-are bm__sd_* now, so its 254 pages were drafted without the widget signal.
-
-Proposed, not built (waiting on Andrew's go):
-
-1. Fix the business-set mapping and redraft the candidates (pages already confirmed keep their answers).
-
-2. "No widget" as a fourth candidate signal: every text field on a fillable original with no widget behind it
-   (~126 more, ~40 pages).
-
-3. The printed sheet shows each field's metadata: solid outline where the publisher made a widget, dashed where none,
-   a mark on signature widgets.
-
-4. A "disagrees with metadata" filter on the sheet, to double-check confirmed pages: printed fields with a text
-   widget and no sign words in the caption; text fields the publisher left without a widget. On the confirmed page it
-   would list 59.
-
-Rule to decide with it: signatures and initials printed whatever the widget; a title, date or printed name beside a
-signature printed when the publisher left it without a widget, text when they made it fillable; on the 87 flat pages,
-Andrew's judgment. The printed tag lives on the field (`x_petey_printed`, `petey/validate/printed_fields.py`), so the
-filter reads the blueprints.
 
 ## Structure errors: collect, then one design (2026-10-27, Andrew: "lets start accumulating these errors and fixes and see if we can't do something more cohesive when we have them all")
 
@@ -90,16 +52,6 @@ text field, and so its kind and its partners (the four purposes one group?); the
 Add / remove's click (`field_add.enclosed_box` proposes nothing on an open underline) or both. Related: "fields with
 no widget" in `docs/BENCHMARK_JUDGEMENT_QS.md`.
 
-## Lines of one answer (2026-10-21, Andrew; part of the associations idea)
-
-Boxes stacked one per printed line that hold one answer (a paragraph over numbered lines, `summary_txt_1` .. `_6`; an
-address written over two or three lines) found and proposed together without dragging them by hand. Decided
-2026-10-28: nothing merges; text groups keep each field and tag it (`group_review.ENTITY_KEY`), "lets keep everything
-separate. (we want them to be as auditable as possible!)". A text group is "sequential fields on a single line that
-can be combined logically", so lines of one answer are not one ("that can be something else"); what they are instead
-is open. Pieces to build on: `petey/validate/associate.py`'s `lines` kind (read from the names, on copies only),
-`petey/validate/compound_values.py`. Open: detection from the page (same width, stacked, no caption between).
-
 ## Names, captions and kinds (open since 2026-10-10)
 
 The name checks, text-match model and caption chooser are on `main` (PR #3; RESULTS "Name checks, the text-match model
@@ -121,8 +73,6 @@ and the caption chooser").
 - **Group names from their members** (Andrew): Schedule H `opinion` / `no_opinion` / `line4b_yes_no`, ACORD 125
   `additional_interest_1` / `_1_2`, CMS-1500's `amended_return_ind` (over Medicare / Medicaid / ...) need descriptive
   names; derive from the members' common part or the question.
-
-- **Re-save ca_courts_dv_110 grouping** in Groups (records written against an older blueprint), then apply.
 
 - **Shared-prefix trimming** between a field and its rivals (Andrew's idea): judge 'belongs to' on the part of the
   tooltip that differs, so a long shared preamble does not drown 'Hazel' vs 'Green'. Not built.
@@ -162,6 +112,20 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields before it
   on-states in separate blocks, one group per block.
 
 ## Later (parked by Andrew)
+
+- **Tuning set skewed to long forms and a few publishers** (2026-11-04, Andrew: "the training set mostly coming from
+  overflow means it is more homogenous"). The tuning set (what the printed / split / type models train on) is each
+  validated form's pages past the two the key takes, so a 1-2 page form never reaches it. Measured 2026-11-04 (889
+  forms; key 1,478 pages, tuning 995): 1-2 page forms are 461 forms and 43% of the key, 0% of the tuning set; 6+
+  page forms are 23% of the key and 75% of the tuning set; 317 forms make the whole tuning set, two CMS 855 forms
+  7% of it; top ten publishers 36% of tuning vs 15% of the key (USCIS + CMS 21% vs 3%); immigration 17% vs 4%,
+  health 10% vs 3%, private sector 19% vs 27%. No cost yet: on the key, 1-2 page forms score level with or above the
+  rest (fields F1 86.9 vs 87.2 on 6+ pages; printed F1 72.3 vs 66.7; typed right 98.5 vs 96.6), the models being
+  small. It will matter if the models grow, and the in-sample tuning numbers overstate the key. Fixes in order:
+  (1) weight each form's pages to one unit (or cap at 3-4 pages a form) in the three trainers, key untouched;
+  (2) route by form from now on: every third newly accepted 1-2 page form goes whole to the tuning set, existing
+  picks stay permanent; (3) a one-time move of ~100 short forms (~140 pages) from key to tuning set, which shrinks
+  the key a tenth and breaks the stable-pages rule, only with a stronger reason than today's numbers.
 
 - **Labeling speed** (2026-10-26: "speed is not a huge issue right now, it can wait until later"). Per field
   (measured 2026-10-26): labeling 2.8 s with pages one after another, 0.85-1.1 s with pages at once; a call's

@@ -188,6 +188,12 @@ Proposed, not decided: choice fields presented as options under one prompt (one 
 column or cell with nothing between; each with a short label or none). Boxes that each carry a full sentence stay
 ungrouped; unclear layouts stay ungrouped.
 
+### 19. Pages with little printed guidance (2026-11-04)
+
+Pages that print few labels or rules to say where the fields are and what they hold, so the key rests on judgement.
+Whether such pages stay in, and how strictly their fields are graded. Case:
+[bm__sd_4799464](http://localhost:5005/#review/bm__sd_4799464) (Andrew: "minimal guidance on page").
+
 ## Parked
 
 - **2. Fields with no widget** (2026-10-27): settled in practice by adding them during validation (Decided).

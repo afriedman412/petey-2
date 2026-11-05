@@ -288,6 +288,8 @@ yet). Andrew: "recurring problem is widely spread checkboxes that are all relate
 Groupings wrong some other way, or not yet sorted (2026-10-28, Andrew; not looked into yet).
 
 - [bm__mu_1c4c68a0803f](http://localhost:5005/#review/bm__mu_1c4c68a0803f) page 1: "weird check box grouping".
+- [nov3__pb_366671b867c4](http://localhost:5005/#review/nov3__pb_366671b867c4) page 5 (2026-11-04): "weird checkbox
+  situation".
 - [bm__sd_480300](http://localhost:5005/#review/bm__sd_480300) page 1: "more weird button grouping". The sd_537564
   survey listed its p1_o11 (3 options, a 279 pt gap between neighbours), likely a publisher radio field.
 - [bm__pb_ba4c6e5ff63d](http://localhost:5005/#review/bm__pb_ba4c6e5ff63d) page 1 (2026-10-30): "not sure about the

@@ -381,3 +381,16 @@ test_flat_light.py, test_benchmark_light_derive.py; full suite passes.
 
 Retrain order after a tuning-set rebuild: type_train --paste, printed_train --paste, split_train --paste, then
 --derive on both sets (the type model changes the boxes the other two see).
+
+**COMMITTED eae91e3 (dev, not pushed), 2026-11-04 evening:** the three models + trainers, the taxonomy, the
+own-caption cut, printed_caption, the light path wiring (type model, printed tags, Split Field tags with source
+light_split), one benchmark arm (`light`; light_splits folders removed), --derive, benchmark_key S-only + counted
+kinds (the other session's S rule and its test rode along, entangled in the same files). Committed through a
+private index; the shared index's other uncommitted work untouched.
+
+**Rebuilt 2026-11-04 night under the permanent page pick** (Andrew: "the benchmark pages should be stable between
+builds"; runs/benchmark/picks.json, the `update-key` skill): key 889 -> 956 forms / 1,478 -> 1,596 pages (1,017
+printed, 819 splits), tuning set 317 -> 340 forms / 995 -> 1,071 pages (414 printed, 271 splits); no page left or
+moved, no kept page changed. Light run on the new pages ($0.49), derived; models not retrained. Key: fields found
+86.7, typed 97.4, printed 67.7 / 72.9 / 70.2, splits 73.7 / 47.0, groups 68.6. Tuning set: 85.8, 98.3,
+74.9 / 83.8 / 79.1, splits 89.3 / 69.0, groups 79.3.
