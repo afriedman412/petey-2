@@ -22,11 +22,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from petey.validate import field_identifiers as FI  # noqa: E402
+import petey_dataset as D
 from naming_library_apply import KEY, OTHER_RECORDS, _dump, _load, rewrite  # noqa: E402
 
 from petey import naming  # noqa: E402
 from petey.paths import RUNS  # noqa: E402
-from petey.validate import draft, hand_review as h  # noqa: E402
+from petey.validate import draft  # noqa: E402
 
 OUT = RUNS / "naming_2026-10-26"
 BEFORE = OUT / "before"
@@ -79,13 +80,13 @@ def _archive(src: Path, dst: Path) -> None:
 def apply_form(bid: str, paths: dict, do: bool, given=None) -> tuple[dict, dict]:
     """`given` ({old name: new name}, {old name: parts}): a plan made elsewhere (`reread`), applied the same way."""
     real = paths[bid]
-    work = h.working_path(bid, paths)
+    work = D.working_path(bid, paths)
     has_draft = work != real
     bp = _load(work)
     ren, ids, n = (given[0], given[1], {"renamed": len(given[0]), "parts": len(given[1])}) if given else plan(bid, bp)
     if not do or not ids:
         return n, ren
-    vpath = h.verdict_path(bid)
+    vpath = D.verdict_path(bid)
     _archive(work, BEFORE / f"{bid}.bpt")
     _archive(vpath, RECORDS / vpath.name)
     for d in OTHER_RECORDS:
@@ -93,9 +94,9 @@ def apply_form(bid: str, paths: dict, do: bool, given=None) -> tuple[dict, dict]
     if has_draft:
         _archive(real, RECORDS / "saved_blueprints" / f"{bid}.bpt")
         _archive(draft._dir(bid) / "draft.json", RECORDS / "drafts" / bid / "draft.json")
-    w_sha0 = h._sha(work)
+    w_sha0 = D.sha(work)
     _dump(rewrite(bp, ren, ids), work)
-    w_sha1 = h._sha(work)
+    w_sha1 = D.sha(work)
     if has_draft:                                      # the saved blueprint too, and the copy's starting point
         r_bp = _load(real)
         r_ren, r_ids, _ = ({o: v for o, v in given[0].items() if o in (r_bp.get("fields") or {})},
@@ -187,13 +188,13 @@ def context_plan(bid: str, bp: dict) -> tuple[dict, dict]:
 def main() -> int:
     do = "--do" in sys.argv
     listing = json.loads(Path(sys.argv[1]).read_text())
-    paths = h.blueprint_paths()
+    paths = D.blueprint_paths()
     tot, log = collections.Counter(), {}
     again = "--reread" in sys.argv or "--context" in sys.argv
     for bid in kept_copies(listing):
         if again:
             plan_ = context_plan if "--context" in sys.argv else reread
-            given = plan_(bid, _load(h.working_path(bid, paths)))
+            given = plan_(bid, _load(D.working_path(bid, paths)))
             if not given[0] and not given[1]:
                 continue
             n, ren = apply_form(bid, paths, do, given)

@@ -21,7 +21,8 @@ from dotenv import dotenv_values
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from jev_hand_check import ask, states  # noqa: E402
 
-from petey.validate import hand_review as h, jev_page, witness  # noqa: E402
+from petey.validate import jev_page, witness  # noqa: E402
+import petey_dataset as D
 
 DOUBT = 0.5          # name_fits below this: Jev doubts the name
 
@@ -38,9 +39,9 @@ def main() -> int:
         raise SystemExit("TYPESAFE_API_KEY not in .env")
     jobs, paths = [], {}
     for bid in args.ids:
-        p = h.working_path(bid)
+        p = D.working_path(bid)
         paths[bid] = p
-        bp = h._load(p)
+        bp = D.load(p)
         st = states(p)
         res = witness.witnesses(p)["fields"]
         for name, s in st.items():

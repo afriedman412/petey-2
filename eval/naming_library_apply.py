@@ -23,10 +23,11 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from petey.validate import field_identifiers as FI  # noqa: E402
+import petey_dataset as D
 
 from petey import naming  # noqa: E402
 from petey.paths import RUNS  # noqa: E402
-from petey.validate import draft, hand_review as h  # noqa: E402
+from petey.validate import draft  # noqa: E402
 
 OUT = RUNS / "naming_2026-10-24"
 BEFORE = OUT / "before"
@@ -90,36 +91,36 @@ def _archive(src: Path, dst: Path) -> None:
 
 def apply_form(bid: str, paths: dict) -> dict:
     real = paths[bid]
-    work = h.working_path(bid, paths)
+    work = D.working_path(bid, paths)
     has_draft = work != real
     stem = real.stem
     # the old version kept, openable as old__<form> (what the review page showed: the working copy when open)
     _archive(work, BEFORE / f"{stem}.bpt")
-    vpath = h.verdict_path(bid)
+    vpath = D.verdict_path(bid)
     _archive(vpath, RECORDS / vpath.name)
     for d in OTHER_RECORDS:
         _archive(d / f"{bid}.json", RECORDS / d.name / f"{bid}.json")
     if has_draft:
         _archive(real, RECORDS / "saved_blueprints" / real.name)
         _archive(draft._dir(bid) / "draft.json", RECORDS / "drafts" / bid / "draft.json")
-    if vpath.exists() and not h.verdict_path(f"old__{stem}").exists():     # once: from the record before any rename
+    if vpath.exists() and not D.verdict_path(f"old__{stem}").exists():     # once: from the record before any rename
         old_rec = json.loads((RECORDS / vpath.name).read_text())
         old_rec.update(blueprint=str(BEFORE / f"{stem}.bpt"), form=stem)
-        sha_old = h._sha(BEFORE / f"{stem}.bpt")
-        if old_rec.get("blueprint_sha") == h._sha(work):
+        sha_old = D.sha(BEFORE / f"{stem}.bpt")
+        if old_rec.get("blueprint_sha") == D.sha(work):
             old_rec["blueprint_sha"] = sha_old
         ck = old_rec.get("checked")
-        if isinstance(ck, dict) and ck.get("blueprint_sha") == h._sha(work):
+        if isinstance(ck, dict) and ck.get("blueprint_sha") == D.sha(work):
             ck["blueprint_sha"] = sha_old
         old_rec.pop("promoted_from", None)
-        h.verdict_path(f"old__{stem}").write_text(json.dumps(old_rec, indent=1))
+        D.verdict_path(f"old__{stem}").write_text(json.dumps(old_rec, indent=1))
 
     # the working copy (or the blueprint, when none is open)
-    w_sha0 = h._sha(work)
+    w_sha0 = D.sha(work)
     bp = _load(work)
     ren, ids = plan(bid, bp)
     _dump(rewrite(bp, ren, ids), work)
-    w_sha1 = h._sha(work)
+    w_sha1 = D.sha(work)
     out = {"renamed": len(ren), "identifiers": len(ids), "draft": has_draft}
     if has_draft:                                      # the saved blueprint too, and the copy's starting point
         r_bp = _load(real)
@@ -157,7 +158,7 @@ def apply_form(bid: str, paths: dict) -> dict:
 
 
 def main() -> int:
-    paths = h.blueprint_paths()
+    paths = D.blueprint_paths()
     want = sys.argv[1:] or sorted(b for b in paths if b.startswith("lib__"))
     tot = {"forms": 0, "renamed": 0, "identifiers": 0, "drafts": 0}
     for bid in want:

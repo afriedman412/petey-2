@@ -16,13 +16,13 @@ from petey.validate import field_identifiers as FI  # noqa: E402
 
 from petey import naming  # noqa: E402
 from petey.paths import RUNS  # noqa: E402
-from petey.validate import hand_review as h  # noqa: E402
+import petey_dataset as D  # noqa: E402
 
 OUT = RUNS / "naming_2026-10-24"
 
 
 def plan_form(bid: str, paths: dict) -> dict:
-    bp = h._load(h.working_path(bid, paths))
+    bp = D.load(D.working_path(bid, paths))
     got = FI.read_form(bid, bp)
     renames, flagged, idents = {}, {}, {}
     for name, (ident, flags) in got.items():
@@ -43,7 +43,7 @@ def plan_form(bid: str, paths: dict) -> dict:
 
 
 def main() -> int:
-    paths = h.blueprint_paths()
+    paths = D.blueprint_paths()
     res = {bid: plan_form(bid, paths) for bid in sorted(paths) if bid.startswith("lib__")}
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "library_plan.json").write_text(json.dumps(res, indent=1))

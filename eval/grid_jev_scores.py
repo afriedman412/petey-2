@@ -9,20 +9,21 @@ import time
 
 import yaml
 
-from petey.validate import grid_check as gc, grid_naming as G, hand_review as h
+from petey.validate import grid_check as gc, grid_naming as G
+import petey_dataset as D
 from petey.validate.jev_page import PRICE
 
 
 def main() -> int:
     prefixes = tuple(sys.argv[1:]) or ("bm__", "fl__")
-    paths = h.blueprint_paths()
+    paths = D.blueprint_paths()
     done = gc.jev_scores()
     items = []
     for bid in sorted(paths):
         if not bid.startswith(prefixes):
             continue
         try:
-            bp = yaml.safe_load(open(h.working_path(bid, paths)))
+            bp = yaml.safe_load(open(D.working_path(bid, paths)))
         except Exception:
             continue
         for g in G.grids(bp, blocks=False):

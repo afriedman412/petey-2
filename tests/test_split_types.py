@@ -1,4 +1,4 @@
-"""The split-value taxonomy (petey/validate/split_types.py, Andrew 2026-11-04: "a taxonomy of defined types that can be
+"""The split-value taxonomy (petey_dataset/split_types.py, Andrew 2026-11-04: "a taxonomy of defined types that can be
 added and removed"): one list read by the Groups tab, the detector and the benchmark key; a flag per kind says
 whether it counts as a split value."""
 import sys
@@ -6,7 +6,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "eval"))
 
-from petey.validate import compound_values as cv, group_review, split_types as st   # noqa: E402
+from petey.validate import compound_values as cv, group_review
+from petey_dataset import split_types as st   # noqa: E402
 
 
 def test_dates_phones_and_ids_count():

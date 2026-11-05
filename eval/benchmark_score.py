@@ -29,7 +29,7 @@ combining splits"; not blocks or grids):
 
 What a grouping is (option group, date, address) is not graded (2026-10-30).
 
-Ignored areas (2026-11-03): where the key leaves fields out (petey.validate.ignored_fields: stacked in one open area with
+Ignored areas (2026-11-03): where the key leaves fields out (petey_dataset.ignored_fields: stacked in one open area with
 no printed line between them), a system's boxes lying mostly (`IGNORED_SHARE`) inside those fields' boxes are left
 out too, so no method gains or loses there.
 
@@ -233,7 +233,7 @@ def main() -> int:
     ap.add_argument("--save", type=Path, help="per-page counts as JSON")
     args = ap.parse_args()
     index = json.loads((args.key / "index.json").read_text())
-    from petey.validate import ignored_forms, ignored_pages
+    from petey_dataset import ignored_forms, ignored_pages
     ignored, ignored_f = ignored_pages.load(), ignored_forms.load()
     gone = lambda pid: pid in ignored or ignored_forms.page_form(pid) in ignored_f      # noqa: E731
     if dropped := [x for x in index if gone(x["page_id"])]:   # pages or whole forms ignored since the key was built

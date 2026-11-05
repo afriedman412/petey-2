@@ -39,7 +39,7 @@ import pymupdf
 import yaml
 
 from petey.paths import BLUEPRINTS, REPO
-from petey.validate.hand_review import load_verdicts
+from petey_dataset import load_verdicts
 from petey.validate.retype import resolve_blank
 
 TEXT_BAR = 0.95         # share of the blank's line trigrams found in the PDF

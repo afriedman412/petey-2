@@ -16,16 +16,17 @@ import sys
 import traceback
 
 from petey.paths import RUNS
-from petey.validate import draft, group_review as g, hand_review as h
+from petey.validate import draft, group_review as g
+import petey_dataset as D
 from petey.validate.retype import resolve_blank
 
 
 def run(bid: str, dry: bool) -> dict:
-    real = h.blueprint_paths()[bid]
-    p = h.working_path(bid) if dry else draft.ensure(bid, real)
-    bp = h._load(p)
+    real = D.blueprint_paths()[bid]
+    p = D.working_path(bid) if dry else draft.ensure(bid, real)
+    bp = D.load(p)
     blank = resolve_blank(bp)
-    items, units, _ = g.current_units(bid, bp, h._sha(p))
+    items, units, _ = g.current_units(bid, bp, D.sha(p))
     groups = [u for u in units if len(u["items"]) > 1 and not u.get("locked")]
     changed, locked = 0, 0
     for u in groups:
@@ -43,10 +44,10 @@ def run(bid: str, dry: bool) -> dict:
     if pl["errors"]:                     # a grouping the Groups code will not apply as it stands (SSA-827: a boolean
         out["not_applied"] = pl["errors"]  # field holding 3 options); left for the person, nothing written
         return out
-    before = h._sha(p)
+    before = D.sha(p)
     g.State().put_units(bid, {"units": units})
     res = g.apply(bid)
-    draft.follow(bid, before, h._sha(h.working_path(bid)))
+    draft.follow(bid, before, D.sha(D.working_path(bid)))
     draft.log(bid, "claude", [f"re-read captions: {c}" for c in res["changes"]])
     out["changes"] = res["changes"]
     return out

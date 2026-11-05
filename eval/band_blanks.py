@@ -19,7 +19,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from petey.validate.jev_is_field import cached_boxes  # noqa: E402
 
 from petey.synth import boxes as B  # noqa: E402
-from petey.validate import hand_review as h, page_check as pc  # noqa: E402
+from petey.validate import page_check as pc  # noqa: E402
+import petey_dataset as D
 
 MIN_GAP = 16.0
 
@@ -52,7 +53,7 @@ def band_boxes(pg, min_gap: float = MIN_GAP) -> list[list[float]]:
 def main() -> int:
     T = collections.Counter()
     for bid in sys.argv[1:]:
-        bp = h._load(h.working_path(bid))
+        bp = D.load(D.working_path(bid))
         blank = pc.resolve_blank(bp)
         bx = cached_boxes(blank) if blank else None
         if bx is None:

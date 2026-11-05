@@ -33,7 +33,7 @@ import sys
 import yaml
 
 from petey.paths import RUNS
-from petey.validate import hand_review as h
+import petey_dataset as D
 from petey.validate.standardize_names import SUFFIXES  # noqa: E402
 
 OUT = RUNS / "associations"
@@ -236,10 +236,10 @@ def main() -> int:
                       if args.all_validated else [])
     tot = collections.Counter()
     for bid in ids:
-        p = h.working_path(bid)
+        p = D.working_path(bid)
         if args.standardized:
             p = RUNS / "standardized" / bid / p.name
-        bp = h._load(p)
+        bp = D.load(p)
         assoc = associate(bp)
         bp["x_petey_associations"] = assoc
         out = OUT / (bid + ("__standardized" if args.standardized else "")) / p.name

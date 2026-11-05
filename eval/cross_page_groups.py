@@ -38,7 +38,7 @@ import yes_no_groups  # noqa: E402
 
 from petey.paths import RUNS  # noqa: E402
 from petey.validate import group_review as G  # noqa: E402
-from petey.validate.hand_review import _load, _sha, blueprint_paths, working_path  # noqa: E402
+from petey_dataset import load as _load, sha as _sha, blueprint_paths, working_path  # noqa: E402
 from petey.validate.retype import resolve_blank  # noqa: E402
 
 BACKUP = RUNS / "cross_page_backup_2026-10-31"

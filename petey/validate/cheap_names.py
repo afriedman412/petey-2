@@ -31,7 +31,8 @@ import httpx
 from petey.validate.jev_is_field import cached_boxes, flat_copy  # noqa: E402
 from petey.validate.standardize_names import SUFFIXES, standard  # noqa: E402
 
-from petey.validate import hand_review as h, page_check as pc  # noqa: E402
+from petey.validate import page_check as pc  # noqa: E402
+import petey_dataset as D
 from petey.validate import witness as W  # noqa: E402
 from petey.validate.field_add import clean_caption, name_from  # noqa: E402
 from petey.validate.field_chain import _page_lines  # noqa: E402
@@ -145,7 +146,7 @@ V2 = {"junk": False, "sections": False, "halves": False}      # set from the com
 
 def form_items(bid: str):
     """The fields to name with their candidates, and the requests for Jev."""
-    bp = h._load(h.working_path(bid))
+    bp = D.load(D.working_path(bid))
     blank = pc.resolve_blank(bp)
     lines = _page_lines(str(blank))
     heads = headings(blank)
@@ -222,7 +223,7 @@ def main() -> int:
         V2[k] = True
     listing = json.loads(Path(args.list).read_text()) if args.list else httpx.get("http://127.0.0.1:5005/api/blueprints", timeout=120).json()
     cands = [e["id"] for e in listing if (e.get("checked") or {}).get("validated") and (e.get("pages") or 99) <= args.max_pages
-             and (b := pc.resolve_blank(h._load(h.working_path(e["id"])))) and cached_boxes(b) is not None]
+             and (b := pc.resolve_blank(D.load(D.working_path(e["id"])))) and cached_boxes(b) is not None]
     random.Random(7).shuffle(cands)
     forms = args.forms_list or cands[:args.forms]
     fields, jobs = [], []

@@ -19,7 +19,8 @@ import traceback
 
 import yaml
 
-from petey.validate import draft, hand_review as h, page_check as pc
+from petey.validate import draft, page_check as pc
+import petey_dataset as D
 
 
 def earlier_verdicts(p, bp: dict) -> dict[str, dict]:
@@ -43,8 +44,8 @@ def earlier_verdicts(p, bp: dict) -> dict[str, dict]:
 
 
 def one(bid: str, changed_only: bool) -> str:
-    p = h.working_path(bid)
-    before = h._sha(p)
+    p = D.working_path(bid)
+    before = D.sha(p)
     if not changed_only:
         res = pc.check(p)
     else:
@@ -59,7 +60,7 @@ def one(bid: str, changed_only: bool) -> str:
         res = dict(new, fields={**held, **new["fields"]},
                    pages=sorted({b["page"] for r in pc.numbered(bp) for b in r["boxes"]}))
     pc.save(res, p, stamp=True)
-    draft.follow(bid, before, h._sha(p))
+    draft.follow(bid, before, D.sha(p))
     fl = sum(1 for v in (res.get("fields") or {}).values() if v.get("verdict") == "flag")
     return f"{bid}: {len(res.get('fields') or {})} fields, {fl} flagged, ${res.get('cost_usd', 0):.2f}"
 

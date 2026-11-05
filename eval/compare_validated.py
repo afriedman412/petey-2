@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from simple_names_bench import subject_class  # noqa: E402
 
 from petey.paths import RUNS  # noqa: E402
-from petey.validate import hand_review as h  # noqa: E402
+import petey_dataset as D  # noqa: E402
 
 
 def _key(w: dict):
@@ -65,7 +65,7 @@ def sem(s):
 
 
 def compare(run: str, vid: str, paths: dict) -> dict:
-    val = h._load(h.working_path(vid, paths)).get("fields") or {}
+    val = D.load(D.working_path(vid, paths)).get("fields") or {}
     gen = yaml.safe_load((RUNS / "judge_eval" / "blueprints" / f"{run}.bpt").read_text()).get("fields") or {}
     rec = json.loads((RUNS / "judge_eval" / "form_runs" / f"{run}.json").read_text())
     vb, gb = boxes(val), boxes(gen)
@@ -98,7 +98,7 @@ def pct(a, b):
 
 def main() -> int:
     args = sys.argv[1:]
-    paths = h.blueprint_paths()
+    paths = D.blueprint_paths()
     print("| run | wrong read back (first, last round) | fields and options found / missed / extra | groups same | names exact "
           "| subject ok / different | type ok | semantic dropped or off | round-0 flags |")
     print("|---|---|---|---|---|---|---|---|---|")

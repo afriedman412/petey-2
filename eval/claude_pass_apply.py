@@ -31,8 +31,8 @@ import yaml
 
 from petey.paths import RUNS
 from petey.validate import draft, field_add, field_ids
-from petey.validate.hand_review import (_load, _sha, blueprint_paths, clean_edit, edit_fields, load_verdicts,
-                                        verdict_path, working_path)
+from petey_dataset import load as _load, sha as _sha, blueprint_paths, load_verdicts, verdict_path, working_path
+from petey.validate.edits import clean_edit, edit_fields
 
 PROPOSALS = RUNS / "claude_pass" / "proposals"
 SUGGESTIONS = RUNS / "claude_pass" / "suggestions"

@@ -43,7 +43,8 @@ from urllib.parse import unquote, urlparse
 import pymupdf
 
 from petey import web
-from petey.validate import draft, field_add, group_review, hand_review, ignored_forms, ignored_pages, page_sweeps, printed_fields, run_audit, same_pages
+from petey.validate import draft, field_add, group_review, hand_review, page_sweeps, printed_fields, run_audit, same_pages
+from petey_dataset import ignored_forms, ignored_pages
 from petey.validate.retype import resolve_blank
 
 HTML_PATH = Path(__file__).with_suffix(".html")

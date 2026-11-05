@@ -9,7 +9,7 @@ and removed"). One list, read by everything that names a kind:
 Each kind: its parts in reading order, and whether it `counts` as a split value for the benchmark (Andrew,
 2026-10-30: dates, phones and ID numbers; names, addresses, signature lines, times and money are grouped on the
 review page for other reasons and are not scored). Adding a kind is one entry here; turning one on or off is its flag.
-No imports, so any module may read it.
+No imports, so any module may read it; part of the dataset package (the key builder reads it without petey).
 """
 from __future__ import annotations
 

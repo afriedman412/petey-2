@@ -26,7 +26,8 @@ import pymupdf
 
 from petey.synth import boxes as B
 from petey.synth.classify import classify_form
-from petey.validate import hand_review as h, page_check as pc
+from petey.validate import page_check as pc
+import petey_dataset as D
 from petey.validate.jev_page import LIMITS, MODEL, _key, ask_split, image_ref
 
 QUESTION = ("`page` is one page of a blank form. Candidate boxes are outlined in red, each tagged with its number at "
@@ -64,7 +65,7 @@ def flat_copy(blank: Path) -> Path:
 
 def form_jobs(bid: str):
     """(bid, page, body, imgs, {qid: box}) per request, and the boxes with truth and the classifier's class."""
-    bp = h._load(h.working_path(bid))
+    bp = D.load(D.working_path(bid))
     blank = pc.resolve_blank(bp)
     bx = cached_boxes(blank)
     pages = set(bp.get("source_pages") or [])
@@ -129,7 +130,7 @@ def main() -> int:
     for e in ([{"id": i, "checked": {"validated": True}, "pages": 1} for i in args.forms_list] if args.forms_list else listing):
         if not (e.get("checked") or {}).get("validated") or (e.get("pages") or 99) > args.max_pages:
             continue
-        bp = h._load(h.working_path(e["id"]))
+        bp = D.load(D.working_path(e["id"]))
         blank = pc.resolve_blank(bp)
         if blank and cached_boxes(blank) is not None:
             cands.append(e["id"])

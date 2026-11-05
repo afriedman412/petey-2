@@ -20,7 +20,7 @@ from pathlib import Path
 import yaml
 
 from petey.paths import RUNS
-from petey.validate import hand_review as h
+
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from petey.validate.associate import KINDS, _box  # noqa: E402

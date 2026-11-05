@@ -590,7 +590,7 @@ def record_path(bpt: Path, bp: Optional[dict] = None) -> Path:
     rl / fl): a library blueprint and its side copy of the same name keep separate records, and so does every
     version of one file (2026-10-06: the pre-loop copy and the post-loop blueprint shared a record, the post-loop
     check overwrote the pre-loop verdicts, and a re-run loop from the pre-loop copy lost the page check's flags)."""
-    from petey.validate.hand_review import SOURCES
+    from petey_dataset import SOURCES
     if bp is None:
         bp = yaml.load(bpt.read_text(encoding="utf-8"), Loader=_LOADER) or {}
     rp = bpt.resolve()

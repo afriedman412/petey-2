@@ -60,7 +60,7 @@ from petey.semantic_types import enrich_field, registered_names
 from petey.synth.boxes import CACHE_DIR as BOX_CACHE, FINDER_VERSION, find_boxes, overlap
 from petey.synth.classify import classify_form
 from petey.validate import field_ids, printed_fields
-from petey.validate.hand_review import _load, _sha, blueprint_paths, page_sizes, working_path
+from petey_dataset import load as _load, sha as _sha, blueprint_paths, page_sizes, working_path
 from petey.validate.retype import resolve_blank
 
 OUT = RUNS / "field_add"
@@ -1238,11 +1238,9 @@ def summary() -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--port", type=int, default=5007)
     ap.add_argument("--summary", action="store_true")
     ap.add_argument("--plan", metavar="ID", help="print what --apply would add to this blueprint")
     ap.add_argument("--apply", metavar="ID", help="write the recorded fields into this blueprint")
-    ap.add_argument("--no-open", action="store_true")
     args = ap.parse_args()
     if args.summary:
         summary()
@@ -1263,8 +1261,8 @@ def main() -> int:
         for e in pl["errors"]:
             print(f"  ERROR {e}")
         return 0
-    from petey.validate.blueprint_review import serve
-    return serve(args.port, "add", not args.no_open)
+    print("the review page serves this tab: PYTHONPATH=. venv/bin/python -m petey.validate.blueprint_review")
+    return 2
 
 
 if __name__ == "__main__":

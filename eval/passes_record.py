@@ -16,9 +16,9 @@ import time
 from pathlib import Path
 
 from petey.paths import RUNS
-from petey.validate import hand_review as h
+import petey_dataset as D
 
-PATH = h.OUT / "passes.json"
+PATH = D.HAND_REVIEW / "passes.json"
 STEPS = ["mechanical", "naming", "captions", "page check", "jev"]
 
 
@@ -58,7 +58,7 @@ def backfill() -> dict[str, dict]:
             mech[b] = max(mech.get(b, ""), _date(p))
     caps = set().union(*[_bids(p) for p in (RUNS / "group_review").glob("reread_captions_*.json")])
     jev = set().union(*[_bids(p) for p in (RUNS / "jev").glob("*.json") if not p.name.startswith(("page_", "cheap_", "is_field"))])
-    paths = h.blueprint_paths()
+    paths = D.blueprint_paths()
     for b, day in mech.items():
         if b not in paths or (b in rec and rec[b].get("how") != "backfill"):    # an explicit record wins
             continue
@@ -66,7 +66,7 @@ def backfill() -> dict[str, dict]:
         if b in caps:
             steps.append("captions")
         try:
-            bp = h._load(h.working_path(b, paths))
+            bp = D.load(D.working_path(b, paths))
             if ((bp.get("x_petey_page_check") or {}).get("when") or "")[:10] >= day:
                 steps.append("page check")
         except Exception:

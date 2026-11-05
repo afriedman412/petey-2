@@ -28,8 +28,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from petey.validate import grid_naming as G  # noqa: E402
+import petey_dataset as D
+from petey.validate import hand_review as h
 
-from petey.validate import grid_check as gc, hand_review as h  # noqa: E402
+from petey.validate import grid_check as gc  # noqa: E402
 
 SPELL = {"nm": "name", "nbr": "num", "dt": "date", "amt": "amount", "cd": "code"}
 
@@ -115,7 +117,7 @@ def main() -> int:
     val = [e["id"] for e in st.listing() if (e.get("checked") or {}).get("validated")]
     tally, misses, n_tables = collections.Counter(), [], 0
     for bid in val:
-        bp = h._load(h.working_path(bid))
+        bp = D.load(D.working_path(bid))
         for g in gc.found(bp):
             if not G.on_pattern(g)[0] or len(G.body(g)) < 4:
                 continue

@@ -2,6 +2,7 @@
 found, typed right, grouped, splits combined."""
 import benchmark_key as K
 import benchmark_score as S
+from petey_dataset import blueprints as DB
 
 
 def _page():
@@ -254,7 +255,7 @@ class TestPrintedOnTheBlueprint:
         key = {"form": "bm__x", "page": 1, "fields": [{"id": "1_1", "kind": "text"}, {"id": "1_2", "kind": "text"},
                                                       {"id": "1_3", "kind": "choice"}]}
         (tmp_path / "bm__x__p1.json").write_text(json.dumps(key))
-        monkeypatch.setattr(draft, "DRAFTS", tmp_path / "drafts")
+        monkeypatch.setattr(DB, "DRAFTS", tmp_path / "drafts")
         moved = []
         monkeypatch.setattr(field_ids, "_rehash", lambda bid, old, new: moved.append((bid, old != new)) or [])
         return real, moved

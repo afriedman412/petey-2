@@ -6,6 +6,7 @@ from pathlib import Path
 import yaml
 
 from petey.validate import hand_review as H
+from petey_dataset import verdicts as DV
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "eval"))
 import benchmark_key as bk  # noqa: E402
@@ -15,7 +16,7 @@ def test_only_the_s_puts_a_form_in_the_key(tmp_path, monkeypatch):
     bpt = tmp_path / "form.bpt"
     fields = {"f0": {"type": "string", "widget": {"page": 1, "rect": [0, 0, 50, 8]}}}
     bpt.write_text(yaml.safe_dump({"name": "form", "fields": fields}))
-    monkeypatch.setattr(H, "OUT", tmp_path / "records")
+    monkeypatch.setattr(DV, "OUT", tmp_path / "records")
     monkeypatch.setattr(H, "working_path", lambda bid, paths=None: bpt)
     s = object.__new__(H.State)
     s.paths, s._index = {"t__form": bpt}, {}

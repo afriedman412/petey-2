@@ -31,7 +31,8 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Optional
 
-from petey.validate import hand_review
+import petey_dataset as D
+from petey.validate import edits
 from petey.validate.retype import resolve_blank
 
 MODEL = "claude-opus-5"
@@ -158,7 +159,7 @@ def propose(client, blank: Path, name: str, spec: dict, note: str, tooltip: str,
         out = json.loads(text)
     except json.JSONDecodeError:
         return {"action": "none", "reason": f"no usable answer ({resp.stop_reason})"}
-    if out.get("name") and not hand_review._SLUG.match(out["name"]):
+    if out.get("name") and not edits.SLUG.match(out["name"]):
         out["name"] = ""
     if len(spec.get("widgets") or {}) > 1 and out.get("type") not in ("", None, "category", "multi_category"):
         out["reason"] = f"{out.get('reason') or ''} (type {out['type']} dropped: an option group is category or multi_category)"
@@ -171,13 +172,13 @@ def propose(client, blank: Path, name: str, spec: dict, note: str, tooltip: str,
             d = {**({"key": o["new_key"]} if o.get("new_key") and o["new_key"] != k else {}), "caption": (o.get("caption") or "").strip()}
             opts[k] = d
     try:
-        cleaned = hand_review.clean_edit(name, spec, {"options": opts}) if opts else None
+        cleaned = edits.clean_edit(name, spec, {"options": opts}) if opts else None
         out["options"] = (cleaned or {}).get("options") or {}
     except ValueError as e:
         out["reason"] = f"{out.get('reason') or ''} (options dropped: {e})"
         out["options"] = {}
     try:                                            # keep only what the correction boxes would accept
-        hand_review.clean_edit(name, spec, {k: out.get(k) for k in ("semantic_type", "pattern")})
+        edits.clean_edit(name, spec, {k: out.get(k) for k in ("semantic_type", "pattern")})
     except ValueError as e:
         out["reason"] = f"{out.get('reason') or ''} (dropped: {e})"
         out["semantic_type"] = out["pattern"] = ""
@@ -186,14 +187,14 @@ def propose(client, blank: Path, name: str, spec: dict, note: str, tooltip: str,
 
 def process(bid: str, log=print) -> int:
     """Propose a correction for each flagged-with-a-note field of one reviewed blueprint; returns how many."""
-    p = hand_review.working_path(bid)
+    p = D.working_path(bid)
     if p is None:
         return 0
-    rec = hand_review.load_verdicts(bid)
+    rec = D.load_verdicts(bid)
     names = todo(rec)
     if not names:
         return 0
-    bp = hand_review._load(p)
+    bp = D.load(p)
     blank = resolve_blank(bp)
     if blank is None:
         return 0
@@ -224,13 +225,13 @@ def process(bid: str, log=print) -> int:
     with ThreadPoolExecutor(max_workers=WORKERS) as ex:
         done = {n: a for n, a in zip(names, ex.map(one, names)) if a is not None}
     # merge into the record as it is now (the page may have written since): only the agent's own key
-    with hand_review._VERDICT_LOCK:
-        cur = hand_review.load_verdicts(bid)
+    with D.LOCK:
+        cur = D.load_verdicts(bid)
         for n, a in done.items():
             v = (cur.get("verdicts") or {}).get(n)
             if v and (v.get("note") or "").strip() == a["for_note"]:
                 v["agent"] = a
-        hand_review._write_verdicts(bid, cur)
+        D.write_verdicts(bid, cur)
     return len(done)
 
 
@@ -238,8 +239,8 @@ def propose_field(bid: str, name: str, note: str) -> dict:
     """One field, now, for the review page's "fix captions" button (Andrew, 2026-10-07: the loop notices wrong option
     captions and does not fix them; offer the fix in one click). The page check's full reason for the field joins
     the note. The proposal is returned, not stored: the page puts it in the field's boxes and the person saves."""
-    p = hand_review.working_path(bid)
-    bp = hand_review._load(p) if p else {}
+    p = D.working_path(bid)
+    bp = D.load(p) if p else {}
     spec = (bp.get("fields") or {}).get(name)
     blank = resolve_blank(bp) if bp else None
     if not isinstance(spec, dict) or blank is None:

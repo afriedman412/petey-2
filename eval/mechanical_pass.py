@@ -53,10 +53,13 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cell_groups as cg  # noqa: E402
 from petey.validate import grid_naming  # noqa: E402
+import petey_dataset as D
+from petey.validate import edits
+from petey.validate import hand_review as h
 import yes_no_groups as yn  # noqa: E402
 
 from petey.semantic_types import pattern_for, registered_names  # noqa: E402
-from petey.validate import draft, field_add, group_review as g, hand_review as h, witness  # noqa: E402
+from petey.validate import draft, field_add, group_review as g, witness  # noqa: E402
 from petey.validate import dropdowns as dd  # noqa: E402
 from petey.validate.retype import resolve_blank  # noqa: E402
 
@@ -175,16 +178,16 @@ def remove(bid: str, entries: list[dict]) -> list[str]:
     new = [e for e in entries if e["name"] not in have]
     if not new:
         return []
-    p = draft.ensure(bid, h.blueprint_paths()[bid])
-    rec.update({"blueprint": str(h.blueprint_paths()[bid]), "form": p.stem, "blueprint_sha": h._sha(p),
+    p = draft.ensure(bid, D.blueprint_paths()[bid])
+    rec.update({"blueprint": str(D.blueprint_paths()[bid]), "form": p.stem, "blueprint_sha": D.sha(p),
                 "updated": time.strftime("%Y-%m-%d %H:%M:%S"), "removed": (rec.get("removed") or []) + new})
     field_add.record_path(bid).parent.mkdir(parents=True, exist_ok=True)
     field_add.record_path(bid).write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
-    bp = h._load(p)
+    bp = D.load(p)
     code = {n: f"{p.stem}_{s.get('x_petey_id')}" for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
-    before = h._sha(p)
+    before = D.sha(p)
     pl = field_add.apply(bid) or {}
-    draft.follow(bid, before, h._sha(p))
+    draft.follow(bid, before, D.sha(p))
     draft.log(bid, "add", pl.get("changes") or [])
     note_removed(bid, new, code)
     return pl.get("changes") or []
@@ -262,15 +265,15 @@ def checks(bid: str, p: Path, bp: dict, blank: Path) -> tuple[collections.Counte
 
 
 def run(bid: str, dry: bool) -> dict:
-    real = h.blueprint_paths()[bid]
-    p = h.working_path(bid)
-    bp = h._load(p)
+    real = D.blueprint_paths()[bid]
+    p = D.working_path(bid)
+    bp = D.load(p)
     blank = resolve_blank(bp)
     gone = reserved(bp, blank)
     if not dry and gone:
         remove(bid, gone)
-        p = h.working_path(bid)
-        bp = h._load(p)
+        p = D.working_path(bid)
+        bp = D.load(p)
     edits, extra = type_edits(bp.get("fields") or {})
     pairs = yn.pairs(bp, blank) if blank else []
     rows = cg.proposals(bp, blank, {i for _, y, n in pairs for i in (y, n)}) if blank else []
@@ -283,20 +286,20 @@ def run(bid: str, dry: bool) -> dict:
                                                   and (sp.get("widget") or {}).get("widget_type") in dd.KINDS)})
     if not dry and edits:
         p = draft.ensure(bid, real)
-        bp = h._load(p)
-        clean = {n: e for n, e in ((n, h.clean_edit(n, bp["fields"][n], e)) for n, e in edits.items()) if e}
-        before = h._sha(p)
-        bp["fields"] = h.edit_fields(bp["fields"], clean, {n: n for n in clean}, time.strftime("%Y-%m-%d %H:%M:%S"),
+        bp = D.load(p)
+        clean = {n: e for n, e in ((n, edits.clean_edit(n, bp["fields"][n], e)) for n, e in edits.items()) if e}
+        before = D.sha(p)
+        bp["fields"] = edits.edit_fields(bp["fields"], clean, {n: n for n in clean}, time.strftime("%Y-%m-%d %H:%M:%S"),
                                      "eval/mechanical_pass.py", by="claude", extra=extra)
         p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False), encoding="utf-8")
-        draft.follow(bid, before, h._sha(p))
+        draft.follow(bid, before, D.sha(p))
         draft.log(bid, "claude", [f"{n}: {extra[n]['why']}" for n in clean])
     if not dry and (pairs or rows):
         yn.run(bid, False, rows)
     if not dry and fixed["dropdowns"]:
         dd.options_into_working(bid)
-    p = h.working_path(bid)
-    c, lines = checks(bid, p, h._load(p), blank) if blank else (collections.Counter(), ["no blank"])
+    p = D.working_path(bid)
+    c, lines = checks(bid, p, D.load(p), blank) if blank else (collections.Counter(), ["no blank"])
     lines = [f"reserved      {e['name']}: {e['why']}" for e in gone] + lines
     return {"bid": bid, "fixed": dict(fixed), "checks": dict(c), "lines": lines}
 

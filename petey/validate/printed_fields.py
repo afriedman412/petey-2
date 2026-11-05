@@ -30,34 +30,16 @@ from typing import Callable, Optional
 
 import yaml
 
-ROOT = Path(__file__).resolve().parents[2]
-BENCH = ROOT / "runs" / "benchmark"
-RECORD = BENCH / "field_types.json"
-CANDIDATES = BENCH / "printed" / "candidates.json"
-KEY = BENCH / "key"
+import petey_dataset as D
+from petey_dataset import BENCHMARK as BENCH, KEY  # noqa: F401
+from petey_dataset.blueprints import (CHOICE, FIELD_TYPES as RECORD, PRINTED_CANDIDATES as CANDIDATES,  # noqa: F401
+                                      PRINTED_TAG as TAG, is_printed, is_text, printed_record as load)
 HTML_PATH = Path(__file__).with_name("printed_fields.html")
-TAG = "x_petey_printed"
-CHOICE = {"checkbox", "radio", "radiobutton", "combobox", "listbox"}
 _LOCK = threading.Lock()
 
 
 def _now() -> str:
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-
-def is_text(spec: dict) -> bool:
-    """A field the benchmark counts as text: one box, not a choice."""
-    w = spec.get("widget") if isinstance(spec, dict) else None
-    return bool(w) and not spec.get("widgets") and w.get("widget_type") not in CHOICE and spec.get("type") != "boolean"
-
-
-def is_printed(spec: dict) -> bool:
-    return isinstance(spec, dict) and bool(spec.get(TAG)) and is_text(spec)
-
-
-def load(record: Optional[Path] = None) -> dict:
-    record = record or RECORD
-    return json.loads(record.read_text()) if record.exists() else {}
 
 
 def _dump(bp: dict) -> str:
@@ -68,25 +50,24 @@ def write(bid: str, edit: Callable[[dict], list[str]], mode: str, real: Optional
     """Apply `edit` (changes the blueprint dict, returns change lines) to the form: in its working copy when one is
     open or `mode` is "review" (the page's edits always go there), else in the blueprint, its records following."""
     from petey.validate import draft, field_ids
-    from petey.validate import hand_review as h
-    real = real or h.blueprint_paths()[bid]
+    real = real or D.blueprint_paths()[bid]
     if mode in ("review", "add") or draft.meta(bid) is not None:
-        bp = h._load(h.working_path(bid, {bid: real}))
+        bp = D.load(D.working_path(bid, {bid: real}))
         if not edit(bp):                                    # nothing to change: no copy opened for it
             return []
         p = draft.ensure(bid, real)
-        before = h._sha(p)
-        bp = h._load(p)
+        before = D.sha(p)
+        bp = D.load(p)
         lines = edit(bp)
         p.write_text(_dump(bp), encoding="utf-8")
-        draft.follow(bid, before, h._sha(p))
+        draft.follow(bid, before, D.sha(p))
         draft.log(bid, mode, lines)
         return lines
-    old, bp = h._sha(real), h._load(real)
+    old, bp = D.sha(real), D.load(real)
     lines = edit(bp)
     if lines:
         real.write_text(_dump(bp), encoding="utf-8")
-        field_ids._rehash(bid, old, h._sha(real))
+        field_ids._rehash(bid, old, D.sha(real))
     return lines
 
 
@@ -129,9 +110,8 @@ def set_page(bid: str, page: int, printed: set, real: Optional[Path] = None) -> 
 
 def printed_on(bid: str, page: int, real: Optional[Path] = None) -> list[str]:
     """The codes of the page's printed fields, as the review page reads the form (its working copy if open)."""
-    from petey.validate import hand_review as h
-    p = h.working_path(bid, {bid: real}) if real else h.working_path(bid)
-    bp = h._load(p)
+    p = D.working_path(bid, {bid: real}) if real else D.working_path(bid)
+    bp = D.load(p)
     return sorted(str(s.get("x_petey_id", n)) for n, s in (bp.get("fields") or {}).items()
                   if is_printed(s) and int(s["widget"].get("page") or 0) == page)
 

@@ -17,7 +17,7 @@ import sys
 import pymupdf
 
 from petey.validate import draft, group_review as g
-from petey.validate.hand_review import _load, _sha, blueprint_paths, working_path
+from petey_dataset import load as _load, sha as _sha, blueprint_paths, working_path
 from petey.validate.retype import resolve_blank
 
 YES = re.compile(r"^\s*yes\b", re.I)

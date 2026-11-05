@@ -16,8 +16,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from petey.validate import grid_naming as G  # noqa: E402
+import petey_dataset as D
 
-from petey.validate import hand_review as h, page_check as pc  # noqa: E402
+from petey.validate import page_check as pc  # noqa: E402
 from petey.validate.field_chain import _page_lines  # noqa: E402
 
 REWORD = {"nm": "name", "name": "nm", "amt": "amount", "dt": "date", "nbr": "number", "txt": "text", "cd": "code"}
@@ -84,7 +85,7 @@ def main() -> int:
         if not (e.get("checked") or {}).get("validated"):
             continue
         try:
-            bp = h._load(h.working_path(e["id"]))
+            bp = D.load(D.working_path(e["id"]))
             lines = _page_lines(str(pc.resolve_blank(bp)))
         except Exception:
             continue

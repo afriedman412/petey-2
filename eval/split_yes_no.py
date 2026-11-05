@@ -21,7 +21,8 @@ import time
 import pymupdf
 import yaml
 
-from petey.validate import draft, hand_review as h
+from petey.validate import draft
+import petey_dataset as D
 from petey.validate.retype import resolve_blank
 
 
@@ -73,8 +74,8 @@ def main() -> int:
     ap.add_argument("--also", nargs="*", default=[], help="fields to split though the layout test misses them")
     ap.add_argument("--dry", action="store_true")
     args = ap.parse_args()
-    p = h.working_path(args.bid) if args.dry else draft.ensure(args.bid, h.blueprint_paths()[args.bid])
-    bp = h._load(p)
+    p = D.working_path(args.bid) if args.dry else draft.ensure(args.bid, D.blueprint_paths()[args.bid])
+    bp = D.load(p)
     names = candidates(bp, resolve_blank(bp), set(args.also))
     now = time.strftime("%Y-%m-%d %H:%M:%S")
     fields, ren = {}, {}
@@ -93,11 +94,11 @@ def main() -> int:
     print(f"{args.bid}: {len(ren)} split")
     if args.dry or not ren:
         return 0
-    before = h._sha(p)
+    before = D.sha(p)
     bp["fields"] = fields
     p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False), encoding="utf-8")
-    draft.follow(args.bid, before, h._sha(p))
-    vp = h.verdict_path(args.bid)
+    draft.follow(args.bid, before, D.sha(p))
+    vp = D.verdict_path(args.bid)
     if vp.exists():
         rec = json.loads(vp.read_text())
         vs = rec.get("verdicts") or {}

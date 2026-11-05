@@ -47,8 +47,9 @@ import yaml
 
 from petey.paths import RUNS
 from petey.label.captions import text_rects
-from petey.validate import field_ids, split_types
-from petey.validate.hand_review import _load, _sha, blueprint_paths, page_sizes, working_path
+from petey.validate import field_ids
+from petey_dataset import split_types
+from petey_dataset import load as _load, sha as _sha, blueprint_paths, page_sizes, working_path
 from petey.validate.retype import resolve_blank
 
 OUT = RUNS / "group_review"
@@ -62,7 +63,7 @@ NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_]*$")     # spec 5.2 allows digits anywh
 # written into its fields' `ENTITY_KEY` tags. One ID number for SSN, EIN, ITIN (2026-10-28: "just say 'ID value' and not
 # worry about what type it is"): only the grouping of the digits differs, and the page shows that
 ENTITY_KEY = "x_petey_entity"
-ENTITY_TYPES = split_types.names()      # the taxonomy, petey/validate/split_types.py (2026-11-04)
+ENTITY_TYPES = split_types.names()      # the taxonomy, petey_dataset/split_types.py (2026-11-04)
 # full_address: the whole address on one line ("full address is when the whole address is on one line"); address lines
 # 1 and 2 when it is over two. No "contact info" (several values about one party: a block's job, and its phone would
 # be no phone entity, a field being in one entity only)
@@ -1014,13 +1015,11 @@ def summary() -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--port", type=int, default=5006)
     ap.add_argument("--summary", action="store_true")
     ap.add_argument("--plan", metavar="ID", help="print what --apply would change for this blueprint id")
     ap.add_argument("--apply", metavar="ID", help="write the recorded grouping into this blueprint")
     ap.add_argument("--no-page-captions", action="store_true",
                     help="do not read captions from the page for options that have none (they stay uncaptioned)")
-    ap.add_argument("--no-open", action="store_true")
     args = ap.parse_args()
     if args.summary:
         summary()
@@ -1043,8 +1042,8 @@ def main() -> int:
         for e in pl["errors"]:
             print(f"  ERROR {e}")
         return 0
-    from petey.validate.blueprint_review import serve
-    return serve(args.port, "groups", not args.no_open)
+    print("the review page serves this tab: PYTHONPATH=. venv/bin/python -m petey.validate.blueprint_review")
+    return 2
 
 
 if __name__ == "__main__":

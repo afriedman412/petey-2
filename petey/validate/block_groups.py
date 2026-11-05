@@ -450,9 +450,9 @@ def find(bp: dict) -> list[list[dict]]:
 
 def main() -> int:
     sys.path.insert(0, ".")
-    from petey.validate import hand_review as h
+    import petey_dataset as D
     for bid in sys.argv[1:]:
-        bp = h._load(h.working_path(bid))
+        bp = D.load(D.working_path(bid))
         for g in find(bp):
             nr, nc = max(c["row"] for c in g) + 1, max(c["col"] for c in g) + 1
             cells = {(c["row"], c["col"]): c["name"] for c in g}

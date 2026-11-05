@@ -33,7 +33,8 @@ import cell_groups  # noqa: E402
 import yes_no_groups  # noqa: E402
 from petey.validate.jev_is_field import flat_copy  # noqa: E402
 
-from petey.validate import hand_review as h, page_check as pc  # noqa: E402
+from petey.validate import page_check as pc  # noqa: E402
+import petey_dataset as D
 from petey.validate.jev_page import LIMITS, MODEL, _key, ask_split, image_ref  # noqa: E402
 
 NEAR = 3                       # each box asked against its nearest NEAR boxes on the page
@@ -174,7 +175,7 @@ def main() -> int:
     args = ap.parse_args()
     forms, jobs = {}, []
     for bid in args.forms_list:
-        bp = h._load(h.working_path(bid))
+        bp = D.load(D.working_path(bid))
         blank = pc.resolve_blank(bp)
         bpx, truth = explode(bp)
         boxes = sorted(truth)

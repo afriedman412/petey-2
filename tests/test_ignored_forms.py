@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from petey.validate import ignored_forms
+from petey_dataset import ignored_forms
 
 SRC = Path(__file__).resolve().parents[1] / "petey" / "validate" / "review_app" / "src"
 

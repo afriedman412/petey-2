@@ -62,7 +62,7 @@ def read_blank(job: tuple[str, str]) -> dict:
 
 
 def main() -> int:
-    from petey.validate import hand_review as h
+    import petey_dataset as D
     from petey.validate.retype import resolve_blank
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--procs", type=int, default=4)
@@ -73,9 +73,9 @@ def main() -> int:
     if pj.exists():
         done = {json.loads(ln)["blank"] for ln in pj.read_text().splitlines() if ln}
     forms, jobs, t = {}, {}, time.time()
-    for bid, p in h.blueprint_paths().items():
+    for bid, p in D.blueprint_paths().items():
         try:
-            bp = h._load(p)
+            bp = D.load(p)
             pdf = resolve_blank(bp)
         except Exception:  # noqa: BLE001
             continue

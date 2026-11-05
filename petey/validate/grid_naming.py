@@ -1071,14 +1071,14 @@ def check(bp: dict) -> list[str]:
 
 def main() -> int:
     import argparse
-    from petey.validate import hand_review as h
+    import petey_dataset as D
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("ids", nargs="+")
     ap.add_argument("--fix", action="store_true", help="list the renames that would put each grid on its pattern")
     ap.add_argument("--apply", action="store_true", help="with --fix: write them into the working copy")
     args = ap.parse_args()
     for bid in args.ids:
-        bp = h._load(h.working_path(bid))
+        bp = D.load(D.working_path(bid))
         lines = check(bp)
         tables = [g for g in grids(bp) if iterated(g)]
         print(f"{bid}: {len(grids(bp))} grid(s), {len(lines)} cell(s) breaking the pattern; "

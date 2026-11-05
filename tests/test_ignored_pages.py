@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-from petey.validate import ignored_pages as ip
+from petey_dataset import ignored_pages as ip
 
 
 def test_ignore_needs_a_reason_and_a_page_id(tmp_path):

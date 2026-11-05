@@ -118,7 +118,15 @@ python eval/evaluate.py path/to/fillable_pdfs --tag mybatch
 
 - `petey/`: the package. `extract.py` (extraction), `label/` (labeler, XFA, captions, text-match model),
   `locate/` (field geometry), `synth/` (synthetic cases: page classifier, value bank, filling), `validate/`
-  (the loop, witnesses, checks, review pages).
+  (the loop, witnesses, checks, review pages). The web app (`validate/blueprint_review.py`, `validate/hand_review.py`,
+  `validate/review_app/`, `web.py` and the page's own helpers) imports the package and nothing imports it back
+  (`tests/test_repo_boundaries.py`).
+
+- `petey_dataset/`: how the dataset is read: the sections and their blueprints, a form's working copy, its verdicts and
+  structure stamp, the ignored lists, the split-value taxonomy, the printed tag. Imports nothing from `petey`, so the
+  benchmark runner (`eval/benchmark_key.py`, `benchmark_score.py`) runs without the package. `PETEY_DATASET` names the
+  dataset's root (the directory holding `blueprints/`, `runs/`, `source_pdfs/`); unset, it is this repo. 2026-11-05,
+  the first step of splitting the repo into the dataset with its runner, the web app and the package.
 
 - `blueprints/`: the library (153 blueprints). Fresh runs land in `runs/judge_eval/blueprints/` until promoted.
 

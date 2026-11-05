@@ -13,7 +13,7 @@ from three and Andrew confirms them a page at a time on the review server's prin
                logs lead to the benchmark sets' fillable originals; library blanks have their widgets)
 
 Only text fields of key pages are candidates. Writes runs/benchmark/printed/candidates.json:
-{page id: {field id: [signal, ...]}}. What Andrew confirms is `petey.validate.printed_fields`' record.
+{page id: {field id: [signal, ...]}}. What Andrew confirms is the printed sheet's record (`petey_dataset.FIELD_TYPES`).
 
     PYTHONPATH=. venv/bin/python eval/benchmark_printed.py
 """
@@ -116,9 +116,8 @@ def originals() -> dict[str, Path]:
 
 def draft(key_dir: Path = KEY) -> dict[str, dict[str, list[str]]]:
     import pymupdf
-    from petey.validate import hand_review as h
-    from petey.validate.retype import resolve_blank
-    paths, orig = h.blueprint_paths(), originals()
+    import petey_dataset as D
+    paths, orig = D.blueprint_paths(), originals()
     out: dict[str, dict[str, list[str]]] = {}
     forms: dict[str, tuple] = {}
     for x in json.loads((key_dir / "index.json").read_text()):
@@ -126,10 +125,10 @@ def draft(key_dir: Path = KEY) -> dict[str, dict[str, list[str]]]:
         key = json.loads((key_dir / f"{pid}.json").read_text())
         form, pg = key["form"], int(key["page"])
         if form not in forms:
-            bp = h._load(h.working_path(form, paths))
+            bp = D.load(D.working_path(form, paths))
             names = {str(s.get("x_petey_id") if s.get("x_petey_id") is not None else n): n
                      for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
-            blank = orig.get(form) or resolve_blank(bp)
+            blank = orig.get(form) or D.resolve_blank(bp)
             forms[form] = (names, blank)
         names, blank = forms[form]
         try:

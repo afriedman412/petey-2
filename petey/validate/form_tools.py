@@ -32,7 +32,8 @@ from typing import Optional
 import numpy as np
 import pymupdf
 
-from petey.validate import field_add, group_review, split_types
+from petey.validate import field_add, group_review
+from petey_dataset import split_types
 
 SOURCE_SPLIT, SOURCE_SIG = "split_lines", "add_signatures"
 MIN_TALL = 22.0                 # pt: a box shorter than this holds one line

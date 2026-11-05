@@ -20,7 +20,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from petey.validate.standardize_names import SUFFIXES  # noqa: E402
 
 from petey.label import text_match as TM  # noqa: E402
-from petey.validate import grid_check as gc, hand_review as h  # noqa: E402
+from petey.validate import grid_check as gc  # noqa: E402
+import petey_dataset as D
 
 # per form: the validated blueprint, and each arm's runs. standard: the bulk runs of 15:38-16:42 and the _final
 # runs of 17:27 (round 0 only: their loops died of the stream timeout), then _std on today's code (level with the
@@ -188,10 +189,10 @@ def arm(tag: str, validated: dict) -> dict | None:
 
 
 def main() -> int:
-    paths = h.blueprint_paths()
+    paths = D.blueprint_paths()
     summary = []
     for form, (vid, arms) in FORMS.items():
-        validated = h._load(h.working_path(vid, paths)).get("fields") or {}
+        validated = D.load(D.working_path(vid, paths)).get("fields") or {}
         print(f"== {form} (validated: {vid}, {len(validated)} fields)")
         for label, tags in arms.items():
             for tag in tags:

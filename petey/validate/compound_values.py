@@ -4,7 +4,7 @@ can be combined logically", tagged on the Groups tab as an ENTITY with an entity
 Gathered before blocks are found, so a three-part name and a date are two slots of a block, not six fields whose
 spacing must match copy to copy.
 
-The types and their parts come from the taxonomy `petey/validate/split_types.py` (`TYPES`, as the Groups tab's;
+The types and their parts come from the taxonomy `petey_dataset/split_types.py` (`TYPES`, as the Groups tab's;
 `PARTS` in reading order), which also says which kinds count as split values:
 
     date               month / day / yr          time          hour / minute / ampm
@@ -35,9 +35,9 @@ import re
 from typing import Optional
 
 from petey.validate import block_types as bt
-from petey.validate import split_types
+from petey_dataset import split_types
 
-TYPES = split_types.names()          # the taxonomy (petey/validate/split_types.py), as the Groups tab's dropdown
+TYPES = split_types.names()          # the taxonomy (petey_dataset/split_types.py), as the Groups tab's dropdown
 PARTS = split_types.parts()          # each kind's parts in reading order
 _LINE_2 = set(PARTS["address_line_2"])
 

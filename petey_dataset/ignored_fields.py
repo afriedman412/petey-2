@@ -20,10 +20,10 @@ import threading
 from pathlib import Path
 from typing import Optional
 
-from petey.validate.ignored_pages import PAGE_ID
+from petey_dataset import BENCHMARK
+from petey_dataset.ignored_pages import PAGE_ID
 
-ROOT = Path(__file__).resolve().parents[2]
-RECORD = ROOT / "runs" / "benchmark" / "ignored_fields.json"
+RECORD = BENCHMARK / "ignored_fields.json"
 _LOCK = threading.Lock()
 
 

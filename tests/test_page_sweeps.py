@@ -3,7 +3,8 @@ import json
 
 import pytest
 
-from petey.validate import ignored_pages, page_sweeps as ps
+from petey.validate import page_sweeps as ps
+from petey_dataset import ignored_pages
 
 
 def _key(n_text, n_choice):

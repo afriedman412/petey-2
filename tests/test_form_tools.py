@@ -6,7 +6,7 @@ from pathlib import Path
 import pymupdf
 
 from petey.validate import form_tools as ft
-from petey.validate import split_types
+from petey_dataset import split_types
 
 SRC = Path(__file__).resolve().parents[1] / "petey" / "validate" / "review_app" / "src"
 

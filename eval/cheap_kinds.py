@@ -29,7 +29,8 @@ from petey.validate.jev_is_field import cached_boxes  # noqa: E402
 
 from petey.synth import boxes as B  # noqa: E402
 from petey.synth.classify import classify_form  # noqa: E402
-from petey.validate import hand_review as h, page_check as pc  # noqa: E402
+from petey.validate import page_check as pc  # noqa: E402
+import petey_dataset as D
 from petey.validate.jev_page import MODEL, _key, ask_split  # noqa: E402
 
 KINDS = {
@@ -155,7 +156,7 @@ def main() -> int:
     # the classifier, where cached: the finder box under the field
     cls = {}
     for bid in args.forms_list:
-        bp = h._load(h.working_path(bid))
+        bp = D.load(D.working_path(bid))
         blank = pc.resolve_blank(bp)
         bx = cached_boxes(blank) if blank else None
         try:

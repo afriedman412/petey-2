@@ -18,7 +18,7 @@ Each sweep proposes pages; Andrew looks at each and says what it is:
 The words only rank pages for a person to look at; nothing is decided by them. Candidates are cached in
 runs/benchmark/sweeps/candidates.json (`find`, rebuilt when the key's index is newer); what was said goes to
 runs/benchmark/sweeps/seen.json {sweep: {page id: {verdict, when}}}, and an ignore also to the ignored pages record
-(petey.validate.ignored_pages), the one the key and scorer read.
+(petey_dataset.ignored_pages), the one the key and scorer read.
 """
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ import threading
 from pathlib import Path
 from typing import Optional
 
-from petey.validate import ignored_pages
+from petey_dataset import ignored_pages
 
 ROOT = Path(__file__).resolve().parents[2]
 KEY = ROOT / "runs" / "benchmark" / "key"

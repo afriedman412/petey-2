@@ -43,7 +43,8 @@ import sys
 import yaml
 
 from petey.paths import RUNS
-from petey.validate import hand_review as h
+import petey_dataset as D
+from petey.validate import edits
 
 OUT = RUNS / "standardized"
 SUFFIXES = {"nm", "nbr", "ssn", "ein", "tin", "npi", "cd", "dt", "month", "day", "yr", "time", "amt", "cnt", "qty", "pct",
@@ -320,17 +321,17 @@ def apply(bid: str, ren: dict, why: dict) -> int:
     from petey.validate import draft
     if not ren:
         return 0
-    p = draft.ensure(bid, h.blueprint_paths()[bid])
-    bp = h._load(p)
+    p = draft.ensure(bid, D.blueprint_paths()[bid])
+    bp = D.load(p)
     fields = bp["fields"]
-    clean = {n: e for n, e in ((n, h.clean_edit(n, fields[n], {"name": new})) for n, new in ren.items() if n in fields) if e}
-    before = h._sha(p)
+    clean = {n: e for n, e in ((n, edits.clean_edit(n, fields[n], {"name": new})) for n, new in ren.items() if n in fields) if e}
+    before = D.sha(p)
     extra = {n: {"kind": "name", "why": "naming standard: " + "; ".join(why.get(n) or [])} for n in clean}
-    bp["fields"] = h.edit_fields(fields, clean, {n: ren[n] for n in clean}, time.strftime("%Y-%m-%d %H:%M:%S"),
+    bp["fields"] = edits.edit_fields(fields, clean, {n: ren[n] for n in clean}, time.strftime("%Y-%m-%d %H:%M:%S"),
                                  "petey/validate/standardize_names.py", by="claude", extra=extra)
     p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False), encoding="utf-8")
-    draft.follow(bid, before, h._sha(p))
-    vp = h.verdict_path(bid)                     # the person's verdicts follow the rename
+    draft.follow(bid, before, D.sha(p))
+    vp = D.verdict_path(bid)                     # the person's verdicts follow the rename
     if vp.exists():
         rec = json.loads(vp.read_text())
         vs = rec.get("verdicts") or {}
@@ -344,8 +345,8 @@ def apply(bid: str, ren: dict, why: dict) -> int:
 
 
 def run(bid: str, write: bool = False, only: str | None = None) -> dict:
-    p = h.working_path(bid)
-    bp = h._load(p)
+    p = D.working_path(bid)
+    bp = D.load(p)
     fields = bp.get("fields") or {}
     ren, why = {}, {}
     parts = part_sets(fields)

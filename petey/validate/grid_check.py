@@ -24,8 +24,9 @@ import collections
 from pathlib import Path
 from typing import Optional
 from petey.validate import grid_naming as G  # noqa: E402
+import petey_dataset as D
 
-from petey.validate import hand_review as h, page_check as pc  # noqa: E402
+from petey.validate import page_check as pc  # noqa: E402
 from petey.validate.retype import resolve_blank  # noqa: E402
 
 _LINES: dict[str, dict] = {}
@@ -40,7 +41,7 @@ def _lines(blank: Path) -> dict:
     return _LINES[k]
 
 
-NOT_GRIDS = h.OUT / "not_grids.json"      # {bid: [{page, cells, when}]}: what the person said is not a grid or block
+NOT_GRIDS = D.HAND_REVIEW / "not_grids.json"      # {bid: [{page, cells, when}]}: what the person said is not a grid or block
 
 
 def not_grids(bid: str) -> list[dict]:
@@ -88,7 +89,7 @@ def dismissed(entries: list[dict], page: int, cells) -> bool:
 # in common, same page) and keep their ids; a new one gets the next id. A grid the person made or combined hides the
 # finder's grids that are mostly inside it.
 
-SETS = h.OUT / "grids"
+SETS = D.HAND_REVIEW / "grids"
 
 
 def _set_path(bid: str) -> Path:
@@ -824,7 +825,7 @@ def side_by_side(bp: dict, g: list[dict]) -> list[list[dict]]:
 # (AUC 0.56; his cancelled ones are mostly real tables he did not want) but doubts most geometry-only additions (24 of
 # 62 at 0.5) and calls the tables of the test forms (0.76-0.99) and not the job application's address rows (0.29).
 # Scored in batches (eval/grid_jev_scores.py), kept in GRID_JEV; the listing only reads it.
-GRID_JEV = h.OUT / "grid_jev.json"          # {bid: {"code,code,...": score}}
+GRID_JEV = D.HAND_REVIEW / "grid_jev.json"          # {bid: {"code,code,...": score}}
 TABLE_QUESTION = ("`page` is one page of a blank form. A set of fillable boxes is outlined in red; `grid_box` is the "
                   "pixel box around them, `rows` x `columns` their arrangement. Do the outlined boxes form a table: one "
                   "set of questions asked again in each row (or each column), answered cell by cell under column "
@@ -1036,7 +1037,7 @@ def standardize(bid: str, tid: str, *, apply, pos: Optional[int] = None, line: O
     person picked, `_#` or `_N` for the number), every inconsistent position (neither), or one line (`line`, 1-based)
     renumbered. {status, steps, applied, left}; nothing accepted. `steps` say, in plain words, what was done and what
     was left and why (2026-10-22: "it often doesn't work and never says why clearly")."""
-    bp = h._load(h.working_path(bid))
+    bp = D.load(D.working_path(bid))
     t, g = _grid(bp, tid, bid)
     if not g:
         return {"status": "gone", "steps": ["the grid is no longer found on the page (renamed or moved?)"]}
@@ -1070,7 +1071,7 @@ def relabel_line(bid: str, tid: str, line: int, label: str, *, apply) -> dict:
     covered_individual_7_ssn -> covered_individual_19_ssn). A cell whose name does not carry the label, or whose new
     name another field holds, is left and said. {status, steps, applied, left}; nothing accepted."""
     import re
-    bp = h._load(h.working_path(bid))
+    bp = D.load(D.working_path(bid))
     t, g = _grid(bp, tid, bid)
     if not g:
         return {"status": "gone", "steps": ["the grid is no longer found on the page (renamed or moved?)"]}
@@ -1132,7 +1133,7 @@ def preview(bid: str, tid: str) -> dict:
     numbers, cells, expect, plan}], all: plan}; a plan is {renames: [[old, new]], left: [why], why, pulled}, given
     only where there is something off. `pos` and `line` are 1-based places on the page's axis (`pos_axis` is the
     one the wordings run along: col, or row when the grid reads by rows)."""
-    bp = h._load(h.working_path(bid))
+    bp = D.load(D.working_path(bid))
     t, g = _grid(bp, tid, bid)
     if not g:
         raise ValueError(f"{tid} is no longer found on the page")
@@ -1442,7 +1443,7 @@ def check(bid: str, tid: str, *, accept, apply, ask_opus) -> dict:
     """One click on a table: {status, steps, applied, accepted, proposals}. `accept(page, names)` accepts cells,
     `apply(edits)` writes renames (form_chat.apply's result), `ask_opus(page, tid, steps)` returns the chat's proposal
     for this table."""
-    bp = h._load(h.working_path(bid))
+    bp = D.load(D.working_path(bid))
     t, g = _grid(bp, tid, bid)
     if not g:
         return {"status": "gone", "steps": ["the grid is no longer found on the page (renamed or moved?)"]}
@@ -1462,7 +1463,7 @@ def check(bid: str, tid: str, *, accept, apply, ask_opus) -> dict:
                           "as its other part"} for o, n in r0["renames"].items()])
             steps.append(f"{len(out.get('changes') or [])} rename(s) applied (code, no model call)"
                          + (f"; not all: {'; '.join(out['errors'][:2])}" if out.get("errors") else ""))
-            bp = h._load(h.working_path(bid))
+            bp = D.load(D.working_path(bid))
             t, g = _grid(bp, tid, bid)
             if not g:
                 return {"status": "fixed", "steps": steps + ["the grid is no longer found after the renames"],
@@ -1489,7 +1490,7 @@ def check(bid: str, tid: str, *, accept, apply, ask_opus) -> dict:
             steps.append("row subject: " + ", ".join(f"column {k + 1} as {w.replace('_N', '_#')}" for k, w in alts.items())
                          + f" (code, no model call): {len(out.get('changes') or [])} rename(s) applied"
                          + (f"; not all: {'; '.join(out['errors'][:2])}" if out.get("errors") else ""))
-            bp = h._load(h.working_path(bid))
+            bp = D.load(D.working_path(bid))
             t, g = _grid(bp, tid, bid)
             if not g:
                 return {"status": "fixed", "steps": steps + ["the grid is no longer found after the renames"],

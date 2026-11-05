@@ -36,7 +36,8 @@ from pathlib import Path
 import yaml
 
 from petey.paths import RUNS
-from petey.validate import grid_check as gc, hand_review as h
+from petey.validate import grid_check as gc
+import petey_dataset as D
 from petey.validate import grid_naming as G  # noqa: E402
 from petey.validate.associate import compound_values  # noqa: E402
 from petey.validate.standardize_names import SUFFIXES, _is_group  # noqa: E402
@@ -110,8 +111,8 @@ def read_form(bid: str, bp: dict) -> dict[str, tuple[dict, list[str]]]:
 
 
 def run(bid: str, paths: dict) -> dict:
-    p = h.working_path(bid, paths)
-    bp = h._load(p)
+    p = D.working_path(bid, paths)
+    bp = D.load(p)
     fields = {n: s for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
     got = read_form(bid, bp)
     per_page: dict = collections.defaultdict(collections.Counter)
@@ -162,8 +163,8 @@ def tiers(paths: dict, want: set[str]) -> list[str]:
     out = []
     for bid, p in paths.items():
         if bid.startswith("je__"):
-            bp = h._load(h.working_path(bid, paths))
-            if h.LAUNCH_TIERS.get(Path(str(bp.get("source_pdf") or "")).name) in want:
+            bp = D.load(D.working_path(bid, paths))
+            if D.launch_tiers().get(Path(str(bp.get("source_pdf") or "")).name) in want:
                 out.append(bid)
     return out
 
@@ -174,7 +175,7 @@ def main() -> int:
     ap.add_argument("--tiers", help="launch tiers to run (1,2)")
     ap.add_argument("--all", action="store_true")
     args = ap.parse_args()
-    paths = h.blueprint_paths()
+    paths = D.blueprint_paths()
     ids = args.ids + (tiers(paths, set(args.tiers.split(","))) if args.tiers else []) + (list(paths) if args.all else [])
     rows, tot, t0 = [], collections.Counter(), time.time()
     for i, bid in enumerate(ids, 1):

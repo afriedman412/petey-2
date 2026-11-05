@@ -1,6 +1,7 @@
 """Block types (petey/validate/block_types.py, 2026-10-21): a template drawn once, its exact copies on the form found,
 every block named from the template block's names with its own key."""
 from petey.validate import block_types as bt, grid_check as gc
+import petey_dataset
 
 
 def blueprint(names, extra=None):
@@ -660,8 +661,8 @@ def test_a_grid_row_is_relabeled_in_each_of_its_cells(monkeypatch, tmp_path):
     rows = [[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind"] for b in (1, 2, 3)]
     bp = blueprint(rows, {"child_7_ind": {"type": "boolean", "widget": {"page": 2, "widget_type": "checkbox",
                                                                       "rect": [0, 0, 10, 10]}}})
-    monkeypatch.setattr(gc.h, "working_path", lambda bid, *a: tmp_path / "x.bpt")
-    monkeypatch.setattr(gc.h, "_load", lambda p: bp)
+    monkeypatch.setattr(petey_dataset, "working_path", lambda bid, *a: tmp_path / "x.bpt")
+    monkeypatch.setattr(petey_dataset, "load", lambda p: bp)
     (g,) = [t for t in gc.listing("t2", bp) if t["status"] == "active"]
     got = []
     out = gc.relabel_line("t2", g["id"], 2, "7", apply=lambda edits: got.extend(edits) or {"changes": edits})
@@ -718,8 +719,8 @@ def test_a_column_holding_another_sets_names_is_offered_under_the_row_subject(mo
         box(f"subject_of_insurance_{r + 1}_amt", 11 + 3 * r, 200, y)
         box(f"blanket_{r + 4}_nbr", 12 + 3 * r, 300, y, 20)
     bp = {"fields": f}
-    monkeypatch.setattr(gc.h, "working_path", lambda bid, *a: tmp_path / "x.bpt")
-    monkeypatch.setattr(gc.h, "_load", lambda p: bp)
+    monkeypatch.setattr(petey_dataset, "working_path", lambda bid, *a: tmp_path / "x.bpt")
+    monkeypatch.setattr(petey_dataset, "load", lambda p: bp)
     monkeypatch.setattr(gc, "resolve_blank", lambda bp: None)
     g = next(t for t in gc.listing("t30", bp) if len(t["grid"]) == 9)
     pv = gc.preview("t30", g["id"])
@@ -742,8 +743,8 @@ def test_check_and_validate_settles_that_column_in_code_without_opus(monkeypatch
         box(f"subject_of_insurance_{r + 1}_amt", 11 + 3 * r, 200, y)
         box(f"blanket_{r + 4}_nbr", 12 + 3 * r, 300, y, 20)
     bp = {"fields": f}
-    monkeypatch.setattr(gc.h, "working_path", lambda bid, *a: tmp_path / "x.bpt")
-    monkeypatch.setattr(gc.h, "_load", lambda p: bp)
+    monkeypatch.setattr(petey_dataset, "working_path", lambda bid, *a: tmp_path / "x.bpt")
+    monkeypatch.setattr(petey_dataset, "load", lambda p: bp)
     monkeypatch.setattr(gc, "resolve_blank", lambda bp: None)
     def apply(edits):
         for e in edits:

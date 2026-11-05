@@ -11,3 +11,10 @@
 - 2026-10-17: Indra OCR is not a threat (no fields or types) and matching it is not a goal; stopped the page-reader
   prototype after OmniParseBench (`page-reader-prototype` branch, RESULTS "Indra OCR, and a code-only page reader").
   Possible later use: a broken-text-layer gate with Indra's OCR as the fallback.
+- 2026-11-05: the repo splits into three: the dataset with its runner (the key builder and scorer, which judge any
+  method's predictions and so never import petey), the web app (the review page), and the petey package, which the
+  app imports wholesale and which replaces petey on PyPI. First step: `petey_dataset` (the dataset reader, lifted out
+  of `hand_review`) and the edit helpers moved into the package (`validate/edits.py`); no behaviour change (the key
+  and the tuning set rebuild byte-for-byte the same). The two standalone Groups / Add servers (ports 5006 / 5007,
+  superseded by the review page) are gone.
+

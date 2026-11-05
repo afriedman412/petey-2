@@ -7,8 +7,8 @@ this asks them to judge the ones a blueprint already has.
     PYTHONPATH=. venv/bin/python -m petey.validate.hand_review [--port 5005]      # then open http://127.0.0.1:5005/
     PYTHONPATH=. venv/bin/python -m petey.validate.hand_review --summary          # verdicts so far, per blueprint
 
-Blueprints offered: the library (`blueprints/`), the judge-eval side copies (`runs/judge_eval/blueprints/`, current
-files only) and the relabels (`runs/relabel/blueprints/`). Verdicts go to `runs/hand_review/<id>.json` with the
+Blueprints offered: the dataset's sections (`petey_dataset.SOURCES`: the library, the judge-eval side copies, the
+benchmark's sections, ...). Verdicts go to `runs/hand_review/<id>.json` (`petey_dataset.verdicts`) with the
 blueprint's path, sha and build stamp, and are keyed by field name; a verdict written against one version of the
 file is reported as stale when the file changes. Since 2026-10-13 a correction saved on the page goes into the
 page's working copy of the blueprint at once (`draft.py`); the header's save writes the blueprint.
@@ -38,145 +38,24 @@ from typing import Optional
 
 import yaml
 
+import petey_dataset as D
 from petey.paths import BLUEPRINTS, RUNS, SOURCE_PDFS
 from petey.synth.boxes import FINDER_LABEL
 from petey.validate import witness
-from petey.validate.retype import resolve_blank
+from petey_dataset import HAND_REVIEW, blueprints
+from petey_dataset.blueprints import SOURCES, blueprint_paths, page_sizes, resolve_blank, reviewable, sha as _sha, \
+    warm_parsed, working_path
+from petey_dataset.verdicts import (LOCK as _VERDICT_LOCK, checked, load_verdicts, new_to_check, reset_verdicts,
+                                    stamp_structure, structure, structure_ok, unstamp_structure, verdict_path,
+                                    write_verdicts as _write_verdicts)
 
-OUT = RUNS / "hand_review"
-_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)     # libyaml when present: 10x faster over 229 blueprints
-
-
-# parsed blueprints kept on disk (Andrew, 2026-10-22: "can you look into if there's a way to speed up the reboot?"):
-# the server parsed all 770 blueprints twice at startup, 78 MB of YAML, ~40 s; a parsed copy reloads in about a
-# millisecond. A copy is used only while its file has the same modification time and size; files outside the repo
-# (tests' temporary ones) are not kept. 64 MB for the library.
-PARSED = OUT / ".parsed"
-
-
-def _parsed_path(p: Path) -> Optional[Path]:
-    import hashlib
-    from petey.paths import REPO
-    try:
-        rp = p.resolve()
-        rp.relative_to(REPO)
-    except (OSError, ValueError):
-        return None
-    return PARSED / (hashlib.sha1(str(rp).encode()).hexdigest() + ".pickle")
-
-
-def _load(p: Path) -> dict:
-    import pickle
-    cp, st = _parsed_path(Path(p)), Path(p).stat()
-    stamp = (st.st_mtime_ns, st.st_size)
-    if cp is not None:
-        try:
-            with open(cp, "rb") as f:
-                kept, data = pickle.load(f)
-            if kept == stamp:
-                return data
-        except (OSError, EOFError, pickle.UnpicklingError, ValueError, TypeError):
-            pass
-    data = yaml.load(Path(p).read_text(encoding="utf-8"), Loader=_LOADER) or {}
-    if cp is not None and Path(p).stat().st_mtime_ns == stamp[0]:       # not rewritten while it was read
-        try:
-            PARSED.mkdir(parents=True, exist_ok=True)
-            tmp = cp.with_suffix(f".{os.getpid()}.{threading.get_ident()}.tmp")
-            with open(tmp, "wb") as f:
-                pickle.dump((stamp, data), f, protocol=pickle.HIGHEST_PROTOCOL)
-            os.replace(tmp, cp)
-        except OSError:
-            pass
-    return data
-
-
-def warm_parsed(paths: list) -> int:
-    """Every blueprint's parsed copy brought up to date, parsed on all cores (startup: 770 files in ~3 s rather than
-    ~20 s one by one); how many were parsed again."""
-    from concurrent.futures import ProcessPoolExecutor
-    stale = [str(p) for p in paths if _stale(Path(p))]
-    if len(stale) < 8:
-        for p in stale:
-            _load(Path(p))
-        return len(stale)
-    with ProcessPoolExecutor(os.cpu_count() or 4) as ex:
-        list(ex.map(_warm_one, stale, chunksize=4))
-    return len(stale)
-
-
-def _warm_one(p: str) -> None:
-    _load(Path(p))
-
-
-def _stale(p: Path) -> bool:
-    import pickle
-    cp = _parsed_path(p)
-    if cp is None or not cp.exists():
-        return cp is not None
-    try:
-        st = p.stat()
-        with open(cp, "rb") as f:
-            kept, _ = pickle.load(f)
-        return kept != (st.st_mtime_ns, st.st_size)
-    except Exception:
-        return True
+OUT = HAND_REVIEW
+PARSED = blueprints.PARSED
+_parsed_path, _load, _stale = blueprints._parsed_path, blueprints.load, blueprints.stale
 
 
 DPI = 110
-SOURCES = {"lib": BLUEPRINTS, "je": RUNS / "judge_eval" / "blueprints", "rl": RUNS / "relabel" / "blueprints",
-           "fl": RUNS / "flat" / "blueprints",      # flat forms: page-made blueprints, path-less widgets
-           # the flat-structure benchmark's forms (Andrew, 2026-10-27: "can you load the benchmark pdfs under a new
-           # section in the review app?"): the business-like corpus set, runs/acquisition/safedocs/business_set.json
-           "bm": RUNS / "benchmark" / "blueprints",
-           # forms Andrew downloaded by hand for the benchmark (source_pdfs/manual_grabs), their own section (Andrew,
-           # 2026-10-28: "if so, can you put them in their own section?")
-           "mg": RUNS / "manual_grabs" / "blueprints",
-           # the finance forms scraped 2026-10-29 from banks', brokerages' and insurers' forms pages, their own section
-           # (Andrew, 2026-10-29: "can you put the new downloads in their own section" ... "just today's batch")
-           "fin": RUNS / "finance" / "blueprints",
-           # private-sector forms (Andrew, 2026-11-02: "can you create a new section called 'private' in the review
-           # app?"): the benchmark is about 78% government pages, and the goal is government at most 60-65%
-           "pv": RUNS / "private" / "blueprints",
-           # the forms added the evening of 2026-11-03 in one section (Andrew, 2026-11-04: "can you put all the forms
-           # added last night (11/3 pm) in one section"): 26 hand-picked (source_pdfs/manual_dl_110326) and 129 big
-           # publishers', moved from mg / bm; later stagings go to their usual sections
-           "nov3": RUNS / "nov3" / "blueprints",
-           # the library before the naming standard's renames, kept to check against (Andrew, 2026-10-24: "let's keep
-           # the old copies around so I can do a little more validation against old versions before we let them slide")
-           "old": RUNS / "naming_2026-10-24" / "before"}
-
-
-def blueprint_paths() -> dict[str, Path]:
-    out: dict[str, Path] = {}
-    for tag, d in SOURCES.items():
-        if not d.exists():
-            continue
-        for p in sorted(d.glob("*.bpt")):
-            if tag == "je" and p.stem.endswith(("_v0", "_run1", "_prev")):
-                continue
-            out[f"{tag}__{p.stem}"] = p
-    return out
-
-
-def working_path(bid: str, paths: Optional[dict] = None) -> Optional[Path]:
-    """The file the review page reads and writes for a blueprint: its working copy while one is open (`draft.py`,
-    2026-10-13), else the blueprint itself. Records keep the blueprint's own path (`blueprint_paths`)."""
-    from petey.validate import draft
-    p = (paths if paths is not None else blueprint_paths()).get(bid)
-    return draft.working(bid, p) if p is not None else None
-
-
-def _launch_tiers() -> dict[str, str]:
-    """{blank file name: launch tier} from registry/launch_ranking_v2.csv (the forms acquired for launch)."""
-    import csv
-    f = BLUEPRINTS.parent / "registry" / "launch_ranking_v2.csv"
-    if not f.exists():
-        return {}
-    with f.open() as fh:
-        return {r["file"]: r["tier"] for r in csv.DictReader(fh)}
-
-
-LAUNCH_TIERS = _launch_tiers()
+LAUNCH_TIERS = D.launch_tiers()
 
 
 def _check_counts(bp: dict) -> dict:
@@ -189,68 +68,6 @@ def _check_counts(bp: dict) -> dict:
     fl = [v for v in verdicts(bp).values() if v.get("verdict") == "flag"]
     sug = sum(1 for v in fl if v.get("problem") in PAGE_CHECK_SUGGESTIONS)
     return {"check_errors": len(fl) - sug, "check_suggestions": sug}
-
-
-def _sha(p: Path) -> str:
-    return hashlib.sha256(p.read_bytes()).hexdigest()[:12]
-
-
-def verdict_path(bid: str) -> Path:
-    return OUT / f"{bid}.json"
-
-
-# the server answers requests on threads: two saves of one record at once (je__cra_t2, 2026-10-19 16:20:42) wrote
-# over each other, the shorter on top of the longer, and left the file unreadable. Saves read, change and write the
-# record under one lock, and write it whole (a temporary file put in its place).
-_VERDICT_LOCK = threading.RLock()
-
-
-def reset_verdicts(bid: str) -> dict:
-    """Every verdict on the form cleared (Andrew, 2026-10-22: "can you add a button to reset validations? (and a 'are
-    you sure?' screen)"): the record moved to runs/hand_review/_reset/<bid>_<when>.json, so nothing is lost.
-    {cleared, backup}."""
-    with _VERDICT_LOCK:
-        p = verdict_path(bid)
-        if not p.exists():
-            return {"cleared": 0, "backup": None}
-        n = len(load_verdicts(bid).get("verdicts") or {})
-        bk = OUT / "_reset" / f"{bid}_{time.strftime('%Y%m%d_%H%M%S')}.json"
-        bk.parent.mkdir(parents=True, exist_ok=True)
-        p.replace(bk)
-        return {"cleared": n, "backup": str(bk)}
-
-
-def _write_verdicts(bid: str, rec: dict) -> None:
-    p = verdict_path(bid)
-    tmp = p.with_suffix(".tmp")
-    tmp.write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
-    tmp.replace(p)
-
-
-def load_verdicts(bid: str) -> dict:
-    p = verdict_path(bid)
-    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
-
-
-def page_sizes(bp: dict, blank: Optional[Path] = None) -> list[dict]:
-    """Every page of the blank: its size, and how many fields have a box on it (a field counts on each page it has a
-    box on). Every tab shows every page, those with no field drawn apart (Andrew, 2026-10-27: "instead of only showing
-    the pages that have the relevant fields, can you show all the pages? and can you color the pages that have NO
-    fields differently")."""
-    blank = blank or resolve_blank(bp)
-    if not (blank and blank.exists()):
-        return []
-    import pymupdf
-    n: collections.Counter = collections.Counter()
-    for spec in (bp.get("fields") or {}).values():
-        if isinstance(spec, dict):
-            n.update({w["page"] for w in witness._widgets(spec) if w.get("page") and w.get("rect")})
-    doc = pymupdf.open(str(blank))
-    try:
-        return [{"page": i, "w_pt": pg.rect.width, "h_pt": pg.rect.height, "fields": n[i]}
-                for i, pg in enumerate(doc, start=1)]
-    finally:
-        doc.close()
 
 
 def field_rows(bp: dict) -> list[dict]:
@@ -324,78 +141,6 @@ def claude_change(spec: dict) -> Optional[dict]:
     if ad.get("name_from") == "claude":
         return {"kind": "add", "why": ad.get("why"), "from": None, "when": ad.get("when")}
     return None
-
-
-def reviewable(bp: dict) -> list[str]:
-    """The fields the page shows (those with a rect on the blank): what a verdict on every field means."""
-    return [r["name"] for r in field_rows(bp)]
-
-
-def checked(v: dict, p: Path, bp: dict) -> Optional[dict]:
-    """`{when, fields, flagged, stale}` when every reviewable field has a verdict, else None. Read from the verdicts
-    themselves, so a review finished before the record existed counts (its `when` is the file's last save); `stale`
-    when the blueprint changed after it was checked."""
-    vs = v.get("verdicts") or {}
-    names = reviewable(bp)
-    if not names or not all(vs.get(n, {}).get("verdict") for n in names):
-        return None
-    c = v.get("checked") or {"when": v.get("updated"), "blueprint_sha": v.get("blueprint_sha")}
-    flagged = sum(1 for n in names if vs[n]["verdict"] == "flag")
-    pending = sum(1 for x in vs.values() if x.get("edit") and not x.get("applied"))
-    stale = c.get("blueprint_sha") != _sha(p)
-    # validated (Andrew, 2026-10-07): every field has a verdict, nothing is flagged (a flag = needs work), every
-    # saved correction is applied, and the file is the one that was checked
-    return {"when": c.get("when"), "fields": len(names), "flagged": flagged, "pending": pending, "stale": stale,
-            "validated": not stale and not flagged and not pending}
-
-
-def structure(v: dict, p: Path) -> Optional[dict]:
-    """`{when, stale}` once the form's structure is validated, else None (Andrew, 2026-10-31: "since we are currently
-    only looking at structure, in the service of building the data set, let's encode that status"): "accept structure"
-    on the review page says its fields, their kinds, groups, grids and blocks are right, names not looked at. Shown as
-    STRUCTURE VALIDATED until every name is accepted too (`checked` validated), which supersedes it. Stale when the
-    blueprint changed after it, as `checked` is (the page's own changes carry it along: `draft.follow`)."""
-    s = v.get("structure")
-    if not s:
-        return None
-    return {"when": s.get("when"), "by": s.get("by"), "stale": s.get("blueprint_sha") != _sha(p)}
-
-
-def structure_ok(v: dict, p: Path, bp: dict) -> bool:
-    """Validated in full, or its structure validated and the file unchanged since: what the benchmark key takes."""
-    c, s = checked(v, p, bp), structure(v, p)
-    return bool((c and c["validated"]) or (s and not s["stale"]))
-
-
-def stamp_structure(bid: str, p: Path, real: Path, by: str = "accept structure") -> dict:
-    """The form's structure validated against the file the page reads (`p`, its working copy if open)."""
-    with _VERDICT_LOCK:
-        rec = load_verdicts(bid) or {"blueprint": str(real), "form": real.stem, "verdicts": {}}
-        sha = _sha(p)
-        rec.setdefault("blueprint_sha", sha)
-        rec["structure"] = {"when": time.strftime("%Y-%m-%d %H:%M:%S"), "blueprint_sha": sha, "by": by}
-        OUT.mkdir(parents=True, exist_ok=True)
-        _write_verdicts(bid, rec)
-        return rec["structure"]
-
-
-def unstamp_structure(bid: str) -> None:
-    """"accept structure" clicked again: the form's structure no longer validated (Andrew, 2026-10-31)."""
-    with _VERDICT_LOCK:
-        rec = load_verdicts(bid)
-        if rec.pop("structure", None) is not None:
-            _write_verdicts(bid, rec)
-
-
-def new_to_check(v: dict, p: Path, bp: dict) -> Optional[int]:
-    """How many fields await a verdict on a form that was once fully checked (Andrew, 2026-11-02: "is there a way for
-    me to know what needs to be revisited?"): a sweep or an edit added or renamed fields after every field had its
-    verdict. None when the form was never fully checked, or is fully checked now."""
-    if not (v.get("checked") or v.get("was_checked")) or checked(v, p, bp):
-        return None
-    vs = v.get("verdicts") or {}
-    n = sum(1 for name in reviewable(bp) if not vs.get(name, {}).get("verdict"))
-    return n or None
 
 
 def _git(*args: str, cwd: Path = BLUEPRINTS.parent) -> str:
@@ -706,100 +451,7 @@ class State:
         return out
 
 
-EDIT_TYPES = ("string", "number", "integer", "date", "boolean", "category", "multi_category")
-_CHOICE = ("category", "multi_category")      # one of / any of: need `values`
-_SLUG = re.compile(r"^[a-z0-9][a-z0-9_]*$")
-_OPT_KEY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.\-]*$")      # an option's key: the value extraction returns
-
-
-def _flag_agent():
-    from petey.validate import flag_agent
-    return flag_agent
-
-
-# the parts a name prints from, in the standard's order (petey/naming.py, 2026-10-24)
-from petey.naming import ORDER as IDENT_KEYS, print_name as _print_name, standard as _standard  # noqa: E402
-
-
-def clean_edit(name: str, spec: dict, edit) -> Optional[dict]:
-    """A person's correction of a field (2026-10-07: field name and type directly adjustable in the review page):
-    only the parts that differ from the blueprint, validated (a snake_case name; a spec type)."""
-    if not isinstance(edit, dict):
-        return None
-    out = {}
-    new_name = (edit.get("name") or "").strip()
-    # the name's parts (docs/NAMING.md "Identifiers", 2026-10-19): the name is printed from them, never typed
-    if isinstance(edit.get("identifiers"), dict):
-        ident = {}
-        for k in IDENT_KEYS:
-            v = str(edit["identifiers"].get(k) or "").strip()
-            if v:
-                if not _SLUG.match(v):
-                    raise ValueError(f"{k} {v!r}: lower-case letters, digits and _ only")
-                ident[k] = v
-        if not ident.get("subject") and not ident.get("suffix"):
-            raise ValueError("a field needs a subject (what the box is about)")
-        ident = {k: v for k, v in _standard(ident).items() if v}       # short suffix, part1 (petey/naming.py)
-        if ident != {k: v for k, v in (spec.get("x_petey_identifiers") or {}).items()
-                     if k in IDENT_KEYS and v not in (None, "")}:
-            out["identifiers"] = ident
-        new_name = _print_name(ident)
-    if new_name and new_name != name:
-        if not _SLUG.match(new_name):
-            raise ValueError(f"field name {new_name!r}: lower-case letters, digits and _ only")
-        out["name"] = new_name
-    new_type = (edit.get("type") or "").strip()
-    if new_type and new_type != spec.get("type"):
-        if new_type not in EDIT_TYPES:
-            raise ValueError(f"type {new_type!r}: one of {', '.join(EDIT_TYPES)}")
-        if len(spec.get("widgets") or {}) > 1 and new_type not in _CHOICE:
-            raise ValueError("an option group is category (one of) or multi_category (any of)")
-        if new_type in _CHOICE and not (spec.get("values") or spec.get("widgets")):
-            raise ValueError(f"type {new_type}: the field has no option boxes or values to choose from")
-        out["type"] = new_type
-    # semantic type and pattern (2026-10-07: Andrew's "type" notes often mean the semantic type, and his ACORD 126
-    # notes ask for a Y/N pattern): a value sets it, "none" clears it, absent / empty leaves it
-    if "semantic_type" in edit and (edit.get("semantic_type") or "").strip():
-        st = edit["semantic_type"].strip()
-        from petey.semantic_types import registered_names     # every spec value (REGISTRY lacks money, indicator)
-        if st != "none" and st not in set(registered_names()):
-            raise ValueError(f"semantic type {st!r}: not in the registry (or 'none' to clear it)")
-        if (st == "none") != (not spec.get("semantic_type")) or (st != "none" and st != spec.get("semantic_type")):
-            out["semantic_type"] = st
-    if "pattern" in edit and (edit.get("pattern") or "").strip():
-        pt = edit["pattern"].strip()
-        if pt != "none":
-            try:
-                re.compile(pt)
-            except re.error as e:
-                raise ValueError(f"pattern {pt!r}: not a valid regular expression ({e})")
-        if (pt == "none") != (not spec.get("pattern")) or (pt != "none" and pt != spec.get("pattern")):
-            out["pattern"] = pt
-    # an option group's keys (what extraction returns) and captions (2026-10-07: captions the page reading got wrong
-    # are fixed by hand): {key: {"key": new key, "caption": new caption, "" clears it}}, only what differs
-    ws = spec.get("widgets") if isinstance(spec.get("widgets"), dict) else \
-        (spec.get("options") if isinstance(spec.get("options"), dict) else {})     # a dropdown's options (2026-10-14)
-    if isinstance(edit.get("options"), dict) and ws:
-        got = {}
-        for k, o in edit["options"].items():
-            if k not in ws or not isinstance(o, dict):
-                continue
-            d = {}
-            nk = (o.get("key") or "").strip()
-            if nk and nk != k:
-                if not _OPT_KEY.match(nk):
-                    raise ValueError(f"option key {nk!r}: letters, digits, _ . - only")
-                d["key"] = nk
-            if "caption" in o and (o.get("caption") or "").strip() != (ws[k].get("caption") or ""):
-                d["caption"] = (o.get("caption") or "").strip()
-            if d:
-                got[k] = d
-        keys = [got.get(k, {}).get("key", k) for k in ws]
-        if len(set(keys)) != len(keys):
-            raise ValueError("two options would have the same key")
-        if got:
-            out["options"] = got
-    return out or None
+from petey.validate.edits import EDIT_TYPES, SLUG as _SLUG, clean_edit, edit_fields  # noqa: E402,F401
 
 
 def claude_suggestions(bid: str) -> dict:
@@ -947,82 +599,6 @@ def _focus() -> dict:
         return json.loads(p.read_text()) if p.exists() else {}
     except (OSError, json.JSONDecodeError):
         return {}
-
-
-def edit_fields(fields: dict, edits: dict, renames: dict, now: str, record: str, by: Optional[str] = None,
-                extra: Optional[dict] = None) -> dict:
-    """The blueprint's fields with `edits` ({name: clean_edit output}) applied, in place, each edited field marked
-    `x_petey_hand_edit` {when, from, to, record[, by], **extra[name]} (Claude's pass adds why and kind). `renames` is {name: new name} for every edited field.
-    Shared by the review page's corrections and Claude's pass (`eval/claude_pass_apply.py`, by: claude)."""
-    out = {}
-    for n, spec in fields.items():
-        if n in edits:
-            e = edits[n]
-            spec = dict(spec)
-            before = {"name": n, "type": spec.get("type")}
-            before.update(semantic_type=spec.get("semantic_type"), pattern=spec.get("pattern"))
-            if e.get("identifiers"):            # the parts the name was printed from (membership stays as kept)
-                keep = {k: v for k, v in (spec.get("x_petey_identifiers") or {}).items() if k == "grid"}
-                before["identifiers"] = spec.get("x_petey_identifiers")
-                spec["x_petey_identifiers"] = {**e["identifiers"], **keep}
-            if "type" in e:
-                spec["type"] = e["type"]
-                if e["type"] != "string":
-                    spec.pop("pattern", None)
-                if e["type"] in ("boolean",) + _CHOICE:
-                    spec.pop("semantic_type", None)
-                if e["type"] not in _CHOICE:
-                    spec.pop("values", None)
-                elif not spec.get("values") and spec.get("widgets"):
-                    spec["values"] = list(spec["widgets"])      # an option group: its keys (1_126 lost them)
-            old_st = spec.get("semantic_type") if "semantic_type" in e else None
-            for k in ("semantic_type", "pattern"):
-                if k in e:
-                    if e[k] == "none":
-                        spec.pop(k, None)
-                    else:
-                        spec[k] = e[k]
-            # a semantic type brings its pattern (Andrew, 2026-10-13: "the entire point of having them"); changed or
-            # cleared, the old type's pattern goes with it. An explicit pattern in the edit wins.
-            if "semantic_type" in e and "pattern" not in e:
-                from petey.semantic_types import pattern_for
-                if spec.get("pattern") and spec.get("pattern") == pattern_for(old_st):
-                    spec.pop("pattern")
-                if spec.get("type", "string") == "string" and pattern_for(spec.get("semantic_type")):
-                    spec["pattern"] = pattern_for(spec.get("semantic_type"))
-            if e.get("options"):
-                where = "widgets" if spec.get("widgets") else "options"          # a group's boxes, or a dropdown's entries
-                ws, renamed = {}, {}
-                for k, w in (spec.get(where) or {}).items():
-                    o, w = e["options"].get(k) or {}, dict(w)
-                    if "caption" in o:
-                        if o["caption"]:
-                            w["caption"], w["x_petey_caption_source"] = o["caption"], by or "hand"
-                        else:
-                            w.pop("caption", None)
-                            w.pop("x_petey_caption_source", None)
-                    if where == "options" and o.get("key", k) != k and "stored" not in w:
-                        w["stored"] = k                 # a dropdown entry renamed: the PDF still stores the old value
-                    ws[o.get("key", k)] = w
-                    renamed[k] = o.get("key", k)
-                spec[where] = ws
-                if spec.get("values"):
-                    spec["values"] = [renamed.get(x, x) for x in spec["values"]]
-                before["options"] = {k: ((fields[n][where].get(k) or {}).get("caption")) for k in e["options"]}
-            spec["x_petey_hand_edit"] = {"when": now, "from": before,
-                                         "to": {"name": renames[n], "type": spec.get("type"),
-                                                "semantic_type": spec.get("semantic_type"), "pattern": spec.get("pattern"),
-                                                **({"options": e["options"]} if e.get("options") else {})},
-                                         "record": record, **({"by": by} if by else {}),
-                                         **((extra or {}).get(n) or {})}
-            out[renames[n]] = spec
-        else:
-            out[n] = spec
-    # a name changed with no parts sent (typed in Review, a grid's rename, a chat edit): parts read from the new name,
-    # so the two stay in step (petey/naming.sync_parts, 2026-10-26)
-    from petey import naming
-    naming.sync_parts(out, [renames[n] for n in edits if n in fields and renames.get(n, n) != n])
-    return out
 
 
 def apply_edits(bid: str, *, dry: bool = False, log=print) -> int:

@@ -17,8 +17,9 @@ import threading
 from pathlib import Path
 from typing import Optional
 
-ROOT = Path(__file__).resolve().parents[2]
-RECORD = ROOT / "runs" / "benchmark" / "ignored_pages.json"
+from petey_dataset import BENCHMARK
+
+RECORD = BENCHMARK / "ignored_pages.json"
 PAGE_ID = re.compile(r"^[\w.-]+__p[1-9]\d*$")
 _LOCK = threading.Lock()
 

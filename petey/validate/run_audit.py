@@ -124,9 +124,9 @@ def _mech_index() -> dict:
 
 def version(bid: str, p: Path, entry: Optional[dict] = None, heavy: bool = False) -> dict:
     """One blueprint's numbers. `heavy` adds the name checks (witness) and the boxes no field covers."""
-    from petey.validate import hand_review as h
+    import petey_dataset as D
     from petey.validate.retype import resolve_blank
-    bp = h._load(p)
+    bp = D.load(p)
     fields = {n: s for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
     per_page = collections.Counter(_widget_page(s) for s in fields.values())
     pages = sorted(x for x in per_page if x)
@@ -163,7 +163,7 @@ def version(bid: str, p: Path, entry: Optional[dict] = None, heavy: bool = False
         out["mechanical"] = {"when": time.strftime("%Y-%m-%d %H:%M", time.localtime(when)), "file": mp.name,
                              "fixed": r.get("fixed"), "checks": r.get("checks")}
     # hand review and corrections
-    v = h.load_verdicts(bid)
+    v = D.load_verdicts(bid)
     vs = v.get("verdicts") or {}
     out["review"] = {"verdicts": len(vs), "flags": sum(1 for x in vs.values() if x.get("verdict") == "flag"),
                      "looked_at": sum(1 for x in vs.values() if not (x.get("note") or "").startswith(("bulk", "auto"))),
@@ -337,14 +337,14 @@ def audit(bid: str, paths: dict, entries: dict) -> dict:
     """Everything for one form: each version's numbers (the one asked for in full) and the history."""
     stem = stem_of(bid)
     ids = [b for b in paths if stem_of(b) == stem and b.split("__")[0] in ("lib", "je")] or [bid]
-    from petey.validate.hand_review import working_path
+    from petey_dataset import working_path
     vers = [version(b, working_path(b, paths), entries.get(b), heavy=(b == bid)) for b in sorted(ids)]
     return {"id": bid, "form": stem, "versions": vers, "history": history(stem, ids)}
 
 
 def batch(bids: list[str], paths: dict, entries: dict) -> list[dict]:
     """The batch table: every version of each listed form, light numbers only."""
-    from petey.validate.hand_review import working_path
+    from petey_dataset import working_path
     seen, rows = set(), []
     for bid in bids:
         stem = stem_of(bid)

@@ -4,7 +4,7 @@ you hit save; everything should be reading from the same source").
 Review corrections, Groups and Add / remove used to keep three separate pending records, each with its own apply
 button, and they went out of step (a Groups record left stale by a Review apply; saved groups that never reached the
 file). Now the page's first change to a blueprint copies it to `runs/drafts/<id>/<file>.bpt`, every change after
-that is applied to the copy at once, and all three modes read the copy (`hand_review.working_path`). One Save copies
+that is applied to the copy at once, and all three modes read the copy (`petey_dataset.working_path`). One Save copies
 it over the blueprint; Discard throws it away.
 
 The copy starts with snapshots of the three modes' records (`runs/hand_review`, `runs/group_review`,
@@ -25,44 +25,23 @@ import time
 from pathlib import Path
 from typing import Optional
 
-from petey.paths import RUNS
-
-DRAFTS = RUNS / "drafts"
-
-
-def _dir(bid: str) -> Path:
-    return DRAFTS / bid
-
-
-def meta(bid: str) -> Optional[dict]:
-    m = _dir(bid) / "draft.json"
-    try:
-        return json.loads(m.read_text(encoding="utf-8")) if m.exists() else None
-    except (OSError, json.JSONDecodeError):
-        return None
+from petey_dataset import DRAFTS  # noqa: F401
+from petey_dataset.blueprints import draft_dir as _dir, draft_meta as meta, working  # noqa: F401
 
 
 def _write_meta(bid: str, m: dict) -> None:
     (_dir(bid) / "draft.json").write_text(json.dumps(m, indent=1, ensure_ascii=False), encoding="utf-8")
 
 
-def working(bid: str, real: Path) -> Path:
-    """The copy while one is open, else the blueprint itself."""
-    m = meta(bid)
-    if m is None:
-        return real
-    p = _dir(bid) / Path(m["real"]).name
-    return p if p.exists() else real
-
-
 def _records(bid: str) -> dict[str, Path]:
-    from petey.validate import field_add, group_review, hand_review
-    return {"hand_review": hand_review.verdict_path(bid), "group_review": group_review.record_path(bid),
+    from petey.validate import field_add, group_review
+    import petey_dataset as D
+    return {"hand_review": D.verdict_path(bid), "group_review": group_review.record_path(bid),
             "field_add": field_add.record_path(bid)}
 
 
 def _sha(p: Path) -> str:
-    from petey.validate.hand_review import _sha
+    from petey_dataset import sha as _sha
     return _sha(p)
 
 

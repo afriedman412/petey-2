@@ -31,6 +31,7 @@ from pathlib import Path
 from typing import Optional
 
 from petey.paths import RUNS
+import petey_dataset as D
 
 INV = RUNS / "inventory"
 TOL = 3.0                # pt: a box here pairs with the source's box at its place (after the offset), sizes too
@@ -190,9 +191,8 @@ def _fields_on(bp: dict, page: int) -> int:
 def same_pages(bid: str) -> dict:
     """{page: [{form, page, fields, done, same_form}]}: each page's identical pages that hold fields, this form's
     lower copies first, then forms whose structure is accepted, then by fields."""
-    from petey.validate import hand_review as h
-    paths = h.blueprint_paths()
-    bp = h._load(h.working_path(bid, paths))
+    paths = D.blueprint_paths()
+    bp = D.load(D.working_path(bid, paths))
     inv = _inventory()
     key, mine = _pages_of(bid, bp, inv)
     if not mine:
@@ -206,9 +206,9 @@ def same_pages(bid: str) -> dict:
     def form(b: str):
         if b not in loaded:
             try:
-                p = h.working_path(b, paths)
-                other = h._load(p)
-                loaded[b] = (other, h.structure_ok(h.load_verdicts(b) or {}, paths[b], h._load(paths[b])))
+                p = D.working_path(b, paths)
+                other = D.load(p)
+                loaded[b] = (other, D.structure_ok(D.load_verdicts(b) or {}, paths[b], D.load(paths[b])))
             except Exception:  # noqa: BLE001
                 loaded[b] = ({}, False)
         return loaded[b]
@@ -486,41 +486,41 @@ def _carry_sets(bid: str, src: str, pl: dict, page: int, src_page: int, src_code
 def fill(bid: str, page: int, src: str, src_page: int, real: Optional[Path] = None) -> dict:
     """Page `page` of `bid` made what page `src_page` of `src` is, in the working copy (see the module's doc).
     {changes: [lines], left: [names here paired with nothing, flagged]}."""
-    from petey.validate import draft, group_review as G, hand_review as h
+    from petey.validate import draft, group_review as G
     from petey.validate.printed_fields import _dump
-    paths = h.blueprint_paths()
+    paths = D.blueprint_paths()
     real = real or paths[bid]
     if src == bid and src_page == page:
         raise ValueError("a page cannot be filled from itself")
-    src_bp = h._load(h.working_path(src, paths))
+    src_bp = D.load(D.working_path(src, paths))
     if not boxes(src_bp, src_page):
         raise ValueError(f"{src} p{src_page} has no fields to fill from")
     p = draft.ensure(bid, real)
-    before = h._sha(p)
-    bp = h._load(p)
+    before = D.sha(p)
+    bp = D.load(p)
     if src == bid:
         src_bp = bp
     _items, before_units, _info = G.current_units(bid, bp, before)
-    src_units = before_units if src == bid else G.current_units(src, src_bp, h._sha(h.working_path(src, paths)))[1]
+    src_units = before_units if src == bid else G.current_units(src, src_bp, D.sha(D.working_path(src, paths)))[1]
     pl = plan(bp, src_bp, page, src_page, src == bid, src)
     gone_codes = {c for n, c in _codes(bp).items() if n in pl["removed"]} - set(pl["codes"].values())
     src_codes_on_page = {c for n, c in _codes(src_bp).items() if n in pl["names"]}
-    src_verdicts = (h.load_verdicts(src).get("verdicts") or {})
+    src_verdicts = (D.load_verdicts(src).get("verdicts") or {})
     bp["fields"] = pl["fields"]
     dropped = (bp.get("x_petey_copy_pages_log") or {}).get("dropped_as_copies")
     if isinstance(dropped, dict):                  # the labeler's note that it left this page out as a copy
         dropped.pop(page, None)
         dropped.pop(str(page), None)
     p.write_text(_dump(bp), encoding="utf-8")
-    after = h._sha(p)
+    after = D.sha(p)
     draft.follow(bid, before, after)
     confirmed = _carry_groups(bid, bp, before_units, src_units, pl, page, after)
     nblocks, ngrids, notes = _carry_sets(bid, src, pl, page, src_page, src_codes_on_page, gone_codes)
     # Review verdicts: the source field's, the replaced fields' gone, the fields paired with nothing flagged
     now = time.strftime("%Y-%m-%d %H:%M:%S")
     where = f"p{src_page}" if src == bid else f"{src} p{src_page}"
-    with h._VERDICT_LOCK:
-        rec = h.load_verdicts(bid) or {"blueprint": str(real), "form": real.stem, "verdicts": {}, "blueprint_sha": after}
+    with D.LOCK:
+        rec = D.load_verdicts(bid) or {"blueprint": str(real), "form": real.stem, "verdicts": {}, "blueprint_sha": after}
         vs = rec.setdefault("verdicts", {})
         for n in pl["removed"]:
             if n not in pl["names"].values():
@@ -535,8 +535,7 @@ def fill(bid: str, page: int, src: str, src_page: int, real: Optional[Path] = No
                 vs.pop(name, None)
         for n in pl["left"]:
             vs[n] = {"verdict": "flag", "note": f"not on {where}, which this page was filled from", "when": now}
-        h.OUT.mkdir(parents=True, exist_ok=True)
-        h._write_verdicts(bid, rec)
+        D.write_verdicts(bid, rec)
     lines = [f"p{page} filled from {where}: {len(pl['names'])} fields ({pl['replaced']} on the boxes here, "
              f"{pl['added']} added), {carried} verdicts, {confirmed} group confirmations, {nblocks} blocks, "
              f"{ngrids} grids carried"]

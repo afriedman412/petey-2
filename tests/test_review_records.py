@@ -8,6 +8,7 @@ import pytest
 import yaml
 
 from petey.validate import hand_review as H
+from petey_dataset import verdicts as DV
 
 
 @pytest.fixture
@@ -15,7 +16,7 @@ def state(tmp_path, monkeypatch):
     bpt = tmp_path / "form.bpt"
     fields = {f"f{i}": {"type": "string", "widget": {"page": 1, "rect": [0, i * 10, 50, i * 10 + 8]}} for i in range(20)}
     bpt.write_text(yaml.safe_dump({"name": "form", "fields": fields}))
-    monkeypatch.setattr(H, "OUT", tmp_path / "records")
+    monkeypatch.setattr(DV, "OUT", tmp_path / "records")
     monkeypatch.setattr(H, "working_path", lambda bid, paths=None: bpt)
     s = object.__new__(H.State)
     s.paths, s._index = {"t__form": bpt}, {}
@@ -50,7 +51,7 @@ def test_reset_clears_every_verdict_and_keeps_the_record(tmp_path, monkeypatch):
     """Andrew (2026-10-22): "a button to reset validations? (and a 'are you sure?' screen)"."""
     import json
     from petey.validate import hand_review as h
-    monkeypatch.setattr(h, "OUT", tmp_path)
+    monkeypatch.setattr(DV, "OUT", tmp_path)
     assert h.reset_verdicts("t__x") == {"cleared": 0, "backup": None}
     h.verdict_path("t__x").write_text(json.dumps({"verdicts": {"a": {"verdict": "accept"}, "b": {"verdict": "flag"}}}))
     out = h.reset_verdicts("t__x")

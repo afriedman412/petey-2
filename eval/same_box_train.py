@@ -22,7 +22,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from petey.paths import RUNS  # noqa: E402
 from petey.validate import block_types as bt  # noqa: E402
-from petey.validate import hand_review as h  # noqa: E402
+import petey_dataset as D  # noqa: E402
 from petey.validate import same_box as sb  # noqa: E402
 
 
@@ -33,7 +33,7 @@ def pairs(rec_path: str) -> list[dict]:
     if not types:
         return []
     try:
-        bp = h._load(h.working_path(bid))
+        bp = D.load(D.working_path(bid))
     except Exception:            # noqa: BLE001  a form whose blueprint is gone
         return []
     pw = sb.PageWords(bp)

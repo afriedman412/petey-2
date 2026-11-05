@@ -6,13 +6,14 @@ import os
 import pytest
 
 from petey.validate import hand_review as h
+from petey_dataset import blueprints as DB
 
 
 @pytest.fixture
 def kept(monkeypatch, tmp_path):
     store = tmp_path / "parsed"
-    monkeypatch.setattr(h, "PARSED", store)
-    monkeypatch.setattr(h, "_parsed_path", lambda p: store / (p.name + ".pickle"))
+    monkeypatch.setattr(DB, "PARSED", store)
+    monkeypatch.setattr(DB, "_parsed_path", lambda p: store / (p.name + ".pickle"))
     return store
 
 
@@ -21,13 +22,13 @@ def test_a_parsed_copy_is_used_until_the_file_changes(kept, tmp_path, monkeypatc
     f.write_text("fields:\n  a_txt: {type: string}\n")
     assert h._load(f)["fields"]["a_txt"]["type"] == "string"
     assert h._stale(f) is False
-    monkeypatch.setattr(h.yaml, "load", lambda *a, **k: pytest.fail("parsed again while unchanged"))
+    monkeypatch.setattr(DB.yaml, "load", lambda *a, **k: pytest.fail("parsed again while unchanged"))
     first = h._load(f)
     first["fields"]["a_txt"]["type"] = "number"            # a caller changing what it got changes nothing kept
     assert h._load(f)["fields"]["a_txt"]["type"] == "string"
     monkeypatch.undo()
-    monkeypatch.setattr(h, "PARSED", kept)
-    monkeypatch.setattr(h, "_parsed_path", lambda p: kept / (p.name + ".pickle"))
+    monkeypatch.setattr(DB, "PARSED", kept)
+    monkeypatch.setattr(DB, "_parsed_path", lambda p: kept / (p.name + ".pickle"))
     f.write_text("fields:\n  b_nm: {type: string}\n")
     os.utime(f, ns=(f.stat().st_atime_ns, f.stat().st_mtime_ns + 1_000_000))
     assert h._stale(f) and list(h._load(f)["fields"]) == ["b_nm"]

@@ -20,7 +20,7 @@ import sys
 
 from petey.validate import compound_values as cv
 from petey.validate import group_review as gr
-from petey.validate import hand_review as h
+import petey_dataset as D
 
 
 def compare(key: list[dict], found: list[dict]) -> dict:
@@ -47,10 +47,10 @@ def compare(key: list[dict], found: list[dict]) -> dict:
 
 
 def _tagged() -> list[str]:
-    paths = h.blueprint_paths()
+    paths = D.blueprint_paths()
     out = []
     for bid in paths:
-        p = h.working_path(bid, paths)
+        p = D.working_path(bid, paths)
         if p and p.exists() and gr.ENTITY_KEY in p.read_text(encoding="utf-8", errors="ignore"):
             out.append(bid)
     return sorted(out)
@@ -59,10 +59,10 @@ def _tagged() -> list[str]:
 def main() -> int:
     tags = sys.argv[1] == "--tags"
     ids = _tagged() if tags else [k for k in json.loads(open(sys.argv[1]).read()) if k.startswith(("lib__", "je__"))]
-    paths = h.blueprint_paths()
+    paths = D.blueprint_paths()
     tot, kinds, log = collections.Counter(), collections.defaultdict(collections.Counter), {}
     for bid in ids:
-        bp = h._load(h.working_path(bid, paths))
+        bp = D.load(D.working_path(bid, paths))
         names = {str(s.get("x_petey_id")): n for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
         key = cv.from_tags(bp) if tags else cv.from_names(bp)
         if not key:

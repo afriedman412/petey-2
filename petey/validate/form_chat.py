@@ -27,7 +27,9 @@ from typing import Optional
 
 import yaml
 
-from petey.validate import draft, group_review as g, hand_review as h, page_check as pc
+from petey.validate import draft, group_review as g, page_check as pc
+import petey_dataset as D
+from petey.validate import edits
 from petey.validate.retype import resolve_blank
 
 MODEL = "claude-opus-5"
@@ -145,7 +147,7 @@ def _clean(bp: dict, ans: dict, num: dict[str, str]) -> dict:
         if opts:
             raw["options"] = {k: v for k, v in opts.items() if v}
         try:
-            ce = h.clean_edit(n, fields[n], raw)
+            ce = edits.clean_edit(n, fields[n], raw)
         except ValueError as err:
             out["errors"].append(f"{n}: {err}")
             continue
@@ -176,7 +178,7 @@ def grid_request(bid: str, page: int) -> str:
     petey/validate/grid_naming.py finds on this page: each table as rows x columns, the cells off its pattern, its mechanical
     renames. The model checks every table on the page, the ones the layout test missed too, and proposes the edits."""
     from petey.validate import grid_naming as G
-    bp = h._load(h.working_path(bid))
+    bp = D.load(D.working_path(bid))
     rules = _grid_rules()
     found, done = [], []
     from petey.validate import grid_check
@@ -226,7 +228,7 @@ def table_request(bid: str, tid: str, stopped: list[str]) -> str:
     take (fields outside it on its patterns), and the Y / N line only when a caption is printed Y / N."""
     from petey.validate import grid_naming as G
     from petey.validate import grid_check
-    bp = h._load(h.working_path(bid))
+    bp = D.load(D.working_path(bid))
     t = next((x for x in grid_check.tables(bp, bid) if x["id"] == tid), None)
     if t is None:
         return f"Table {tid} is no longer found; say so and propose nothing."
@@ -278,8 +280,8 @@ def ask(bid: str, history: list[dict], *, model: str = MODEL, client=None, only_
     time), usage and cost."""
     if not history or history[-1].get("role") != "user":
         raise ValueError("the conversation must end with a request")
-    p = h.working_path(bid)
-    bp = h._load(p)
+    p = D.working_path(bid)
+    bp = D.load(p)
     blocks, num = _context(bp, only_pages)
     msgs = []
     for i, m in enumerate(history):
@@ -310,8 +312,8 @@ def ask(bid: str, history: list[dict], *, model: str = MODEL, client=None, only_
 def apply(bid: str, edits: list[dict], groups: list[dict]) -> dict:
     """Write the ticked edits and groups into the working copy (removals are the server's: Add / remove). Returns
     {"changes": [...], "errors": [...], "renamed": {old: new}}."""
-    p = draft.ensure(bid, h.blueprint_paths()[bid])
-    bp = h._load(p)
+    p = draft.ensure(bid, D.blueprint_paths()[bid])
+    bp = D.load(p)
     fields = bp.get("fields") or {}
     changes, errors, renamed = [], [], {}
     clean, extra = {}, {}
@@ -321,7 +323,7 @@ def apply(bid: str, edits: list[dict], groups: list[dict]) -> dict:
             errors.append(f"no field {n!r}")
             continue
         try:
-            ce = h.clean_edit(n, fields[n], e.get("edit") or {})
+            ce = edits.clean_edit(n, fields[n], e.get("edit") or {})
         except ValueError as err:
             errors.append(f"{n}: {err}")
             continue
@@ -337,13 +339,13 @@ def apply(bid: str, edits: list[dict], groups: list[dict]) -> dict:
             clean.pop(n)
             ren.pop(n)
         if clean:
-            before = h._sha(p)
-            bp["fields"] = h.edit_fields(fields, clean, ren, time.strftime("%Y-%m-%d %H:%M:%S"),
+            before = D.sha(p)
+            bp["fields"] = edits.edit_fields(fields, clean, ren, time.strftime("%Y-%m-%d %H:%M:%S"),
                                          "petey/validate/form_chat.py", by="claude", extra=extra)
             p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False),
                          encoding="utf-8")
-            draft.follow(bid, before, h._sha(p))
-            vp = h.verdict_path(bid)                     # the person's verdicts follow a rename
+            draft.follow(bid, before, D.sha(p))
+            vp = D.verdict_path(bid)                     # the person's verdicts follow a rename
             if vp.exists():
                 rec = json.loads(vp.read_text())
                 vs = rec.get("verdicts") or {}
@@ -358,9 +360,9 @@ def apply(bid: str, edits: list[dict], groups: list[dict]) -> dict:
                         + (f", {len(clean[n]['options'])} option(s)" if clean[n].get("options") else "")
                         for n in clean]
     if groups:
-        bp = h._load(p)
+        bp = D.load(p)
         blank = resolve_blank(bp)
-        _, units, _ = g.current_units(bid, bp, h._sha(p))
+        _, units, _ = g.current_units(bid, bp, D.sha(p))
         items = g.option_items(bp)[0]          # option boxes only: a text box is combined, not grouped
         new_units = []
         for gr in groups:
@@ -384,10 +386,10 @@ def apply(bid: str, edits: list[dict], groups: list[dict]) -> dict:
             if pl["errors"]:
                 errors += [f"groups not applied: {x}" for x in pl["errors"]]
             else:
-                before = h._sha(p)
+                before = D.sha(p)
                 g.State().put_units(bid, {"units": units})
                 res = g.apply(bid)
-                draft.follow(bid, before, h._sha(h.working_path(bid)))
+                draft.follow(bid, before, D.sha(D.working_path(bid)))
                 changes += res["changes"]
     if changes:
         draft.log(bid, "claude", [f"chat: {c}" for c in changes])

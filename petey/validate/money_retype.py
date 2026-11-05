@@ -23,7 +23,8 @@ import re
 import yaml
 
 from petey.paths import RUNS
-from petey.validate import field_ids, hand_review
+from petey.validate import field_ids
+import petey_dataset as D
 from petey.validate.retype import resolve_blank
 
 WHOLE = re.compile(r"whole[- ]dollar|nearest (whole )?dollar|round(ed|ing| off)?\b[^.]{0,40}dollar|omit cents|no cents|"
@@ -79,8 +80,8 @@ def run(write: bool) -> dict:
     from petey.validate.page_check import spec_hash
     out = collections.Counter()
     kept = collections.Counter()
-    for bid, p in hand_review.blueprint_paths().items():
-        bp = hand_review._load(p)
+    for bid, p in D.blueprint_paths().items():
+        bp = D.load(p)
         fields = bp.get("fields") or {}
         hits = [n for n, s in fields.items() if isinstance(s, dict) and s.get("semantic_type") == "money_whole_dollar"]
         if not hits:
@@ -113,9 +114,9 @@ def run(write: bool) -> dict:
         out["fields"] += len(moved)
         out["blueprints"] += bool(moved)
         if write and moved:
-            sha = hand_review._sha(p)
+            sha = D.sha(p)
             p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False), encoding="utf-8")
-            for t in field_ids._rehash(bid, sha, hand_review._sha(p)):
+            for t in field_ids._rehash(bid, sha, D.sha(p)):
                 out[f"records rehashed: {t}"] += 1
             out["page-check verdicts re-keyed"] += _rekey(bp, moved)
     return {"changed": dict(out), "kept as whole dollars": dict(kept)}

@@ -37,7 +37,8 @@ import yaml
 
 from petey.label.auto_label import dropdown_spec
 from petey.locate.acroform import enumerate_widgets
-from petey.validate import field_ids, hand_review
+from petey.validate import field_ids
+import petey_dataset as D
 from petey.validate.money_retype import _rekey
 from petey.validate.retype import resolve_blank
 
@@ -92,9 +93,9 @@ def options_into_working(bid: str) -> list[str]:
     from petey.label import xfa
     from petey.validate import draft
     from petey.validate.page_check import spec_hash
-    real = hand_review.blueprint_paths()[bid]
+    real = D.blueprint_paths()[bid]
     p = draft.ensure(bid, real)
-    bp = hand_review._load(p)
+    bp = D.load(p)
     blank = resolve_blank(bp)
     t = None
     try:
@@ -116,10 +117,10 @@ def options_into_working(bid: str) -> list[str]:
         lines.append(f"{name}: {len(opts)} dropdown options" + (f", the empty entry {dropped} dropped" if dropped else "")
                      + (" (stored values differ from the keys)" if any("stored" in o for o in opts.values()) else ""))
     if lines:
-        before = hand_review._sha(p)
+        before = D.sha(p)
         p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False), encoding="utf-8")
         _rekey(bp, moved)
-        draft.follow(bid, before, hand_review._sha(p))
+        draft.follow(bid, before, D.sha(p))
         draft.log(bid, "claude", lines)
     return lines
 
@@ -152,8 +153,8 @@ def run(write: bool) -> dict:
     from petey.validate.page_check import spec_hash
     out: collections.Counter = collections.Counter()
     forms = {}
-    for bid, p in hand_review.blueprint_paths().items():
-        bp = hand_review._load(p)
+    for bid, p in D.blueprint_paths().items():
+        bp = D.load(p)
         blank = resolve_blank(bp)
         if not blank or not blank.exists():
             continue
@@ -174,10 +175,10 @@ def run(write: bool) -> dict:
         for what in changed.values():
             out["values set" if "values" in what else "kind only"] += 1
         if write:
-            sha = hand_review._sha(p)
+            sha = D.sha(p)
             p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False),
                          encoding="utf-8")
-            for t in field_ids._rehash(bid, sha, hand_review._sha(p)):
+            for t in field_ids._rehash(bid, sha, D.sha(p)):
                 out[f"records rehashed: {t}"] += 1
             moved = {n: (old[n], spec_hash(bp["fields"][n])) for n in changed}
             out["page-check verdicts re-keyed"] += _rekey(bp, moved)

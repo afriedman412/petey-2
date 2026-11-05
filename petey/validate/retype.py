@@ -67,16 +67,7 @@ def _min_width(pattern: str) -> int:
         return 0
 
 
-def resolve_blank(bp: dict) -> Optional[Path]:
-    src = bp.get("source_pdf")
-    if not src:
-        return None
-    direct = SOURCE_PDFS / str(src)
-    if direct.is_file():
-        return direct
-    hits = [h for h in SOURCE_PDFS.rglob(Path(str(src)).name)
-            if "source_pdfs_old" not in h.parts and h.is_file()]
-    return hits[0] if hits else None
+from petey_dataset.blueprints import resolve_blank  # noqa: E402,F401  (the blank under source_pdfs/)
 
 
 def describe_blueprint(bp: dict, limits: dict[str, dict],

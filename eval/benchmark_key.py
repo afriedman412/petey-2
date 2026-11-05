@@ -21,7 +21,7 @@ What the guidelines say, as read here (docs/BENCHMARK_JUDGEMENT_QS.md, Decided):
                to blueprints, they are fields"), set on the printed sheet or the Review tab; initials printed, signing
                dates and titles text
     groups     option groups of two or more boxes; Split Fields as tagged on the Groups tab (x_petey_entity) whose
-               kind counts in the taxonomy (petey/validate/split_types.py: dates, phones, ID numbers; 2026-11-04,
+               kind counts in the taxonomy (petey_dataset/split_types.py: dates, phones, ID numbers; 2026-11-04,
                a tagged name or address is not a split value). Library forms validated before the tag existed
                carry none
 
@@ -31,7 +31,7 @@ S"; "structural is all that matters for the benchmark"), in
 the benchmark's sets (library, first batch, business, government, municipal, big publishers, hand-picked, finance,
 private);
 at most `PER_FORM` pages a form, those with the most fields, after the pages ignored on the review page are left out
-(petey.validate.ignored_pages, 2026-10-31). Fields ignored on a chosen page (petey.validate.ignored_fields, 2026-11-03:
+(petey_dataset.ignored_pages, 2026-10-31). Fields ignored on a chosen page (petey_dataset.ignored_fields, 2026-11-03:
 fields stacked in one open area with no printed line between them) leave the key, groups included; their boxes stay
 as the page's `"ignored": [[x0, y0, x1, y1], ...]`, where the scorer leaves a system's boxes out too. The pick is made
 before they are left out, so the pages stay the same. Nothing is written to the blueprints.
@@ -60,6 +60,7 @@ import json
 import sys
 from pathlib import Path
 from typing import Optional
+import petey_dataset as D
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "runs" / "benchmark" / "key"
@@ -98,11 +99,10 @@ def _set_of(bid: str, business: set, gov: set) -> Optional[str]:
 
 
 def _kind(spec: dict, w: dict) -> str:
-    from petey.validate.printed_fields import is_printed
     # an option group's boxes are choices however the publisher drew them (text widgets to type an X in)
     if w.get("widget_type") in CHOICE or spec.get("type") == "boolean" or spec.get("widgets"):
         return "choice"
-    return "printed" if is_printed(spec) else "text"
+    return "printed" if D.is_printed(spec) else "text"
 
 
 SQUARE = (5.0, 16.0)       # points: a box this size each way, about square, looks like a checkbox on the page
@@ -151,8 +151,7 @@ def as_seen(page: dict) -> int:
 
 def in_key(v: dict, p: Path) -> bool:
     """The form's structure validated and the file unchanged since: the S, whatever its names (2026-11-04)."""
-    from petey.validate import hand_review as h
-    s = h.structure(v, p)
+    s = D.structure(v, p)
     return bool(s and not s["stale"])
 
 
@@ -190,7 +189,7 @@ def picked(bid: str, keys: dict[int, dict], picks: dict) -> dict:
 
 
 def drop_ignored(page: dict, ids) -> int:
-    """Leave the ignored fields out of a page's key (petey.validate.ignored_fields): out of its fields and groups (a
+    """Leave the ignored fields out of a page's key (petey_dataset.ignored_fields): out of its fields and groups (a
     group left with one field is no group), their boxes kept as `ignored`. How many left."""
     ids = {str(i) for i in ids}
     gone = [f for f in page["fields"] if f["id"] in ids]
@@ -203,7 +202,7 @@ def drop_ignored(page: dict, ids) -> int:
 
 
 def page_keys(bp: dict, entities: list[dict] = ()) -> dict[int, dict]:
-    """{page: {fields, groups}} for one blueprint. `entities`: Split Fields as `compound_values.from_tags` gives them
+    """{page: {fields, groups}} for one blueprint. `entities`: Split Fields as `petey_dataset.split_values` gives them
     ([{fields: [code, ...]}])."""
     fields = {n: s for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
     out: dict[int, dict] = collections.defaultdict(lambda: {"fields": [], "groups": []})
@@ -244,13 +243,12 @@ def page_keys(bp: dict, entities: list[dict] = ()) -> dict[int, dict]:
 
 def candidates() -> list[tuple[str, str]]:
     """[(review id, set)] of the forms in the benchmark's sets."""
-    from petey.validate import hand_review as h
     R = ROOT / "runs" / "acquisition" / "safedocs"
     business = {f["review_id"] for f in json.loads((R / "business_set.json").read_text())["forms"]} \
         if (R / "business_set.json").exists() else set()
     gov = {"bm__sd_" + json.loads(ln)["url_id"] for ln in (R / "staged_gov.jsonl").read_text().splitlines() if ln} \
         if (R / "staged_gov.jsonl").exists() else set()
-    return [(b, s) for b in h.blueprint_paths() if (s := _set_of(b, business, gov))]
+    return [(b, s) for b in D.blueprint_paths() if (s := _set_of(b, business, gov))]
 
 
 def write_page_pdf(blank: Path, page: int, dst: Path) -> list[float]:
@@ -274,12 +272,7 @@ def write_page_pdf(blank: Path, page: int, dst: Path) -> list[float]:
 
 
 def main() -> int:
-    from petey.validate import compound_values as cv
-    from petey.validate import split_types
-    from petey.validate import hand_review as h
-    from petey.validate import ignored_fields, ignored_forms, ignored_pages
-    from petey.validate import printed_fields as pf
-    from petey.validate.retype import resolve_blank
+    from petey_dataset import ignored_fields, ignored_forms, ignored_pages
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--forms", nargs="*", help="review ids (default: every validated form in the sets)")
     ap.add_argument("--pdfs", action="store_true", help="also write each page's flat PDF")
@@ -288,26 +281,26 @@ def main() -> int:
     ap.add_argument("--picks", type=Path, default=PICKS, help="the permanent page pick (default runs/benchmark/picks.json)")
     args = ap.parse_args()
     args.out = args.out or (DEV_OUT if args.spare else OUT)
-    paths = h.blueprint_paths()
+    paths = D.blueprint_paths()
     todo = [(b, s) for b, s in candidates() if not args.forms or b in args.forms]
     index, skipped, notes = [], collections.Counter(), collections.Counter()
     picks, new_picks = load_picks(args.picks), 0
-    record = pf.load()
+    record = D.printed_record()
     ignored, ignored_f = ignored_pages.load(), ignored_forms.load()
     ignored_fl = ignored_fields.load()
-    proposed = json.loads(pf.CANDIDATES.read_text()) if pf.CANDIDATES.exists() else {}
+    proposed = json.loads(D.PRINTED_CANDIDATES.read_text()) if D.PRINTED_CANDIDATES.exists() else {}
     unconfirmed = 0
     for bid, sset in todo:
         old = bid in picks                               # picked before: encoded whatever its standing now
         if not old and bid in ignored_f:                 # the whole form ignored on the review page (2026-11-03)
             skipped["form ignored"] += 1
             continue
-        v = h.load_verdicts(bid)
+        v = D.load_verdicts(bid)
         if not old and not v.get("verdicts") and not v.get("structure"):
             skipped["not reviewed"] += 1
             continue
-        p = h.working_path(bid, paths)
-        bp = h._load(p)
+        p = D.working_path(bid, paths)
+        bp = D.load(p)
         if not old and not in_key(v, p):
             skipped["no structure check"] += 1
             continue
@@ -315,7 +308,7 @@ def main() -> int:
             notes["picked forms ignored since"] += 1
         elif old and not in_key(v, p):
             notes["picked forms whose S is stale or gone"] += 1
-        keys = page_keys(bp, [e for e in cv.from_tags(bp) if split_types.counts(e["kind"])])
+        keys = page_keys(bp, D.split_values(bp))
         for pg in [pg for pg in keys if f"{bid}__p{pg}" in ignored]:      # ignored on the review page, before the pick
             del keys[pg]
             skipped["pages ignored"] += 1
@@ -323,7 +316,7 @@ def main() -> int:
         new_picks += not old
         pages = [pg for pg in pick["spare" if args.spare else "key"] if pg in keys]
         notes["picked pages ignored or without fields now"] += len(pick["spare" if args.spare else "key"]) - len(pages)
-        blank = resolve_blank(bp)
+        blank = D.resolve_blank(bp)
         for pg in sorted(pages):
             pid = f"{bid}__p{pg}"
             k = {"page_id": pid, "form": bid, "page": pg, "set": sset, "source_pdf": bp.get("source_pdf"),

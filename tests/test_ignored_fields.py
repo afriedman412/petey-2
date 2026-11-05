@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-from petey.validate import ignored_fields as ifl
+from petey_dataset import ignored_fields as ifl
 
 sys.path.insert(0, "eval")
 import benchmark_key as K  # noqa: E402

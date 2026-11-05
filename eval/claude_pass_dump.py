@@ -19,7 +19,7 @@ from pathlib import Path
 from petey.paths import RUNS
 from petey.validate import field_add
 from petey.validate import witness as W
-from petey.validate.hand_review import load_verdicts, working_path
+from petey_dataset import load_verdicts, working_path
 
 OUT = RUNS / "claude_pass"
 

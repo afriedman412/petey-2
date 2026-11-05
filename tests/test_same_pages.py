@@ -10,6 +10,9 @@ from petey.validate import grid_check as gc
 from petey.validate import group_review as G
 from petey.validate import hand_review as H
 from petey.validate import same_pages as S
+import petey_dataset
+from petey_dataset import verdicts as DV
+from petey_dataset import blueprints as DB
 
 
 def _text(page, code, x, y, w=100, path=None, **kw):
@@ -80,12 +83,13 @@ def test_another_forms_page_keeps_its_names_moved_by_the_offset():
 def state(tmp_path, monkeypatch):
     bpt = tmp_path / "form.bpt"
     bpt.write_text(yaml.safe_dump(_form(), sort_keys=False))
-    monkeypatch.setattr(H, "OUT", tmp_path / "hand_review")
+    monkeypatch.setattr(DV, "OUT", tmp_path / "hand_review")
     monkeypatch.setattr(G, "OUT", tmp_path / "group_review")
     monkeypatch.setattr(gc, "SETS", tmp_path / "grids")
-    monkeypatch.setattr(draft, "DRAFTS", tmp_path / "drafts")
+    monkeypatch.setattr(DB, "DRAFTS", tmp_path / "drafts")
+    monkeypatch.setattr(petey_dataset, "blueprint_paths", lambda: {"t__form": bpt})
+    monkeypatch.setattr(DB, "blueprint_paths", lambda: {"t__form": bpt})
     monkeypatch.setattr(H, "blueprint_paths", lambda: {"t__form": bpt})
-    H.OUT.mkdir()
     H._write_verdicts("t__form", {"blueprint": str(bpt), "form": "form", "blueprint_sha": H._sha(bpt), "verdicts": {
         "employee_nm": {"verdict": "accept", "when": "x"}, "f2_1": {"verdict": "flag", "note": "?", "when": "x"}}})
     gc.SETS.mkdir()

@@ -61,9 +61,10 @@ def assign(bp: dict) -> list[str]:
 
 def _rehash(bid: str, old: str, new: str) -> list[str]:
     """Move the review records that matched the old file to the new one; returns which were moved."""
-    from petey.validate import field_add, group_review, hand_review
+    from petey.validate import field_add, group_review
+    import petey_dataset as D
     moved = []
-    for tag, p in (("review", hand_review.verdict_path(bid)), ("groups", group_review.record_path(bid)),
+    for tag, p in (("review", D.verdict_path(bid)), ("groups", group_review.record_path(bid)),
                    ("add", field_add.record_path(bid))):
         if not p.exists():
             continue
@@ -84,7 +85,7 @@ def _rehash(bid: str, old: str, new: str) -> list[str]:
 
 def write(bid: str, p: Path) -> tuple[int, list[str]]:
     """Assign ids in one blueprint file and rehash its records; returns (fields given an id, records moved)."""
-    from petey.validate.hand_review import _load, _sha
+    from petey_dataset import load as _load, sha as _sha
     old, bp = _sha(p), _load(p)
     added = assign(bp)
     if not added:
@@ -98,7 +99,7 @@ def main() -> int:
     ap.add_argument("ids", nargs="*", help="review ids (default: every blueprint the review page offers)")
     ap.add_argument("--write", action="store_true", help="write the ids (default: report only)")
     args = ap.parse_args()
-    from petey.validate.hand_review import _load, blueprint_paths
+    from petey_dataset import load as _load, blueprint_paths
     paths = blueprint_paths()
     todo = {b: paths[b] for b in args.ids} if args.ids else paths
     files = fields = 0

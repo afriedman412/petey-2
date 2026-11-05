@@ -14,10 +14,9 @@ import threading
 from pathlib import Path
 from typing import Optional
 
-from petey.validate import ignored_pages
+from petey_dataset import HAND_REVIEW, ignored_pages
 
-ROOT = Path(__file__).resolve().parents[2]
-RECORD = ROOT / "runs" / "hand_review" / "ignored_forms.json"
+RECORD = HAND_REVIEW / "ignored_forms.json"
 _LOCK = threading.Lock()
 _CACHE: dict = {}
 
