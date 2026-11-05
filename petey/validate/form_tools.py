@@ -16,6 +16,9 @@ the working copy, shows in the save list and goes with discard.
   combined logically", 2026-10-28) proposed by Claude from a picture of each page. Only the taxonomy's counted kinds
   are asked for (`split_types.counted()`: dates, phones, ID numbers; Andrew, 2026-11-04: "pare this down to the ones
   we care about"); names, addresses, signature lines, times and money stay hand-tagged in Groups.
+- `rightsize_proposals` (2026-11-05, "rightsize check boxes"; the menu named "quick fix" since): each checkbox / radio
+  box made the printed square, circle or other shape it sits on, shrunk or grown; written straight into the working
+  copy (`printed_fields.write`), names and groups untouched.
 """
 from __future__ import annotations
 
@@ -44,6 +47,18 @@ SIG_LINE_W, SIG_BOX_W = 80.0, 100.0
 SIG_LINE_H = 18.0               # a field over a signature line reaches this far above it
 SIG_ROOM = 15.0                 # pt of empty box under a signature caption inside it
 TEXT_MODEL = "claude-opus-5"
+SNAP_INSIDE = 0.5               # of the smaller one's area: a checkbox and a printed mark this much in each other are one
+                                # (lib__hud_92902 p3: a box 2 pt right of its 7 pt square is 74% on it)
+SNAP_TOL = 1.0                  # pt: a checkbox this close to its mark on every edge is right already
+SNAP_ASPECT = 1.4               # an outline read off the page image no wider or taller than this is a checkbox's
+SNAP_DPI, SNAP_DARK = 150, 160  # the page image the marks are checked on; a pixel darker than this is ink
+SNAP_INK = 0.08                 # of a mark's rim (2 px outside its edge to a fifth of its size inside) that is ink, at
+                                # least: less is a shape drawn white or not at all (bm__sd_7908813 p1: an unstroked
+                                # white 18 pt square behind each printed 7 pt one)
+SNAP_RULE = 0.6                 # of the 2-6 pt past an outline's corner that is ink along its edge: the edge goes on, a
+                                # table's ruling (lib__gsa_sf_26 p1: the "(X)" column's cells, no printed box in them)
+SNAP_MIN, SNAP_MAX = 4.0, 24.0  # pt: an outline read off the page image this size is a checkbox's (not a letter's
+                                # hole, not a table cell)
 
 
 # ------------------------------------------------------------------ shared
@@ -325,6 +340,178 @@ def signature_proposals(bp: dict, blank, now: Optional[str] = None) -> tuple[lis
                       "geometry": f"printed signature place by '{cap}'"})
         notes.append(f"p{i} {name}")
     return added, notes
+
+
+# ------------------------------------------------------------------ rightsize checkboxes
+
+def option_boxes(bp: dict) -> list[tuple[str, Optional[str], dict]]:
+    """[(field name, option key or None, widget)] of every checkbox / radio box: a lone option field's widget and each
+    option of a group's."""
+    out = []
+    for n, s in (bp.get("fields") or {}).items():
+        if not isinstance(s, dict):
+            continue
+        ws = [(k, w) for k, w in (s.get("widgets") or {}).items()] if s.get("widgets") else [(None, s.get("widget") or {})]
+        for k, w in ws:
+            if isinstance(w, dict) and w.get("rect") and w.get("page") and w.get("widget_type") in field_add.OPTION_WIDGETS:
+                out.append((n, k, w))
+    return out
+
+
+def page_ink(page) -> np.ndarray:
+    """The page image at SNAP_DPI as a boolean ink mask."""
+    pix = page.get_pixmap(dpi=SNAP_DPI, colorspace=pymupdf.csGRAY)
+    return np.frombuffer(pix.samples, np.uint8).reshape(pix.h, pix.w) < SNAP_DARK
+
+
+def _px(ink: np.ndarray, x0: float, y0: float, x1: float, y1: float) -> np.ndarray:
+    """The ink mask's pixels in a rect given in pt."""
+    s = SNAP_DPI / 72
+    a, b = max(0, int(y0 * s)), min(ink.shape[0], int(np.ceil(y1 * s)))
+    c, d = max(0, int(x0 * s)), min(ink.shape[1], int(np.ceil(x1 * s)))
+    return ink[a:b, c:d]
+
+
+def _inked(ink: np.ndarray, m) -> bool:
+    """The mark shows: SNAP_INK of its rim is ink."""
+    g, t = 2 * 72 / SNAP_DPI, 0.2 * min(m[2] - m[0], m[3] - m[1])
+    outer = _px(ink, m[0] - g, m[1] - g, m[2] + g, m[3] + g)
+    inner = _px(ink, m[0] + t, m[1] + t, m[2] - t, m[3] - t)
+    rim = outer.size - inner.size
+    return rim > 0 and (outer.sum() - inner.sum()) / rim >= SNAP_INK
+
+
+def _ruled(ink: np.ndarray, m) -> bool:
+    """An edge of the outline goes on past its corner: SNAP_RULE of the 2-6 pt beyond a corner along a top, bottom, left
+    or right edge is ink."""
+    x0, y0, x1, y1 = m
+    e = 72 / SNAP_DPI * 1.5
+    strips = []
+    for y in (y0, y1):                  # top and bottom edges, left and right of the outline
+        strips += [_px(ink, x0 - 6, y - e, x0 - 2, y + e).any(axis=0), _px(ink, x1 + 2, y - e, x1 + 6, y + e).any(axis=0)]
+    for x in (x0, x1):                  # left and right edges, above and below it
+        strips += [_px(ink, x - e, y0 - 6, x + e, y0 - 2).any(axis=1), _px(ink, x - e, y1 + 2, x + e, y1 + 6).any(axis=1)]
+    return any(st.size and st.mean() >= SNAP_RULE for st in strips)
+
+
+def printed_marks(page, ink: Optional[np.ndarray] = None) -> list[list[float]]:
+    """The page's printed checkbox squares and radio circles, drawn or typed as a character (the finder's own readers,
+    `finder_addons`), that show on the page (`_inked`)."""
+    from petey.synth import finder_addons as fa
+    ink = page_ink(page) if ink is None else ink
+    out: list[list[float]] = []
+    for r in fa.square_rects(page) + fa.circle_rects(page) + fa.glyph_square_rects(page):
+        box = [r.x0, r.y0, r.x1, r.y1]
+        if _inked(ink, box) and not any(all(abs(a - b) < 1 for a, b in zip(box, o)) for o in out):
+            out.append(box)
+    return out
+
+
+def _same_box(field, mark, frac: float = SNAP_INSIDE) -> bool:
+    """The field and the printed mark are one box: the smaller of the two is (nearly) inside the larger."""
+    ix = max(0.0, min(field[2], mark[2]) - max(field[0], mark[0]))
+    iy = max(0.0, min(field[3], mark[3]) - max(field[1], mark[1]))
+    a = lambda r: max(1e-6, (r[2] - r[0]) * (r[3] - r[1]))
+    return ix * iy >= frac * min(a(field), a(mark))
+
+
+def printed_chars(page) -> list[tuple[float, float, float, float]]:
+    """The page's printed characters' boxes, not the ones that print a box (lib__hud_92902: a typed U+2610 is the
+    checkbox, run into its caption as one word)."""
+    from petey.synth import finder_addons as fa
+    out = []
+    for b in page.get_text("rawdict").get("blocks", []):
+        for ln in b.get("lines", []):
+            for sp in ln.get("spans", []):
+                sym = any(k in sp["font"].lower() for k in fa.SYMBOL_FONTS)
+                out += [tuple(ch["bbox"]) for ch in sp.get("chars", [])
+                        if ch["c"].strip() and not (fa._is_shape_char(ch["c"], sym) and not ch["c"].isalnum())]
+    return out
+
+
+def _raster_mark(blank, page: int, rect, words: list, ink: np.ndarray) -> Optional[list[float]]:
+    """The printed outline of any other shape around the field's middle, read off the page image (Add / remove's click
+    in a box), when it is checkbox-sized and about as wide as tall (lib__f990ez p3's Yes / No columns: a 22 x 13 pt
+    table cell round each checkbox is no printed box), with no printed character on it (je__ada_dental_claim's tooth numbers:
+    the white between a number's digits is no printed box), not a cell of a table (`_ruled`), and empty in its middle
+    (bm__sd_4920315 p1: a radio printed already marked, the white ring between its dot and its outline is no box)."""
+    box = field_add.enclosed_box(blank, page, (rect[0] + rect[2]) / 2, (rect[1] + rect[3]) / 2)
+    if box is None:
+        return None
+    w, h = box[2] - box[0], box[3] - box[1]
+    if any(min(box[2], x[2]) > max(box[0], x[0]) and min(box[3], x[3]) > max(box[1], x[1]) for x in words) \
+            or _ruled(ink, box) or _px(ink, box[0] + 0.3 * w, box[1] + 0.3 * h, box[2] - 0.3 * w, box[3] - 0.3 * h).any():
+        return None
+    return box if SNAP_MIN <= w <= SNAP_MAX and SNAP_MIN <= h <= SNAP_MAX and 1 / SNAP_ASPECT <= w / h <= SNAP_ASPECT else None
+
+
+def rightsize_proposals(bp: dict, blank) -> tuple[list[tuple[str, Optional[str], list[float]]], list[str]]:
+    """([(field name, option key or None, new rect)], notes): each checkbox / radio box made the printed square, circle
+    or other shape it sits on (Andrew, 2026-11-05: "a field that is bigger than the drawn box, the fix is to shrink the
+    field to match the box"; "field is smaller than box as well"). The mark is the one the box (nearly) encloses, or
+    the one the box is (nearly) inside: SNAP_INSIDE of the smaller one's area within the other. A box over two or more
+    marks, a mark under two or more boxes, and a box already within SNAP_TOL pt of its mark are left as they are; a box
+    with no drawn mark takes the outline round its middle in the page image."""
+    boxes = option_boxes(bp)
+    marks: dict[int, list[list[float]]] = {}
+    words: dict[int, list] = {}
+    inks: dict[int, np.ndarray] = {}
+    doc = pymupdf.open(str(blank))
+    try:
+        for pg in sorted({int(w["page"]) for _, _, w in boxes}):
+            if pg <= len(doc):
+                inks[pg] = page_ink(doc[pg - 1])
+                marks[pg] = printed_marks(doc[pg - 1], inks[pg])
+                words[pg] = printed_chars(doc[pg - 1])
+    finally:
+        doc.close()
+    found: list[tuple[str, Optional[str], dict, list[float]]] = []
+    notes: list[str] = []
+    label = lambda n, k: f"{n} ({k})" if k else n
+    for n, k, w in boxes:
+        pg, rect = int(w["page"]), [float(c) for c in w["rect"]]
+        if pg not in marks:
+            continue
+        on = [m for m in marks[pg] if _same_box(rect, m)]
+        if len(on) > 1:
+            notes.append(f"p{pg} {label(n, k)}: over {len(on)} printed boxes, left as it is")
+            continue
+        m = on[0] if on else _raster_mark(blank, pg, rect, words[pg], inks[pg])
+        if m is not None and (on or _same_box(rect, m)):
+            found.append((n, k, w, m))
+    per_mark: dict[tuple, int] = {}
+    for n, k, w, m in found:
+        key = (int(w["page"]), *(round(v) for v in m))
+        per_mark[key] = per_mark.get(key, 0) + 1
+    out = []
+    for n, k, w, m in found:
+        pg = int(w["page"])
+        if per_mark[(pg, *(round(v) for v in m))] > 1:
+            notes.append(f"p{pg} {label(n, k)}: shares its printed box with another field, left as it is")
+            continue
+        if all(abs(float(a) - b) <= SNAP_TOL for a, b in zip(w["rect"], m)):
+            continue
+        new = [round(v, 2) for v in m]
+        r = w["rect"]
+        out.append((n, k, new))
+        notes.append(f"p{pg} {label(n, k)}: {r[2] - r[0]:.1f} x {r[3] - r[1]:.1f} -> {new[2] - new[0]:.1f} x {new[3] - new[1]:.1f}")
+    return out, notes
+
+
+def rightsize(bp: dict, changes: list[tuple[str, Optional[str], list[float]]]) -> list[str]:
+    """The boxes' new rects set in `bp`; one line per box changed."""
+    lines = []
+    for n, k, rect in changes:
+        s = (bp.get("fields") or {}).get(n)
+        if not isinstance(s, dict):
+            continue
+        w = (s.get("widgets") or {}).get(k) if k else s.get("widget")
+        if not isinstance(w, dict) or w.get("rect") == rect:
+            continue
+        lines.append(f"{n}{f' ({k})' if k else ''}: box {[round(float(c), 1) for c in w['rect']]} -> {rect} "
+                     "(rightsized to its printed box)")
+        w["rect"] = rect
+    return lines
 
 
 # ------------------------------------------------------------------ text groups (Claude)

@@ -103,15 +103,17 @@ def test_clean_groups_keeps_two_or_more_free_fields_on_one_page():
     assert (u["kind"], u["name"], u["entity_type"], u["items"]) == ("text", "date_of_birth_2", "date", ["mm", "dd", "yyyy"])
 
 
-def test_the_header_menu_holds_the_four_tools():
+def test_the_quick_fix_menu_holds_the_five_tools():
+    """Andrew, 2026-11-05: "add a 'rightsize check boxes' button", "change that dropdown menu to 'quick fix'"."""
     header = (SRC / "components" / "Header.tsx").read_text()
-    assert "<FormTools bid={bid} />" in header and "'run finders ▾'" in header
+    assert "<FormTools bid={bid} />" in header and "'quick fix ▾'" in header and "'run finders ▾'" not in header
     for k, label in (("finders", "run finders"), ("split", "split multi-line boxes"), ("signatures", "add signatures"),
-                     ("textgroups", "add text groups")):
+                     ("textgroups", "add text groups"), ("rightsize", "rightsize checkboxes")):
         assert f"k: '{k}', label: '{label}'" in header
     assert "mapi('tools', bid, '/' + t.k)" in header
     server = (Path(__file__).resolve().parents[1] / "petey" / "validate" / "blueprint_review.py").read_text()
     assert '("tools", "split"), ("tools", "signatures")' in server and '("tools", "textgroups")' in server
+    assert '("tools", "rightsize")' in server
 
 
 def test_text_groups_are_asked_for_the_counted_kinds_only():
@@ -126,3 +128,74 @@ def test_text_groups_are_asked_for_the_counted_kinds_only():
     for k in set(split_types.names()) - set(kinds):
         assert f"- {k}: " not in ft.TEXT_SYSTEM
     assert "Not text groups: name parts" in ft.TEXT_SYSTEM
+
+
+def _check(x0, y0, x1, y1, page=1):
+    return {"type": "boolean", "widget": {"page": page, "rect": [x0, y0, x1, y1], "widget_type": "checkbox", "path": None}}
+
+
+def test_a_checkbox_bigger_than_its_printed_square_shrinks_to_it(tmp_path):
+    blank = _pdf(tmp_path, lambda pg: pg.draw_rect(pymupdf.Rect(100, 100, 110, 110), width=0.6))
+    bp = {"fields": {"agree": _check(96, 97, 140, 114)}}
+    changes, notes = ft.rightsize_proposals(bp, blank)
+    assert changes == [("agree", None, [100.0, 100.0, 110.0, 110.0])]
+    assert ft.rightsize(bp, changes) and bp["fields"]["agree"]["widget"]["rect"] == [100.0, 100.0, 110.0, 110.0]
+
+
+def test_a_checkbox_smaller_than_its_printed_circle_grows_to_it(tmp_path):
+    blank = _pdf(tmp_path, lambda pg: pg.draw_circle((205, 205), 6, width=0.6))
+    opts = {"yes": {"page": 1, "rect": [202, 202, 208, 208], "widget_type": "radiobutton", "on_state": "yes"}}
+    bp = {"fields": {"answer": {"type": "string", "widgets": opts}}}
+    (n, k, r), = ft.rightsize_proposals(bp, blank)[0]
+    assert (n, k) == ("answer", "yes") and all(abs(a - b) < 0.6 for a, b in zip(r, [199, 199, 211, 211]))
+
+
+def test_a_checkbox_a_little_off_its_square_still_snaps_to_it(tmp_path):
+    """Leniency: most of the printed square inside the field is enough."""
+    blank = _pdf(tmp_path, lambda pg: pg.draw_rect(pymupdf.Rect(100, 100, 110, 110), width=0.6))
+    bp = {"fields": {"agree": _check(98, 98, 108.5, 112)}}
+    assert ft.rightsize_proposals(bp, blank)[0] == [("agree", None, [100.0, 100.0, 110.0, 110.0])]
+
+
+def test_a_checkbox_over_two_squares_or_already_right_is_left_alone(tmp_path):
+    def draw(pg):
+        for x in (100, 130, 300):
+            pg.draw_rect(pymupdf.Rect(x, 100, x + 10, 110), width=0.6)
+    blank = _pdf(tmp_path, draw)
+    bp = {"fields": {"both": _check(95, 95, 145, 115), "fine": _check(299.6, 99.6, 310.4, 110.4),
+                     "text": _text(290, 95, 320, 115)}}
+    changes, notes = ft.rightsize_proposals(bp, blank)
+    assert changes == [] and notes == ["p1 both: over 2 printed boxes, left as it is"]
+
+
+def test_a_square_drawn_white_is_no_printed_box(tmp_path):
+    """bm__sd_7908813 p1: an unstroked white square behind each printed one (a typed box character there)."""
+    def draw(pg):
+        pg.draw_rect(pymupdf.Rect(95, 95, 113, 113), color=None, fill=(1, 1, 1))
+        pg.draw_rect(pymupdf.Rect(200, 100, 208, 108), width=0.6)
+    blank = _pdf(tmp_path, draw)
+    doc = pymupdf.open(blank)
+    assert ft.printed_marks(doc[0]) == [[200.0, 100.0, 208.0, 108.0]]
+
+
+def test_a_checkbox_in_a_table_cell_is_not_grown_to_the_cell(tmp_path):
+    """lib__gsa_sf_26 p1: an "(X)" column's cells hold no printed box."""
+    def draw(pg):
+        for y in (100, 114, 128):
+            pg.draw_line((50, y), (400, y), width=0.6)
+        for x in (50, 200, 217, 400):
+            pg.draw_line((x, 100), (x, 128), width=0.6)
+    blank = _pdf(tmp_path, draw)
+    bp = {"fields": {"included": _check(203, 102, 213, 112)}}
+    assert ft.rightsize_proposals(bp, blank) == ([], [])
+
+
+def test_a_radio_printed_already_marked_is_not_shrunk_to_the_ring_round_its_dot(tmp_path):
+    """bm__sd_4920315 p1: no drawn circle the finder takes (a dotted ring alone is a printed marker), and the white
+    between the dot and the outline is no box."""
+    def draw(pg):
+        pg.draw_circle((105, 105), 6, width=1.5)
+        pg.draw_circle((105, 105), 2.5, color=None, fill=(0, 0, 0))
+    blank = _pdf(tmp_path, draw)
+    bp = {"fields": {"full_time": _check(98, 96, 112, 113)}}
+    assert ft.rightsize_proposals(bp, blank) == ([], [])

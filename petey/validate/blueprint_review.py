@@ -617,6 +617,17 @@ class App:
                                   "removed": (rec.get("removed") or []) + removed})
         return {**out, "notes": notes}
 
+    def tool_rightsize(self, bid: str) -> dict:
+        """The header menu's "rightsize checkboxes" (2026-11-05, `form_tools`): every checkbox / radio box made its
+        printed box, in the working copy."""
+        from petey.validate import form_tools
+        bp = hand_review._load(self.working(bid))
+        changes, notes = form_tools.rightsize_proposals(bp, resolve_blank(bp))
+        applied = printed_fields.write(bid, lambda b: form_tools.rightsize(b, changes), "review",
+                                       self.paths[bid]) if changes else []
+        self.refresh()
+        return {"notes": notes, "applied": applied, "resized": len(changes), "entry": self.entry(bid)}
+
     def tool_text_groups(self, bid: str) -> dict:
         """The header menu's "add text groups" (2026-11-04: "I'm fine with sending it to claude"): Claude's text
         groups added to Groups' record as new units and applied into the working copy (`form_tools`)."""
@@ -1174,6 +1185,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: APP.tool_add(bid, what), bid)
         if (mode, what) == ("tools", "textgroups"):     # Claude's text groups, into Groups
             return self._route(lambda: APP.tool_text_groups(bid), bid)
+        if (mode, what) == ("tools", "rightsize"):      # checkboxes made their printed boxes
+            return self._route(lambda: APP.tool_rightsize(bid), bid)
         if (mode, what) == ("blocks", "detect"):        # every block type's copies on a page found
             return self._route(lambda: APP.blocks.block_detect(bid, int(body["page"])), bid)
         if (mode, what) == ("blocks", "rescan"):        # blocks grown to the free fields repeating in them, then copies

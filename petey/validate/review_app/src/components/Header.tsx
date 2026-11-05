@@ -129,8 +129,9 @@ const get_mode = () => useApp.getState().mode;
 
 // the header's whole-form tools (Andrew, 2026-11-04: "take the 'run finders' button and make it a dropdown and then add
 // 'split multiline blocks', 'add signatures' and 'add text groups'"): each opens the tab whose record it adds to, so
-// what it did is there to check; all of it goes into the working copy (save keeps it, discard drops it)
-type ToolK = 'finders' | 'split' | 'signatures' | 'textgroups';
+// what it did is there to check; all of it goes into the working copy (save keeps it, discard drops it). Named "quick
+// fix" since 2026-11-05, with "rightsize check boxes" added
+type ToolK = 'finders' | 'split' | 'signatures' | 'textgroups' | 'rightsize';
 const TOOLS: { k: ToolK; label: string; mode: ModeId; title: string }[] = [
   { k: 'finders', label: 'run finders', mode: 'blocks',
     title: "the whole form: the clear groups among the loose checkboxes first (Yes / No pairs, boxes under a printed 'check one' or 'check the applicable box'; new on the Groups tab, which also makes them as it opens; ungroup takes one apart), then the grid finder (a grid replaces the blocks inside it), then repeated blocks among the fields in no block and no grid (SIA), each saved as a new block type marked 'from the finder'. Opens Blocks. Keep what's right; 'not a block' on the rest" },
@@ -140,6 +141,8 @@ const TOOLS: { k: ToolK; label: string; mode: ModeId; title: string }[] = [
     title: "a field over every printed signature box or line (a short caption with 'signature' or 'sign' in it: inside the box, beside it, or under the line) that no field covers, marked as handwritten. Opens Add / remove" },
   { k: 'textgroups', label: 'add text groups', mode: 'groups',
     title: "Claude reads each page and groups the fields on one line that make one value (a date, a phone or ID number in parts, a name, an address line, a signature with its date), each with its entity type. A few seconds a page. Opens Groups, where each can be taken apart" },
+  { k: 'rightsize', label: 'rightsize checkboxes', mode: 'review',
+    title: "every checkbox and radio field made the printed square, circle or other shape it sits on: shrunk when it is bigger than its printed box, grown when it is smaller. A field over two or more printed boxes, or with none under it, is left as it is. Names and groups stay. Opens Review" },
 ];
 
 function toolNote(k: ToolK, out: { notes?: string[]; applied?: string[]; changes?: string[]; errors?: string[]; apply_error?: string }) {
@@ -148,6 +151,12 @@ function toolNote(k: ToolK, out: { notes?: string[]; applied?: string[]; changes
   if (trouble) return `Not applied: ${trouble}`;
   const list = (xs: string[]) => xs.slice(0, 6).join(', ') + (xs.length > 6 ? ', …' : '');
   if (k === 'split') return notes.length ? `Split ${notes.length} box${notes.length === 1 ? '' : 'es'} into lines: ${list(notes)}.` : 'No text box with printed lines inside it.';
+  if (k === 'rightsize') {
+    const n = out.applied?.length || 0;
+    const left = notes.filter(x => x.includes('left as it is'));
+    const head = n ? `Resized ${n} checkbox${n === 1 ? '' : 'es'} to their printed boxes: ${list(out.applied!.map(x => x.split(':')[0]))}.` : 'Every checkbox already matches its printed box.';
+    return left.length ? `${head} Left as they are: ${list(left.map(x => x.split(':')[0]))}.` : head;
+  }
   if (k === 'signatures') return notes.length ? `Added ${notes.length} signature field${notes.length === 1 ? '' : 's'}: ${list(notes)}.` : 'No printed signature place without a field.';
   return notes.length ? `${notes.length} text group${notes.length === 1 ? '' : 's'}: ${list(notes)}.` : 'No text groups found.';
 }
@@ -178,9 +187,9 @@ function FormTools({ bid }: { bid: string | null }) {
   };
   return (
     <span className="toolsmenu" id="formTools">
-      <button className="btn" id="hdrFinders" disabled={!bid || !!busy} title="whole-form tools: run finders, split multi-line boxes, add signatures, add text groups"
+      <button className="btn" id="hdrFinders" disabled={!bid || !!busy} title="quick fixes for the whole form: run finders, split multi-line boxes, add signatures, add text groups, rightsize checkboxes"
         onClick={e => { e.stopPropagation(); setOpen(!open); }}>
-        {busy ? `${TOOLS.find(t => t.k === busy)?.label}…` : 'run finders ▾'}
+        {busy ? `${TOOLS.find(t => t.k === busy)?.label}…` : 'quick fix ▾'}
       </button>
       {open && (
         <span className="menu" onClick={e => e.stopPropagation()}>
