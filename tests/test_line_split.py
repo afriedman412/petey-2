@@ -146,6 +146,32 @@ def test_apply_replaces_the_box_with_numbered_parts():
              {"id": "2", "page": 1, "rect": [60, 330, 520, 342], "kind": "text"}]
     plans = [{"box": boxes[0], "how": "stack", "parts": [[60, 306, 200, 320], [200, 306, 520, 320]], "captions": ["a", "b"]},
              {"box": boxes[1], "how": "below", "parts": [[60, 330, 200, 342], [200, 330, 520, 342]], "captions": ["a", "b"]}]
-    kept, made = LS.apply(boxes, boxes, plans, {"1": 0.82, "2": 0.4})       # Jev says one answer on line 2
+    kept, made = LS.apply(boxes, boxes, plans, {"1": 0.82, "2": 0.2})       # Jev says one answer on line 2
     assert [(b["id"], b.get("split_from")) for b in kept] == [("3", "1"), ("4", "1"), ("2", None)]
     assert made == [{"box": "1", "page": 1, "how": "stack", "parts": ["3", "4"], "jev": 0.82, "captions": ["a", "b"]}]
+
+
+def test_jev_jobs_one_line_per_picture_with_the_other_boxes_drawn(tmp_path):
+    """2026-11-03 (Andrew: "you are only showing jev the words. no actually info about where the field sits relative
+    to them"): each captioned line is asked alone, its picture showing every other kept box (grey), the line (red) and
+    its captions (blue); a column-rule cut asks nothing."""
+    doc = pymupdf.open()
+    doc.new_page(width=612, height=792)
+    raw = tmp_path / "f.pdf"
+    doc.save(raw)
+    kept = [{"id": "1", "page": 1, "rect": [72, 100, 500, 114]}, {"id": "2", "page": 1, "rect": [72, 140, 300, 154]}]
+    plans = [{"box": kept[0], "how": "below", "parts": [[72, 100, 300, 114], [300, 100, 500, 114]],
+              "captions": ["City", "State"], "caption_boxes": [[72, 116, 90, 122], [300, 116, 320, 122]]},
+             {"box": kept[1], "how": "vertical", "parts": [], "captions": []}]
+    (job,) = LS.jev_jobs(raw, plans, kept)
+    pno, body, imgs, names = job
+    assert pno == 1 and names == {"s1": "1"} and list(body["questions"]) == ["s1"]
+    assert body["state"]["boxes"][0]["captions"] == ["City", "State"]
+    png = next(iter(imgs.values()))
+    pix = pymupdf.Pixmap(png)
+    k = pix.width / 612
+    def at(x, y):
+        return pix.pixel(int(x * k), int(y * k))[:3]
+    assert at(72, 107)[0] > 200 and at(72, 107)[1] < 80                   # the line, red
+    assert abs(at(72, 147)[0] - at(72, 147)[2]) < 10 and at(72, 147)[0] < 200   # the other box, grey
+    assert pymupdf.open(raw)[0].get_drawings() == []                      # the blank is untouched

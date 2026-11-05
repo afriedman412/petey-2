@@ -5,7 +5,9 @@ flat path, on the boxes the is-field screen kept:
   vertical   a long text box that printed column rules cross is cut at them (no model). A comb (3+ equal cells
              <= COMB_CELL pt) stays one field, as the benchmark counts it.
   captions   otherwise, captions printed under the line, or in a header row over it (or over the stack of equal lines
-             it sits in), give the columns, and Jev is asked one Noul per such line: several answers side by side?
+             it sits in), give the columns, and Jev is asked one Noul per such line, one line per picture with
+             every other box on its page drawn (grey), the line in red and its captions in blue: several answers
+             side by side along it?
              At >= JEV_SPLIT the line is cut where each caption starts (midway between headings floating over a
              stack, which are centred over their columns; headings with a rule over them are cell captions, cut at
              their start). AN API CALL (Andrew: "let's not forget it includes an API call"); the blueprint's authoring
@@ -27,6 +29,16 @@ twice the cost. The split step's Jev calls: $0.012 for the 107 forms, ~3% of the
 form. Text widgets found vs the publisher widgets: 86.0 -> 86.4% (benchmark), 77.1 -> 77.7% (homemade); the gain is
 mostly rows the widgets cannot show (fl__sd_1443547's pick-up table is now table g1, 5 rows x 4 columns). Lines with
 several fields and no rule or caption (two widgets on one "Employee Name" line) are out of reach.
+
+2026-11-03, on the 2,364 benchmark forms built from publisher widgets (the measures above are for the question then:
+the one red line, its captions as text): captions that already name other fields passed (First Name / Last Name over
+their own boxes, taken by the Email line under them): 19 of 53 lines judged by eye, all at >= 0.6. With every box
+and the captions drawn (Andrew: "you are only showing jev the words. no actually info about where the field sits
+relative to them"): at >= 0.3, 24 of the 34 right cuts kept and none of the 19 wrong (43 of 53, vs 34 keeping all);
+a fresh 20 of those accepted, 18 right by eye. ~5,600 input tokens a line ($0.84 for 3,629 lines). Tried the same
+day and no better than keeping every cut: print cues for a line's own label (a lone colon, an item number, a font),
+a question on whether the first caption is the line's own name, and a page question on whether captions sit above
+or under their lines.
 """
 from __future__ import annotations
 
@@ -44,17 +56,18 @@ COMB_CELL = 25.0      # pt: equal cells this narrow are a comb
 SLIVER = 20.0         # pt: an end part this narrow is the edge of the next cell the box hangs into (dropped)
 DOUBLE = 6.0          # pt: rules this close are one (a double rule)
 CROSS = 0.5           # a column rule crossing at least this share of the box's height cuts it
-JEV_SPLIT = 0.6       # Jev's several-answers score a captioned line is cut at (2026-10-27: 0.6-0.7 held 5 right
-                      # splits, 2 wrong, 3 junk boxes the screen kept; 0.7 missed fl__sd_7919716's NAME / ADDRESS)
-PER_REQUEST = 20
-QUESTION = ("`page` is one page of a blank form. Some ruled lines are outlined in red, each tagged with its number at "
-            "its top-left; `boxes` gives each number's pixel box and the printed captions found under the line or in a "
-            "header row above it. Look at the line tagged `box.id`: does a person filling in this form write SEVERAL "
-            "separate answers side by side along this one line (for example one per column under a header row such "
-            "as Name / Address / Phone, or one per caption printed under the line such as City / State / ZIP)?")
-CRITERIA = {"true": "Several separate answers go side by side along this line, one per column or caption.",
-            "false": "One answer goes along the whole line (a name, an address, a sentence), or nothing is written on "
-                     "it; captions elsewhere on the row belong to other lines."}
+JEV_SPLIT = 0.3       # Jev's several-answers score a captioned line is cut at, on the picture with every box drawn
+                      # (2026-11-03, 53 lines judged by eye: 43 right at 0.3, 42 at 0.35, 38 at 0.5; the question
+                      # before kept every wrong-row cut at its 0.6)
+OTHER, LINE, CAPTION = (0.55, 0.55, 0.55), (1, 0, 0), (0, 0.3, 1)
+QUESTION = ("`page` is one page of a blank form. Every field on the page (a place an answer is written) is outlined "
+            "in thin grey. One line is outlined in RED, and the printed captions it might be cut at are outlined in "
+            "BLUE. Look at the red line: does a person filling in this form write SEVERAL separate answers side by "
+            "side along this red line, one per blue caption (for example City / State / ZIP)? Captions that name "
+            "OTHER fields (a grey box beside, above or below them) are not this line's.")
+CRITERIA = {"true": "The blue captions name separate answers written along the red line itself, one per caption.",
+            "false": "One answer goes along the whole red line, or the blue captions name other fields (grey boxes "
+                     "next to them, or in the row above or below)."}
 
 
 def _verticals(page) -> list[tuple[float, float, float]]:
@@ -267,31 +280,40 @@ def plan(raw, kept: list[dict]) -> list[dict]:
                 cl, how = pg.captions(b["rect"])
                 parts = caption_parts(b["rect"], cl, how) if cl else []
                 if parts:
-                    out.append({"box": b, "how": how, "parts": parts, "captions": [pg.text(c) for c in cl]})
+                    out.append({"box": b, "how": how, "parts": parts, "captions": [pg.text(c) for c in cl],
+                                "caption_boxes": [[c.x0, c.y0, c.x1, c.y1] for c in cl]})
     finally:
         doc.close()
     return out
 
 
-def jev_jobs(raw, plans: list[dict]) -> list[tuple]:
-    """flat_light._ask_all jobs (page, body, imgs, {qid: box id}) for the captioned lines."""
+def jev_jobs(raw, plans: list[dict], kept: list[dict]) -> list[tuple]:
+    """flat_light._ask_all jobs (page, body, imgs, {qid: box id}) for the captioned lines: one line per picture, every
+    other kept box on its page in grey, the line in red, its captions in blue."""
     jobs = []
-    asked = [p for p in plans if p["how"] != "vertical"]
-    for pno in sorted({p["box"]["page"] for p in asked}):
-        on = [p for p in asked if p["box"]["page"] == pno]
-        for i in range(0, len(on), PER_REQUEST):
-            chunk = on[i:i + PER_REQUEST]
-            png, _dpi, px = pc.render(raw, pno, [{"boxes": [{"page": pno, "rect": p["box"]["rect"],
-                                                             "label": p["box"]["id"]} for p in chunk]}], limits=LIMITS)
-            ref = image_ref(png)
-            items = [{"id": p["box"]["id"], "pixel_box": px[p["box"]["id"]], "captions": p["captions"],
-                      "captions_where": "under the line" if p["how"] == "below" else "header row above"}
-                     for p in chunk]
-            qs = {f"s{it['id']}": {"type": "noul", "instructions": {"box": it, "question": QUESTION},
-                                   "criteria": CRITERIA} for it in items}
-            body = {"model": MODEL, "state": {"form": raw.stem, "page_number": pno, "page": ref, "boxes": items},
-                    "questions": qs}
-            jobs.append((pno, body, {ref: png}, {f"s{p['box']['id']}": p["box"]["id"] for p in chunk}))
+    for p in plans:
+        if p["how"] == "vertical":
+            continue
+        b = p["box"]; pno = b["page"]
+        doc = pymupdf.open(str(raw))                     # a fresh page each time: the drawings stay on it
+        try:
+            page = doc[pno - 1]
+            for o in kept:
+                if o["page"] == pno and o["id"] != b["id"]:
+                    page.draw_rect(o["rect"], color=OTHER, width=0.6)
+            page.draw_rect(b["rect"], color=LINE, width=1.2)
+            for r in p["caption_boxes"]:
+                page.draw_rect(pymupdf.Rect(r) + (-1, -1, 1, 1), color=CAPTION, width=0.9)
+            dpi = pc.page_dpi(page, *LIMITS)
+            png = page.get_pixmap(dpi=dpi).tobytes("png")
+        finally:
+            doc.close()
+        ref, k = image_ref(png), dpi / 72
+        item = {"id": b["id"], "pixel_box": [round(c * k) for c in b["rect"]], "captions": p["captions"]}
+        body = {"model": MODEL, "state": {"form": raw.stem, "page_number": pno, "page": ref, "boxes": [item]},
+                "questions": {f"s{b['id']}": {"type": "noul", "instructions": {"box": item, "question": QUESTION},
+                                              "criteria": CRITERIA}}}
+        jobs.append((pno, body, {ref: png}, {f"s{b['id']}": b["id"]}))
     return jobs
 
 
