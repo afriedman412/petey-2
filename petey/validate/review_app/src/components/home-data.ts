@@ -44,7 +44,8 @@ export const STATUS_TEXT: Record<StatusK, string> = { generated: 'generated', st
 // the home filter (2026-11-03: "filtering should be done with a dropdown"): show one kind, and hide any of the
 // validated ones or the ignored ones ("ignored should be another status that can be hidden or shown by the filter"). The kinds are exact: "validated" is V without S, "both" is V and S.
 export const SHOW: [string, string][] = [['', 'all'], ['generated', 'generated'], ['structure', 'structure validated'], ['validated', 'validated'],
-  ['both', 'both'], ['ignored', 'ignored'], ['copy', 'unsaved copies'], ['dup', 'possible duplicates']];
+  ['both', 'both'], ['ignored', 'ignored'], ['copy', 'unsaved copies'], ['dup', 'possible duplicates'],
+  ['light', 'light-path misses']];
 export const HIDE: [StatusK, string][] = [['validated', 'validated'], ['structure', 'structure validated'], ['both', 'both'], ['ignored', 'ignored']];
 
 // possible duplicates (Andrew, 2026-10-15: "so we can figure out what duplicates we have"): the same blank file, or
@@ -77,5 +78,6 @@ export function findDups(list: Entry[]): Dups {
 
 export const homeMatch = (b: Entry, st: string, dups: Dups, hide: string[] = []) => {
   const k = statusOf(b).k;
-  return (st === 'copy' ? !!b.draft : st === 'dup' ? !!dups[b.id] : !st || k === st) && (k === st || !hide.includes(k));
+  // light: forms whose tuning-set pages the light path missed fields on (2026-11-04)
+  return (st === 'copy' ? !!b.draft : st === 'dup' ? !!dups[b.id] : st === 'light' ? !!b.light?.missed : !st || k === st) && (k === st || !hide.includes(k));
 };

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { pngUrl } from '../lib/api';
 import { blockColor, GROUP_COLORS, grow, hull, restoreScroll, type Rect } from '../lib/util';
+import { CAUSE_LABEL, lightOnPage } from '../lib/light';
 import { useApp } from '../state/app';
 import { MODES } from '../modes';
 import { Box, ScaleContext } from './Box';
@@ -46,6 +47,12 @@ function ShowLayer() {
   const onPage = o.blocks.filter(b => b.page === page).map(b => typeOf(b.id));
   if (on('blocks')) o.blocks.forEach(b => b.page === page && out.push(
     <Box key={`b${b.id}`} className={'ovl blk' + (b.validated ? ' ok' : '')} rect={grow(b.bbox, 3)} color={blockColor(typeOf(b.id), types, onPage)}><span>{b.id}{b.label ? ' ' + b.label : ''}{b.validated ? ' ✓' : ''}</span></Box>));
+  // the light path's misses (outlined by cause) and junk (dashed, with Jev's score), tuning-set pages only (2026-11-04)
+  const lp = lightOnPage(o.light, page);
+  if (show.misses) lp.missed.forEach((m, i) => out.push(
+    <Box key={`lm${i}`} className={'ovl lmiss ' + m.cause.replace(' ', '')} rect={grow(m.rect, 2)}><span>{CAUSE_LABEL[m.cause]}</span></Box>));
+  if (show.junk) lp.junk.forEach((j, i) => out.push(
+    <Box key={`lj${i}`} className="ovl ljunk" rect={j.rect}><span>{j.jev == null ? 'junk' : j.jev.toFixed(2)}</span></Box>));
   return <>{out}</>;
 }
 

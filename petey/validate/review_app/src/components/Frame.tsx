@@ -5,6 +5,7 @@ import { MODE_IDS } from '../lib/types';
 import { store } from '../lib/util';
 import { gotoPage, setMode, setZoom, toggleWide } from '../state/actions';
 import { copyText } from '../lib/dnd';
+import { causeSummary, lightOnPage } from '../lib/light';
 import { set, useApp, useEntry, type ShowKey } from '../state/app';
 import { MODES } from '../modes';
 import { loadIgnored, pageId, reasonsUsed, setIgnored, useIgnored } from '../state/ignored';
@@ -139,14 +140,23 @@ function sidebarKeys(e: RKeyboardEvent<HTMLElement>) {
 }
 
 function ShowBar() {
-  const { show, wide, zoom } = useApp();
+  const { show, wide, zoom, overlay, page } = useApp();
   const toggle = (k: ShowKey, on: boolean) => { const s = { ...show, [k]: on }; set({ show: s }); store('br_show', JSON.stringify(s)); };
+  // the light path's misses and junk, on tuning-set forms only (2026-11-04), with this page's counts
+  const light = overlay?.light, lp = lightOnPage(light, page);
+  const stale = light?.stale ? ' (stale: the tuning set was rebuilt since; rebuild with eval/light_misses.py)' : '';
   return (
     <div id="showbar">
       <span className="ctl" id="showctl" title="what the other tabs have done, drawn on the page in every tab (each tab draws its own anyway)">show
         {(['valid', 'groups', 'grids', 'blocks'] as ShowKey[]).map(k => (
           <label key={k}> <input type="checkbox" checked={!!show[k]} onChange={e => toggle(k, e.target.checked)} /> {k === 'valid' ? 'validated' : k}</label>
         ))}
+        {light && <>
+          <label className={light.stale ? 'stale' : ''} title={`key fields the light path missed on this page, ${causeSummary(lp.byCause)}; built ${light.built || '?'}${stale}`}>
+            {' '}<input type="checkbox" checked={!!show.misses} onChange={e => toggle('misses', e.target.checked)} /> light misses ({lp.missed.length})</label>
+          <label className={light.stale ? 'stale' : ''} title={`boxes the light path kept that match no key field, with Jev's score; built ${light.built || '?'}${stale}`}>
+            {' '}<input type="checkbox" checked={!!show.junk} onChange={e => toggle('junk', e.target.checked)} /> light junk ({lp.junk.length})</label>
+        </>}
       </span>
       <span className="viewbtns">
         <button className={'btn' + (wide ? ' primary' : '')} id="wideBtn" title="the sidebar at 70% of the window, or back to its width (kept for every tab)" onClick={toggleWide}>{wide ? 'narrower' : 'wider'}</button>

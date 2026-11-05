@@ -20,6 +20,16 @@ def test_the_overlay_has_accepted_fields_grids_and_blocks(monkeypatch, tmp_path)
     assert all(g["page"] == 1 for g in out["grids"])
 
 
+def test_the_overlay_carries_the_light_layer(monkeypatch, tmp_path):
+    # the light path's misses and junk (2026-11-04): the form's when it has tuning-set pages, None otherwise
+    from petey.validate import light_misses
+    use_tmp_records(monkeypatch, tmp_path)
+    bp = blueprint([["child_1_nm"]])
+    monkeypatch.setattr(light_misses, "for_form", lambda bid, *a: {"missed": [], "junk": [], "stale": False} if bid == "t0" else None)
+    assert br.overlay(bp, "t0", {})["light"] == {"missed": [], "junk": [], "stale": False}
+    assert br.overlay(bp, "t1", {})["light"] is None
+
+
 def test_a_grid_inside_one_block_is_not_listed():
     from tests.test_grid_naming import blueprint as rows_of
     bp = rows_of(lambda r, c, col: f"{col}_{r + 1}_txt")

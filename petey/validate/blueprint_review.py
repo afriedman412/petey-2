@@ -478,7 +478,10 @@ def overlay(bp: dict, bid: str, verdicts: dict) -> dict:
         if rs:
             entities.append({"name": u["name"], "entity_type": u.get("entity_type"), "page": rs[0]["page"],
                              "fields": u["items"], "rects": rs})
-    return {"fields": fields, "grids": grids, "blocks": blocks, "entities": entities}
+    # what the light path missed on this form's tuning-set pages and the junk it kept (2026-11-04), None elsewhere
+    from petey.validate import light_misses
+    return {"fields": fields, "grids": grids, "blocks": blocks, "entities": entities,
+            "light": light_misses.for_form(bid)}
 
 
 class App:
@@ -828,7 +831,11 @@ class App:
         fj = hand_review._focus()
         focus, why = fj.get("forms") or {}, fj.get("why")
         # the queue's own description names its section (2026-11-03: a batch is not always name-check flags)
-        return [dict(self.entry(bid), focus=focus.get(bid), **({"focus_why": why} if bid in focus and why else {}))
+        # the light path's misses / junk on the form's tuning-set pages (2026-11-04), for the filter and its column
+        from petey.validate import light_misses
+        light = light_misses.counts()
+        return [dict(self.entry(bid), focus=focus.get(bid), **({"focus_why": why} if bid in focus and why else {}),
+                     **({"light": light[bid]} if bid in light else {}))
                 for bid in self.paths]
 
     def page_png(self, bid: str, page: int) -> Optional[bytes]:

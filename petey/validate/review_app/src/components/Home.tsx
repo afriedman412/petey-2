@@ -38,6 +38,10 @@ const cols = (dups: Dups): Col[] => [
   { k: 'copy', head: 'unsaved', sort: b => b.draft ? b.draft.changes : -1,
     cell: b => b.draft ? <span className="pill copy" title={'working copy made ' + b.draft.made}>{b.draft.changes} change{b.draft.changes === 1 ? '' : 's'}</span> : '',
     tip: 'a working copy with changes not saved into the blueprint yet' },
+  // the light path's misses on the form's tuning-set pages, junk in the tooltip (2026-11-04); sorts most first
+  { k: 'light', head: 'light misses', sort: b => b.light ? b.light.missed : -1,
+    cell: b => b.light ? <span title={`${b.light.missed} key fields the light path missed, ${b.light.junk} junk boxes it kept (tuning-set pages)`}>{b.light.missed}</span> : dim(),
+    tip: "key fields the light path missed on the form's tuning-set pages (the page's show bar has the layers)" },
   // Andrew, 2026-11-04: "can you also add an 'added' date to the index"
   { k: 'added', head: 'added', sort: b => b.added || '', cell: b => b.added || dim(), tip: 'the day the form came into the library: downloaded (scraped and hand-picked forms), first committed (library), else the file was made' },
   { k: 'made', head: 'made', sort: b => b.age?.when || '', cell: b => <span title={b.age?.by || ''}>{b.age?.when || '—'}</span>, tip: 'when and by what the blueprint was made' },

@@ -12,7 +12,8 @@ export interface HomeState {
   /** the statuses hidden in the filter menu (validated, structure, both; 2026-11-03) */
   hide?: string[];
 }
-export type ShowKey = 'valid' | 'groups' | 'grids' | 'blocks';
+// misses / junk: the light path's on tuning-set pages (2026-11-04), off until ticked
+export type ShowKey = 'valid' | 'groups' | 'grids' | 'blocks' | 'misses' | 'junk';
 
 export interface AppState {
   list: Entry[];
@@ -59,7 +60,7 @@ export const useApp = create<AppState>(() => ({
   page: 1,
   zoom: parseFloat(store('br_zoom') || '') || 1.6,
   home: { ...homeSaved(), on: false },
-  show: storeJson('br_show', { valid: true, groups: true, grids: true, blocks: true }),
+  show: { misses: false, junk: false, ...storeJson('br_show', { valid: true, groups: true, grids: true, blocks: true }) },
   wide: store('br_wide') === '1',
   sideW: +(store('br_side_w') || 0) || 460,
   overlay: null,

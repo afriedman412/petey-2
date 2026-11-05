@@ -28,6 +28,8 @@ export interface Entry {
   age?: { when?: string; by?: string } | null;
   /** the day the form came into the library (download date, first commit, or the file's creation) */
   added?: string | null;
+  /** the light path's misses and junk on the form's tuning-set pages (2026-11-04) */
+  light?: { missed: number; junk: number } | null;
   check_errors?: number | null;
   check_suggestions?: number | null;
   page_check_flags?: number | null;
@@ -55,6 +57,16 @@ export interface Overlay {
   blocks: { id: string; page: number; bbox: Rect; validated?: boolean; label?: string }[];
   /** Groups' entities (tagged text fields), drawn wherever groups are */
   entities?: { name: string; entity_type?: string | null; page: number; fields: string[]; rects: { page: number; rect: Rect }[] }[];
+  /** the light path's misses and junk on this form's tuning-set pages (eval/light_misses.py), null off the tuning set */
+  light?: LightLayer | null;
+}
+
+export type MissCause = 'no box' | 'jev' | 'one box' | 'later';
+export interface LightLayer {
+  missed: { page: number; rect: Rect; cause: MissCause; kind?: string | null; code: string }[];
+  junk: { page: number; rect: Rect; jev?: number | null }[];
+  built?: string | null;
+  stale?: boolean;
 }
 
 export type PageLabel = string | { text: string; done: boolean } | null;

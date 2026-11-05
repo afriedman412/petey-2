@@ -59,6 +59,13 @@ describe('ignored (2026-11-03)', () => {
   });
 });
 
+describe('light-path misses filter', () => {
+  it('shows the forms whose tuning-set pages have misses, not those with none or off the tuning set', () => {
+    const m = e({ light: { missed: 3, junk: 1 } }), z = e({ light: { missed: 0, junk: 4 } }), off = e({});
+    expect([m, z, off].map(x => homeMatch(x, 'light', {}))).toEqual([true, false, false]);
+  });
+});
+
 describe('sectionName', () => {
   it("the review queue is named by its batch's description, the old name when there is none", () => {
     expect(sectionName('focus', [e({ focus: 0, focus_why: 'thin topics, batch 1' })])).toBe('review queue: thin topics, batch 1');
