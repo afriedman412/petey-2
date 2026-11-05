@@ -13,8 +13,9 @@ the working copy, shows in the save list and goes with discard.
   (handwritten, as the 2026-11-01 signature sweep). A signature is a short caption with "sign" in it inside a box's
   top, to its left, or under a line, next to an empty printed box or a line.
 - `text_group_proposals`: fields on one line that make one value ("sequential fields on a single line that can be
-  combined logically", 2026-10-28: a date in parts, a phone, a name, an address line, a signature and its date)
-  proposed by Claude from a picture of each page, typed with `group_review.ENTITY_TYPES`.
+  combined logically", 2026-10-28) proposed by Claude from a picture of each page. Only the taxonomy's counted kinds
+  are asked for (`split_types.counted()`: dates, phones, ID numbers; Andrew, 2026-11-04: "pare this down to the ones
+  we care about"); names, addresses, signature lines, times and money stay hand-tagged in Groups.
 """
 from __future__ import annotations
 
@@ -28,7 +29,7 @@ from typing import Optional
 import numpy as np
 import pymupdf
 
-from petey.validate import field_add, group_review
+from petey.validate import field_add, group_review, split_types
 
 SOURCE_SPLIT, SOURCE_SIG = "split_lines", "add_signatures"
 MIN_TALL = 22.0                 # pt: a box shorter than this holds one line
@@ -328,37 +329,46 @@ def signature_proposals(bp: dict, blank, now: Optional[str] = None) -> tuple[lis
 
 # ------------------------------------------------------------------ text groups (Claude)
 
-TEXT_SYSTEM = """You look at one page of a blank form. Every one-line text field on it is outlined in red with its \
+KIND_LINES = {   # how the prompt describes each kind; only the taxonomy's counted kinds are offered
+    "date": "a date split into parts (day / month / year, or mm / dd / yyyy boxes)",
+    "time": "a time split into parts (hours / minutes, am / pm)",
+    "phone": "a phone or fax number in parts (country code, area code, number, extension)",
+    "id_number": "one identifying number split into parts (SSN, EIN, account or licence number in segments)",
+    "money": "one amount split into parts (dollars / cents)",
+    "name": "one person's name in parts on one line (first / middle / last, title, suffix)",
+    "address_line_1": "the street part of an address in parts on one line (number, street, unit)",
+    "address_line_2": "the city part of an address in parts on one line (city, state, ZIP / postcode, country)",
+    "full_address": "a whole address in parts on ONE line (street through postcode)",
+    "signature_complex": "a signature with its date (and printed name or title) on the same line",
+    "other": "parts of one value that fit none of the above",
+}
+TEXT_KINDS = split_types.counted()      # Andrew, 2026-11-04: "pare this down to the ones we care about"
+NOT_KINDS = "name parts (first / last), address parts (street, city, state, ZIP), a signature line with its date, \
+times, dollar / cent amounts"
+
+TEXT_SYSTEM = f"""You look at one page of a blank form. Every one-line text field on it is outlined in red with its \
 number in a small red tag at the box's top-left. Find the TEXT GROUPS: two or more fields that sit next to each other \
-on one line (or one row) and together hold ONE value, so that a program reading the form back would join them.
+on one line (or one row) and together hold ONE value of one of these kinds, so that a program reading the form back \
+would join them.
 
 Kinds (entity_type):
-- date: a date split into parts (day / month / year, or mm / dd / yyyy boxes)
-- time: a time split into parts (hours / minutes, am / pm)
-- phone: a phone or fax number in parts (country code, area code, number, extension)
-- id_number: one identifying number split into parts (SSN, EIN, account or licence number in segments)
-- money: one amount split into parts (dollars / cents)
-- name: one person's name in parts on one line (first / middle / last, title, suffix)
-- address_line_1: the street part of an address in parts on one line (number, street, unit)
-- address_line_2: the city part of an address in parts on one line (city, state, ZIP / postcode, country)
-- full_address: a whole address in parts on ONE line (street through postcode)
-- signature_complex: a signature with its date (and printed name or title) on the same line
-- other: parts of one value that fit none of the above
+""" + "\n".join(f"- {k}: {KIND_LINES[k]}" for k in TEXT_KINDS) + f"""
 
-Not text groups: fields that answer different questions, even on one line (a name and an unrelated date, the \
-cells of a table row that hold different facts); one value written over several lines (a multi-line box split into \
-lines); a field alone. Only propose clear cases; leave a field out when unsure. A field is in at most one group. \
-Fields listed as already grouped are context only: do not propose them again.
+Only these kinds. Not text groups: {NOT_KINDS}: leave those out even when they sit in parts on one line. Also not: \
+fields that answer different questions, even on one line (a name and an unrelated date, the cells of a table row \
+that hold different facts); one value written over several lines (a multi-line box split into lines); a field alone. \
+Only propose clear cases; leave a field out when unsure. A field is in at most one group. Fields listed as already \
+grouped are context only: do not propose them again.
 
-Give each group a short snake_case name for the value it holds (date_of_birth, applicant_phone, spouse_name), its \
-entity_type, and its field numbers in reading order."""
+Give each group a short snake_case name for the value it holds (date_of_birth, applicant_phone, \
+social_security_number), its entity_type, and its field numbers in reading order."""
 
 TEXT_SCHEMA = {
     "type": "object",
     "properties": {"groups": {"type": "array", "items": {
         "type": "object",
         "properties": {"name": {"type": "string"},
-                       "entity_type": {"type": "string", "enum": list(group_review.ENTITY_TYPES)},
+                       "entity_type": {"type": "string", "enum": list(TEXT_KINDS)},
                        "fields": {"type": "array", "items": {"type": "integer"}}},
         "required": ["name", "entity_type", "fields"], "additionalProperties": False}}},
     "required": ["groups"], "additionalProperties": False}
@@ -405,9 +415,11 @@ def ask_page(client, blank, page: int, rows: list[dict], grouped: set[str], form
 
 def clean_groups(proposed: list[dict], texts: dict[str, dict], grouped: set[str], taken: set[str]) -> list[dict]:
     """The proposals kept as Groups' text units: two or more one-box text fields on one page, none already in a group
-    or in an earlier proposal, a free name and a known type."""
+    or in an earlier proposal, a free name and one of the offered kinds (`TEXT_KINDS`)."""
     out, used = [], set(grouped)
     for g in proposed:
+        if g.get("entity_type") not in TEXT_KINDS:
+            continue
         fs = [f for f in dict.fromkeys(g.get("fields") or []) if f in texts and f not in used]
         if len(fs) < 2 or len({int(texts[f]["widget"]["page"]) for f in fs}) != 1:
             continue
@@ -418,9 +430,8 @@ def clean_groups(proposed: list[dict], texts: dict[str, dict], grouped: set[str]
             name, k = f"{base}_{k}", k + 1
         taken.add(name)
         used.update(fs)
-        t = g.get("entity_type") if g.get("entity_type") in group_review.ENTITY_TYPES else "other"
-        out.append({"kind": "text", "name": name, "type": "string", "items": fs, "origin": None, "entity_type": t,
-                    "confirmed": False})
+        out.append({"kind": "text", "name": name, "type": "string", "items": fs, "origin": None,
+                    "entity_type": g["entity_type"], "confirmed": False})
     return out
 
 

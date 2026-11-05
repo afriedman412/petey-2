@@ -36,7 +36,14 @@ fields stacked in one open area with no printed line between them) leave the key
 as the page's `"ignored": [[x0, y0, x1, y1], ...]`, where the scorer leaves a system's boxes out too. The pick is made
 before they are left out, so the pages stay the same. Nothing is written to the blueprints.
 
-    PYTHONPATH=. venv/bin/python eval/benchmark_key.py [--pdfs] [--forms ID ...] [--spare]
+The pick is permanent (Andrew, 2026-11-04: "the benchmark pages should be stable between builds"; "all that building
+the key should do is select pages from new forms and encode them to the appropriate set"): runs/benchmark/picks.json
+records each form's key pages and tuning pages the first time the form is built (seeded from the indexes as they
+stood on 2026-11-04), and later builds take the pick from there, whatever the pages' field counts are now, and whether
+or not the form still has its S or has been ignored since (counted and printed, not acted on). A picked page is still
+left out of the encoding while it is ignored on the review page, and comes back when it is not; nothing replaces it.
+
+    PYTHONPATH=. venv/bin/python eval/benchmark_key.py [--pdfs] [--forms ID ...] [--spare] [--picks FILE]
 
 `--spare` (2026-11-03): the tuning set instead, in the same shape: the same validated forms' OTHER pages (past the
 `PER_FORM` picked for the key) with `SPARE_MIN` fields or more, written to runs/benchmark/dev_key. Andrew: the
@@ -57,6 +64,7 @@ from typing import Optional
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "runs" / "benchmark" / "key"
 DEV_OUT = ROOT / "runs" / "benchmark" / "dev_key"
+PICKS = ROOT / "runs" / "benchmark" / "picks.json"
 PER_FORM = 2
 SPARE_MIN = 10
 CHOICE = ("checkbox", "radiobutton")
@@ -157,6 +165,30 @@ def pick_pages(keys: dict[int, dict], spare: bool = False) -> list[int]:
     return [pg for pg in order[PER_FORM:] if len(keys[pg]["fields"]) >= SPARE_MIN]
 
 
+def load_picks(path: Path = PICKS, key_out: Path = OUT, dev_out: Path = DEV_OUT) -> dict:
+    """The permanent pick, {form: {"key": [pages], "spare": [pages]}}. With no record yet, seeded from the indexes
+    already built (the sets as they stand), so the first build under the record changes no page."""
+    if path.exists():
+        return json.loads(path.read_text())
+    picks: dict = {}
+    for name, d in (("key", key_out), ("spare", dev_out)):
+        ix = d / "index.json"
+        if not ix.exists():
+            continue
+        for x in json.loads(ix.read_text()):
+            bid, pg = x["page_id"].rsplit("__p", 1)
+            picks.setdefault(bid, {"key": [], "spare": []})[name].append(int(pg))
+    return picks
+
+
+def picked(bid: str, keys: dict[int, dict], picks: dict) -> dict:
+    """A form's pick: as recorded, else made now from `keys` (both sets at once, so the key build and the tuning build
+    agree whichever runs first) and recorded in `picks`."""
+    if bid not in picks:
+        picks[bid] = {"key": pick_pages(keys), "spare": pick_pages(keys, spare=True)}
+    return picks[bid]
+
+
 def drop_ignored(page: dict, ids) -> int:
     """Leave the ignored fields out of a page's key (petey.validate.ignored_fields): out of its fields and groups (a
     group left with one field is no group), their boxes kept as `ignored`. How many left."""
@@ -253,34 +285,44 @@ def main() -> int:
     ap.add_argument("--pdfs", action="store_true", help="also write each page's flat PDF")
     ap.add_argument("--out", type=Path, help="default runs/benchmark/key (--spare: runs/benchmark/dev_key)")
     ap.add_argument("--spare", action="store_true", help="the tuning set: the other pages of the same forms")
+    ap.add_argument("--picks", type=Path, default=PICKS, help="the permanent page pick (default runs/benchmark/picks.json)")
     args = ap.parse_args()
     args.out = args.out or (DEV_OUT if args.spare else OUT)
     paths = h.blueprint_paths()
     todo = [(b, s) for b, s in candidates() if not args.forms or b in args.forms]
-    index, skipped = [], collections.Counter()
+    index, skipped, notes = [], collections.Counter(), collections.Counter()
+    picks, new_picks = load_picks(args.picks), 0
     record = pf.load()
     ignored, ignored_f = ignored_pages.load(), ignored_forms.load()
     ignored_fl = ignored_fields.load()
     proposed = json.loads(pf.CANDIDATES.read_text()) if pf.CANDIDATES.exists() else {}
     unconfirmed = 0
     for bid, sset in todo:
-        if bid in ignored_f:                             # the whole form ignored on the review page (2026-11-03)
+        old = bid in picks                               # picked before: encoded whatever its standing now
+        if not old and bid in ignored_f:                 # the whole form ignored on the review page (2026-11-03)
             skipped["form ignored"] += 1
             continue
         v = h.load_verdicts(bid)
-        if not v.get("verdicts") and not v.get("structure"):
+        if not old and not v.get("verdicts") and not v.get("structure"):
             skipped["not reviewed"] += 1
             continue
         p = h.working_path(bid, paths)
         bp = h._load(p)
-        if not in_key(v, p):
+        if not old and not in_key(v, p):
             skipped["no structure check"] += 1
             continue
+        if old and bid in ignored_f:
+            notes["picked forms ignored since"] += 1
+        elif old and not in_key(v, p):
+            notes["picked forms whose S is stale or gone"] += 1
         keys = page_keys(bp, [e for e in cv.from_tags(bp) if split_types.counts(e["kind"])])
         for pg in [pg for pg in keys if f"{bid}__p{pg}" in ignored]:      # ignored on the review page, before the pick
             del keys[pg]
             skipped["pages ignored"] += 1
-        pages = pick_pages(keys, args.spare)
+        pick = picked(bid, keys, picks)
+        new_picks += not old
+        pages = [pg for pg in pick["spare" if args.spare else "key"] if pg in keys]
+        notes["picked pages ignored or without fields now"] += len(pick["spare" if args.spare else "key"]) - len(pages)
         blank = resolve_blank(bp)
         for pg in sorted(pages):
             pid = f"{bid}__p{pg}"
@@ -299,6 +341,9 @@ def main() -> int:
             index.append({"page_id": pid, "set": sset, "fields": len(k["fields"]), "groups": len(k["groups"]),
                           "printed": sum(f["kind"] == "printed" for f in k["fields"])})
     (args.out / "index.json").write_text(json.dumps(index, indent=1))
+    if new_picks or not args.picks.exists():
+        args.picks.parent.mkdir(parents=True, exist_ok=True)
+        args.picks.write_text(json.dumps(picks, indent=1, sort_keys=True))
     by = collections.defaultdict(collections.Counter)
     for x in index:
         by[x["set"]].update({"pages": 1, "fields": x["fields"], "groups": x["groups"], "printed": x["printed"]})
@@ -308,6 +353,9 @@ def main() -> int:
         print(f"  {s:22} forms {forms[s]:4}  pages {c['pages']:5}  fields {c['fields']:6}  groups {c['groups']:5}"
               f"  printed {c['printed']:4}")
     print("left out:", dict(skipped))
+    print(f"{new_picks} forms picked for the first time; {len(picks)} forms in the pick ({args.picks})")
+    if any(notes.values()):
+        print("picked and kept:", {k: n for k, n in notes.items() if n})
     if unconfirmed:
         print(f"{unconfirmed} pages with printed candidates not confirmed on the printed sheet (typed text for now)")
     return 0

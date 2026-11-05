@@ -6,6 +6,7 @@ from pathlib import Path
 import pymupdf
 
 from petey.validate import form_tools as ft
+from petey.validate import split_types
 
 SRC = Path(__file__).resolve().parents[1] / "petey" / "validate" / "review_app" / "src"
 
@@ -94,7 +95,8 @@ def test_clean_groups_keeps_two_or_more_free_fields_on_one_page():
     proposed = [{"name": "Date of birth", "entity_type": "date", "fields": ["yyyy", "mm", "dd", "mm"]},
                 {"name": "x", "entity_type": "phone", "fields": ["taken", "dd"]},          # dd used, taken grouped
                 {"name": "y", "entity_type": "nonsense", "fields": ["yyyy", "p2"]},        # two pages
-                {"name": "z", "entity_type": "name", "fields": ["ghost", "p2"]}]           # one real field
+                {"name": "z", "entity_type": "name", "fields": ["ghost", "p2"]},          # one real field
+                {"name": "w", "entity_type": "name", "fields": ["taken", "p2", "dd"]}]     # a kind not offered
     out = ft.clean_groups(proposed, texts, {"taken"}, {"date_of_birth"})
     assert len(out) == 1
     u = out[0]
@@ -110,3 +112,17 @@ def test_the_header_menu_holds_the_four_tools():
     assert "mapi('tools', bid, '/' + t.k)" in header
     server = (Path(__file__).resolve().parents[1] / "petey" / "validate" / "blueprint_review.py").read_text()
     assert '("tools", "split"), ("tools", "signatures")' in server and '("tools", "textgroups")' in server
+
+
+def test_text_groups_are_asked_for_the_counted_kinds_only():
+    """Andrew, 2026-11-04: "pare this down to the ones we care about": the prompt and the schema offer the taxonomy's
+    counted kinds (dates, phones, ID numbers) and name the others as not text groups."""
+    kinds = split_types.counted()
+    assert ft.TEXT_KINDS == kinds == ("date", "phone", "id_number")
+    enum = ft.TEXT_SCHEMA["properties"]["groups"]["items"]["properties"]["entity_type"]["enum"]
+    assert tuple(enum) == kinds
+    for k in kinds:
+        assert f"- {k}: " in ft.TEXT_SYSTEM
+    for k in set(split_types.names()) - set(kinds):
+        assert f"- {k}: " not in ft.TEXT_SYSTEM
+    assert "Not text groups: name parts" in ft.TEXT_SYSTEM
