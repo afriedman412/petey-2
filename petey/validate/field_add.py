@@ -72,7 +72,8 @@ CLAIM = 0.5                     # overlap (of the smaller rect) at which a field
 SAME_BOX = 0.9                  # intersection over union at which an added box is a field's own box again
 # Jev's is-it-a-field score per finder box (`eval/flat_light.screen`), kept by blank and finder version: a finder box
 # scored under SCREEN_KEEP is not suggested (Andrew, 2026-11-01: on publisher-box blueprints the finder's uncovered
-# boxes were 92,570, about 1 in 5 real by eye; screened, 36,325). A box with no score is suggested as before.
+# boxes were 92,570, about 1 in 5 real by eye; screened, 36,325), nor used at all: a box drawn over it is the box
+# drawn (2026-11-03). A box with no score is suggested as before.
 SCREEN_DIR = RUNS / "jev" / "is_field_screen"
 SCREEN_KEEP = 0.6
 
@@ -352,8 +353,10 @@ class Context:
                         "label": c.get("label"),
                         "group": c.get("group"), "entity": c.get("entity"),
                         "claimed_by": self._claimed(b["page"], b["rect"])})
-        self.boxes = out
         self.screen = screen_scores(self.blank)
+        # a box Jev's screen scored under the cut is gone for the page, not only hidden (Andrew, 2026-11-03: "let's
+        # just make them entirely inert. drawing a box should draw a box"): a hidden box took over boxes drawn on it
+        self.boxes = [b for b in out if self.screen.get(str(b["id"]), SCREEN_KEEP) >= SCREEN_KEEP]
         self._lines = None                               # the lines leave out what the suggestions now show
 
     def bands(self) -> list[tuple[int, list[float]]]:
@@ -410,9 +413,7 @@ class Context:
                 continue
             if any(w["page"] == b["page"] and overlap(w["rect"], b["rect"]) >= CLAIM for w in free_w):
                 continue
-            jev = self.screen.get(str(b["id"]))
-            if jev is not None and jev < SCREEN_KEEP:
-                continue
+            jev = self.screen.get(str(b["id"]))         # those scored under the cut left at load_finder
             out.append({"sid": b["sid"], "source": "finder", "page": b["page"], "rect": b["rect"],
                         "what": f"finder {b['kind']} box" + (f", classifier: {b['class']}" if b.get("class")
                                                              else ", not screened by the classifier")
@@ -868,6 +869,10 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
                 notes.append(f"finder box at {[round(v) for v in b['rect']]}: the classifier says not a field (skipped; click it to use it)")
                 continue
             cands.append((b, "finder"))
+        if not point:
+            # a box drawn is the box drawn (Andrew, 2026-11-03: "a drawn box is a drawn box"): nothing under it, widget
+            # or finder box, takes its place; a click on a suggestion still proposes the suggestion
+            cands = []
         if not cands:
             # a box drawn is always a field (Andrew, 2026-10-31: "in general you should just let a box be drawn anywhere
             # and become a field. overlapping boxes are common"): what is under it already a field, or set aside by the
@@ -894,8 +899,10 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
             small_square = w_ <= 16 and h_ <= 16 and abs(w_ - h_) <= 4
             c = {"page": page, "rect": [round(v, 2) for v in sel], "kind": "checkbox" if small_square else "text"}
             cands = [(c, geom)]
-            if ctx.widgets:
+            if ctx.widgets and not ws:
                 notes.append("this blank has a form layer but no widget here: a filler cannot type into this box")
+            elif ws and not point:
+                notes.append("the box drawn is not tied to the widget under it: click the widget to use it")
     # a radio kid brings its unclaimed siblings (one AcroForm field, one group)
     for c, src in list(cands):
         if src == "widget" and c["widget_type"] == "radiobutton":

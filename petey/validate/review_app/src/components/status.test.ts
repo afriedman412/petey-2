@@ -3,7 +3,7 @@
 // everything else generated with the reason kept for its tooltip
 import { describe, expect, it } from 'vitest';
 import type { Entry } from '../lib/types';
-import { homeMatch, statusOf } from './home-data';
+import { homeMatch, sectionName, SECTIONS, statusOf } from './home-data';
 
 const e = (x: Partial<Entry>) => ({ id: 'bm__x', source: 'bm', form: 'x', fields: 3, accepted: 0, flagged: 0, ...x }) as Entry;
 
@@ -56,5 +56,13 @@ describe('ignored (2026-11-03)', () => {
     const f = e({ ignored: ig }), g = e({});
     expect([f, g].map(x => homeMatch(x, 'ignored', {}))).toEqual([true, false]);
     expect([f, g].map(x => homeMatch(x, '', {}, ['ignored']))).toEqual([false, true]);
+  });
+});
+
+describe('sectionName', () => {
+  it("the review queue is named by its batch's description, the old name when there is none", () => {
+    expect(sectionName('focus', [e({ focus: 0, focus_why: 'thin topics, batch 1' })])).toBe('review queue: thin topics, batch 1');
+    expect(sectionName('focus', [e({ focus: 0 })])).toBe(SECTIONS.focus);
+    expect(sectionName('bm', [e({ focus_why: 'x' })])).toBe(SECTIONS.bm);
   });
 });

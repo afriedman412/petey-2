@@ -51,6 +51,15 @@ export async function refreshList() {
   catch (e) { set({ listError: (e as Error).message }); }
 }
 
+// the header's reload (Andrew, 2026-11-03: "re-load the queue without a full restart"): the form list (queue, statuses,
+// counts) and the open form read again; the server stays up, so edited code needs reboot instead
+export async function reloadAll() {
+  await refreshList();
+  const { bid, home } = get();
+  if (bid && !home.on && get().list.some(b => b.id === bid)) { await leaveTab(); await loadMode(); }
+  toast('Reloaded.');
+}
+
 /** The tab's data for the form open, read again; a tab opened meanwhile, or another form, takes over. `fresh`: a form
  *  just opened, which stays on page 1 whatever the tab finds there */
 export async function loadMode(fresh = false) {

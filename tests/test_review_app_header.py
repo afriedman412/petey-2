@@ -184,3 +184,10 @@ def test_the_notes_panel_keeps_its_place():
     """2026-11-03: taking the chat's styles out took the notes panel's with them (it lost its place top right)."""
     css = (SRC / "styles.css").read_text()
     assert "#notes { position:fixed; right:16px; top:96px; width:380px;" in css and "#notesIn {" in css
+
+
+def test_reload_sits_before_reboot_and_rereads_without_a_restart():
+    assert re.findall(r'id="(reload|reboot)"', HEADER) == ["reload", "reboot"]
+    assert "onClick={() => reloadAll()}" in HEADER
+    body = re.search(r"export async function reloadAll\(\) \{(.*?)\n\}", (SRC / "state" / "actions.ts").read_text(), re.S).group(1)
+    assert "refreshList()" in body and "loadMode()" in body and "/api/restart" not in body

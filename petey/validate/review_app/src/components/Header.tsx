@@ -3,11 +3,11 @@ import { useEffect, useState } from 'react';
 import type { Entry, ModeId } from '../lib/types';
 import { store } from '../lib/util';
 import { mapi, send } from '../lib/api';
-import { discardDraft, loadMode, openBlueprint, reboot, saveDraft, setMode, showHome, toast, updateEntry } from '../state/actions';
+import { discardDraft, loadMode, openBlueprint, reboot, reloadAll, saveDraft, setMode, showHome, toast, updateEntry } from '../state/actions';
 import { set, useApp, useEntry } from '../state/app';
 import { reviewActions, useHeaderCounts } from '../modes/review/store';
 import { runFinders } from '../modes/blocks/actions';
-import { SECTIONS, sectionOf, statusOf } from './home-data';
+import { SECTIONS, sectionName, sectionOf, statusOf } from './home-data';
 
 function pickerText(b: Entry) {
   // short (Andrew, 2026-10-13: the long rows widened the menu and pushed the header buttons onto a second line):
@@ -38,7 +38,7 @@ function Picker() {
     <select id="pick" value={bid || ''} onChange={e => openBlueprint(e.target.value)}>
       <option value="">pick a blueprint…</option>
       {groups.map(({ src, items }) => (
-        <optgroup key={src} label={`${SECTIONS[src]} (${items.filter(x => x.checked?.validated).length} of ${items.length} validated)`}>
+        <optgroup key={src} label={`${sectionName(src, items)} (${items.filter(x => x.checked?.validated).length} of ${items.length} validated)`}>
           {items.map(b => <option key={b.id} value={b.id}>{pickerText(b)}</option>)}
         </optgroup>
       ))}
@@ -115,6 +115,8 @@ export function Header() {
         onClick={() => bid && toggleIgnored(bid, entry?.ignored)}>{entry?.ignored ? 'ignored' : 'ignore'}</button>
       <button className={'btn' + (entry?.note ? ' has' : '')} id="notesBtn" title="your notes on this form (saved as you type, shown on the home page)"
         onClick={() => set({ notesOpen: !notesOpen })}>{entry?.note ? 'notes •' : 'notes'}</button>
+      <button className="btn" id="reload" title="read the form list (the review queue, statuses, counts) and this form again, without restarting the server"
+        onClick={() => reloadAll()}>reload</button>
       <button className="btn" id="reboot" disabled={!!rebootLabel} title="restart the server so edited code loads (and this page, built again), then reload this page"
         onClick={() => reboot(setRebootLabel)}>{rebootLabel || 'reboot'}</button>
       <button className="btn" id="helpBtn" title="keyboard shortcuts and how this mode works"
@@ -188,7 +190,6 @@ function FormTools({ bid }: { bid: string | null }) {
     </span>
   );
 }
-
 
 async function toggleIgnored(bid: string, now?: Entry['ignored']) {
   let body;

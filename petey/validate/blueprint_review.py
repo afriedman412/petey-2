@@ -825,8 +825,11 @@ class App:
         self.refresh()
         # the top section's list is read fresh: a row is re-read only when its blueprint changes, and focus.json
         # changes on its own (2026-10-14: a new batch put at the top did not show)
-        focus = hand_review._focus().get("forms") or {}
-        return [dict(self.entry(bid), focus=focus.get(bid)) for bid in self.paths]
+        fj = hand_review._focus()
+        focus, why = fj.get("forms") or {}, fj.get("why")
+        # the queue's own description names its section (2026-11-03: a batch is not always name-check flags)
+        return [dict(self.entry(bid), focus=focus.get(bid), **({"focus_why": why} if bid in focus and why else {}))
+                for bid in self.paths]
 
     def page_png(self, bid: str, page: int) -> Optional[bytes]:
         key = (bid, page)

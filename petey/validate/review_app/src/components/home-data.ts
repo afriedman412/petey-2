@@ -3,14 +3,19 @@ import type { Entry } from '../lib/types';
 
 // the benchmark forms first (Andrew, 2026-10-27: "promote the 'passed the business cut' forms to their own section, at the top")
 export const SECTIONS: Record<string, string> = {
-  bm: 'flat-structure benchmark (passed the business cut)', mg: 'hand-picked forms (source_pdfs/manual_grabs)', fin: 'finance forms (scraped 2026-10-29)', pv: 'private-sector forms', focus: 'name-check follow-up (flags to confirm)', t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4',
+  bm: 'flat-structure benchmark (passed the business cut)', mg: 'hand-picked forms (source_pdfs/manual_grabs)', fin: 'finance forms (scraped 2026-10-29)', pv: 'private-sector forms', nov3: 'added 2026-11-03 evening (hand-picked + big publishers)', focus: 'name-check follow-up (flags to confirm)', t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4',
   rerun: 'fresh runs of library forms (new code)', lib: 'library', je: 'judge-eval side copies', rl: 'relabels', fl: 'flat forms',
 };
 export const SECTION_SHORT: Record<string, string> = {
   focus: 'review queue', t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4', rerun: 'fresh run',
-  lib: 'library', je: 'side copy', rl: 'relabel', fl: 'flat', bm: 'benchmark', mg: 'hand-picked', fin: 'finance', pv: 'private',
+  lib: 'library', je: 'side copy', rl: 'relabel', fl: 'flat', bm: 'benchmark', mg: 'hand-picked', fin: 'finance', pv: 'private', nov3: 'Nov 3',
 };
 export const sectionOf = (x: Entry): string => x.focus != null ? 'focus' : x.launch ? 't' + x.launch : x.rerun ? 'rerun' : (x.source || '');
+// a section's name in the menus; the review queue's is its batch's description when focus.json gives one (2026-11-03)
+export const sectionName = (k: string, list: Entry[]): string => {
+  const why = k === 'focus' ? list.find(b => b.focus != null && b.focus_why)?.focus_why : undefined;
+  return why ? `review queue: ${why}` : SECTIONS[k];
+};
 export const SECTION_ORDER: Record<string, number> = Object.fromEntries(Object.keys(SECTIONS).map((k, i) => [k, i]));
 
 // one status per form (Andrew, 2026-11-03: "we only need 3 statuses: validated, structure validated and generated"):

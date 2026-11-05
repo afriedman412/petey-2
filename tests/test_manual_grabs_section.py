@@ -25,3 +25,20 @@ def test_private_section_is_a_source_and_a_benchmark_set():
     import benchmark_key as K
     assert h.SOURCES["pv"].parts[-2:] == ("private", "blueprints")
     assert K._set_of("pv__pb_0123456789ab", set(), set()) == "private"
+
+
+def test_nov3_section_keeps_each_forms_benchmark_set(monkeypatch):
+    # Andrew, 2026-11-04: "can you put all the forms added last night (11/3 pm) in one section"
+    import benchmark_key as K
+    assert h.SOURCES["nov3"].parts[-2:] == ("nov3", "blueprints")
+    monkeypatch.setattr(K._manual_ids, "ids", {"0123456789ab"}, raising=False)
+    assert K._set_of("nov3__pb_0123456789ab", set(), set()) == "hand-picked"
+    assert K._set_of("nov3__pb_ba9876543210", set(), set()) == "big publishers"
+
+
+def test_signature_sweep_names_nov3_forms():
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "acquisition"))
+    import add_signature_fields as A
+    assert A.review_id(Path("runs/nov3/blueprints/pb_0123456789ab.bpt")) == "nov3__pb_0123456789ab"

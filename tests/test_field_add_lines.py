@@ -123,7 +123,7 @@ def test_a_box_drawn_over_a_suggestion_set_aside_is_the_area_drawn(tmp_path, mon
     ctx.boxes = [{"id": 7, "sid": "b7", "page": 1, "rect": [100, 600, 300, 614], "kind": "text", "claimed_by": None}]
     draw = [90, 590, 320, 620]
     (p,) = field_add.propose(ctx, 1, rect=draw)["proposals"]
-    assert p["rect"] == [100, 600, 300, 614]                          # the suggestion, as before
+    assert p["rect"] == [90.0, 590.0, 320.0, 620.0]                    # the area drawn (2026-11-03: never the suggestion)
     (p,) = field_add.propose(ctx, 1, rect=draw, dismissed={"b7"})["proposals"]
     assert p["rect"] == [90.0, 590.0, 320.0, 620.0] and p["geometry"] == "selection"
     (tmp_path / "rec").mkdir()

@@ -5,7 +5,7 @@ import type { Entry } from '../lib/types';
 import { openBlueprint } from '../state/actions';
 import { setHome, useApp } from '../state/app';
 import {
-  findDups, HIDE, homeMatch, SECTION_ORDER, SECTION_SHORT, SECTIONS, sectionOf, SHOW, STATUS_ORDER, statusOf, type Dups,
+  findDups, HIDE, homeMatch, SECTION_ORDER, SECTION_SHORT, SECTIONS, sectionName, sectionOf, SHOW, STATUS_ORDER, statusOf, type Dups,
 } from './home-data';
 import { StatusIcons } from './StatusIcons';
 
@@ -38,6 +38,8 @@ const cols = (dups: Dups): Col[] => [
   { k: 'copy', head: 'unsaved', sort: b => b.draft ? b.draft.changes : -1,
     cell: b => b.draft ? <span className="pill copy" title={'working copy made ' + b.draft.made}>{b.draft.changes} change{b.draft.changes === 1 ? '' : 's'}</span> : '',
     tip: 'a working copy with changes not saved into the blueprint yet' },
+  // Andrew, 2026-11-04: "can you also add an 'added' date to the index"
+  { k: 'added', head: 'added', sort: b => b.added || '', cell: b => b.added || dim(), tip: 'the day the form came into the library: downloaded (scraped and hand-picked forms), first committed (library), else the file was made' },
   { k: 'made', head: 'made', sort: b => b.age?.when || '', cell: b => <span title={b.age?.by || ''}>{b.age?.when || '—'}</span>, tip: 'when and by what the blueprint was made' },
   { k: 'notes', head: 'notes', sort: b => b.note?.text || '~', cell: b => b.note ? <span title={b.note.text + '\n\n' + b.note.updated}>{b.note.text.split('\n')[0]}</span> : '', tip: 'your note on the form' },
   { k: 'touched', head: 'last review', sort: b => b.touched || '', cell: b => b.touched ? b.touched.slice(0, 16) : dim(), tip: 'the last verdict or note' },
@@ -76,7 +78,7 @@ export function Home() {
           onKeyDown={e => { if (e.key === 'Escape') q.current?.blur(); else if (e.key === 'Enter' && rows.length === 1) openBlueprint(rows[0].id); }} />
         <select id="hsec" value={H.section} onChange={e => setHome({ section: e.target.value })}>
           <option value="">all sections</option>
-          {secs.map(k => <option key={k} value={k}>{SECTIONS[k]} ({list.filter(b => sectionOf(b) === k).length})</option>)}
+          {secs.map(k => <option key={k} value={k}>{sectionName(k, list)} ({list.filter(b => sectionOf(b) === k).length})</option>)}
         </select>
         <select id="hdom" value={H.domain == null ? '*' : H.domain} onChange={e => setHome({ domain: e.target.value === '*' ? null : e.target.value })}>
           <option value="*">all domains</option>

@@ -26,10 +26,13 @@ export interface Entry {
   // the whole form set aside, with a reason (the header's "ignore", 2026-11-03; ignored_forms.py)
   ignored?: { reason: string; when: string } | null;
   age?: { when?: string; by?: string } | null;
+  /** the day the form came into the library (download date, first commit, or the file's creation) */
+  added?: string | null;
   check_errors?: number | null;
   check_suggestions?: number | null;
   page_check_flags?: number | null;
   focus?: number | null;
+  focus_why?: string | null;
   launch?: number | string | null;
   rerun?: boolean | null;
   source?: string;

@@ -137,6 +137,10 @@ SOURCES = {"lib": BLUEPRINTS, "je": RUNS / "judge_eval" / "blueprints", "rl": RU
            # private-sector forms (Andrew, 2026-11-02: "can you create a new section called 'private' in the review
            # app?"): the benchmark is about 78% government pages, and the goal is government at most 60-65%
            "pv": RUNS / "private" / "blueprints",
+           # the forms added the evening of 2026-11-03 in one section (Andrew, 2026-11-04: "can you put all the forms
+           # added last night (11/3 pm) in one section"): 26 hand-picked (source_pdfs/manual_dl_110326) and 129 big
+           # publishers', moved from mg / bm; later stagings go to their usual sections
+           "nov3": RUNS / "nov3" / "blueprints",
            # the library before the naming standard's renames, kept to check against (Andrew, 2026-10-24: "let's keep
            # the old copies around so I can do a little more validation against old versions before we let them slide")
            "old": RUNS / "naming_2026-10-24" / "before"}
@@ -465,6 +469,20 @@ def age(p: Path, bp: dict, here: dict[str, dict], origin: dict[str, dict]) -> di
             "finder_current": finder == FINDER_LABEL if finder else None}
 
 
+def added(p: Path, bp: dict, here: dict[str, dict]) -> Optional[str]:
+    """The day the form came into the library (Andrew, 2026-11-04: "can you also add an 'added' date to the index"):
+    the download date a scraped or hand-picked form records, else the library file's first commit, else the file's
+    creation (kept through saves). Day only: the downloads record no time."""
+    d = (bp.get("x_petey_source") or {}).get("date")
+    if d:
+        return str(d)[:10]
+    g = here.get(p.name) if p.parent.resolve() == BLUEPRINTS.resolve() else None
+    if g and g.get("first"):
+        return g["first"][:10]
+    st = p.stat()
+    return time.strftime("%Y-%m-%d", time.localtime(getattr(st, "st_birthtime", st.st_mtime)))
+
+
 def _commits(path: Path, cwd: Path) -> list[dict]:
     log = _git("log", "--follow", "--format=%h|%ad|%an|%s", "--date=format:%Y-%m-%d %H:%M", "--", str(path), cwd=cwd)
     return [dict(zip(("commit", "when", "who", "subject"), r.split("|", 3))) for r in log.splitlines()]
@@ -530,6 +548,7 @@ class State:
                 "new_fields": new_to_check(v, p, bp),
                 "finder": (bp.get("x_petey_build") or {}).get("finder"),
                 "age": age(real, bp, self._git_here, self._git_origin),
+                "added": added(real, bp, self._git_here),
                 # a library form run again through the current code (scripts/run_form.sh, form_run.py): the picker
                 # lists these first, with the page check's count and whether the loop stopped on its own
                 "rerun": bid.startswith("je__") and (BLUEPRINTS / f"{p.stem}.bpt").exists(),
