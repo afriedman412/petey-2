@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from petey.validate import page_sweeps as ps
+from petey_review import page_sweeps as ps
 from petey_dataset import ignored_pages
 
 

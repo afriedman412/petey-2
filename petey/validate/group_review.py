@@ -1042,7 +1042,7 @@ def main() -> int:
         for e in pl["errors"]:
             print(f"  ERROR {e}")
         return 0
-    print("the review page serves this tab: PYTHONPATH=. venv/bin/python -m petey.validate.blueprint_review")
+    print("the review page serves this tab: PYTHONPATH=. venv/bin/python -m petey_review.blueprint_review")
     return 2
 
 

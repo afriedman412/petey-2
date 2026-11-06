@@ -1,4 +1,4 @@
-"""Review records (petey/validate/hand_review.py): the review server saves verdicts on threads; saves read, change
+"""Review records (petey_review/hand_review.py): the review server saves verdicts on threads; saves read, change
 and write a record under one lock and write it whole. 2026-10-19: two saves of je__cra_t2 in one second wrote over
 each other and left the record unreadable; the server would not start on it."""
 import json
@@ -7,7 +7,7 @@ import threading
 import pytest
 import yaml
 
-from petey.validate import hand_review as H
+from petey_review import hand_review as H
 from petey_dataset import verdicts as DV
 
 
@@ -50,7 +50,7 @@ def test_clearing_a_verdict(state):
 def test_reset_clears_every_verdict_and_keeps_the_record(tmp_path, monkeypatch):
     """Andrew (2026-10-22): "a button to reset validations? (and a 'are you sure?' screen)"."""
     import json
-    from petey.validate import hand_review as h
+    from petey_review import hand_review as h
     monkeypatch.setattr(DV, "OUT", tmp_path)
     assert h.reset_verdicts("t__x") == {"cleared": 0, "backup": None}
     h.verdict_path("t__x").write_text(json.dumps({"verdicts": {"a": {"verdict": "accept"}, "b": {"verdict": "flag"}}}))

@@ -55,7 +55,7 @@ import cell_groups as cg  # noqa: E402
 from petey.validate import grid_naming  # noqa: E402
 import petey_dataset as D
 from petey.validate import edits
-from petey.validate import hand_review as h
+import petey_dataset as h
 import yes_no_groups as yn  # noqa: E402
 
 from petey.semantic_types import pattern_for, registered_names  # noqa: E402

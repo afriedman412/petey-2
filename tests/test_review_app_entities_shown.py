@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from petey.validate import blueprint_review as br
+from petey_review import blueprint_review as br
 from petey.validate import group_review as gr
 from tests.test_review_app_block_names import _blocks
 from tests.test_review_app_typing import CHROME, ENTRY, PNG, PW, REVIEW, RUN as TYPING

@@ -1,9 +1,9 @@
-"""The React review page (petey/validate/review_app, Andrew 2026-10-26: "let's build the current app in react"): the
+"""The React review page (petey_review/review_app, Andrew 2026-10-26: "let's build the current app in react"): the
 server builds it when its code changed since the last build and serves it at /next/ beside the old page."""
 import os
 import time
 
-from petey.validate import blueprint_review as br
+from petey_review import blueprint_review as br
 
 
 def _app(tmp_path):
@@ -76,5 +76,5 @@ def test_old_page_at_root_while_react_is_not_built(tmp_path):
 
 def test_benchmark_forms_are_their_own_source():
     # Andrew, 2026-10-27: "can you load the benchmark pdfs under a new section in the review app?"
-    from petey.validate import hand_review
+    from petey_review import hand_review
     assert hand_review.SOURCES["bm"].parts[-2:] == ("benchmark", "blueprints")

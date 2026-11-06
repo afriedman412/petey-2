@@ -38,5 +38,5 @@ from petey_dataset.blueprints import (  # noqa: E402,F401
     FIELD_TYPES, PRINTED_CANDIDATES, PRINTED_TAG, SOURCES, blueprint_paths, is_printed, is_text, launch_tiers, load, page_sizes, printed_record, resolve_blank,
     reviewable, sha, split_values, stale, warm_parsed, widgets, working, working_path)
 from petey_dataset.verdicts import (  # noqa: E402,F401
-    LOCK, checked, load_verdicts, new_to_check, reset_verdicts, stamp_structure, structure, structure_ok,
+    FORM_NOTES, LOCK, checked, form_notes, load_verdicts, set_form_note, new_to_check, reset_verdicts, stamp_structure, structure, structure_ok,
     unstamp_structure, verdict_path, write_verdicts)

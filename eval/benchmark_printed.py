@@ -26,10 +26,12 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT))
-KEY = ROOT / "runs" / "benchmark" / "key"
-OUT = ROOT / "runs" / "benchmark" / "printed" / "candidates.json"
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import petey_dataset as D  # noqa: E402
+
+ROOT = D.ROOT                      # the dataset; `originals()` also wants acquisition/ beside it (the scrape records)
+KEY = D.KEY
+OUT = D.PRINTED_CANDIDATES
 
 PRINT = (r"print(ed)?\s*(full\s*)?names?|names?\s*\(?\s*(print|printed)|(type|typed)\s*(or|/)\s*print(ed)?"
          r"|print\s*(or|/)\s*type|initials|initial\s+here")
@@ -116,7 +118,6 @@ def originals() -> dict[str, Path]:
 
 def draft(key_dir: Path = KEY) -> dict[str, dict[str, list[str]]]:
     import pymupdf
-    import petey_dataset as D
     paths, orig = D.blueprint_paths(), originals()
     out: dict[str, dict[str, list[str]]] = {}
     forms: dict[str, tuple] = {}

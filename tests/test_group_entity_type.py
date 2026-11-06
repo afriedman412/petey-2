@@ -99,7 +99,7 @@ def test_the_menu_offers_only_the_types_in_use():
     name, other"; "I just meant from the menu options": the server still reads every type."""
     import re
     from pathlib import Path
-    src = (Path(__file__).resolve().parents[1] / "petey/validate/review_app/src/modes/groups/store.ts").read_text()
+    src = (Path(__file__).resolve().parents[1] / "petey_review/review_app/src/modes/groups/store.ts").read_text()
     menu = re.search(r"export const ENTITY_TYPES: \[string, string\]\[\] = \[(.*?)\];", src, re.S).group(1)
     assert re.findall(r"\['(\w+)',", menu) == ["date", "phone", "id_number"]
     assert "money" in gr.ENTITY_TYPES and "other" in gr.ENTITY_TYPES

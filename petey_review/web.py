@@ -1,9 +1,9 @@
 """Petey web app: drop filled PDFs, get their data. The form is detected (`petey.detect`), its library blueprint
 read, and the fields extracted (`petey.extract`); no model, no API keys, no blueprint to pick.
 
-    PYTHONPATH=. venv/bin/python -m petey.web [--port 5010] [--no-open]
+    PYTHONPATH=. venv/bin/python -m petey_review.web [--port 5010] [--no-open]
 
-The blueprint review server (`petey.validate.blueprint_review`) serves it too, at /extract; both route through
+The blueprint review server (`petey_review.blueprint_review`) serves it too, at /extract; both route through
 `route`, so the page and its API (/extract/api/...) are the same on either server.
 
 Replaces the petey-master web app (petey-web), which built a blueprint per upload and sent the text to an LLM.

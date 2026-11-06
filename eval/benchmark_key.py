@@ -60,12 +60,12 @@ import json
 import sys
 from pathlib import Path
 from typing import Optional
+
 import petey_dataset as D
 
-ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "runs" / "benchmark" / "key"
-DEV_OUT = ROOT / "runs" / "benchmark" / "dev_key"
-PICKS = ROOT / "runs" / "benchmark" / "picks.json"
+OUT = D.KEY
+DEV_OUT = D.DEV_KEY
+PICKS = D.PICKS
 PER_FORM = 2
 SPARE_MIN = 10
 CHOICE = ("checkbox", "radiobutton")
@@ -74,7 +74,7 @@ CHOICE = ("checkbox", "radiobutton")
 def _manual_ids() -> set:
     """The hand-picked forms' ids in the publishers' download list (sector "manual")."""
     if not hasattr(_manual_ids, "ids"):
-        f = ROOT / "runs" / "acquisition" / "publishers" / "fetched.jsonl"
+        f = D.RUNS / "acquisition" / "publishers" / "fetched.jsonl"
         _manual_ids.ids = {r["url_id"] for r in map(json.loads, f.open()) if r.get("sector") == "manual"} if f.exists() else set()
     return _manual_ids.ids
 
@@ -243,7 +243,7 @@ def page_keys(bp: dict, entities: list[dict] = ()) -> dict[int, dict]:
 
 def candidates() -> list[tuple[str, str]]:
     """[(review id, set)] of the forms in the benchmark's sets."""
-    R = ROOT / "runs" / "acquisition" / "safedocs"
+    R = D.RUNS / "acquisition" / "safedocs"
     business = {f["review_id"] for f in json.loads((R / "business_set.json").read_text())["forms"]} \
         if (R / "business_set.json").exists() else set()
     gov = {"bm__sd_" + json.loads(ln)["url_id"] for ln in (R / "staged_gov.jsonl").read_text().splitlines() if ln} \

@@ -29,7 +29,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from petey.validate import grid_naming as G  # noqa: E402
 import petey_dataset as D
-from petey.validate import hand_review as h
+from petey_review import hand_review as h
 
 from petey.validate import grid_check as gc  # noqa: E402
 

@@ -68,7 +68,7 @@ guni:
 .PHONY: review
 
 review:
-	PYTHONPATH=. $(PYTHON) -m petey.validate.blueprint_review
+	PYTHONPATH=. $(PYTHON) -m petey_review.blueprint_review
 
 .PHONY: hooks
 

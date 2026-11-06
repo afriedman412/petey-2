@@ -3,7 +3,8 @@ and the petey package, which the app imports wholesale and which replaces petey 
 
 - the benchmark runner (the key builder, the scorer, the printed pass) reads the dataset through `petey_dataset` and
   never imports the petey package, so it can judge any method's predictions on its own;
-- the petey package never imports the web app (the review server and its page, hand_review, the page's own helpers);
+- the petey package never imports the web app (`petey_review`: the review server and its page, hand_review, the page's
+  own helpers, the extraction page);
 - `petey_dataset` imports nothing from petey.
 """
 import ast
@@ -12,8 +13,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-APP = {"petey.web", "petey.validate.blueprint_review", "petey.validate.hand_review", "petey.validate.form_tools",
-       "petey.validate.light_misses", "petey.validate.page_sweeps", "petey.validate.run_audit"}
+APP = {"petey_review"}
 RUNNER = ["benchmark_key", "benchmark_score", "benchmark_printed"]
 
 
@@ -39,7 +39,7 @@ def _imports(p: Path):
 
 
 def test_the_package_never_imports_the_app():
-    crossings = [(name, m) for name, p in _modules("petey") if name not in APP
+    crossings = [(name, m) for name, p in _modules("petey")
                  for m in _imports(p) if m in APP or any(m.startswith(a + ".") for a in APP)]
     assert crossings == []
 

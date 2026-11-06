@@ -8,7 +8,7 @@ import yaml
 from petey.validate import draft
 from petey.validate import grid_check as gc
 from petey.validate import group_review as G
-from petey.validate import hand_review as H
+from petey_review import hand_review as H
 from petey.validate import same_pages as S
 import petey_dataset
 from petey_dataset import verdicts as DV

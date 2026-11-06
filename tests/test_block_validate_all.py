@@ -3,7 +3,8 @@ is there (lib__i864 BT1-2, lib__i9 BT4-2, 2026-10-27: a block whose first positi
 (drawn again since?)")."""
 from types import SimpleNamespace
 
-from petey.validate import block_types, blueprint_review as br, grid_check, hand_review
+from petey.validate import block_types, grid_check
+from petey_review import blueprint_review as br, hand_review
 
 
 def test_validate_all_names_a_block_by_its_first_box_there(monkeypatch):

@@ -2,7 +2,7 @@
 drawn apart (Andrew, 2026-10-27)."""
 import pymupdf
 
-from petey.validate.hand_review import page_sizes
+from petey_review.hand_review import page_sizes
 
 
 def test_every_page_with_its_field_count(tmp_path):

@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from petey.validate import blueprint_review as br
+from petey_review import blueprint_review as br
 from tests.test_review_app_fixes import PAGES, RUN as FIXES, _entry
 from tests.test_review_app_typing import CHROME, PNG, PW
 

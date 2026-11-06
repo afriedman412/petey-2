@@ -9,10 +9,10 @@ page and zoom (and a read-only audit):
     Audit        read only: each version of the form (library copy, fresh run) with its numbers per page, and the
                  run history (generation, runs, checks, review); a batch table of the forms at the top   (`run_audit`)
 
-    PYTHONPATH=. venv/bin/python -m petey.validate.blueprint_review [--port 5005] [--mode review|groups|add]
+    PYTHONPATH=. venv/bin/python -m petey_review.blueprint_review [--port 5005] [--mode review|groups|add]
 
 Each mode's logic, record and command line stay in its own module; this file serves the one page and routes to
-them. The old entry points (`python -m petey.validate.hand_review`, `group_review`, `field_add` with no subcommand)
+them. The old entry points (`python -m petey_review.hand_review`, `group_review`, `field_add` with no subcommand)
 open this page in their mode.
 
 One working copy (2026-10-13, Andrew: "everything should be reading from the same source"): the page's first change
@@ -42,8 +42,9 @@ from urllib.parse import unquote, urlparse
 
 import pymupdf
 
-from petey import web
-from petey.validate import draft, field_add, group_review, hand_review, page_sweeps, printed_fields, run_audit, same_pages
+from petey_review import web
+from petey.validate import draft, field_add, group_review, printed_fields, same_pages
+from petey_review import hand_review, page_sweeps, run_audit
 from petey_dataset import ignored_forms, ignored_pages
 from petey.validate.retype import resolve_blank
 
@@ -480,7 +481,7 @@ def overlay(bp: dict, bid: str, verdicts: dict) -> dict:
             entities.append({"name": u["name"], "entity_type": u.get("entity_type"), "page": rs[0]["page"],
                              "fields": u["items"], "rects": rs})
     # what the light path missed on this form's tuning-set pages and the junk it kept (2026-11-04), None elsewhere
-    from petey.validate import light_misses
+    from petey_review import light_misses
     return {"fields": fields, "grids": grids, "blocks": blocks, "entities": entities,
             "light": light_misses.for_form(bid)}
 
@@ -604,7 +605,7 @@ class App:
     def tool_add(self, bid: str, which: str) -> dict:
         """The header menu's "split multi-line boxes" / "add signatures" (2026-11-04, `form_tools`): the proposals
         added to Add / remove's record and applied into the working copy, like a card accepted there."""
-        from petey.validate import form_tools
+        from petey_review import form_tools
         bp = hand_review._load(self.working(bid))
         blank = resolve_blank(bp)
         if which == "split":
@@ -621,7 +622,7 @@ class App:
     def tool_rightsize(self, bid: str) -> dict:
         """The header menu's "rightsize checkboxes" (2026-11-05, `form_tools`): every checkbox / radio box made its
         printed box, in the working copy."""
-        from petey.validate import form_tools
+        from petey_review import form_tools
         bp = hand_review._load(self.working(bid))
         changes, notes = form_tools.rightsize_proposals(bp, resolve_blank(bp))
         applied = printed_fields.write(bid, lambda b: form_tools.rightsize(b, changes), "review",
@@ -632,7 +633,7 @@ class App:
     def tool_text_groups(self, bid: str) -> dict:
         """The header menu's "add text groups" (2026-11-04: "I'm fine with sending it to claude"): Claude's text
         groups added to Groups' record as new units and applied into the working copy (`form_tools`)."""
-        from petey.validate import form_tools
+        from petey_review import form_tools
         p = self.open_draft(bid)
         bp = hand_review._load(p)
         units, notes = form_tools.text_group_proposals(bp, resolve_blank(bp), p.stem)
@@ -844,7 +845,7 @@ class App:
         focus, why = fj.get("forms") or {}, fj.get("why")
         # the queue's own description names its section (2026-11-03: a batch is not always name-check flags)
         # the light path's misses / junk on the form's tuning-set pages (2026-11-04), for the filter and its column
-        from petey.validate import light_misses
+        from petey_review import light_misses
         light = light_misses.counts()
         return [dict(self.entry(bid), focus=focus.get(bid), **({"focus_why": why} if bid in focus and why else {}),
                      **({"light": light[bid]} if bid in light else {}))
@@ -932,7 +933,7 @@ def restart() -> None:
     inherited across exec (PEP 446), so the new process binds the port again."""
     time.sleep(0.3)                     # let the handler's reply reach the page first
     sys.stdout.flush()
-    os.execv(sys.executable, [sys.executable, "-m", "petey.validate.blueprint_review",
+    os.execv(sys.executable, [sys.executable, "-m", "petey_review.blueprint_review",
                               "--port", str(SERVED["port"]), "--mode", SERVED["mode"], "--no-open"])
 
 
@@ -970,7 +971,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
         return unquote(urlparse(self.path).path).strip("/").split("/")
 
     def do_GET(self):
-        if web.route(self, "GET"):                       # the extractor (petey.web), at /extract
+        if web.route(self, "GET"):                       # the extractor (petey_review.web), at /extract
             return
         path = unquote(urlparse(self.path).path)
         parts = self._parts()

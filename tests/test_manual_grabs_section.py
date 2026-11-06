@@ -1,6 +1,6 @@
 """Andrew's hand-picked benchmark forms have their own section on the review page (2026-10-28: "can you put them in their
 own section?"): blueprints under runs/manual_grabs/blueprints are listed as mg__<stem>."""
-from petey.validate import hand_review as h
+from petey_review import hand_review as h
 from petey_dataset import blueprints as DB
 
 

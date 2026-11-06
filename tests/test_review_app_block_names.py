@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from petey.validate import blueprint_review as br
+from petey_review import blueprint_review as br
 from tests.test_review_app_typing import CHROME, PNG, PW
 
 PAGES = [{"page": 1, "w_pt": 612, "h_pt": 792}]

@@ -5,10 +5,10 @@ from pathlib import Path
 
 import pymupdf
 
-from petey.validate import form_tools as ft
+from petey_review import form_tools as ft
 from petey_dataset import split_types
 
-SRC = Path(__file__).resolve().parents[1] / "petey" / "validate" / "review_app" / "src"
+SRC = Path(__file__).resolve().parents[1] / "petey_review" / "review_app" / "src"
 
 
 def _pdf(tmp_path, draw) -> Path:
@@ -111,7 +111,7 @@ def test_the_quick_fix_menu_holds_the_five_tools():
                      ("textgroups", "add text groups"), ("rightsize", "rightsize checkboxes")):
         assert f"k: '{k}', label: '{label}'" in header
     assert "mapi('tools', bid, '/' + t.k)" in header
-    server = (Path(__file__).resolve().parents[1] / "petey" / "validate" / "blueprint_review.py").read_text()
+    server = (Path(__file__).resolve().parents[1] / "petey_review" / "blueprint_review.py").read_text()
     assert '("tools", "split"), ("tools", "signatures")' in server and '("tools", "textgroups")' in server
     assert '("tools", "rightsize")' in server
 

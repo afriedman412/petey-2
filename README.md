@@ -27,7 +27,7 @@ blank form ──► label ──► check & repair ──► review ──► b
    supported: the publisher's tooltip, the printed text at the box, a vision classifier, the read-back, and a
    whole-page vision check (`page_check.py`).
 
-4. **Review** (`blueprint_review.py`): a web page that draws every field on the page, sorts fields by how
+4. **Review** (`petey_review/blueprint_review.py`): a web page that draws every field on the page, sorts fields by how
    contested they are, and takes accept / flag / edit, regrouping of options, and adding or removing fields.
    Suggested fixes (a caption, a type, a pattern) apply with one click.
 
@@ -118,8 +118,11 @@ python eval/evaluate.py path/to/fillable_pdfs --tag mybatch
 
 - `petey/`: the package. `extract.py` (extraction), `label/` (labeler, XFA, captions, text-match model),
   `locate/` (field geometry), `synth/` (synthetic cases: page classifier, value bank, filling), `validate/`
-  (the loop, witnesses, checks, review pages). The web app (`validate/blueprint_review.py`, `validate/hand_review.py`,
-  `validate/review_app/`, `web.py` and the page's own helpers) imports the package and nothing imports it back
+  (the loop, witnesses, checks).
+
+- `petey_review/`: the web app. The review server (`blueprint_review.py`) and its React page (`review_app/`),
+  `hand_review.py` (the page's state), the page's own helpers (form tools, page sweeps, light misses, run audit) and
+  the extraction page (`web.py`). Imports the package and `petey_dataset`; nothing imports it back
   (`tests/test_repo_boundaries.py`).
 
 - `petey_dataset/`: how the dataset is read: the sections and their blueprints, a form's working copy, its verdicts and

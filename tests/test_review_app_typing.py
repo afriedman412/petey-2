@@ -1,7 +1,7 @@
 """The React review page keeps what you type (Andrew, 2026-10-26: "the 'edit parts' button in the block window doesn't
 let you type more than a couple letters into the fields"; the reason for the React page): every letter typed into a
 field's part stays, and the tab reading its data again in the middle of the typing (the file changed on disk) leaves
-the box, its text and the cursor where they were. The built page (petey/validate/review_app/dist) runs in headless
+the box, its text and the cursor where they were. The built page (petey_review/review_app/dist) runs in headless
 Chrome against a mocked API. Playwright is not in the project venv: the test runs in ~/.venvs/petey-playwright and is
 skipped where that, Chrome or node is missing."""
 import json
@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from petey.validate import blueprint_review as br
+from petey_review import blueprint_review as br
 
 PW = Path.home() / ".venvs" / "petey-playwright" / "bin" / "python"
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"

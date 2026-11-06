@@ -1,4 +1,4 @@
-"""The cancel button on a grid check (petey/validate/blueprint_review.py, Andrew 2026-10-21: "can the cancel
+"""The cancel button on a grid check (petey_review/blueprint_review.py, Andrew 2026-10-21: "can the cancel
 button cancel the validation query"): nothing written after it, a call to Opus under way given up."""
 import threading
 import time
@@ -6,7 +6,8 @@ import types
 
 import pytest
 
-from petey.validate import blueprint_review as br, grid_check
+from petey.validate import grid_check
+from petey_review import blueprint_review as br
 
 
 def test_until_returns_the_answer():

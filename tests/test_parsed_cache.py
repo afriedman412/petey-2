@@ -5,7 +5,7 @@ import os
 
 import pytest
 
-from petey.validate import hand_review as h
+from petey_review import hand_review as h
 from petey_dataset import blueprints as DB
 
 

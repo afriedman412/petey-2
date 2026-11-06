@@ -3,7 +3,7 @@
 import re
 from pathlib import Path
 
-SRC = Path(__file__).resolve().parents[1] / "petey" / "validate" / "review_app" / "src"
+SRC = Path(__file__).resolve().parents[1] / "petey_review" / "review_app" / "src"
 HEADER = (SRC / "components" / "Header.tsx").read_text()
 
 

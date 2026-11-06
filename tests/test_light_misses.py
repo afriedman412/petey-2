@@ -1,11 +1,11 @@
 """The review page's light misses / junk layers (2026-11-04): each missed key field's cause (eval/light_misses.py) and
-the reader the overlay uses (petey/validate/light_misses.py)."""
+the reader the overlay uses (petey_review/light_misses.py)."""
 import json
 import os
 
 import light_misses as LM
 
-from petey.validate import light_misses as R
+from petey_review import light_misses as R
 
 KEY = [{"id": "a", "rect": [100, 100, 300, 112], "kind": "text"},      # found
        {"id": "b", "rect": [100, 200, 300, 212], "kind": "text"},      # no finder box

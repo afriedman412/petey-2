@@ -2,7 +2,7 @@
 as well"): a name changed by a path that sends no parts gets parts read from it, printing exactly that name; a number
 inside a name read alone stays with the subject (line_29_covered_all_12_months_ind: not block 12)."""
 from petey import naming
-from petey.validate import hand_review as h
+from petey_review import hand_review as h
 
 
 def test_parts_for_prints_the_name_and_keeps_inner_numbers_in_the_subject():

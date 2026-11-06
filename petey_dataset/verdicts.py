@@ -117,3 +117,30 @@ def new_to_check(v: dict, p: Path, bp: dict) -> Optional[int]:
     vs = v.get("verdicts") or {}
     n = sum(1 for name in reviewable(bp) if not vs.get(name, {}).get("verdict"))
     return n or None
+
+
+FORM_NOTES = OUT / "form_notes.json"
+
+
+def form_notes() -> dict[str, dict]:
+    """{bid: {text, updated}}: Andrew's notes on a whole form (2026-10-15), one file for every form, kept apart from
+    the per-form records so a working copy's discard (which puts those back) leaves them."""
+    try:
+        return json.loads(FORM_NOTES.read_text(encoding="utf-8")) if FORM_NOTES.exists() else {}
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def set_form_note(bid: str, text: str) -> dict:
+    notes = form_notes()
+    text = (text or "").rstrip()
+    if text:
+        notes[bid] = {"text": text, "updated": time.strftime("%Y-%m-%d %H:%M:%S")}
+    else:
+        notes.pop(bid, None)
+    FORM_NOTES.parent.mkdir(parents=True, exist_ok=True)
+    tmp = FORM_NOTES.with_suffix(".tmp")
+    tmp.write_text(json.dumps(notes, indent=1, ensure_ascii=False, sort_keys=True), encoding="utf-8")
+    tmp.replace(FORM_NOTES)
+    return notes.get(bid) or {"text": "", "updated": None}
+

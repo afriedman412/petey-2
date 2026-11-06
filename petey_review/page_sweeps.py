@@ -32,9 +32,9 @@ from typing import Optional
 
 from petey_dataset import ignored_pages
 
-ROOT = Path(__file__).resolve().parents[2]
-KEY = ROOT / "runs" / "benchmark" / "key"
-DIR = ROOT / "runs" / "benchmark" / "sweeps"
+from petey_dataset import BENCHMARK, KEY  # noqa: F401
+
+DIR = BENCHMARK / "sweeps"
 HTML_PATH = Path(__file__).with_name("page_sweeps.html")
 FEW = 9
 SWEEPS = {

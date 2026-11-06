@@ -137,7 +137,7 @@ Every form moves through three stages, in order (Andrew, 2026-10-16). The home p
 - **Taxonomy** (`petey/validate/defect_taxonomy.py`): the named defect classes a residue is sorted into.
 - **Test forms** (`petey/validate/test_forms.py`): the five documents every comparison runs on (tiers `smoke`,
   `core`, `full`). **Development forms**: anything diagnosed on.
-- **Hand review** (`petey/validate/hand_review.py`, a local web page): a person judges a blueprint's fields against
+- **Hand review** (`petey_review/hand_review.py`, a local web page): a person judges a blueprint's fields against
   the rendered blank, accept / flag / a note per field; verdicts in `runs/hand_review/<id>.json` with the
   blueprint's sha and build stamp. The check outside the loop that a promotion rests on.
 - **Page check** (`petey/validate/page_check.py`, 2026-10-05): a vision model does the first pass of hand review,

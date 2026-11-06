@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-from petey.validate import hand_review as H
+from petey_review import hand_review as H
 from petey_dataset import verdicts as DV
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "eval"))

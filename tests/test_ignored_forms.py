@@ -6,7 +6,7 @@ import pytest
 
 from petey_dataset import ignored_forms
 
-SRC = Path(__file__).resolve().parents[1] / "petey" / "validate" / "review_app" / "src"
+SRC = Path(__file__).resolve().parents[1] / "petey_review" / "review_app" / "src"
 
 
 def test_ignore_needs_a_reason_and_can_be_taken_back(tmp_path):

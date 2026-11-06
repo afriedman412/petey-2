@@ -1,7 +1,8 @@
 """What every tab of the review page draws besides its own (blueprint_review.overlay, Andrew 2026-10-22: "add block
 and grid overlays and validated fields to all views, so it's clear what is and isn't already accounted for"), and
 the Grids finder holding back grids that sit in a block type's blocks (in place of the block-group finder)."""
-from petey.validate import block_types as bt, blueprint_review as br, grid_check as gc
+from petey.validate import block_types as bt, grid_check as gc
+from petey_review import blueprint_review as br
 from tests.test_block_types import area, blueprint, use_tmp_records
 
 
@@ -22,7 +23,7 @@ def test_the_overlay_has_accepted_fields_grids_and_blocks(monkeypatch, tmp_path)
 
 def test_the_overlay_carries_the_light_layer(monkeypatch, tmp_path):
     # the light path's misses and junk (2026-11-04): the form's when it has tuning-set pages, None otherwise
-    from petey.validate import light_misses
+    from petey_review import light_misses
     use_tmp_records(monkeypatch, tmp_path)
     bp = blueprint([["child_1_nm"]])
     monkeypatch.setattr(light_misses, "for_form", lambda bid, *a: {"missed": [], "junk": [], "stale": False} if bid == "t0" else None)

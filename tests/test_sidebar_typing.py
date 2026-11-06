@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-PAGE = Path(__file__).resolve().parents[1] / "petey" / "validate" / "blueprint_review.html"
+PAGE = Path(__file__).resolve().parents[1] / "petey_review" / "blueprint_review.html"
 PW = Path.home() / ".venvs" / "petey-playwright" / "bin" / "python"
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 

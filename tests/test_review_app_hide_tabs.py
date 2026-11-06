@@ -4,7 +4,7 @@ ids and block labels "show" draws for the other tabs (.ovl span), which stayed u
 import re
 from pathlib import Path
 
-CSS = Path(__file__).resolve().parents[1] / "petey" / "validate" / "review_app" / "src" / "styles.css"
+CSS = Path(__file__).resolve().parents[1] / "petey_review" / "review_app" / "src" / "styles.css"
 
 
 def _hidden():

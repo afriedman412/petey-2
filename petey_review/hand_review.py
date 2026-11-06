@@ -4,8 +4,8 @@ itself (Andrew, 2026-10-02: a working blueprint is a working blueprint; the prom
 the loop). Adapted from petey-master's `petey-eval/scripts/label_server.py`, which asked a person to type labels;
 this asks them to judge the ones a blueprint already has.
 
-    PYTHONPATH=. venv/bin/python -m petey.validate.hand_review [--port 5005]      # then open http://127.0.0.1:5005/
-    PYTHONPATH=. venv/bin/python -m petey.validate.hand_review --summary          # verdicts so far, per blueprint
+    PYTHONPATH=. venv/bin/python -m petey_review.hand_review [--port 5005]      # then open http://127.0.0.1:5005/
+    PYTHONPATH=. venv/bin/python -m petey_review.hand_review --summary          # verdicts so far, per blueprint
 
 Blueprints offered: the dataset's sections (`petey_dataset.SOURCES`: the library, the judge-eval side copies, the
 benchmark's sections, ...). Verdicts go to `runs/hand_review/<id>.json` (`petey_dataset.verdicts`) with the
@@ -45,7 +45,8 @@ from petey.validate import witness
 from petey_dataset import HAND_REVIEW, blueprints
 from petey_dataset.blueprints import SOURCES, blueprint_paths, page_sizes, resolve_blank, reviewable, sha as _sha, \
     warm_parsed, working_path
-from petey_dataset.verdicts import (LOCK as _VERDICT_LOCK, checked, load_verdicts, new_to_check, reset_verdicts,
+from petey_dataset.verdicts import (FORM_NOTES, LOCK as _VERDICT_LOCK, checked, form_notes, load_verdicts, new_to_check,  # noqa: F401
+                                    reset_verdicts, set_form_note,
                                     stamp_structure, structure, structure_ok, unstamp_structure, verdict_path,
                                     write_verdicts as _write_verdicts)
 
@@ -465,9 +466,6 @@ def claude_suggestions(bid: str) -> dict:
 
 
 _PDF_DIRS: dict[str, str] = {}
-FORM_NOTES = OUT / "form_notes.json"
-
-
 _PASSES: dict = {"mtime": None, "rec": {}}
 
 
@@ -484,28 +482,6 @@ def passes_record() -> dict[str, dict]:
         except (OSError, ValueError):
             return _PASSES["rec"]
     return _PASSES["rec"]
-
-
-def form_notes() -> dict[str, dict]:
-    """{bid: {text, updated}}: Andrew's notes on a whole form (2026-10-15), one file for every form, kept apart from
-    the per-form records so a working copy's discard (which puts those back) leaves them."""
-    try:
-        return json.loads(FORM_NOTES.read_text(encoding="utf-8")) if FORM_NOTES.exists() else {}
-    except (OSError, json.JSONDecodeError):
-        return {}
-
-
-def set_form_note(bid: str, text: str) -> dict:
-    notes = form_notes()
-    text = (text or "").rstrip()
-    if text:
-        notes[bid] = {"text": text, "updated": time.strftime("%Y-%m-%d %H:%M:%S")}
-    else:
-        notes.pop(bid, None)
-    tmp = FORM_NOTES.with_suffix(".tmp")
-    tmp.write_text(json.dumps(notes, indent=1, ensure_ascii=False, sort_keys=True), encoding="utf-8")
-    tmp.replace(FORM_NOTES)
-    return notes.get(bid) or {"text": "", "updated": None}
 
 
 DESC_CACHE = RUNS / "hand_review" / "form_descriptions.json"      # {blank sha: describe()}, kept across restarts
@@ -696,7 +672,7 @@ def main() -> int:
     if args.summary:
         summary()
         return 0
-    from petey.validate.blueprint_review import serve
+    from petey_review.blueprint_review import serve
     return serve(args.port, "review", not args.no_open)
 
 

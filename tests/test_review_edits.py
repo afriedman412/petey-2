@@ -2,7 +2,7 @@
 (money_retype.keep_reason, 2026-10-07): only what differs is kept, and every part is validated."""
 import pytest
 
-from petey.validate.hand_review import clean_edit
+from petey_review.hand_review import clean_edit
 from petey.validate.money_retype import keep_reason
 
 SPEC = {"type": "string", "x_petey_identifiers": {"subject": "parent_first", "suffix": "nm", "iteration": "1"}}

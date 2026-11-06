@@ -2,7 +2,7 @@
 came into the library, from its download date, else the library file's first commit, else the file's creation."""
 import time
 
-from petey.validate import hand_review as h
+from petey_review import hand_review as h
 
 
 def test_download_date_first(tmp_path):

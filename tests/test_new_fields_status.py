@@ -4,7 +4,7 @@ checked through later saves."""
 import pytest
 import yaml
 
-from petey.validate import hand_review as H
+from petey_review import hand_review as H
 from petey_dataset import verdicts as DV
 
 

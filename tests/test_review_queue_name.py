@@ -2,8 +2,8 @@
 gives each queued form focus.json's "why", and no other form."""
 from types import SimpleNamespace
 
-from petey.validate import blueprint_review as br
-from petey.validate import hand_review
+from petey_review import blueprint_review as br
+from petey_review import hand_review
 
 
 def _app(paths):
