@@ -1,5 +1,10 @@
 # Petey
 
+**Split on 2026-11-05 into three repos beside this one:** `petey` (this package, with its history), `petey-dataset`
+(the blueprints, review records and benchmark key, with its runner) and `petey-review` (the review page). Work goes
+there; this checkout is kept for the branches still open on it. Its `runs/`, `source_pdfs/`, `models/` and
+`acquisition/` are symlinks into the new checkouts.
+
 Petey extracts data from filled PDF forms: tax, DMV, immigration, insurance, court and other standardized forms. For
 each form it keeps a **blueprint** (`.bpt`, YAML; spec in `BPT SPEC v1.1.md`) that gives every field's location,
 name, type and validation. Once a form has a blueprint, any filled copy of it can be read with no model at all.
